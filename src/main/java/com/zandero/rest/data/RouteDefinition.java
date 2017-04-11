@@ -22,19 +22,10 @@ public class RouteDefinition {
 
 	private io.vertx.core.http.HttpMethod method;
 
-	/*public RouteDefinition() {
+	public RouteDefinition(Annotation[] annotations) {
 
-		// make sure path always ends with "/"
-		path = StringUtils.trimToNull(root);
-
-		if (path == null) {
-			path = DELIMITER;
-		}
-
-		if (!path.endsWith(DELIMITER)) {
-			path = path + DELIMITER;
-		}
-	}*/
+		init(annotations);
+	}
 
 	public RouteDefinition(RouteDefinition base, Annotation[] annotations) {
 
@@ -46,11 +37,6 @@ public class RouteDefinition {
 		method = base.getMethod();
 
 		// complement / override with additional annotations
-		init(annotations);
-	}
-
-	public RouteDefinition(Annotation[] annotations) {
-
 		init(annotations);
 	}
 
@@ -80,6 +66,8 @@ public class RouteDefinition {
 
 				method(annotation.annotationType().getSimpleName());
 			}
+
+			// ToDo query params ...
 		}
 	}
 
@@ -99,7 +87,7 @@ public class RouteDefinition {
 			subPath = subPath.substring(0, subPath.length() - 1); // remove trailing "/"
 		}
 
-		if (DELIMITER.equals(path)) {
+		if (DELIMITER.equals(path)) { // default
 			path = subPath;
 		}
 		else {

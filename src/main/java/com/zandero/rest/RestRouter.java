@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -26,14 +25,29 @@ public class RestRouter {
 	/**
 	 * Searches for annotations to register routes ...
 	 *
-	 * @param restApi to search
+	 * @param vertx   Vert.X instance
+	 * @param restApi instance to search for annotations
+	 * @return Router new Router with routes as defined in restApi class
 	 */
-	public static <T>  Router register(Vertx vertx, Object restApi) {
+	public static <T> Router register(Vertx vertx, Object restApi) {
 
 		Assert.notNull(vertx, "Missing vertx!");
 		Assert.notNull(restApi, "Missing REST API class object!");
 
 		Router router = Router.router(vertx);
+		return register(router, restApi);
+	}
+
+	/**
+	 * Searches for annotations to register routes ...
+	 *
+	 * @param restApi instance to search for annotations
+	 * @param router  to add additional routes from restApi class
+	 * @return Router with routes as defined in restApi class
+	 */
+	public static <T> Router register(Router router, Object restApi) {
+
+		Assert.notNull(router, "Missing vert.x router!");
 
 		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(restApi.getClass());
 		Iterator<RouteDefinition> iterator = definitions.keySet().iterator();

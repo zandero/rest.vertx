@@ -7,10 +7,10 @@
 
     <artifactId>rest.vertx</artifactId>
     <groupId>com.zandero</groupId>
-    <version>1.0</version>
+    <version>0.1</version>
     <packaging>jar</packaging>
 
-    <name>Zandero</name>
+    <name>Zandero REST Vert.X</name>
     <description>JAX-RS REST annotation processor for vert.x verticals</description>
     <url>http://www.zandero.com</url>
     <inceptionYear>2017</inceptionYear>
@@ -49,14 +49,6 @@
 
         <version.zandero.utils>[1.1,)</version.zandero.utils>
 
-      <!--  &lt;!&ndash; dependency injection &ndash;&gt;
-        <version.guice>4.1.0</version.guice> &lt;!&ndash; for some reason [4.1.0,) is not working &ndash;&gt;
-
-        &lt;!&ndash; REST / servlet ... &ndash;&gt;
-        <version.servlet-api>[3.1.0,)</version.servlet-api>
-        <version.resteasy>[3.1.1.Final,)</version.resteasy>
-        <version.jackson>[2.7.3,)</version.jackson>
--->
         <version.vertx>3.4.1</version.vertx>
         <version.servlet-api>[3.1.0,)</version.servlet-api>
 
@@ -98,32 +90,12 @@
             <version>${version.vertx}</version>
         </dependency>
 
-
-        <!--
-                <dependency>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>javax.servlet-api</artifactId>
-                    <version>${version.servlet-api}</version>
-                </dependency>
-        -->
-
         <!-- https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api -->
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
             <version>2.1-m05</version>
         </dependency>
-
-
-
-        <!--  &lt;!&ndash; RestEasy &ndash;&gt;
-          <dependency>
-              <groupId>org.jboss.resteasy</groupId>
-              <artifactId>resteasy-jaxrs</artifactId>
-              <version>${version.resteasy}</version>
-          </dependency>-->
-
-        <!-- End of RestEasy -->
 
         <!-- LOGGER -->
         <dependency>
@@ -132,65 +104,6 @@
             <version>${version.logback}</version>
         </dependency>
         <!-- END OF LOGGER -->
-
-        <!--  &lt;!&ndash; Dependency injection &ndash;&gt;
-          <dependency>
-              <groupId>com.google.inject</groupId>
-              <artifactId>guice</artifactId>
-              <version>${version.guice}</version>
-          </dependency>
-
-          <dependency>
-              <groupId>com.google.inject.extensions</groupId>
-              <artifactId>guice-servlet</artifactId>
-              <version>${version.guice}</version>
-          </dependency>
-
-          <dependency>
-              <groupId>com.google.inject.extensions</groupId>
-              <artifactId>guice-multibindings</artifactId>
-              <version>${version.guice}</version>
-          </dependency>
-
-          &lt;!&ndash; Jackson &ndash;&gt;
-          <dependency>
-              <groupId>com.fasterxml.jackson.core</groupId>
-              <artifactId>jackson-core</artifactId>
-              <version>${version.jackson}</version>
-          </dependency>
-
-          <dependency>
-              <groupId>com.fasterxml.jackson.core</groupId>
-              <artifactId>jackson-annotations</artifactId>
-              <version>${version.jackson}</version>
-          </dependency>
-
-          <dependency>
-              <groupId>com.fasterxml.jackson.core</groupId>
-              <artifactId>jackson-databind</artifactId>
-              <version>${version.jackson}</version>
-          </dependency>
-
-          <dependency>
-              <groupId>com.fasterxml.jackson.jaxrs</groupId>
-              <artifactId>jackson-jaxrs-json-provider</artifactId>
-              <version>${version.jackson}</version>
-              <scope>test</scope>
-          </dependency>
-
-          <dependency>
-              <groupId>org.jboss.resteasy</groupId>
-              <artifactId>resteasy-jackson2-provider</artifactId>
-              <version>${version.resteasy}</version>
-              <scope>test</scope>
-          </dependency>
-          &lt;!&ndash; End of Jackson &ndash;&gt;
-
-          <dependency>
-              <groupId>javax.servlet</groupId>
-              <artifactId>javax.servlet-api</artifactId>
-              <version>${version.servlet-api}</version>
-          </dependency>-->
 
         <!--Testing stuff bellow-->
         <dependency>
@@ -221,37 +134,6 @@
             <version>${version.mockito-all}</version>
             <scope>test</scope>
         </dependency>
-
-
-        <!-- Server for testing only -->
-      <!--  <dependency>
-            <groupId>com.google.inject.extensions</groupId>
-            <artifactId>guice-assistedinject</artifactId>
-            <version>${version.guice}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-guice</artifactId>
-            <version>${version.resteasy}</version>
-            <scope>test</scope>
-        </dependency>-->
-        <!-- End of Dependency injection -->
-
-       <!-- <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>${version.jetty}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>${version.jetty}</version>
-            <scope>test</scope>
-        </dependency>-->
 
     </dependencies>
 
