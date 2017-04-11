@@ -165,22 +165,22 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-            <plugin>
+         <!--   <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
                 <version>1.6.6</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <!-- for production deployment -->
+                    &lt;!&ndash; for production deployment &ndash;&gt;
                     <serverId>ossrh</serverId>
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <!-- end for production deployment -->
-                    <!-- for local deployment -->
-                    <!-- <serverId>local_deployment</serverId> -->
-                    <!-- end of for local deployment -->
+                    &lt;!&ndash; end for production deployment &ndash;&gt;
+                    &lt;!&ndash; for local deployment &ndash;&gt;
+                    &lt;!&ndash; <serverId>local_deployment</serverId> &ndash;&gt;
+                    &lt;!&ndash; end of for local deployment &ndash;&gt;
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
-            </plugin>
+            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -207,7 +207,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+           <!-- <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>1.6</version>
@@ -223,7 +223,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
 

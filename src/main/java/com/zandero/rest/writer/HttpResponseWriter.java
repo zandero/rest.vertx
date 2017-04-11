@@ -1,0 +1,30 @@
+package com.zandero.rest.writer;
+
+import com.zandero.rest.data.RouteDefinition;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpServerResponse;
+
+import javax.ws.rs.core.MediaType;
+
+/**
+ *
+ */
+public interface HttpResponseWriter {
+
+	void write(Object result, HttpServerResponse response);
+
+	default void addResponseHeaders(RouteDefinition definition, HttpServerResponse response) {
+
+		if (!response.headers().contains(HttpHeaders.CONTENT_TYPE)) {
+
+			if (definition.getProduces() != null) {
+				for (String produces : definition.getProduces()) {
+					response.putHeader(HttpHeaders.CONTENT_TYPE, produces);
+				}
+			}
+			else {
+				response.putHeader(HttpHeaders.CONTENT_TYPE, MediaType.WILDCARD);
+			}
+		}
+	}
+}

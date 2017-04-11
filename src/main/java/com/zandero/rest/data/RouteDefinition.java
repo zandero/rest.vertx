@@ -1,8 +1,13 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.annotation.ResponseWriter;
+import com.zandero.rest.writer.GenericResponseWriter;
+import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
 import io.vertx.core.http.HttpMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import java.lang.annotation.Annotation;
@@ -11,6 +16,8 @@ import java.lang.annotation.Annotation;
  * Holds definition of a route as
  */
 public class RouteDefinition {
+
+	private final static Logger log = LoggerFactory.getLogger(RouteDefinition.class);
 
 	private final String DELIMITER = "/";
 
@@ -21,6 +28,8 @@ public class RouteDefinition {
 	private String[] produces = null;
 
 	private io.vertx.core.http.HttpMethod method;
+
+	private Class<HttpResponseWriter> writer;
 
 	public RouteDefinition(Annotation[] annotations) {
 
@@ -68,6 +77,12 @@ public class RouteDefinition {
 			}
 
 			// ToDo query params ...
+
+			// response writer ...
+			if (annotation instanceof ResponseWriter) {
+
+				writer = ((ResponseWriter) annotation).value();
+			}
 		}
 	}
 
@@ -142,6 +157,11 @@ public class RouteDefinition {
 	public HttpMethod getMethod() {
 
 		return method;
+	}
+
+	public Class<HttpResponseWriter> getWriter() {
+
+		return writer;
 	}
 
 	@Override
