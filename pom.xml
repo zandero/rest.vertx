@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>rest.vertx</artifactId>
+    <groupId>com.zandero</groupId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+
+    <name>Zandero</name>
+    <description>JAX-RS REST annotation processor for vert.x verticals</description>
+    <url>http://www.zandero.com</url>
+    <inceptionYear>2017</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/Zandero/rest.vertx</url>
+        <connection>scm:git:git://github.com/Zandero/rest.vertx.git</connection>
+        <developerConnection>scm:git:git@github.com/Zandero/rest.vertx.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>Andrej Završnik</name>
+            <email>andrej@zavrsnik.si</email>
+            <id>drejc</id>
+        </developer>
+    </developers>
+
+    <properties>
+
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.encoding>UTF-8</project.encoding>
+        <project.build.sourceEncoding>${project.encoding}</project.build.sourceEncoding>
+
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+
+        <version.zandero.utils>[1.1,)</version.zandero.utils>
+
+      <!--  &lt;!&ndash; dependency injection &ndash;&gt;
+        <version.guice>4.1.0</version.guice> &lt;!&ndash; for some reason [4.1.0,) is not working &ndash;&gt;
+
+        &lt;!&ndash; REST / servlet ... &ndash;&gt;
+        <version.servlet-api>[3.1.0,)</version.servlet-api>
+        <version.resteasy>[3.1.1.Final,)</version.resteasy>
+        <version.jackson>[2.7.3,)</version.jackson>
+-->
+        <version.vertx>3.4.1</version.vertx>
+        <version.servlet-api>[3.1.0,)</version.servlet-api>
+
+        <!-- logging -->
+        <version.logback>[1.1.7,)</version.logback>
+
+        <!-- testing -->
+        <version.junit>[4.12,)</version.junit>
+        <version.mockito-all>[1.10.19,)</version.mockito-all>
+        <version.trajano>[2.1.0,)</version.trajano>
+        <version.jetty>[9.3.7.v20160115,)</version.jetty>
+
+    </properties>
+
+    <dependencies>
+
+        <!-- Zandero / internal -->
+        <dependency>
+            <groupId>com.zandero</groupId>
+            <artifactId>utils</artifactId>
+            <version>${version.zandero.utils}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-core</artifactId>
+            <version>${version.vertx}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-web</artifactId>
+            <version>${version.vertx}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-rx-java</artifactId>
+            <version>${version.vertx}</version>
+        </dependency>
+
+
+        <!--
+                <dependency>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                    <version>${version.servlet-api}</version>
+                </dependency>
+        -->
+
+        <!-- https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api -->
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.1-m05</version>
+        </dependency>
+
+
+
+        <!--  &lt;!&ndash; RestEasy &ndash;&gt;
+          <dependency>
+              <groupId>org.jboss.resteasy</groupId>
+              <artifactId>resteasy-jaxrs</artifactId>
+              <version>${version.resteasy}</version>
+          </dependency>-->
+
+        <!-- End of RestEasy -->
+
+        <!-- LOGGER -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${version.logback}</version>
+        </dependency>
+        <!-- END OF LOGGER -->
+
+        <!--  &lt;!&ndash; Dependency injection &ndash;&gt;
+          <dependency>
+              <groupId>com.google.inject</groupId>
+              <artifactId>guice</artifactId>
+              <version>${version.guice}</version>
+          </dependency>
+
+          <dependency>
+              <groupId>com.google.inject.extensions</groupId>
+              <artifactId>guice-servlet</artifactId>
+              <version>${version.guice}</version>
+          </dependency>
+
+          <dependency>
+              <groupId>com.google.inject.extensions</groupId>
+              <artifactId>guice-multibindings</artifactId>
+              <version>${version.guice}</version>
+          </dependency>
+
+          &lt;!&ndash; Jackson &ndash;&gt;
+          <dependency>
+              <groupId>com.fasterxml.jackson.core</groupId>
+              <artifactId>jackson-core</artifactId>
+              <version>${version.jackson}</version>
+          </dependency>
+
+          <dependency>
+              <groupId>com.fasterxml.jackson.core</groupId>
+              <artifactId>jackson-annotations</artifactId>
+              <version>${version.jackson}</version>
+          </dependency>
+
+          <dependency>
+              <groupId>com.fasterxml.jackson.core</groupId>
+              <artifactId>jackson-databind</artifactId>
+              <version>${version.jackson}</version>
+          </dependency>
+
+          <dependency>
+              <groupId>com.fasterxml.jackson.jaxrs</groupId>
+              <artifactId>jackson-jaxrs-json-provider</artifactId>
+              <version>${version.jackson}</version>
+              <scope>test</scope>
+          </dependency>
+
+          <dependency>
+              <groupId>org.jboss.resteasy</groupId>
+              <artifactId>resteasy-jackson2-provider</artifactId>
+              <version>${version.resteasy}</version>
+              <scope>test</scope>
+          </dependency>
+          &lt;!&ndash; End of Jackson &ndash;&gt;
+
+          <dependency>
+              <groupId>javax.servlet</groupId>
+              <artifactId>javax.servlet-api</artifactId>
+              <version>${version.servlet-api}</version>
+          </dependency>-->
+
+        <!--Testing stuff bellow-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${version.junit}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-unit</artifactId>
+            <version>${version.vertx}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.trajano.commons</groupId>
+            <artifactId>commons-testing</artifactId>
+            <version>${version.trajano}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Mockito for mocking stuff-->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${version.mockito-all}</version>
+            <scope>test</scope>
+        </dependency>
+
+
+        <!-- Server for testing only -->
+      <!--  <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-assistedinject</artifactId>
+            <version>${version.guice}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-guice</artifactId>
+            <version>${version.resteasy}</version>
+            <scope>test</scope>
+        </dependency>-->
+        <!-- End of Dependency injection -->
+
+       <!-- <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${version.jetty}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>${version.jetty}</version>
+            <scope>test</scope>
+        </dependency>-->
+
+    </dependencies>
+
+
+    <distributionManagement>
+        <!-- Repository for snapshots -->
+        <!--<snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+-->
+        <!-- Repository for releases -->
+        <repository>
+            <id>nexus-releases</id>
+            <name>Nexus Release Repository</name>
+            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.6</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <!-- for production deployment -->
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <!-- end for production deployment -->
+                    <!-- for local deployment -->
+                    <!-- <serverId>local_deployment</serverId> -->
+                    <!-- end of for local deployment -->
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <keyname>Zandero</keyname>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
