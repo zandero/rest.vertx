@@ -1,7 +1,7 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.ResponseWriter;
-import com.zandero.rest.writer.GenericResponseWriter;
 import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
@@ -13,7 +13,7 @@ import javax.ws.rs.*;
 import java.lang.annotation.Annotation;
 
 /**
- * Holds definition of a route as
+ * Holds definition of a route as defined with annotations
  */
 public class RouteDefinition {
 
@@ -29,11 +29,16 @@ public class RouteDefinition {
 
 	private io.vertx.core.http.HttpMethod method;
 
-	private Class<HttpResponseWriter> writer;
+	private Class<? extends HttpResponseWriter> writer;
 
-	public RouteDefinition(Annotation[] annotations) {
+	public RouteDefinition(Class clazz) {
 
-		init(annotations);
+		Class annotatedClass = AnnotationProcessor.getClassWithAnnotation(clazz, Path.class);
+		if (annotatedClass == null) {
+			annotatedClass = clazz;
+		}
+
+		init(annotatedClass.getAnnotations());
 	}
 
 	public RouteDefinition(RouteDefinition base, Annotation[] annotations) {
@@ -64,6 +69,10 @@ public class RouteDefinition {
 
 			if (annotation instanceof Consumes) {
 				consumes(((Consumes) annotation).value());
+			}
+
+			if (annotation instanceof javax.ws.rs.HttpMethod) {
+				method(((javax.ws.rs.HttpMethod) annotation).value());
 			}
 
 			if (annotation instanceof GET ||
@@ -159,7 +168,7 @@ public class RouteDefinition {
 		return method;
 	}
 
-	public Class<HttpResponseWriter> getWriter() {
+	public Class<? extends HttpResponseWriter> getWriter() {
 
 		return writer;
 	}

@@ -4,6 +4,7 @@ import com.zandero.rest.data.RouteDefinition;
 import com.zandero.utils.Assert;
 
 import javax.ws.rs.Path;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +29,7 @@ public final class AnnotationProcessor {
 		Assert.notNull(clazz, "Missing class with JAX-RS annotations!");
 
 		// base
-		RouteDefinition root = new RouteDefinition(clazz.getAnnotations());
+		RouteDefinition root = new RouteDefinition(clazz);
 
 		// go over methods ...
 		Map<RouteDefinition, Method> output = new HashMap<>();
@@ -41,5 +42,31 @@ public final class AnnotationProcessor {
 		}
 
 		return output;
+	}
+
+	/**
+	 * Tries to find class with given annotation ... class it's interface or parent class
+	 * @param clazz to search
+	 * @param annotation to search for
+	 * @return found class with annotation or null if no class with given annotation could be found
+	 */
+	public static Class getClassWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotation)
+	{
+		if (clazz.isAnnotationPresent(annotation)) {
+			return clazz;
+		}
+
+		for (Class inter : clazz.getInterfaces()) {
+			if (inter.isAnnotationPresent(annotation)) {
+				return inter;
+			}
+		}
+
+		Class superClass = clazz.getSuperclass();
+		if (superClass != Object.class && superClass != null) {
+			return getClassWithAnnotation(superClass, annotation);
+		}
+
+		return null;
 	}
 }

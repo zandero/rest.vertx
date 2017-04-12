@@ -16,5 +16,5 @@ import java.lang.annotation.*;
 @Documented
 public @interface ResponseWriter {
 
-	Class<HttpResponseWriter> value();
+	Class<? extends HttpResponseWriter> value();
 }

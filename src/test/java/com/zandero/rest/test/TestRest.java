@@ -1,5 +1,8 @@
 package com.zandero.rest.test;
 
+import com.zandero.rest.annotation.ResponseWriter;
+import com.zandero.rest.test.writer.TestCustomWriter;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -16,5 +19,13 @@ public class TestRest {
 	public String echo() {
 
 		return "Hello world!";
+	}
+
+	@GET
+	@Path("/custom")
+	@ResponseWriter(TestCustomWriter.class) // use custom writer for output
+	public String custom() {
+
+		return "CUSTOM";
 	}
 }

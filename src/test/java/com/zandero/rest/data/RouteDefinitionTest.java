@@ -16,7 +16,7 @@ public class RouteDefinitionTest {
 	@Test
 	public void getDefinitionTest() throws NoSuchMethodException {
 
-		RouteDefinition base = new RouteDefinition(TestRest.class.getAnnotations());
+		RouteDefinition base = new RouteDefinition(TestRest.class);
 
 		assertEquals("/test", base.getPath());
 

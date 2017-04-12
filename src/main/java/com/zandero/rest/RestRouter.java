@@ -19,7 +19,6 @@ import javax.ws.rs.core.Response;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -31,6 +30,7 @@ public class RestRouter {
 
 	// map of writers
 	private static Map<Class, Class<? extends HttpResponseWriter>> WRITERS;
+
 	static {
 		WRITERS = new HashMap<>();
 		WRITERS.put(Response.class, JaxResponseWriter.class);
@@ -101,20 +101,19 @@ public class RestRouter {
 				// todo ... invoke correctly with @PathParam and @QueryParams in correct place
 				Object result = method.invoke(toInvoke);
 
-				// dummy response ... as proof of concept
-				// TODO: add response builder according to definition produces
 
 				HttpServerResponse response = context.response();
 
+				// find suitable writer to produce response
 				HttpResponseWriter writer = getResponseWriter(method.getReturnType(), definition);
 
-				// add default response headers
+				// add default response headers per definition
 				writer.addResponseHeaders(definition, response);
 
 				// write response and override headers if necessary
 				writer.write(result, response);
 
-				// finish
+				// finish if not finished by writer
 				if (!response.ended()) {
 					response.end();
 				}
@@ -127,7 +126,12 @@ public class RestRouter {
 		};
 	}
 
-	// TODO ... consider result type of method not result as it is ...
+	/**
+	 * Finds assigned response writer or tries to assign a writer according to produces annotation and result type
+	 * @param returnType type of result
+	 * @param definition method definition
+	 * @return writer to be used to produce response, {@see GenericResponseWriter} in case no suitable writer could be found
+	 */
 	private static HttpResponseWriter getResponseWriter(Class<?> returnType, RouteDefinition definition) {
 
 		Class<? extends HttpResponseWriter> writer = definition.getWriter();
@@ -152,6 +156,7 @@ public class RestRouter {
 
 			// create writer instance
 			try {
+				// TODO .. might be a good idea to cache writer instances for some time
 				return writer.newInstance();
 			}
 			catch (InstantiationException | IllegalAccessException e) {
