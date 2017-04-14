@@ -98,48 +98,54 @@ public class ArgumentProvider {
 			return value;
 		}
 
-		// primitive types need to be cast differently
-		if (dataType.isAssignableFrom(boolean.class) ||
-			dataType.isAssignableFrom(Boolean.class)) {
-			return Boolean.valueOf(value);
-		}
+		try {
 
-		if (dataType.isAssignableFrom(byte.class) ||
-			dataType.isAssignableFrom(Byte.class)) {
-			return Byte.valueOf(value);
-		}
-
-		if (dataType.isAssignableFrom(char.class) ||
-			dataType.isAssignableFrom(Character.class)) {
-			if (value.length() != 0) {
-				return value.charAt(0);
+			// primitive types need to be cast differently
+			if (dataType.isAssignableFrom(boolean.class) ||
+				dataType.isAssignableFrom(Boolean.class)) {
+				return Boolean.valueOf(value);
 			}
-			// ToDo throw
-		}
 
-		if (dataType.isAssignableFrom(short.class) ||
-			dataType.isAssignableFrom(Short.class)) {
-			return Short.valueOf(value);
-		}
+			if (dataType.isAssignableFrom(byte.class) ||
+				dataType.isAssignableFrom(Byte.class)) {
+				return Byte.valueOf(value);
+			}
 
-		if (dataType.isAssignableFrom(int.class) ||
-			dataType.isAssignableFrom(Integer.class)) {
-			return Integer.valueOf(value);
-		}
+			if (dataType.isAssignableFrom(char.class) ||
+				dataType.isAssignableFrom(Character.class)) {
+				if (value.length() != 0) {
+					return value.charAt(0);
+				}
+				// ToDo throw
+			}
 
-		if (dataType.isAssignableFrom(long.class) ||
-			dataType.isAssignableFrom(Long.class)) {
-			return Long.valueOf(value);
-		}
+			if (dataType.isAssignableFrom(short.class) ||
+				dataType.isAssignableFrom(Short.class)) {
+				return Short.valueOf(value);
+			}
 
-		if (dataType.isAssignableFrom(float.class) ||
-			dataType.isAssignableFrom(Float.class)) {
-			return Float.valueOf(value);
-		}
+			if (dataType.isAssignableFrom(int.class) ||
+				dataType.isAssignableFrom(Integer.class)) {
+				return Integer.valueOf(value);
+			}
 
-		if (dataType.isAssignableFrom(double.class) ||
-			dataType.isAssignableFrom(Double.class)) {
-			return Double.valueOf(value);
+			if (dataType.isAssignableFrom(long.class) ||
+				dataType.isAssignableFrom(Long.class)) {
+				return Long.valueOf(value);
+			}
+
+			if (dataType.isAssignableFrom(float.class) ||
+				dataType.isAssignableFrom(Float.class)) {
+				return Float.valueOf(value);
+			}
+
+			if (dataType.isAssignableFrom(double.class) ||
+				dataType.isAssignableFrom(Double.class)) {
+				return Double.valueOf(value);
+			}
+		}
+		catch (Exception e) {
+			throw new IllegalArgumentException("Invalid argument type provided, expected: " + dataType.getName() + " but got: " + value.getClass().getName() + ": " + value);
 		}
 
 		return null;

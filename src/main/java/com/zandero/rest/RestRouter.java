@@ -63,7 +63,7 @@ public class RestRouter {
 
 		Assert.notNull(router, "Missing vert.x router!");
 
-		for (Object api: restApi) {
+		for (Object api : restApi) {
 
 			Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(api.getClass());
 
@@ -73,12 +73,13 @@ public class RestRouter {
 
 				Method method = definitions.get(definition);
 
-				// bind method execution
+				// add BodyHandler in case request has a body ...
 				if (definition.requestHasBody() && !bodyHandlerRegistered) {
 					router.route().handler(BodyHandler.create());
 					bodyHandlerRegistered = true;
 				}
 
+				// bind method execution
 				Route route = router.route(definition.getMethod(), definition.getPath());
 				log.info("Registering route: " + definition);
 
@@ -145,6 +146,10 @@ public class RestRouter {
 					response.end();
 				}
 			}
+			catch (IllegalArgumentException e) { // TODO: replace with custom exception
+				log.error("Invalid parameters provided: " + e.getMessage(), e);
+				context.response().setStatusCode(400).end(e.getMessage());
+			}
 			catch (IllegalAccessException | InvocationTargetException e) {
 				// return 500 error with stack trace
 				// e.printStackTrace();
@@ -176,6 +181,7 @@ public class RestRouter {
 	}
 
 	public static void registerWriter(Class<?> response, Class<? extends HttpResponseWriter> writer) {
+
 		Assert.notNull(response, "Missing response class!");
 		Assert.notNull(writer, "Missing response writer!");
 
