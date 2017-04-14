@@ -29,20 +29,20 @@ public class RestRouter {
 	private final static Logger log = LoggerFactory.getLogger(RestRouter.class);
 
 	// map of writers
-	private static Map<Class, Class<? extends HttpResponseWriter>> WRITERS;
+	private static Map<String, Class<? extends HttpResponseWriter>> WRITERS;
 
 	static {
 		WRITERS = new HashMap<>();
-		WRITERS.put(Response.class, JaxResponseWriter.class);
-		WRITERS.put(String.class, GenericResponseWriter.class);
+		WRITERS.put(Response.class.getName(), JaxResponseWriter.class);
+		WRITERS.put(String.class.getName(), GenericResponseWriter.class);
 	}
 
 	// map of writers
-	private static Map<MediaType, Class<? extends HttpResponseWriter>> MEDIA_TYPE_WRITERS;
+	private static Map<String, Class<? extends HttpResponseWriter>> MEDIA_TYPE_WRITERS;
 
 	static {
 		MEDIA_TYPE_WRITERS = new HashMap<>();
-		MEDIA_TYPE_WRITERS.put(MediaType.APPLICATION_JSON_TYPE, JsonResponseWriter.class);
+		MEDIA_TYPE_WRITERS.put(getMediaTypeKey(MediaType.APPLICATION_JSON_TYPE), JsonResponseWriter.class);
 	}
 
 	/**
@@ -142,6 +142,39 @@ public class RestRouter {
 		};
 	}
 
+	public static void registerWriter(String mediaType, Class<? extends HttpResponseWriter> writer) {
+
+		Assert.notNull(mediaType, "Missing media type!");
+		Assert.notNull(writer, "Missing response writer!");
+
+		MediaType type = MediaType.valueOf(mediaType);
+		Assert.notNull(type, "Unknown media type given: " + mediaType);
+		String key = getMediaTypeKey(type);
+
+		MEDIA_TYPE_WRITERS.put(key, writer);
+	}
+
+	public static void registerWriter(MediaType mediaType, Class<? extends HttpResponseWriter> writer) {
+
+		Assert.notNull(mediaType, "Missing media type!");
+		Assert.notNull(writer, "Missing response writer!");
+
+		String key = getMediaTypeKey(mediaType);
+		MEDIA_TYPE_WRITERS.put(key, writer);
+	}
+
+	public static void registerWriter(Class<?> response, Class<? extends HttpResponseWriter> writer) {
+		Assert.notNull(response, "Missing response class!");
+		Assert.notNull(writer, "Missing response writer!");
+
+		WRITERS.put(response.getName(), writer);
+	}
+
+	private static String getMediaTypeKey(MediaType mediaType) {
+
+		return mediaType.getType() + "/" + mediaType.getSubtype();
+	}
+
 	/**
 	 * Finds assigned response writer or tries to assign a writer according to produces annotation and result type
 	 *
@@ -160,9 +193,9 @@ public class RestRouter {
 			}
 			else {
 				// try to find appropriate writer if mapped
-				for (Class clazz : WRITERS.keySet()) {
+				for (String clazz : WRITERS.keySet()) {
 
-					if (returnType.isAssignableFrom(clazz)) {
+					if (clazz.equals(returnType.getName())) {
 						writer = WRITERS.get(clazz);
 						break;
 					}
@@ -202,6 +235,6 @@ public class RestRouter {
 			return null;
 		}
 
-		return MEDIA_TYPE_WRITERS.get(mediaType);
+		return MEDIA_TYPE_WRITERS.get(getMediaTypeKey(mediaType));
 	}
 }
