@@ -1,6 +1,8 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.test.TestPostRest;
 import com.zandero.rest.test.TestRest;
+import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.http.HttpMethod;
 import org.junit.Test;
 
@@ -38,5 +40,34 @@ public class RouteDefinitionTest {
 		assertEquals(HttpMethod.GET, def.getMethod());
 
 		assertNull(def.getConsumes());
+	}
+
+	@Test
+	public void getBodyParamTest() throws NoSuchMethodException {
+
+		RouteDefinition base = new RouteDefinition(TestPostRest.class);
+
+		// 1.
+		Method method = TestPostRest.class.getMethods()[0];
+		RouteDefinition def = new RouteDefinition(base, method.getAnnotations());
+
+		def.setParameters(method.getParameterTypes(), method.getParameterAnnotations());
+
+		assertEquals("/post/json", def.getPath());
+		assertEquals(HttpMethod.POST, def.getMethod());
+
+		assertEquals(2, def.getParameters().size());
+
+		MethodParameter param = def.getParameters().get(0);
+		assertEquals(Dummy.class.getName(), param.getName());
+		assertEquals(ParameterType.body, param.getType());
+		assertEquals(Dummy.class, param.getDataType());
+		assertNull(param.getDefaultValue());
+
+		param = def.getParameters().get(1);
+		assertEquals("X-Test", param.getName());
+		assertEquals(ParameterType.header, param.getType());
+		assertEquals(String.class, param.getDataType());
+		assertNull(param.getDefaultValue());
 	}
 }

@@ -1,25 +1,18 @@
 package com.zandero.rest;
 
-import com.zandero.http.HttpUtils;
 import com.zandero.rest.test.TestRest;
 import com.zandero.rest.test.VertxTest;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.JsonUtils;
-import io.vertx.core.http.HttpClientRequest;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.StringEntity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 /**
  *
@@ -153,12 +146,12 @@ public class RestRouterTest extends VertxTest {
 		HttpPost request = (HttpPost) HttpUtils.post("http://localhost:4444/test/json", null, null, input, null);
 		HttpUtils.execute(request);
 */
-		client.post("/test/json", response -> {
+		client.post("/test/json/post", response -> {
 
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("{}", body.toString());
+				context.assertEquals("{\"name\":\"Received-hello\",\"value\":\"Received-world\"}", body.toString());
 				async.complete();
 			});
 		}).putHeader("Content-Type", "application/json").end(json);

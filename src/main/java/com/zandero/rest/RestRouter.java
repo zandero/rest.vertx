@@ -2,21 +2,19 @@ package com.zandero.rest;
 
 import com.zandero.rest.data.ArgumentProvider;
 import com.zandero.rest.data.RouteDefinition;
-import com.zandero.rest.writer.GenericResponseWriter;
-import com.zandero.rest.writer.HttpResponseWriter;
-import com.zandero.rest.writer.JaxResponseWriter;
-import com.zandero.rest.writer.NoContentResponseWriter;
+import com.zandero.rest.writer.*;
 import com.zandero.utils.Assert;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -37,6 +35,14 @@ public class RestRouter {
 		WRITERS = new HashMap<>();
 		WRITERS.put(Response.class, JaxResponseWriter.class);
 		WRITERS.put(String.class, GenericResponseWriter.class);
+	}
+
+	// map of writers
+	private static Map<MediaType, Class<? extends HttpResponseWriter>> MEDIA_TYPE_WRITERS;
+
+	static {
+		MEDIA_TYPE_WRITERS = new HashMap<>();
+		MEDIA_TYPE_WRITERS.put(MediaType.APPLICATION_JSON_TYPE, JsonResponseWriter.class);
 	}
 
 	/**
@@ -68,9 +74,17 @@ public class RestRouter {
 
 		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(restApi.getClass());
 
+		boolean bodyHandlerRegistered = false;
+
 		for (RouteDefinition definition : definitions.keySet()) {
 
 			Method method = definitions.get(definition);
+
+			// bind method execution
+			if (definition.requestHasBody() && !bodyHandlerRegistered) {
+				router.route().handler(BodyHandler.create());
+				bodyHandlerRegistered = true;
+			}
 
 			Route route = router.route(definition.getMethod(), definition.getPath());
 			log.info("Registering route: " + definition);
@@ -87,7 +101,7 @@ public class RestRouter {
 				}
 			}
 
-			// bind method execution
+
 			route.handler(getHandler(restApi, definition, method));
 		}
 
@@ -99,11 +113,6 @@ public class RestRouter {
 		return context -> {
 
 			try {
-
-				final String[] body = new String[1];
-				context.request().bodyHandler(handler -> {
-						body[0] = handler.toString();
-				});
 
 				Object[] args = ArgumentProvider.getArguments(definition, context);
 				Object result = method.invoke(toInvoke, args);
@@ -161,6 +170,15 @@ public class RestRouter {
 			}
 		}
 
+		if (writer == null) { // try by produces
+
+			String[] produces = definition.getProduces();
+			if (produces != null && produces.length > 0) {
+				MediaType mediaType = MediaType.valueOf(produces[0]);
+				writer = getResponseWriter(mediaType);
+			}
+		}
+
 		if (writer != null) {
 
 			// create writer instance
@@ -176,5 +194,14 @@ public class RestRouter {
 
 		// fall back to generic writer ...
 		return new GenericResponseWriter();
+	}
+
+	private static Class<? extends HttpResponseWriter> getResponseWriter(MediaType mediaType) {
+
+		if (mediaType == null) {
+			return null;
+		}
+
+		return MEDIA_TYPE_WRITERS.get(mediaType);
 	}
 }

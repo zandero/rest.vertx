@@ -5,8 +5,6 @@ import com.zandero.utils.JsonUtils;
 import com.zandero.utils.UrlUtils;
 import io.vertx.ext.web.RoutingContext;
 
-import javax.ws.rs.WebApplicationException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +43,10 @@ public class ArgumentProvider {
 					value = context.request().getHeader(parameter.getName());
 					break;
 
+				case body:
+					value = context.getBodyAsString();
+					break;
+
 				case context:
 					// TODO: depends on the context type given ... being request, response, ...
 
@@ -55,7 +57,7 @@ public class ArgumentProvider {
 				// TODO: throw exception
 			}
 
-			args[parameter.getIndex()] = convert(parameter.getDataType(), value, definition.getDefaultValue());
+			args[parameter.getIndex()] = convert(parameter.getDataType(), value, parameter.getDefaultValue());
 		}
 
 		return args;
@@ -87,75 +89,6 @@ public class ArgumentProvider {
 
 		return null;
 	}
-
-
-	/*public Object extractValue(Class<?> dataType, String value)
-	{
-		Assert.notNull(value, "Can't extract value from null!");
-
-		if (paramConverter != null)
-		{
-			return paramConverter.fromString(strVal);
-		}
-		if (converter != null)
-		{
-			return converter.fromString(strVal);
-		}
-		else if (unmarshaller != null)
-		{
-			return unmarshaller.fromString(strVal);
-		}
-		else if (delegate != null)
-		{
-			return delegate.fromString(strVal);
-		}
-		else if (constructor != null)
-		{
-			try
-			{
-				return constructor.newInstance(strVal);
-			}
-			catch (InstantiationException e)
-			{
-				throwProcessingException(Messages.MESSAGES.unableToExtractParameter(getParamSignature(), strVal, target), e);
-			}
-			catch (IllegalAccessException e)
-			{
-				throwProcessingException(Messages.MESSAGES.unableToExtractParameter(getParamSignature(), strVal, target), e);
-			}
-			catch (InvocationTargetException e)
-			{
-				Throwable targetException = e.getTargetException();
-				if (targetException instanceof WebApplicationException)
-				{
-					throw ((WebApplicationException)targetException);
-				}
-				throwProcessingException(Messages.MESSAGES.unableToExtractParameter(getParamSignature(), strVal, target), targetException);
-			}
-		}
-		else if (valueOf != null)
-		{
-			try
-			{
-				return valueOf.invoke(null, strVal);
-			}
-			catch (IllegalAccessException e)
-			{
-				throwProcessingException(Messages.MESSAGES.unableToExtractParameter(getParamSignature(), strVal, target), e);
-			}
-			catch (InvocationTargetException e)
-			{
-				Throwable targetException = e.getTargetException();
-				if (targetException instanceof WebApplicationException)
-				{
-					throw ((WebApplicationException)targetException);
-				}
-				throwProcessingException(Messages.MESSAGES.unableToExtractParameter(getParamSignature(), strVal, target), targetException);
-			}
-		}
-
-		return null;
-	}*/
 
 	static Object stringToPrimitiveType(Class<?> dataType, String value) {
 

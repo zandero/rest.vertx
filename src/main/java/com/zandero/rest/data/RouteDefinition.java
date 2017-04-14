@@ -5,7 +5,6 @@ import com.zandero.rest.annotation.ResponseWriter;
 import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
-
 import io.vertx.core.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,9 +33,7 @@ public class RouteDefinition {
 
 	private Class<? extends HttpResponseWriter> writer;
 
-	private Map<String, MethodParameter> params;
-
-	private String defaultValue;
+	private Map<String, MethodParameter> params = new HashMap<>();
 
 	public RouteDefinition(Class clazz) {
 
@@ -176,10 +173,6 @@ public class RouteDefinition {
 			return this;
 		}
 
-		if (params == null) {
-			params = new HashMap<>();
-		}
-
 		// check if param is already present
 		for (MethodParameter parameter : pathParams) {
 			if (params.get(parameter.getName()) != null) {
@@ -195,49 +188,85 @@ public class RouteDefinition {
 	public void setParameters(Class<?>[] parameterTypes, Annotation[][] parameters) {
 
 		int index = 0;
+
 		for (Annotation[] ann : parameters) {
+
+			String name = null;
+			ParameterType type = null;
+			String defaultValue = null;
 
 			for (Annotation annotation: ann) {
 
 				if (annotation instanceof PathParam) {
 					// find path param ... and set index ...
-					MethodParameter found = params.get(((PathParam) annotation).value());
-					if (found == null) {
-						// TODO throw exception
-					}
-
-					found.argument(parameterTypes[index], index);
+					name = ((PathParam) annotation).value();
+					type = ParameterType.path;
 				}
 
 				if (annotation instanceof QueryParam) {
 					// add param
-					String name = ((QueryParam) annotation).value();
-					if (params.get(name) != null) {
-						// TODO throw exception
-					}
-
-					params.put(name, new MethodParameter(ParameterType.query, name, parameterTypes[index], index));
+					name = ((QueryParam) annotation).value();
+					type = ParameterType.query;
 				}
 
-				// TODO
+				if (annotation instanceof DefaultValue) {
+
+					defaultValue = ((DefaultValue) annotation).value();
+				}
+
 				if (annotation instanceof FormParam) {
 
+					type = ParameterType.form;
+					name = ((FormParam) annotation).value();
 				}
 
 				if (annotation instanceof HeaderParam) {
 
+					type = ParameterType.header;
+					name = ((HeaderParam) annotation).value();
 				}
 
 				if (annotation instanceof Context) {
 
-				}
-
-				if (annotation instanceof DefaultValue) {
-					defaultValue = ((DefaultValue) annotation).value();
+					type = ParameterType.context;
+					name = parameterTypes[index].getName();
 				}
 			}
 
+			// if no name provided than parameter is considered the request body
+			if (name == null) {
+
+				name = parameterTypes[index].getName();
+				type = ParameterType.body;
+			}
+
+			MethodParameter parameter = provideParameter(name, type, defaultValue, parameterTypes[index], index);
+			params.put(name, parameter);
+
 			index ++;
+		}
+	}
+
+	private MethodParameter provideParameter(String name, ParameterType type, String defaultValue, Class<?> parameterType, int index) {
+
+		Assert.notNull(type, "Argument: " + name + " (" + parameterType + ") can't be provided with Vert.x request, check and annotate method arguments!");
+
+		switch (type) {
+			case path:
+				MethodParameter found = params.get(name); // parameter should exist
+				Assert.notNull(found, "Missing @PathParam: " + name + "(" + parameterType + ") as method argument!");
+
+				found.argument(parameterType, index);
+				found.setDefaultValue(defaultValue);
+				return found;
+
+			default:
+				MethodParameter existing = params.get(name);
+				Assert.isNull(existing, "Duplicate parameter: " + name + ", already provided!"); // param should not exist!
+
+				MethodParameter newParam = new MethodParameter(type, name, parameterType, index);
+				newParam.setDefaultValue(defaultValue);
+				return newParam;
 		}
 	}
 
@@ -277,9 +306,10 @@ public class RouteDefinition {
 		return list;
 	}
 
-	public String getDefaultValue() {
+	public boolean requestHasBody() {
 
-		return defaultValue;
+		return !(HttpMethod.GET.equals(method) ||
+				 HttpMethod.HEAD.equals(method));
 	}
 
 	@Override

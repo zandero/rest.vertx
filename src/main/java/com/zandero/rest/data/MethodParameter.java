@@ -28,6 +28,11 @@ public class MethodParameter {
 	 */
 	private Class<?> dataType;
 
+	/**
+	 * Default value of parameter in case not given on call
+	 */
+	private String defaultValue;
+
 
 	public MethodParameter(ParameterType parameterType, String paramName) {
 
@@ -73,5 +78,15 @@ public class MethodParameter {
 	public Class<?> getDataType() {
 
 		return dataType;
+	}
+
+	public String getDefaultValue() {
+
+		return defaultValue;
+	}
+
+	public void setDefaultValue(String value) {
+
+		defaultValue = StringUtils.trimToNull(value);
 	}
 }
