@@ -52,10 +52,10 @@ public class RestRouter {
 	 * @param restApi instance to search for annotations
 	 * @return Router new Router with routes as defined in {@code restApi} class
 	 */
-	public static Router register(Vertx vertx, Object restApi) {
+	public static Router register(Vertx vertx, Object... restApi) {
 
 		Assert.notNull(vertx, "Missing vertx!");
-		Assert.notNull(restApi, "Missing REST API class object!");
+		Assert.isTrue(restApi != null && restApi.length > 0, "Missing REST API class object!");
 
 		Router router = Router.router(vertx);
 		return register(router, restApi);
@@ -68,41 +68,43 @@ public class RestRouter {
 	 * @param router  to add additional routes from {@code restApi} class
 	 * @return Router with routes as defined in {@code restApi} class
 	 */
-	public static Router register(Router router, Object restApi) {
+	public static Router register(Router router, Object... restApi) {
 
 		Assert.notNull(router, "Missing vert.x router!");
 
-		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(restApi.getClass());
+		for (Object api: restApi) {
 
-		boolean bodyHandlerRegistered = false;
+			Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(api.getClass());
 
-		for (RouteDefinition definition : definitions.keySet()) {
+			boolean bodyHandlerRegistered = false;
 
-			Method method = definitions.get(definition);
+			for (RouteDefinition definition : definitions.keySet()) {
 
-			// bind method execution
-			if (definition.requestHasBody() && !bodyHandlerRegistered) {
-				router.route().handler(BodyHandler.create());
-				bodyHandlerRegistered = true;
-			}
+				Method method = definitions.get(definition);
 
-			Route route = router.route(definition.getMethod(), definition.getPath());
-			log.info("Registering route: " + definition);
-
-			if (definition.getConsumes() != null) {
-				for (String item : definition.getConsumes()) {
-					route.consumes(item);
+				// bind method execution
+				if (definition.requestHasBody() && !bodyHandlerRegistered) {
+					router.route().handler(BodyHandler.create());
+					bodyHandlerRegistered = true;
 				}
-			}
 
-			if (definition.getProduces() != null) {
-				for (String item : definition.getProduces()) {
-					route.produces(item);
+				Route route = router.route(definition.getMethod(), definition.getPath());
+				log.info("Registering route: " + definition);
+
+				if (definition.getConsumes() != null) {
+					for (String item : definition.getConsumes()) {
+						route.consumes(item);
+					}
 				}
+
+				if (definition.getProduces() != null) {
+					for (String item : definition.getProduces()) {
+						route.produces(item);
+					}
+				}
+
+				route.handler(getHandler(api, definition, method));
 			}
-
-
-			route.handler(getHandler(restApi, definition, method));
 		}
 
 		return router;

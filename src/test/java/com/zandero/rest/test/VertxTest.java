@@ -14,7 +14,9 @@ public class VertxTest {
 
 	protected static final int PORT = 4444;
 
-	protected static final String HOST = "localhost";
+	private static final String HOST = "localhost";
+
+	protected static final String ROOT_PATH = "http://" + HOST + ":" + PORT;
 
 	protected Vertx vertx;
 
