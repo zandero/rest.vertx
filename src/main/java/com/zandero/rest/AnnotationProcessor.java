@@ -36,7 +36,10 @@ public final class AnnotationProcessor {
 		for (Method method : clazz.getMethods()) {
 
 			if (method.getAnnotation(Path.class) != null) { // Path must be present
+
 				RouteDefinition definition = new RouteDefinition(root, method.getAnnotations());
+				definition.setParameters(method.getParameterTypes(), method.getParameterAnnotations());
+
 				output.put(definition, method);
 			}
 		}

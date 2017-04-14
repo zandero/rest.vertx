@@ -28,7 +28,10 @@ public class JaxResponseWriter implements HttpResponseWriter {
 
 			if (jax.getEntity() != null) {
 
-				//response.end(jax.getEntity());
+				response.end(jax.getEntity().toString()); // TODO ... use correct transformation of entity to string
+			}
+			else {
+				response.end();
 			}
 		}
 	}

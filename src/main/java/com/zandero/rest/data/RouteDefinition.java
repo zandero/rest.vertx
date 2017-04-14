@@ -5,12 +5,15 @@ import com.zandero.rest.annotation.ResponseWriter;
 import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
+
 import io.vertx.core.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import java.lang.annotation.Annotation;
+import java.util.*;
 
 /**
  * Holds definition of a route as defined with annotations
@@ -30,6 +33,10 @@ public class RouteDefinition {
 	private io.vertx.core.http.HttpMethod method;
 
 	private Class<? extends HttpResponseWriter> writer;
+
+	private Map<String, MethodParameter> params;
+
+	private String defaultValue;
 
 	public RouteDefinition(Class clazz) {
 
@@ -63,6 +70,16 @@ public class RouteDefinition {
 				path(((Path) annotation).value());
 			}
 
+			if (annotation instanceof PathParam) {
+				// find path param and determine argument index and to be extracted from request
+			}
+
+			if (annotation instanceof QueryParam) {
+				// add query param ... to be extracted from request once method is called
+
+			}
+
+
 			if (annotation instanceof Produces) {
 				produces(((Produces) annotation).value());
 			}
@@ -84,8 +101,6 @@ public class RouteDefinition {
 
 				method(annotation.annotationType().getSimpleName());
 			}
-
-			// ToDo query params ...
 
 			// response writer ...
 			if (annotation instanceof ResponseWriter) {
@@ -110,6 +125,13 @@ public class RouteDefinition {
 		if (subPath.endsWith(DELIMITER)) {
 			subPath = subPath.substring(0, subPath.length() - 1); // remove trailing "/"
 		}
+
+		// convert path to Vert.X format
+		subPath = PathConverter.convert(subPath);
+
+		// extract parameters if any
+		List<MethodParameter> params = PathConverter.extract(subPath);
+		params(params);
 
 		if (DELIMITER.equals(path)) { // default
 			path = subPath;
@@ -148,6 +170,77 @@ public class RouteDefinition {
 		return this;
 	}
 
+	private RouteDefinition params(List<MethodParameter> pathParams) {
+
+		if (pathParams == null || pathParams.size() == 0) {
+			return this;
+		}
+
+		if (params == null) {
+			params = new HashMap<>();
+		}
+
+		// check if param is already present
+		for (MethodParameter parameter : pathParams) {
+			if (params.get(parameter.getName()) != null) {
+				// TODO throw exception
+			}
+
+			params.put(parameter.getName(), parameter);
+		}
+
+		return this;
+	}
+
+	public void setParameters(Class<?>[] parameterTypes, Annotation[][] parameters) {
+
+		int index = 0;
+		for (Annotation[] ann : parameters) {
+
+			for (Annotation annotation: ann) {
+
+				if (annotation instanceof PathParam) {
+					// find path param ... and set index ...
+					MethodParameter found = params.get(((PathParam) annotation).value());
+					if (found == null) {
+						// TODO throw exception
+					}
+
+					found.argument(parameterTypes[index], index);
+				}
+
+				if (annotation instanceof QueryParam) {
+					// add param
+					String name = ((QueryParam) annotation).value();
+					if (params.get(name) != null) {
+						// TODO throw exception
+					}
+
+					params.put(name, new MethodParameter(ParameterType.query, name, parameterTypes[index], index));
+				}
+
+				// TODO
+				if (annotation instanceof FormParam) {
+
+				}
+
+				if (annotation instanceof HeaderParam) {
+
+				}
+
+				if (annotation instanceof Context) {
+
+				}
+
+				if (annotation instanceof DefaultValue) {
+					defaultValue = ((DefaultValue) annotation).value();
+				}
+			}
+
+			index ++;
+		}
+	}
+
 	public String getPath() {
 
 		return path;
@@ -171,6 +264,22 @@ public class RouteDefinition {
 	public Class<? extends HttpResponseWriter> getWriter() {
 
 		return writer;
+	}
+
+	public List<MethodParameter> getParameters() {
+
+		if (params == null) {
+			return Collections.emptyList();
+		}
+
+		ArrayList<MethodParameter> list = new ArrayList<>(params.values());
+		list.sort(Comparator.comparing(MethodParameter::getIndex)); // sort parameters by index ...
+		return list;
+	}
+
+	public String getDefaultValue() {
+
+		return defaultValue;
 	}
 
 	@Override

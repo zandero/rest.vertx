@@ -1,5 +1,6 @@
 package com.zandero.rest;
 
+import com.zandero.rest.data.ArgumentProvider;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.writer.GenericResponseWriter;
 import com.zandero.rest.writer.HttpResponseWriter;
@@ -8,6 +9,7 @@ import com.zandero.rest.writer.NoContentResponseWriter;
 import com.zandero.utils.Assert;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
@@ -98,9 +100,13 @@ public class RestRouter {
 
 			try {
 
-				// todo ... invoke correctly with @PathParam and @QueryParams in correct place
-				Object result = method.invoke(toInvoke);
+				final String[] body = new String[1];
+				context.request().bodyHandler(handler -> {
+						body[0] = handler.toString();
+				});
 
+				Object[] args = ArgumentProvider.getArguments(definition, context);
+				Object result = method.invoke(toInvoke, args);
 
 				HttpServerResponse response = context.response();
 
@@ -121,6 +127,7 @@ public class RestRouter {
 			catch (IllegalAccessException | InvocationTargetException e) {
 				// return 500 error with stack trace
 				// e.printStackTrace();
+				log.error("Failed to call: " + method.getName() + " " + e.getMessage(), e);
 				context.response().setStatusCode(500).end(e.getMessage());
 			}
 		};
@@ -128,6 +135,7 @@ public class RestRouter {
 
 	/**
 	 * Finds assigned response writer or tries to assign a writer according to produces annotation and result type
+	 *
 	 * @param returnType type of result
 	 * @param definition method definition
 	 * @return writer to be used to produce response, {@see GenericResponseWriter} in case no suitable writer could be found
@@ -145,8 +153,9 @@ public class RestRouter {
 				// try to find appropriate writer if mapped
 				for (Class clazz : WRITERS.keySet()) {
 
-					if (returnType.isInstance(clazz)) {
+					if (returnType.isAssignableFrom(clazz)) {
 						writer = WRITERS.get(clazz);
+						break;
 					}
 				}
 			}

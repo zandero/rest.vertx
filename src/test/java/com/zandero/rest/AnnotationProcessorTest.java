@@ -22,18 +22,34 @@ public class AnnotationProcessorTest {
 
 		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(TestRest.class);
 
-		assertEquals(2, definitions.size());
+		assertEquals(6, definitions.size());
 
 		// check
-		RouteDefinition definition = definitions.keySet().iterator().next();
-		Method method = definitions.get(definition);
+		for (RouteDefinition definition : definitions.keySet()) {
 
-		assertEquals(HttpMethod.GET, definition.getMethod());
-		assertEquals("/test/echo", definition.getPath());
-		assertNotNull(definition.getProduces());
-		assertEquals(1, definition.getProduces().length);
-		assertEquals("application/json", definition.getProduces()[0]);
+			if (definition.getPath().equals("/test/echo")) {
 
-		assertEquals("echo", method.getName());
+				Method method = definitions.get(definition);
+
+				assertEquals(HttpMethod.GET, definition.getMethod());
+				assertNotNull(definition.getProduces());
+				assertEquals(1, definition.getProduces().length);
+				assertEquals("application/json", definition.getProduces()[0]);
+
+				assertEquals("echo", method.getName());
+			}
+
+			if (definition.getPath().equals("/test/jax")) {
+
+				Method method = definitions.get(definition);
+
+				assertEquals(HttpMethod.GET, definition.getMethod());
+				/*assertNotNull(definition.getProduces());
+				assertEquals(1, definition.getProduces().length);
+				assertEquals("application/json", definition.getProduces()[0]);
+
+				assertEquals("echo", method.getName());*/
+			}
+		}
 	}
 }
