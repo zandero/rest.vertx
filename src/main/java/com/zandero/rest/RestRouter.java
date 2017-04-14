@@ -219,8 +219,13 @@ public class RestRouter {
 
 			String[] produces = definition.getProduces();
 			if (produces != null && produces.length > 0) {
-				MediaType mediaType = MediaType.valueOf(produces[0]);
-				writer = getResponseWriter(mediaType);
+
+				for (String type : produces) {
+					writer = getResponseWriter(type);
+					if (writer != null) {
+						break;
+					}
+				}
 			}
 		}
 
@@ -241,12 +246,29 @@ public class RestRouter {
 		return new GenericResponseWriter();
 	}
 
-	private static Class<? extends HttpResponseWriter> getResponseWriter(MediaType mediaType) {
+	private static Class<? extends HttpResponseWriter> getResponseWriter(String mediaType) {
 
 		if (mediaType == null) {
 			return null;
 		}
 
-		return MEDIA_TYPE_WRITERS.get(getMediaTypeKey(mediaType));
+		MediaType type = MediaType.valueOf(mediaType);
+		return MEDIA_TYPE_WRITERS.get(getMediaTypeKey(type));
+	}
+
+	public static HttpResponseWriter getResponseWriterInstance(String mediaType) {
+
+		Class<? extends HttpResponseWriter> writer = getResponseWriter(mediaType);
+
+		try {
+			// TODO .. might be a good idea to cache writer instances for some time
+			return writer.newInstance();
+		}
+		catch (InstantiationException | IllegalAccessException e) {
+			log.error("Failed to instantiate response writer '" + writer.getName() + "' " + e.getMessage(), e);
+			// TODO: probably best to throw exception here
+		}
+
+		return null;
 	}
 }

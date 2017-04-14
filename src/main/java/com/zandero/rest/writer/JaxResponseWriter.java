@@ -1,5 +1,6 @@
 package com.zandero.rest.writer;
 
+import com.zandero.rest.RestRouter;
 import com.zandero.utils.Assert;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerResponse;
@@ -28,7 +29,16 @@ public class JaxResponseWriter implements HttpResponseWriter {
 
 			if (jax.getEntity() != null) {
 
-				response.end(jax.getEntity().toString()); // TODO ... use correct transformation of entity to string
+				// try to find appropriate writer ...
+				String mediaType = response.headers().get(HttpHeaders.CONTENT_TYPE);
+				HttpResponseWriter writer = RestRouter.getResponseWriterInstance(mediaType);
+
+				if (writer != null && !(writer instanceof JsonResponseWriter)) {
+					writer.write(jax.getEntity(), response);
+				}
+				else {
+					response.end(jax.getEntity().toString());
+				}
 			}
 			else {
 				response.end();
