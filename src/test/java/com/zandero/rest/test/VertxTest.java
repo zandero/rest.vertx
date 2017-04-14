@@ -1,5 +1,6 @@
 package com.zandero.rest.test;
 
+import com.zandero.rest.RestRouter;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
@@ -33,5 +34,6 @@ public class VertxTest {
 	public void after(TestContext context) {
 
 		vertx.close(context.asyncAssertSuccess());
+		RestRouter.clear();
 	}
 }

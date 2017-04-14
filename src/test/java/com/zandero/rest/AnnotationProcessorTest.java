@@ -34,7 +34,7 @@ public class AnnotationProcessorTest {
 				assertEquals(HttpMethod.GET, definition.getMethod());
 				assertNotNull(definition.getProduces());
 				assertEquals(1, definition.getProduces().length);
-				assertEquals("application/json", definition.getProduces()[0]);
+				assertEquals("text/html", definition.getProduces()[0]);
 
 				assertEquals("echo", method.getName());
 			}

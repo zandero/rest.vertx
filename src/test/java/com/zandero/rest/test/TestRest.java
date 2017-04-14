@@ -5,6 +5,7 @@ import com.zandero.rest.test.json.Dummy;
 import com.zandero.rest.test.writer.TestCustomWriter;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
@@ -16,6 +17,7 @@ public class TestRest {
 
 	@GET
 	@Path("/echo")
+	@Produces(MediaType.TEXT_HTML)
 	public String echo() {
 
 		return "Hello world!";

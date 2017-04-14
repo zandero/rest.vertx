@@ -28,22 +28,11 @@ public class RestRouter {
 
 	private final static Logger log = LoggerFactory.getLogger(RestRouter.class);
 
-	// map of writers
-	private static Map<String, Class<? extends HttpResponseWriter>> WRITERS;
+	// map of writers by class type
+	private static Map<String, Class<? extends HttpResponseWriter>> CLASS_TYPE_WRITERS = new HashMap<>();
 
-	static {
-		WRITERS = new HashMap<>();
-		WRITERS.put(Response.class.getName(), JaxResponseWriter.class);
-		WRITERS.put(String.class.getName(), GenericResponseWriter.class);
-	}
-
-	// map of writers
-	private static Map<String, Class<? extends HttpResponseWriter>> MEDIA_TYPE_WRITERS;
-
-	static {
-		MEDIA_TYPE_WRITERS = new HashMap<>();
-		MEDIA_TYPE_WRITERS.put(getMediaTypeKey(MediaType.APPLICATION_JSON_TYPE), JsonResponseWriter.class);
-	}
+	// map of writers by response content type / media type
+	private static Map<String, Class<? extends HttpResponseWriter>> MEDIA_TYPE_WRITERS = new HashMap<>();
 
 	/**
 	 * Searches for annotations to register routes ...
@@ -69,6 +58,8 @@ public class RestRouter {
 	 * @return Router with routes as defined in {@code restApi} class
 	 */
 	public static Router register(Router router, Object... restApi) {
+
+		initWriters();
 
 		Assert.notNull(router, "Missing vert.x router!");
 
@@ -108,6 +99,25 @@ public class RestRouter {
 		}
 
 		return router;
+	}
+
+	private static void initWriters() {
+
+		if (CLASS_TYPE_WRITERS.size() == 0 &&
+			MEDIA_TYPE_WRITERS.size() == 0) {
+
+			CLASS_TYPE_WRITERS.put(Response.class.getName(), JaxResponseWriter.class);
+			MEDIA_TYPE_WRITERS.put(getMediaTypeKey(MediaType.APPLICATION_JSON_TYPE), JsonResponseWriter.class);
+		}
+	}
+
+	public static void clear() {
+
+		// clears any additionally registered writers and initializes defaults
+		MEDIA_TYPE_WRITERS.clear();
+		CLASS_TYPE_WRITERS.clear();
+
+		initWriters();
 	}
 
 	private static Handler<RoutingContext> getHandler(final Object toInvoke, final RouteDefinition definition, final Method method) {
@@ -169,7 +179,7 @@ public class RestRouter {
 		Assert.notNull(response, "Missing response class!");
 		Assert.notNull(writer, "Missing response writer!");
 
-		WRITERS.put(response.getName(), writer);
+		CLASS_TYPE_WRITERS.put(response.getName(), writer);
 	}
 
 	private static String getMediaTypeKey(MediaType mediaType) {
@@ -195,10 +205,10 @@ public class RestRouter {
 			}
 			else {
 				// try to find appropriate writer if mapped
-				for (String clazz : WRITERS.keySet()) {
+				for (String clazz : CLASS_TYPE_WRITERS.keySet()) {
 
 					if (clazz.equals(returnType.getName())) {
-						writer = WRITERS.get(clazz);
+						writer = CLASS_TYPE_WRITERS.get(clazz);
 						break;
 					}
 				}
