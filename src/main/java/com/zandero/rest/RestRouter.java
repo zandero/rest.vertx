@@ -6,6 +6,7 @@ import com.zandero.rest.writer.*;
 import com.zandero.utils.Assert;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
@@ -131,6 +132,7 @@ public class RestRouter {
 				Object result = method.invoke(toInvoke, args);
 
 				HttpServerResponse response = context.response();
+				HttpServerRequest request = context.request();
 
 				// find suitable writer to produce response
 				HttpResponseWriter writer = getResponseWriter(method.getReturnType(), definition);
@@ -139,7 +141,7 @@ public class RestRouter {
 				writer.addResponseHeaders(definition, response);
 
 				// write response and override headers if necessary
-				writer.write(result, response);
+				writer.write(result, request, response);
 
 				// finish if not finished by writer
 				if (!response.ended()) {
@@ -266,13 +268,15 @@ public class RestRouter {
 
 		Class<? extends HttpResponseWriter> writer = getResponseWriter(mediaType);
 
-		try {
-			// TODO .. might be a good idea to cache writer instances for some time
-			return writer.newInstance();
-		}
-		catch (InstantiationException | IllegalAccessException e) {
-			log.error("Failed to instantiate response writer '" + writer.getName() + "' " + e.getMessage(), e);
-			// TODO: probably best to throw exception here
+		if (writer != null) {
+			try {
+				// TODO .. might be a good idea to cache writer instances for some time
+				return writer.newInstance();
+			}
+			catch (InstantiationException | IllegalAccessException e) {
+				log.error("Failed to instantiate response writer '" + writer.getName() + "' " + e.getMessage(), e);
+				// TODO: probably best to throw exception here
+			}
 		}
 
 		return null;

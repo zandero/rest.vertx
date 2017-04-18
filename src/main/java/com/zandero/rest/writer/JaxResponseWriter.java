@@ -3,6 +3,7 @@ package com.zandero.rest.writer;
 import com.zandero.rest.RestRouter;
 import com.zandero.utils.Assert;
 import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
 import javax.ws.rs.core.NewCookie;
@@ -16,7 +17,7 @@ import java.util.List;
 public class JaxResponseWriter implements HttpResponseWriter {
 
 	@Override
-	public void write(Object result, HttpServerResponse response) {
+	public void write(Object result, HttpServerRequest request, HttpServerResponse response) {
 
 		Assert.notNull(result, "Expected result but got null!");
 		Assert.isTrue(result instanceof Response, "Expected instance of: " + Response.class.getName() + ", but got: " + result.getClass().getName());
@@ -34,7 +35,7 @@ public class JaxResponseWriter implements HttpResponseWriter {
 				HttpResponseWriter writer = RestRouter.getResponseWriterInstance(mediaType);
 
 				if (writer != null && !(writer instanceof JsonResponseWriter)) {
-					writer.write(jax.getEntity(), response);
+					writer.write(jax.getEntity(), request, response);
 				}
 				else {
 					response.end(jax.getEntity().toString());
