@@ -81,7 +81,14 @@ public class RestRouter {
 				}
 
 				// bind method execution
-				Route route = router.route(definition.getMethod(), definition.getPath());
+				Route route;
+				if (definition.pathIsRegEx()) {
+					route = router.routeWithRegex(definition.getMethod(), definition.getRoutePath());
+				}
+				else {
+					route = router.route(definition.getMethod(), definition.getRoutePath());
+				}
+
 				log.info("Registering route: " + definition);
 
 				if (definition.getConsumes() != null) {

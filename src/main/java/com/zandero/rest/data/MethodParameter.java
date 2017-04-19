@@ -24,14 +24,24 @@ public class MethodParameter {
 	private int index;
 
 	/**
-	 * Type of parameter expected by method
+	 * Absolute index in path (if path parameter)
+	 */
+	private int pathIndex = -1;
+
+	/**
+	 * type of parameter expected by method
 	 */
 	private Class<?> dataType;
 
 	/**
-	 * Default value of parameter in case not given on call
+	 * default value of parameter in case not given on call
 	 */
 	private String defaultValue;
+
+	/**
+	 * path is a regular expression
+	 */
+	private String regularExpression;
 
 
 	public MethodParameter(ParameterType parameterType, String paramName) {
@@ -88,5 +98,36 @@ public class MethodParameter {
 	public void setDefaultValue(String value) {
 
 		defaultValue = StringUtils.trimToNull(value);
+	}
+
+	public String getRegEx() {
+
+		return regularExpression;
+	}
+
+	public void setRegEx(String value) {
+
+		value = StringUtils.trimToNull(value);
+
+		if (value != null) {
+			Assert.isTrue(StringUtils.isRegEx(value), "Invalid regular expression: '" + value + "'!");
+		}
+
+		regularExpression = value;
+	}
+
+	public boolean isRegEx() {
+
+		return regularExpression != null;
+	}
+
+	public void setPathIndex(int value) {
+
+		pathIndex = value;
+	}
+
+	public int getPathIndex() {
+
+		return pathIndex;
 	}
 }

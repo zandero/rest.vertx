@@ -23,7 +23,16 @@ public class RouteDefinition {
 
 	private final String DELIMITER = "/";
 
+	/**
+	 * Original path
+	 */
 	private String path = DELIMITER;
+
+	/**
+	 * Converted path (the route), in case of regular expression paths
+	 * otherwise null
+	 */
+	private String routePath = null;
 
 	private String[] consumes = null;
 
@@ -67,15 +76,14 @@ public class RouteDefinition {
 				path(((Path) annotation).value());
 			}
 
-			if (annotation instanceof PathParam) {
+			/*if (annotation instanceof PathParam) {
 				// find path param and determine argument index and to be extracted from request
 			}
 
 			if (annotation instanceof QueryParam) {
 				// add query param ... to be extracted from request once method is called
 
-			}
-
+			}*/
 
 			if (annotation instanceof Produces) {
 				produces(((Produces) annotation).value());
@@ -111,6 +119,7 @@ public class RouteDefinition {
 
 		Assert.notNullOrEmptyTrimmed(subPath, "Missing or empty route '@Path'!");
 
+		// clean up path so all paths end with "/"
 		if (subPath.length() == 1 && DELIMITER.equals(subPath)) {
 			return this;
 		}
@@ -123,12 +132,6 @@ public class RouteDefinition {
 			subPath = subPath.substring(0, subPath.length() - 1); // remove trailing "/"
 		}
 
-		// convert path to Vert.X format
-		subPath = PathConverter.convert(subPath);
-
-		// extract parameters if any
-		List<MethodParameter> params = PathConverter.extract(subPath);
-		params(params);
 
 		if (DELIMITER.equals(path)) { // default
 			path = subPath;
@@ -137,9 +140,16 @@ public class RouteDefinition {
 			path = path + subPath;
 		}
 
-		// ToDo ... get pathParams ...
+		// extract parameters if any
+		List<MethodParameter> params = PathConverter.extract(path);
+		params(params);
+
+		// convert path to Vert.X format
+		routePath = PathConverter.convert(path);
+
 		return this;
 	}
+
 
 	public RouteDefinition consumes(String[] value) {
 
@@ -173,6 +183,8 @@ public class RouteDefinition {
 			return this;
 		}
 
+		params.clear();
+
 		// check if param is already present
 		for (MethodParameter parameter : pathParams) {
 			if (params.get(parameter.getName()) != null) {
@@ -185,6 +197,11 @@ public class RouteDefinition {
 		return this;
 	}
 
+	/**
+	 * Extracts method arguments and links them with annotated route parameters
+	 * @param parameterTypes argument types (expected from method)
+	 * @param parameters array of annotations for each parameter type
+	 */
 	public void setParameters(Class<?>[] parameterTypes, Annotation[][] parameters) {
 
 		int index = 0;
@@ -195,7 +212,7 @@ public class RouteDefinition {
 			ParameterType type = null;
 			String defaultValue = null;
 
-			for (Annotation annotation: ann) {
+			for (Annotation annotation : ann) {
 
 				if (annotation instanceof PathParam) {
 					// find path param ... and set index ...
@@ -243,7 +260,7 @@ public class RouteDefinition {
 			MethodParameter parameter = provideParameter(name, type, defaultValue, parameterTypes[index], index);
 			params.put(name, parameter);
 
-			index ++;
+			index++;
 		}
 	}
 
@@ -273,6 +290,23 @@ public class RouteDefinition {
 	public String getPath() {
 
 		return path;
+	}
+
+	public String getRoutePath() {
+
+		if (pathIsRegEx())
+			return regExPathEscape(routePath);
+
+		return routePath;
+	}
+
+	private String regExPathEscape(String path) {
+
+		if (path == null) {
+			return null;
+		}
+
+		return path.replaceAll("\\/", "\\\\/");
 	}
 
 	public String[] getConsumes() {
@@ -309,12 +343,27 @@ public class RouteDefinition {
 	public boolean requestHasBody() {
 
 		return !(HttpMethod.GET.equals(method) ||
-				 HttpMethod.HEAD.equals(method));
+			HttpMethod.HEAD.equals(method));
 	}
 
 	@Override
 	public String toString() {
 
-		return method + " " + path;
+		return method + " " + routePath;
+	}
+
+	public boolean pathIsRegEx() {
+
+		if (params == null) {
+			return false;
+		}
+
+		for (MethodParameter param: params.values()) {
+			if (param.isRegEx()) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

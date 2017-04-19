@@ -1,6 +1,7 @@
 package com.zandero.rest.data;
 
 import com.zandero.rest.test.TestPostRest;
+import com.zandero.rest.test.TestRegExRest;
 import com.zandero.rest.test.TestRest;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.http.HttpMethod;
@@ -69,5 +70,25 @@ public class RouteDefinitionTest {
 		assertEquals(ParameterType.header, param.getType());
 		assertEquals(String.class, param.getDataType());
 		assertNull(param.getDefaultValue());
+	}
+
+	@Test
+	public void regExDefinitionTest() {
+
+		RouteDefinition base = new RouteDefinition(TestRegExRest.class);
+
+		// 1.
+		Method method = TestRegExRest.class.getMethods()[0];
+		RouteDefinition def = new RouteDefinition(base, method.getAnnotations());
+		assertEquals("/regEx/\\d", def.getPath());
+		assertEquals("\\/regEx\\/\\d", def.getRoutePath());
+		assertTrue(def.pathIsRegEx());
+
+		// 2.
+		method = TestRegExRest.class.getMethods()[1];
+		def = new RouteDefinition(base, method.getAnnotations());
+		assertEquals("/regEx/{one:\\w}/{two:\\d}/{three:\\s}", def.getPath());
+		assertEquals("\\/regEx\\/:one\\/\\d\\/:three", def.getRoutePath());
+		assertTrue(def.pathIsRegEx());
 	}
 }

@@ -3,6 +3,7 @@ package com.zandero.rest.data;
 import com.zandero.utils.Assert;
 import com.zandero.utils.JsonUtils;
 import com.zandero.utils.UrlUtils;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.RoutingContext;
 
 import java.util.List;
@@ -28,7 +29,13 @@ public class ArgumentProvider {
 			String value = null;
 			switch (parameter.getType()) {
 				case path:
-					value = context.request().getParam(parameter.getName());
+
+					if (definition.pathIsRegEx()) { // params values are given by index
+						value = getParam(context.request(), parameter.getPathIndex());
+					}
+					else {
+						value = context.request().getParam(parameter.getName());
+					}
 					break;
 
 				case query:
@@ -63,6 +70,30 @@ public class ArgumentProvider {
 		return args;
 	}
 
+
+	private static String getParam(HttpServerRequest request, int index) {
+
+		String param = request.getParam("param" + index);
+		if (param == null) { // failed to get directly ... try from request path
+
+			List<MethodParameter> params = PathConverter.extract(request.path());
+
+			String[] items = request.path().split("/");
+			if (index < items.length) {
+				return items[index];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Tries to convert given String argument to specific type as expeced by the method being called
+	 * @param dataType to convert argument into
+	 * @param value argument value
+	 * @param defaultValue argument default value in case not given
+	 * @return transformed argument into dataType type
+	 */
 	static Object convert(Class<?> dataType, String value, String defaultValue) {
 
 		if (value == null) {
