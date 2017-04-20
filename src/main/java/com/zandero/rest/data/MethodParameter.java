@@ -59,6 +59,14 @@ public class MethodParameter {
 		argument(argumentType, argumentIndex);
 	}
 
+	public MethodParameter argument(Class<?> argumentType) {
+
+		Assert.notNull(argumentType, "Missing argument type!");
+
+		dataType = argumentType;
+		return this;
+	}
+
 	public MethodParameter argument(Class<?> argumentType, int argumentIndex) {
 
 		Assert.isTrue(argumentIndex >= 0, "Can't set negative argument index!");
@@ -129,5 +137,10 @@ public class MethodParameter {
 	public int getPathIndex() {
 
 		return pathIndex;
+	}
+
+	public void setType(Class<?> type) {
+
+		dataType = type;
 	}
 }

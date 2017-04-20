@@ -15,8 +15,8 @@ public class TestRegExRest {
 
 	@GET
 	@Path("/\\d")
-	public Response test() {
-		return Response.ok().build();
+	public Response test(int one) {
+		return Response.ok(one).build();
 	}
 
 	@GET

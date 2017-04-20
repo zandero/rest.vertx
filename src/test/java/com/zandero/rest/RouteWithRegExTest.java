@@ -40,7 +40,7 @@ public class RouteWithRegExTest extends VertxTest {
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("3", body.toString());
+				context.assertEquals("1", body.toString());
 				async.complete();
 			});
 		});

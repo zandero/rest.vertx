@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
 
 /**
@@ -199,14 +201,17 @@ public class RouteDefinition {
 
 	/**
 	 * Extracts method arguments and links them with annotated route parameters
-	 * @param parameterTypes argument types (expected from method)
-	 * @param parameters array of annotations for each parameter type
+	 * @param method to extract argument types and annotations from
 	 */
-	public void setParameters(Class<?>[] parameterTypes, Annotation[][] parameters) {
+	public void setParameters(Method method) {
+
+		Parameter[] parameters = method.getParameters();
+		Class<?>[] parameterTypes = method.getParameterTypes();
+		Annotation[][] annotations = method.getParameterAnnotations();
 
 		int index = 0;
 
-		for (Annotation[] ann : parameters) {
+		for (Annotation[] ann : annotations) {
 
 			String name = null;
 			ParameterType type = null;
@@ -246,22 +251,55 @@ public class RouteDefinition {
 				if (annotation instanceof Context) {
 
 					type = ParameterType.context;
-					name = parameterTypes[index].getName();
+					name = parameters[index].getName();
+					// todo check if context is supported and provide additional info, so context can be resolved
 				}
 			}
 
 			// if no name provided than parameter is considered the request body
 			if (name == null) {
 
-				name = parameterTypes[index].getName();
-				type = ParameterType.body;
+				// try to find out what parameter type it is ... POST, PUT have a body ...
+				// regEx path might not have a name ...
+				MethodParameter param = getMethodParameterByIndex(index);
+				if (param != null) {
+
+					Assert.isNull(param.getDataType(), "Duplicate argument type given: " + parameters[index].getName());
+					param.argument(parameterTypes[index]); // set missing argument type
+				}
+				else {
+
+					Assert.isTrue(requestHasBody(), "Missing argument annotation (@PathParam, @QueryParam, @Header, @Context) for: " + parameterTypes[index].getName() + " " + parameters[index].getName());
+
+					name = parameters[index].getName();
+					type = ParameterType.body;
+				}
 			}
 
-			MethodParameter parameter = provideParameter(name, type, defaultValue, parameterTypes[index], index);
-			params.put(name, parameter);
+			if (name != null) {
+				Assert.isNull(params.get(name), "Duplicate argument: " + name + " " + type + ", found in: " + method.getName());
+
+				MethodParameter parameter = provideParameter(name, type, defaultValue, parameterTypes[index], index);
+				params.put(name, parameter);
+			}
 
 			index++;
 		}
+	}
+
+	private MethodParameter getMethodParameterByIndex(int index) {
+
+		if (params == null) {
+			return null;
+		}
+
+		for (MethodParameter parameter: params.values()) {
+			if (parameter.getIndex() == index) {
+				return parameter;
+			}
+		}
+
+		return null;
 	}
 
 	private MethodParameter provideParameter(String name, ParameterType type, String defaultValue, Class<?> parameterType, int index) {

@@ -15,14 +15,18 @@ import java.util.Map;
 public class ArgumentProvider {
 
 	// TODO: move out of here ...
-	public static Object[] getArguments(RouteDefinition definition, RoutingContext context) {
+	public static Object[] getArguments(Class<?>[] methodArguments, RouteDefinition definition, RoutingContext context) {
+
+		if (methodArguments.length == 0) {
+			return null;
+		}
 
 		// get parameters and extract from request their values
 		List<MethodParameter> params = definition.getParameters(); // returned sorted by index
 
 		Map<String, String> query = UrlUtils.getQuery(context.request().query());
 
-		Object[] args = new Object[params.size()];
+		Object[] args = new Object[methodArguments.length];
 
 		for (MethodParameter parameter : params) {
 			// get values
@@ -60,11 +64,16 @@ public class ArgumentProvider {
 					break;
 			}
 
-			if (parameter.getIndex() > args.length) {
-				// TODO: throw exception
-			}
+			// set if we have a place to set it ... otherwise ignore
+			if (parameter.getIndex() < args.length) {
 
-			args[parameter.getIndex()] = convert(parameter.getDataType(), value, parameter.getDefaultValue());
+				Class<?> dataType = parameter.getDataType();
+				if (dataType == null) {
+					dataType = methodArguments[parameter.getIndex()];
+				}
+
+				args[parameter.getIndex()] = convert(dataType, value, parameter.getDefaultValue());
+			}
 		}
 
 		return args;

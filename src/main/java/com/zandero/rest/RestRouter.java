@@ -135,7 +135,7 @@ public class RestRouter {
 
 			try {
 
-				Object[] args = ArgumentProvider.getArguments(definition, context);
+				Object[] args = ArgumentProvider.getArguments(method.getParameterTypes(), definition, context);
 				Object result = method.invoke(toInvoke, args);
 
 				HttpServerResponse response = context.response();

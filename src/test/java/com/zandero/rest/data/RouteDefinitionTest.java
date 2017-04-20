@@ -52,7 +52,7 @@ public class RouteDefinitionTest {
 		Method method = TestPostRest.class.getMethods()[0];
 		RouteDefinition def = new RouteDefinition(base, method.getAnnotations());
 
-		def.setParameters(method.getParameterTypes(), method.getParameterAnnotations());
+		def.setParameters(method);
 
 		assertEquals("/post/json", def.getPath());
 		assertEquals(HttpMethod.POST, def.getMethod());
@@ -60,7 +60,7 @@ public class RouteDefinitionTest {
 		assertEquals(2, def.getParameters().size());
 
 		MethodParameter param = def.getParameters().get(0);
-		assertEquals(Dummy.class.getName(), param.getName());
+		assertEquals("arg0", param.getName());
 		assertEquals(ParameterType.body, param.getType());
 		assertEquals(Dummy.class, param.getDataType());
 		assertNull(param.getDefaultValue());
@@ -88,7 +88,7 @@ public class RouteDefinitionTest {
 		method = TestRegExRest.class.getMethods()[1];
 		def = new RouteDefinition(base, method.getAnnotations());
 		assertEquals("/regEx/{one:\\w}/{two:\\d}/{three:\\s}", def.getPath());
-		assertEquals("\\/regEx\\/:one\\/\\d\\/:three", def.getRoutePath());
+		assertEquals("\\/regEx\\/\\w\\/\\d\\/\\s", def.getRoutePath());
 		assertTrue(def.pathIsRegEx());
 	}
 }
