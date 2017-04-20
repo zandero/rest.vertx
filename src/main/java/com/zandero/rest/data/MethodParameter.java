@@ -139,8 +139,14 @@ public class MethodParameter {
 		return pathIndex;
 	}
 
-	public void setType(Class<?> type) {
+	@Override
+	public String toString() {
 
-		dataType = type;
+		if (ParameterType.body.equals(type)) {
+			return type.getDescription();
+		}
+
+		return type.getDescription() + "(\"" + name + "\")";
 	}
+
 }

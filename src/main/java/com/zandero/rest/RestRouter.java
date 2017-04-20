@@ -116,7 +116,9 @@ public class RestRouter {
 			MEDIA_TYPE_WRITERS.size() == 0) {
 
 			CLASS_TYPE_WRITERS.put(Response.class.getName(), JaxResponseWriter.class);
+
 			MEDIA_TYPE_WRITERS.put(getMediaTypeKey(MediaType.APPLICATION_JSON_TYPE), JsonResponseWriter.class);
+			MEDIA_TYPE_WRITERS.put(getMediaTypeKey(MediaType.TEXT_PLAIN_TYPE), GenericResponseWriter.class);
 		}
 	}
 
@@ -135,7 +137,8 @@ public class RestRouter {
 
 			try {
 
-				Object[] args = ArgumentProvider.getArguments(method.getParameterTypes(), definition, context);
+				Object[] args = ArgumentProvider.getArguments(method, definition, context);
+
 				Object result = method.invoke(toInvoke, args);
 
 				HttpServerResponse response = context.response();
@@ -166,6 +169,16 @@ public class RestRouter {
 				context.response().setStatusCode(500).end(e.getMessage());
 			}
 		};
+	}
+
+	/**
+	 * Checks if given arguments can be applied to method call
+	 * @param method to be called
+	 * @param args call arguments
+	 */
+	private static void checkArguments(Method method, Object[] args) {
+
+
 	}
 
 	public static void registerWriter(String mediaType, Class<? extends HttpResponseWriter> writer) {
@@ -211,8 +224,10 @@ public class RestRouter {
 	 */
 	private static HttpResponseWriter getResponseWriter(Class<?> returnType, RouteDefinition definition) {
 
+		// 1. if route has a explicit writer defined ... then return this writer
 		Class<? extends HttpResponseWriter> writer = definition.getWriter();
 
+		// 2. if no writer is specified ... try to find appropriate writer by response type
 		if (writer == null) {
 
 			if (returnType == null) {
@@ -246,15 +261,7 @@ public class RestRouter {
 
 		if (writer != null) {
 
-			// create writer instance
-			try {
-				// TODO .. might be a good idea to cache writer instances for some time
-				return writer.newInstance();
-			}
-			catch (InstantiationException | IllegalAccessException e) {
-				log.error("Failed to instantiate response writer '" + writer.getName() + "' " + e.getMessage(), e);
-				// TODO: probably best to throw exception here
-			}
+			return getResponseWriterInstance(writer);
 		}
 
 		// fall back to generic writer ...
@@ -271,9 +278,7 @@ public class RestRouter {
 		return MEDIA_TYPE_WRITERS.get(getMediaTypeKey(type));
 	}
 
-	public static HttpResponseWriter getResponseWriterInstance(String mediaType) {
-
-		Class<? extends HttpResponseWriter> writer = getResponseWriter(mediaType);
+	private static HttpResponseWriter getResponseWriterInstance(Class<? extends HttpResponseWriter> writer) {
 
 		if (writer != null) {
 			try {
@@ -287,5 +292,11 @@ public class RestRouter {
 		}
 
 		return null;
+	}
+
+	public static HttpResponseWriter getResponseWriterInstance(String mediaType) {
+
+		Class<? extends HttpResponseWriter> writer = getResponseWriter(mediaType);
+		return getResponseWriterInstance(writer);
 	}
 }

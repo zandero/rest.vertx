@@ -22,7 +22,7 @@ public class AnnotationProcessorTest {
 
 		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(TestRest.class);
 
-		assertEquals(8, definitions.size());
+		assertEquals(9, definitions.size());
 
 		// check
 		for (RouteDefinition definition : definitions.keySet()) {

@@ -8,30 +8,42 @@ public enum ParameterType {
 	/**
 	 * REST path parameter
 	 */
-	path,
+	path("@PathParam"),
 
 	/**
 	 * Rest query parameter
 	 */
-	query,
+	query("@QueryParam"),
 
 	/**
 	 * Form parameter
 	 */
-	form,
+	form("@FormParam"),
 
 	/**
 	 * Request header
 	 */
-	header,
+	header("@HeaderParam"),
 
 	/**
 	 * Request body
 	 */
-	body,
+	body("body"),
 
 	/**
 	 * Any Vert.x available context ...
 	 */
-	context
+	context("@Context");
+
+	private final String description;
+
+	ParameterType(String value) {
+
+		description = value;
+	}
+
+	public String getDescription() {
+
+		return description;
+	}
 }

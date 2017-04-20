@@ -269,7 +269,7 @@ public class RouteDefinition {
 
 				// try to find out what parameter type it is ... POST, PUT have a body ...
 				// regEx path might not have a name ...
-				MethodParameter param = getMethodParameterByIndex(index);
+				MethodParameter param = findParameter(index);
 				if (param != null) {
 
 					Assert.isNull(param.getDataType(), "Duplicate argument type given: " + parameters[index].getName());
@@ -277,7 +277,7 @@ public class RouteDefinition {
 				}
 				else {
 
-					Assert.isTrue(requestHasBody(), "Missing argument annotation (@PathParam, @QueryParam, @Header, @Context) for: " + parameterTypes[index].getName() + " " + parameters[index].getName());
+					Assert.isTrue(requestHasBody(), "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @Context) for: " + parameterTypes[index].getName() + " " + parameters[index].getName());
 
 					name = parameters[index].getName();
 					type = ParameterType.body;
@@ -293,7 +293,7 @@ public class RouteDefinition {
 		}
 	}
 
-	private MethodParameter getMethodParameterByIndex(int index) {
+	public MethodParameter findParameter(int index) {
 
 		if (params == null) {
 			return null;

@@ -3,8 +3,10 @@ package com.zandero.rest.test;
 import com.zandero.rest.annotation.ResponseWriter;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.rest.test.writer.TestCustomWriter;
+import io.vertx.core.http.HttpServerRequest;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -78,5 +80,13 @@ public class TestRest {
 		postParam.value = "Received-" + postParam.value;
 
 		return postParam;
+	}
+
+	@GET
+	@Path("/context/path")
+	@Produces("text/plain")
+	public String getRoutePath(@Context HttpServerRequest request) {
+
+		return request.absoluteURI();
 	}
 }

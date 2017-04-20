@@ -47,6 +47,40 @@ public class RouteWithQueryTest extends VertxTest {
 	}
 
 	@Test
+	public void additionalParametersTest(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/query/add?one=3&two=5&three=3", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("8", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void missingParametersTest(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/query/add?two=5&three=3", response -> {
+
+			context.assertEquals(400, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("Missing @QueryParam(\"one\") for: /query/add", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
 	public void queryTypeMismatchTest(TestContext context) {
 
 		final Async async = context.async();
@@ -56,7 +90,7 @@ public class RouteWithQueryTest extends VertxTest {
 			context.assertEquals(400, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("Invalid argument type provided, expected: int but got: java.lang.String: A", body.toString());
+				context.assertEquals("Invalid parameter type for: @QueryParam(\"one\") for: /query/add, expected: int, but got: String", body.toString());
 				async.complete();
 			});
 		});

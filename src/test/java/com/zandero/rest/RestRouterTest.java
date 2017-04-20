@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 
 /**
- *
+ * Basic GET, POST tests
  */
 @RunWith(VertxUnitRunner.class)
 public class RestRouterTest extends VertxTest {
@@ -157,5 +157,20 @@ public class RestRouterTest extends VertxTest {
 		}).putHeader("Content-Type", "application/json").end(json);
 
 	//	async.complete();
+	}
+
+	@Test
+	public void contextTest(TestContext context) {
+
+		final Async async = context.async();
+		client.getNow("/test/context/path", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("http://localhost:4444/test/context/path", body.toString());
+				async.complete();
+			});
+		});
 	}
 }
