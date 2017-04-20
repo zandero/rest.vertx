@@ -2,6 +2,7 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.ResponseWriter;
+import com.zandero.rest.annotation.RouteOrder;
 import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
@@ -46,6 +47,8 @@ public class RouteDefinition {
 
 	private Map<String, MethodParameter> params = new HashMap<>();
 
+	private int order;
+
 	public RouteDefinition(Class clazz) {
 
 		Class annotatedClass = AnnotationProcessor.getClassWithAnnotation(clazz, Path.class);
@@ -69,23 +72,22 @@ public class RouteDefinition {
 		init(annotations);
 	}
 
+	/**
+	 * Sets path secifics
+	 * @param annotations list of method annotations
+	 */
 	private void init(Annotation[] annotations) {
 
 		for (Annotation annotation : annotations) {
 			//log.info(annotation.toString());
 
+			if (annotation instanceof RouteOrder) {
+				order(((RouteOrder) annotation).value());
+			}
+
 			if (annotation instanceof Path) {
 				path(((Path) annotation).value());
 			}
-
-			/*if (annotation instanceof PathParam) {
-				// find path param and determine argument index and to be extracted from request
-			}
-
-			if (annotation instanceof QueryParam) {
-				// add query param ... to be extracted from request once method is called
-
-			}*/
 
 			if (annotation instanceof Produces) {
 				produces(((Produces) annotation).value());
@@ -115,6 +117,12 @@ public class RouteDefinition {
 				writer = ((ResponseWriter) annotation).value();
 			}
 		}
+	}
+
+	private RouteDefinition order(int value) {
+
+		order = value;
+		return this;
 	}
 
 	public RouteDefinition path(String subPath) {
@@ -203,7 +211,7 @@ public class RouteDefinition {
 	 * Extracts method arguments and links them with annotated route parameters
 	 * @param method to extract argument types and annotations from
 	 */
-	public void setParameters(Method method) {
+	public void setArguments(Method method) {
 
 		Parameter[] parameters = method.getParameters();
 		Class<?>[] parameterTypes = method.getParameterTypes();
@@ -277,9 +285,7 @@ public class RouteDefinition {
 			}
 
 			if (name != null) {
-				Assert.isNull(params.get(name), "Duplicate argument: " + name + " " + type + ", found in: " + method.getName());
-
-				MethodParameter parameter = provideParameter(name, type, defaultValue, parameterTypes[index], index);
+				MethodParameter parameter = provideArgument(name, type, defaultValue, parameterTypes[index], index);
 				params.put(name, parameter);
 			}
 
@@ -302,7 +308,7 @@ public class RouteDefinition {
 		return null;
 	}
 
-	private MethodParameter provideParameter(String name, ParameterType type, String defaultValue, Class<?> parameterType, int index) {
+	private MethodParameter provideArgument(String name, ParameterType type, String defaultValue, Class<?> parameterType, int index) {
 
 		Assert.notNull(type, "Argument: " + name + " (" + parameterType + ") can't be provided with Vert.x request, check and annotate method arguments!");
 
@@ -317,7 +323,7 @@ public class RouteDefinition {
 
 			default:
 				MethodParameter existing = params.get(name);
-				Assert.isNull(existing, "Duplicate parameter: " + name + ", already provided!"); // param should not exist!
+				Assert.isNull(existing, "Duplicate argument: " + name + ", already provided!"); // param should not exist!
 
 				MethodParameter newParam = new MethodParameter(type, name, parameterType, index);
 				newParam.setDefaultValue(defaultValue);

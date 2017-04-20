@@ -35,12 +35,29 @@ public class RouteWithRegExTest extends VertxTest {
 		// call and check response
 		final Async async = context.async();
 
-		client.getNow("/regEx/1", response -> {
+		client.getNow("/regEx/123", response -> {
 
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("1", body.toString());
+				context.assertEquals("123", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void testRegEx(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/regEx/ena/2/tri", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("{one=ena, two=2, three=tri}", body.toString());
 				async.complete();
 			});
 		});

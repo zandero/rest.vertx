@@ -1,5 +1,7 @@
 package com.zandero.rest.test;
 
+import com.zandero.rest.annotation.RouteOrder;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -13,14 +15,16 @@ import java.util.Map;
 @Path("regEx")
 public class TestRegExRest {
 
+	@RouteOrder(20)
 	@GET
-	@Path("/\\d")
+	@Path("/\\d+")
 	public Response test(int one) {
 		return Response.ok(one).build();
 	}
 
+	@RouteOrder(10)
 	@GET
-	@Path("/{one:\\w}/{two:\\d}/{three:\\s}")
+	@Path("/{one:\\w+}/{two:\\d+}/{three:\\w+}")
 	public Response oneTwoThree(@PathParam("two") int two, @PathParam("one") String one, @PathParam("three") String three) {
 
 		Map<String, String> map = new HashMap<>();

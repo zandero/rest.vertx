@@ -52,7 +52,7 @@ public class RouteDefinitionTest {
 		Method method = TestPostRest.class.getMethods()[0];
 		RouteDefinition def = new RouteDefinition(base, method.getAnnotations());
 
-		def.setParameters(method);
+		def.setArguments(method);
 
 		assertEquals("/post/json", def.getPath());
 		assertEquals(HttpMethod.POST, def.getMethod());
