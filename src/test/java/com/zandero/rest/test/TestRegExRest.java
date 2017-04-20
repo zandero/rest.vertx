@@ -17,13 +17,6 @@ public class TestRegExRest {
 
 	@RouteOrder(20)
 	@GET
-	@Path("/\\d+")
-	public Response test(int one) {
-		return Response.ok(one).build();
-	}
-
-	@RouteOrder(10)
-	@GET
 	@Path("/{one:\\w+}/{two:\\d+}/{three:\\w+}")
 	public Response oneTwoThree(@PathParam("two") int two, @PathParam("one") String one, @PathParam("three") String three) {
 
@@ -33,5 +26,12 @@ public class TestRegExRest {
 		map.put("three", three);
 
 		return Response.ok(map).build();
+	}
+
+	@RouteOrder(10)
+	@GET
+	@Path("/\\d+")
+	public Response test(int one) {
+		return Response.ok(one).build();
 	}
 }

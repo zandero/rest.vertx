@@ -368,6 +368,11 @@ public class RouteDefinition {
 		return method;
 	}
 
+	public int getOrder() {
+
+		return order;
+	}
+
 	public Class<? extends HttpResponseWriter> getWriter() {
 
 		return writer;
@@ -390,12 +395,6 @@ public class RouteDefinition {
 			HttpMethod.HEAD.equals(method));
 	}
 
-	@Override
-	public String toString() {
-
-		return method + " " + routePath;
-	}
-
 	public boolean pathIsRegEx() {
 
 		if (params == null) {
@@ -409,5 +408,11 @@ public class RouteDefinition {
 		}
 
 		return false;
+	}
+
+	@Override
+	public String toString() {
+
+		return method + " " + routePath;
 	}
 }

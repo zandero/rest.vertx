@@ -80,15 +80,15 @@ public class RouteDefinitionTest {
 		// 1.
 		Method method = TestRegExRest.class.getMethods()[0];
 		RouteDefinition def = new RouteDefinition(base, method.getAnnotations());
-		assertEquals("/regEx/\\d", def.getPath());
-		assertEquals("\\/regEx\\/\\d", def.getRoutePath());
+		assertEquals("/regEx/\\d+", def.getPath());
+		assertEquals("\\/regEx\\/\\d+", def.getRoutePath());
 		assertTrue(def.pathIsRegEx());
 
 		// 2.
 		method = TestRegExRest.class.getMethods()[1];
 		def = new RouteDefinition(base, method.getAnnotations());
-		assertEquals("/regEx/{one:\\w}/{two:\\d}/{three:\\s}", def.getPath());
-		assertEquals("\\/regEx\\/\\w\\/\\d\\/\\s", def.getRoutePath());
+		assertEquals("/regEx/{one:\\w+}/{two:\\d+}/{three:\\w+}", def.getPath());
+		assertEquals("\\/regEx\\/\\w+\\/\\d+\\/\\w+", def.getRoutePath());
 		assertTrue(def.pathIsRegEx());
 	}
 }

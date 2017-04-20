@@ -2,11 +2,13 @@ package com.zandero.rest;
 
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.utils.Assert;
+import com.zandero.utils.MapUtils;
 
 import javax.ws.rs.Path;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -32,7 +34,7 @@ public final class AnnotationProcessor {
 		RouteDefinition root = new RouteDefinition(clazz);
 
 		// go over methods ...
-		Map<RouteDefinition, Method> output = new HashMap<>();
+		Map<RouteDefinition, Method> output = new LinkedHashMap<>();
 		for (Method method : clazz.getMethods()) {
 
 			if (method.getAnnotation(Path.class) != null) { // Path must be present
@@ -43,6 +45,8 @@ public final class AnnotationProcessor {
 				output.put(definition, method);
 			}
 		}
+
+		output = MapUtils.sort(output, Comparator.comparing(route -> route.getKey().getOrder()));
 
 		return output;
 	}
