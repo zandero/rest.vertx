@@ -2,7 +2,7 @@ package com.zandero.rest.reader;
 
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.data.RouteDefinition;
-import com.zandero.rest.exception.ExecuteException;
+import com.zandero.rest.exception.ClassFactoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class ReaderFactory extends ClassFactory<HttpRequestBodyReader> {
 			HttpRequestBodyReader reader = get(returnType, definition.getReader(), definition.getConsumes());
 			return reader != null ? reader : new GenericBodyReader();
 		}
-		catch (ExecuteException e) {
+		catch (ClassFactoryException e) {
 			log.error("Failed to provide request body reader: " + returnType + ", for: " + definition + ", falling back to GenericBodyReader() instead!");
 			return new GenericBodyReader();
 		}

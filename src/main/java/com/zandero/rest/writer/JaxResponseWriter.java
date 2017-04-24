@@ -1,6 +1,7 @@
 package com.zandero.rest.writer;
 
 import com.zandero.rest.RestRouter;
+import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.utils.Assert;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
@@ -32,7 +33,14 @@ public class JaxResponseWriter implements HttpResponseWriter {
 
 				// try to find appropriate writer ...
 				String mediaType = response.headers().get(HttpHeaders.CONTENT_TYPE);
-				HttpResponseWriter writer = RestRouter.getWriters().get(mediaType); // TODO: ... reconsider this logic ...
+
+				HttpResponseWriter writer;
+				try {
+					writer = RestRouter.getWriters().get(mediaType); // TODO: ... reconsider this logic ...
+				}
+				catch (ClassFactoryException e) {
+					writer = null;
+				}
 
 				if (writer != null && !(writer instanceof JsonResponseWriter)) {
 					writer.write(jax.getEntity(), request, response);
@@ -47,7 +55,7 @@ public class JaxResponseWriter implements HttpResponseWriter {
 		}
 	}
 
-	public static void addHeaders(Response jaxrsResponse, HttpServerResponse response) {
+	private static void addHeaders(Response jaxrsResponse, HttpServerResponse response) {
 
 		if (jaxrsResponse.getMetadata() != null) {
 

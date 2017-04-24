@@ -2,7 +2,7 @@ package com.zandero.rest.writer;
 
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.data.RouteDefinition;
-import com.zandero.rest.exception.ExecuteException;
+import com.zandero.rest.exception.ClassFactoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 			HttpResponseWriter writer = get(returnType, definition.getWriter(), definition.getProduces());
 			return writer != null ? writer : new GenericResponseWriter();
 		}
-		catch (ExecuteException e) {
+		catch (ClassFactoryException e) {
 			log.error("Failed to provide response writer: " + returnType + ", for: " + definition + ", falling back to GenericResponseWriter() instead!");
 			return new GenericResponseWriter();
 		}

@@ -1,6 +1,6 @@
 package com.zandero.rest.data;
 
-import com.zandero.rest.exception.ExecuteException;
+import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.utils.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,23 +47,23 @@ public abstract class ClassFactory<T> {
 		return cache.get(reader.getName());
 	}
 
-	protected T getClassInstance(Class<? extends T> writer) {
+	protected T getClassInstance(Class<? extends T> clazz) throws ClassFactoryException {
 
-		if (writer != null) {
+		if (clazz != null) {
 			try {
 
-				T instance = getCached(writer);
+				T instance = getCached(clazz);
 				if (instance == null) {
 
-					instance = writer.newInstance();
+					instance = clazz.newInstance();
 					cache(instance);
 				}
 
 				return instance;
 			}
 			catch (InstantiationException | IllegalAccessException e) {
-				log.error("Failed to instantiate response writer '" + writer.getName() + "' " + e.getMessage(), e);
-				// TODO: probably best to throw exception here
+				log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
+				throw new ClassFactoryException("Failed to instatinate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
 			}
 		}
 
@@ -99,7 +99,7 @@ public abstract class ClassFactory<T> {
 		classTypes.put(response.getName(), clazz);
 	}
 
-	public T get(Class<?> returnType, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ExecuteException {
+	public T get(Class<?> returnType, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ClassFactoryException {
 
 		Class<? extends T> reader = byDefinition;
 
@@ -141,7 +141,7 @@ public abstract class ClassFactory<T> {
 		return mediaTypes.get(MediaTypeHelper.getKey(mediaType));
 	}
 
-	public T get(String mediaType) {
+	public T get(String mediaType) throws ClassFactoryException {
 
 		Class<? extends T> clazz = get(MediaType.valueOf(mediaType));
 		return getClassInstance(clazz);
