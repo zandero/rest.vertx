@@ -144,7 +144,7 @@ public class RestRouter {
 					produceResponse(result, context, method, definition);
 				}
 			}
-			catch (IllegalArgumentException e) { // TODO: replace with custom exception
+			catch (IllegalArgumentException e) {
 
 				ExecuteException ex = new ExecuteException(400, e);
 				produceResponse(ex, context, method, definition);
@@ -157,13 +157,10 @@ public class RestRouter {
 		try {
 			return method.invoke(toInvoke, arguments);
 		}
-		catch (IllegalArgumentException e) { // TODO: replace with custom exception
-			//log.error("Invalid parameters provided: " + e.getMessage(), e);
+		catch (IllegalArgumentException e) {
 			return new ExecuteException(400, e);
 		}
 		catch (IllegalAccessException | InvocationTargetException e) {
-			// return 500 error with stack trace
-			//log.error("Failed to call: " + method.getName() + " " + e.getMessage(), e);
 			return new ExecuteException(500, e);
 		}
 	}
@@ -184,8 +181,9 @@ public class RestRouter {
 			HttpServerRequest request = context.request();
 
 			// find suitable writer to produce response
-			HttpResponseWriter writer = writers.getResponseWriter(method.getReturnType(), definition);
+			HttpResponseWriter writer;
 
+			writer = writers.getResponseWriter(method.getReturnType(), definition);
 			// add default response headers per definition
 			writer.addResponseHeaders(definition, response);
 

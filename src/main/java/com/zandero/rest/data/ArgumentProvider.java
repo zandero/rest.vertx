@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * Extracts arguments to be provided for given method from definition and current context (request)
  */
 public class ArgumentProvider {
 
@@ -25,6 +25,7 @@ public class ArgumentProvider {
 		Assert.notNull(method, "Missing method to provide arguments for!");
 		Assert.notNull(definition, "Missing route definition!");
 		Assert.notNull(context, "Missing vert.x routing context!");
+		Assert.notNull(bodyReader, "Missing request body reader!");
 
 		Class<?>[] methodArguments = method.getParameterTypes();
 
@@ -170,6 +171,7 @@ public class ArgumentProvider {
 			return context.user();
 		}
 
+
 		// TODO: add possibility to register some custom context object to be then provided as method parameter
 
 		return null;
@@ -188,58 +190,4 @@ public class ArgumentProvider {
 
 		return null;
 	}
-
-	/*static Object stringToPrimitiveType(Class<?> dataType, String value) {
-
-		Assert.notNull(value, "Can't read null to primitive type!");
-
-		if (dataType.equals(String.class)) {
-			return value;
-		}
-
-		// primitive types need to be cast differently
-		if (dataType.isAssignableFrom(boolean.class) ||
-			dataType.isAssignableFrom(Boolean.class)) {
-			return Boolean.valueOf(value);
-		}
-
-		if (dataType.isAssignableFrom(byte.class) ||
-			dataType.isAssignableFrom(Byte.class)) {
-			return Byte.valueOf(value);
-		}
-
-		if (dataType.isAssignableFrom(char.class) ||
-			dataType.isAssignableFrom(Character.class)) {
-
-			Assert.isTrue(value.length() != 0, "Expected Character but got: null");
-			return value.charAt(0);
-		}
-
-		if (dataType.isAssignableFrom(short.class) ||
-			dataType.isAssignableFrom(Short.class)) {
-			return Short.valueOf(value);
-		}
-
-		if (dataType.isAssignableFrom(int.class) ||
-			dataType.isAssignableFrom(Integer.class)) {
-			return Integer.valueOf(value);
-		}
-
-		if (dataType.isAssignableFrom(long.class) ||
-			dataType.isAssignableFrom(Long.class)) {
-			return Long.valueOf(value);
-		}
-
-		if (dataType.isAssignableFrom(float.class) ||
-			dataType.isAssignableFrom(Float.class)) {
-			return Float.valueOf(value);
-		}
-
-		if (dataType.isAssignableFrom(double.class) ||
-			dataType.isAssignableFrom(Double.class)) {
-			return Double.valueOf(value);
-		}
-
-		return null;
-	}*/
 }

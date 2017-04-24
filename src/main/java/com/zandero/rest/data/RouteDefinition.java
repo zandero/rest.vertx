@@ -155,7 +155,7 @@ public class RouteDefinition {
 		}
 
 		if (subPath.endsWith(DELIMITER)) {
-			subPath = subPath.substring(0, subPath.length() - 1); // remove trailing "/"
+			subPath = subPath.substring(0, subPath.length() - 1); // loose trailing "/"
 		}
 
 		if (DELIMITER.equals(path)) { // default
@@ -229,8 +229,9 @@ public class RouteDefinition {
 
 		// check if param is already present
 		for (MethodParameter parameter : pathParams) {
+
 			if (params.get(parameter.getName()) != null) {
-				// TODO throw exception
+				throw new IllegalArgumentException("Duplicate parameter name given: " + parameter.getName() + "! ");
 			}
 
 			params.put(parameter.getName(), parameter);

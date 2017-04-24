@@ -13,6 +13,6 @@ public final class MediaTypeHelper {
 			return MediaType.WILDCARD;
 		}
 
-		return mediaType.getType() + "/" + mediaType.getSubtype(); // remove charset if present when searching for
+		return mediaType.getType() + "/" + mediaType.getSubtype(); // key does not contain any charset
 	}
 }

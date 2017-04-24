@@ -55,11 +55,11 @@ public class RouteDefinitionTest {
 
 		Arrays.sort(methods, Comparator.comparingInt(method -> {
 			RouteOrder order = method.getAnnotation(RouteOrder.class);
-			return order == null ? 0 : order.value();
+			return order == null ? 100 : order.value();
 		}));
 
 		// 1.
-		Method method = TestPostRest.class.getMethods()[0];
+		Method method = methods[0];
 		RouteDefinition def = new RouteDefinition(base, method.getAnnotations());
 
 		def.setArguments(method);

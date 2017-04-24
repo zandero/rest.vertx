@@ -17,7 +17,7 @@ public class GenericResponseWriter implements HttpResponseWriter {
 		response.setStatusCode(200);
 
 		String mediaType = response.headers().get(HttpHeaders.CONTENT_TYPE);
-		HttpResponseWriter writer = writerFactory.getResponseWriterInstance(mediaType);
+		HttpResponseWriter writer = writerFactory.get(mediaType);
 
 		if (writer != null && !(writer instanceof GenericResponseWriter)) {
 			writer.write(result, request, response);
