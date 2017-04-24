@@ -34,6 +34,7 @@ public class VertxTest {
 	public void after(TestContext context) {
 
 		vertx.close(context.asyncAssertSuccess());
-		RestRouter.clear();
+		RestRouter.getReaders().clear();
+		RestRouter.getWriters().clear();
 	}
 }

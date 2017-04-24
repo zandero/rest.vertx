@@ -32,7 +32,7 @@ public class JaxResponseWriter implements HttpResponseWriter {
 
 				// try to find appropriate writer ...
 				String mediaType = response.headers().get(HttpHeaders.CONTENT_TYPE);
-				HttpResponseWriter writer = RestRouter.getResponseWriterInstance(mediaType);
+				HttpResponseWriter writer = RestRouter.getWriters().getResponseWriterInstance(mediaType); // TODO: ... reconsider this logic ...
 
 				if (writer != null && !(writer instanceof JsonResponseWriter)) {
 					writer.write(jax.getEntity(), request, response);

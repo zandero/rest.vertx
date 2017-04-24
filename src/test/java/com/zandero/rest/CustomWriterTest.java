@@ -56,7 +56,7 @@ public class CustomWriterTest extends VertxTest {
 			.requestHandler(router::accept)
 			.listen(PORT);
 
-		RestRouter.registerWriter(MediaType.TEXT_HTML, TestCustomWriter.class); // bind media type to this writer
+		RestRouter.getWriters().registerWriter(MediaType.TEXT_HTML, TestCustomWriter.class); // bind media type to this writer
 
 		final Async async = context.async();
 
@@ -82,7 +82,7 @@ public class CustomWriterTest extends VertxTest {
 			.requestHandler(router::accept)
 			.listen(PORT);
 
-		RestRouter.registerWriter(Dummy.class, TestCustomWriter.class); // bind media type to this writer
+		RestRouter.getWriters().registerWriter(Dummy.class, TestCustomWriter.class); // bind media type to this writer
 
 		final Async async = context.async();
 
