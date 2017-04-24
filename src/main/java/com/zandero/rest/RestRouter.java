@@ -102,7 +102,13 @@ public class RestRouter {
 					}
 				}
 
-				route.handler(getHandler(api, definition, method));
+				Handler<RoutingContext> handler = getHandler(api, definition, method);
+				if (definition.isBlocking()) {
+					route.blockingHandler(handler);
+				}
+				else {
+					route.handler(handler);
+				}
 			}
 		}
 
@@ -115,34 +121,13 @@ public class RestRouter {
 
 			try {
 
+				// checkSecurity(definition, context);
+
 				HttpRequestBodyReader argumentConverter = readers.getRequestBodyReader(method.getReturnType(), definition);
 				Object[] args = ArgumentProvider.getArguments(method, definition, context, argumentConverter);
 
-				if (definition.isBlocking()) {
-
-					context.vertx().executeBlocking(future -> {
-
-						Object result = execute(method, toInvoke, args);
-						future.complete(result);
-
-					}, res -> {
-
-						if (res.succeeded()) {
-
-							produceResponse(res.result(), context, method, definition);
-						}
-						else {
-
-							ExecuteException ex = new ExecuteException(500, res.cause());
-							produceResponse(ex, context, method, definition);
-						}
-					});
-				}
-				else {
-
-					Object result = execute(method, toInvoke, args);
-					produceResponse(result, context, method, definition);
-				}
+				Object result = execute(method, toInvoke, args);
+				produceResponse(result, context, method, definition);
 			}
 			catch (IllegalArgumentException e) {
 

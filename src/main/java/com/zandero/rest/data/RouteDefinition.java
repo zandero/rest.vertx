@@ -13,6 +13,9 @@ import io.vertx.core.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -57,6 +60,11 @@ public class RouteDefinition {
 
 	private boolean blocking = false; // vert.x blocking
 
+	// security
+	private Boolean permitAll = null; // true - permit all, false - deny all, null - check roles
+
+	private String[] roles = null;
+
 	public RouteDefinition(Class clazz) {
 
 		Class annotatedClass = AnnotationProcessor.getClassWithAnnotation(clazz, Path.class);
@@ -76,12 +84,20 @@ public class RouteDefinition {
 		produces = base.getProduces();
 		method = base.getMethod();
 
+		// set root privileges
+		permitAll = base.getPermitAll();
+		roles = base.roles;
+
+		if (roles != null) {
+			permitAll = null;
+		}
+
 		// complement / override with additional annotations
 		init(annotations);
 	}
 
 	/**
-	 * Sets path secifics
+	 * Sets path specifics
 	 *
 	 * @param annotations list of method annotations
 	 */
@@ -131,6 +147,21 @@ public class RouteDefinition {
 
 			if (annotation instanceof Blocking) {
 				blocking = ((Blocking) annotation).value();
+			}
+
+			if (annotation instanceof RolesAllowed) {
+				permitAll = null; // override any previous definition
+				roles = ((RolesAllowed) annotation).value();
+			}
+
+			if (annotation instanceof DenyAll) {
+				roles = null; // override any previous definition
+				permitAll = false;
+			}
+
+			if (annotation instanceof PermitAll) {
+				roles = null; // override any previous definition
+				permitAll = true;
 			}
 		}
 	}
@@ -452,6 +483,30 @@ public class RouteDefinition {
 	public boolean isBlocking() {
 
 		return blocking;
+	}
+
+	/**
+	 * @return true - permit all, false - deny all, null - check roles
+	 */
+	public Boolean getPermitAll() {
+
+		return permitAll;
+	}
+
+	/**
+	 * @return null - no roles defined, or array of allowed roles
+	 */
+	public String[] getRoles() {
+
+		return roles;
+	}
+
+	/**
+	 * @return true to check if User is in given role, false otherwise
+	 */
+	public boolean checkSecurity() {
+
+		return permitAll != null || (roles != null && roles.length > 0);
 	}
 
 	@Override

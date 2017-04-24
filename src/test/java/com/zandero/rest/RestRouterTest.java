@@ -28,6 +28,7 @@ public class RestRouterTest extends VertxTest {
 		TestRest testRest = new TestRest();
 
 		Router router = RestRouter.register(vertx, testRest);
+
 		vertx.createHttpServer()
 			.requestHandler(router::accept)
 			.listen(PORT);
