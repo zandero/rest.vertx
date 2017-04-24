@@ -1,7 +1,8 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.reader.GenericBodyReader;
+import com.zandero.rest.reader.HttpRequestBodyReader;
 import com.zandero.utils.Assert;
-import com.zandero.utils.JsonUtils;
 import com.zandero.utils.UrlUtils;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
@@ -19,7 +20,7 @@ import java.util.Map;
  */
 public class ArgumentProvider {
 
-	public static Object[] getArguments(Method method, RouteDefinition definition, RoutingContext context) {
+	public static Object[] getArguments(Method method, RouteDefinition definition, RoutingContext context, HttpRequestBodyReader bodyReader) {
 
 		Assert.notNull(method, "Missing method to provide arguments for!");
 		Assert.notNull(definition, "Missing route definition!");
@@ -34,44 +35,17 @@ public class ArgumentProvider {
 		// get parameters and extract from request their values
 		List<MethodParameter> params = definition.getParameters(); // returned sorted by index
 
-		Map<String, String> query = UrlUtils.getQuery(context.request().query());
+		//Map<String, String> query = UrlUtils.getQuery(context.request().query());
 
 		Object[] args = new Object[methodArguments.length];
 
 		for (MethodParameter parameter : params) {
-			// get values
-			String value = null;
-			switch (parameter.getType()) {
-				case path:
 
-					if (definition.pathIsRegEx()) { // params values are given by index
-						value = getParam(context.request(), parameter.getPathIndex());
-					}
-					else {
-						value = context.request().getParam(parameter.getName());
-					}
-					break;
+			// get value
+			String value = getValue(definition, parameter, context);
 
-				case query:
-					value = query.get(parameter.getName());
-					break;
-
-				case form:
-					value = context.request().getFormAttribute(parameter.getName());
-					break;
-
-				case header:
-					value = context.request().getHeader(parameter.getName());
-					break;
-
-				case body:
-					value = context.getBodyAsString();
-					break;
-
-				case context:
-
-					args[parameter.getIndex()] = provideContext(method.getParameterTypes()[parameter.getIndex()], context);
-					continue;
+			if (value == null) {
+				value = parameter.getDefaultValue();
 			}
 
 			// set if we have a place to set it ... otherwise ignore
@@ -83,7 +57,22 @@ public class ArgumentProvider {
 				}
 
 				try {
-					args[parameter.getIndex()] = convert(dataType, value, parameter.getDefaultValue());
+
+					switch (parameter.getType()) {
+
+						case body:
+							args[parameter.getIndex()] = bodyReader.read(value, methodArguments[parameter.getIndex()]);
+							break;
+
+						case context:
+							args[parameter.getIndex()] = provideContext(method.getParameterTypes()[parameter.getIndex()], context);
+							break;
+
+						default:
+							args[parameter.getIndex()] = GenericBodyReader.stringToPrimitiveType(value, dataType);
+							break;
+					}
+
 				}
 				catch (Exception e) {
 
@@ -92,10 +81,12 @@ public class ArgumentProvider {
 					String expectedType = method.getParameterTypes()[parameter.getIndex()].getTypeName();
 
 					if (paramDefinition != null) {
-						throw new IllegalArgumentException("Invalid parameter type for: " + paramDefinition + " for: " + definition.getPath() + ", expected: " + expectedType + ", but got: " + providedType);
+						throw new IllegalArgumentException(
+							"Invalid parameter type for: " + paramDefinition + " for: " + definition.getPath() + ", expected: " + expectedType + ", but got: " + providedType);
 					}
 
-					throw new IllegalArgumentException("Invalid parameter type for " + (parameter.getIndex() + 1) + " argument for: " + method + " expected: " + expectedType + ", but got: " + providedType);
+					throw new IllegalArgumentException(
+						"Invalid parameter type for " + (parameter.getIndex() + 1) + " argument for: " + method + " expected: " + expectedType + ", but got: " + providedType);
 				}
 			}
 		}
@@ -115,6 +106,35 @@ public class ArgumentProvider {
 		}
 
 		return args;
+	}
+
+	private static String getValue(RouteDefinition definition, MethodParameter parameter, RoutingContext context) {
+
+		switch (parameter.getType()) {
+			case path:
+
+				if (definition.pathIsRegEx()) { // RegEx is special, params values are given by index
+					return getParam(context.request(), parameter.getPathIndex());
+				}
+
+				return context.request().getParam(parameter.getName());
+
+			case query:
+				Map<String, String> query = UrlUtils.getQuery(context.request().query());
+				return query.get(parameter.getName());
+
+			case form:
+				return context.request().getFormAttribute(parameter.getName());
+
+			case header:
+				return context.request().getHeader(parameter.getName());
+
+			case body:
+				return context.getBodyAsString();
+
+			default:
+				return null;
+		}
 	}
 
 	/**
@@ -150,6 +170,8 @@ public class ArgumentProvider {
 			return context.user();
 		}
 
+		// TODO: add possibility to register some custom context object to be then provided as method parameter
+
 		return null;
 	}
 
@@ -158,10 +180,8 @@ public class ArgumentProvider {
 		String param = request.getParam("param" + index);
 		if (param == null) { // failed to get directly ... try from request path
 
-			List<MethodParameter> params = PathConverter.extract(request.path());
-
 			String[] items = request.path().split("/");
-			if (index < items.length) {
+			if (index < items.length) { // simplistic way to find param value from path by index
 				return items[index];
 			}
 		}
@@ -169,44 +189,9 @@ public class ArgumentProvider {
 		return null;
 	}
 
-	/**
-	 * Tries to convert given String argument to specific type as expeced by the method being called
-	 *
-	 * @param dataType     to convert argument into
-	 * @param value        argument value
-	 * @param defaultValue argument default value in case not given
-	 * @return transformed argument into dataType type
-	 */
-	static Object convert(Class<?> dataType, String value, String defaultValue) {
+	/*static Object stringToPrimitiveType(Class<?> dataType, String value) {
 
-		if (value == null) {
-			if (defaultValue == null) {
-				return null;
-			}
-
-			value = defaultValue;
-		}
-
-		// Try converting to primitive type if possible
-		Object converted = stringToPrimitiveType(dataType, value);
-		if (converted != null) {
-			return converted;
-		}
-
-		// Try converting from JSON to object
-		try {
-			return JsonUtils.fromJson(value, dataType);
-		}
-		catch (IllegalArgumentException e) {
-			// TODO: What now?
-		}
-
-		return null;
-	}
-
-	static Object stringToPrimitiveType(Class<?> dataType, String value) {
-
-		Assert.notNull(value, "Can't convert null to primitive type!");
+		Assert.notNull(value, "Can't read null to primitive type!");
 
 		if (dataType.equals(String.class)) {
 			return value;
@@ -226,7 +211,7 @@ public class ArgumentProvider {
 		if (dataType.isAssignableFrom(char.class) ||
 			dataType.isAssignableFrom(Character.class)) {
 
-			Assert.isTrue(value.length() != 0, "Invalid!");
+			Assert.isTrue(value.length() != 0, "Expected Character but got: null");
 			return value.charAt(0);
 		}
 
@@ -256,5 +241,5 @@ public class ArgumentProvider {
 		}
 
 		return null;
-	}
+	}*/
 }

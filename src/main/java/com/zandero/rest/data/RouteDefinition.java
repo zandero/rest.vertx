@@ -1,8 +1,10 @@
 package com.zandero.rest.data;
 
 import com.zandero.rest.AnnotationProcessor;
+import com.zandero.rest.annotation.RequestReader;
 import com.zandero.rest.annotation.ResponseWriter;
 import com.zandero.rest.annotation.RouteOrder;
+import com.zandero.rest.reader.HttpRequestBodyReader;
 import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
@@ -12,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -37,13 +40,15 @@ public class RouteDefinition {
 	 */
 	private String routePath = null;
 
-	private String[] consumes = null;
+	private MediaType[] consumes = null;
 
-	private String[] produces = null;
+	private MediaType[] produces = null;
 
 	private io.vertx.core.http.HttpMethod method;
 
 	private Class<? extends HttpResponseWriter> writer;
+
+	private Class<? extends HttpRequestBodyReader> reader;
 
 	private Map<String, MethodParameter> params = new HashMap<>();
 
@@ -74,6 +79,7 @@ public class RouteDefinition {
 
 	/**
 	 * Sets path secifics
+	 *
 	 * @param annotations list of method annotations
 	 */
 	private void init(Annotation[] annotations) {
@@ -113,8 +119,11 @@ public class RouteDefinition {
 
 			// response writer ...
 			if (annotation instanceof ResponseWriter) {
-
 				writer = ((ResponseWriter) annotation).value();
+			}
+
+			if (annotation instanceof RequestReader) {
+				reader = ((RequestReader) annotation).value();
 			}
 		}
 	}
@@ -142,7 +151,6 @@ public class RouteDefinition {
 			subPath = subPath.substring(0, subPath.length() - 1); // remove trailing "/"
 		}
 
-
 		if (DELIMITER.equals(path)) { // default
 			path = subPath;
 		}
@@ -154,7 +162,7 @@ public class RouteDefinition {
 		List<MethodParameter> params = PathConverter.extract(path);
 		params(params);
 
-		// convert path to Vert.X format
+		// read path to Vert.X format
 		routePath = PathConverter.convert(path);
 
 		return this;
@@ -164,15 +172,32 @@ public class RouteDefinition {
 	public RouteDefinition consumes(String[] value) {
 
 		Assert.notNullOrEmpty(value, "Missing '@Consumes' definition!");
-		consumes = value;
+		consumes = getMediaTypes(value);
 		return this;
 	}
 
 	public RouteDefinition produces(String[] value) {
 
 		Assert.notNullOrEmpty(value, "Missing '@Produces' definition!");
-		produces = value;
+		produces = getMediaTypes(value);
 		return this;
+	}
+
+	private MediaType[] getMediaTypes(String[] value) {
+
+		List<MediaType> types = new ArrayList<>();
+		for (String item : value) {
+			MediaType type = MediaType.valueOf(item);
+			if (type != null) {
+				types.add(type);
+			}
+		}
+
+		if (types.size() == 0) {
+			return null;
+		}
+
+		return types.toArray(new MediaType[]{});
 	}
 
 	private RouteDefinition method(String value) {
@@ -209,6 +234,7 @@ public class RouteDefinition {
 
 	/**
 	 * Extracts method arguments and links them with annotated route parameters
+	 *
 	 * @param method to extract argument types and annotations from
 	 */
 	public void setArguments(Method method) {
@@ -277,7 +303,8 @@ public class RouteDefinition {
 				}
 				else {
 
-					Assert.isTrue(requestHasBody(), "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @Context) for: " + parameterTypes[index].getName() + " " + parameters[index].getName());
+					Assert.isTrue(requestHasBody(),
+						"Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @Context) for: " + parameterTypes[index].getName() + " " + parameters[index].getName());
 
 					name = parameters[index].getName();
 					type = ParameterType.body;
@@ -299,7 +326,7 @@ public class RouteDefinition {
 			return null;
 		}
 
-		for (MethodParameter parameter: params.values()) {
+		for (MethodParameter parameter : params.values()) {
 			if (parameter.getIndex() == index) {
 				return parameter;
 			}
@@ -338,8 +365,7 @@ public class RouteDefinition {
 
 	public String getRoutePath() {
 
-		if (pathIsRegEx())
-			return regExPathEscape(routePath);
+		if (pathIsRegEx()) { return regExPathEscape(routePath); }
 
 		return routePath;
 	}
@@ -353,12 +379,12 @@ public class RouteDefinition {
 		return path.replaceAll("\\/", "\\\\/");
 	}
 
-	public String[] getConsumes() {
+	public MediaType[] getConsumes() {
 
 		return consumes;
 	}
 
-	public String[] getProduces() {
+	public MediaType[] getProduces() {
 
 		return produces;
 	}
@@ -376,6 +402,11 @@ public class RouteDefinition {
 	public Class<? extends HttpResponseWriter> getWriter() {
 
 		return writer;
+	}
+
+	public Class<? extends HttpRequestBodyReader> getReader() {
+
+		return reader;
 	}
 
 	public List<MethodParameter> getParameters() {
@@ -401,7 +432,7 @@ public class RouteDefinition {
 			return false;
 		}
 
-		for (MethodParameter param: params.values()) {
+		for (MethodParameter param : params.values()) {
 			if (param.isRegEx()) {
 				return true;
 			}

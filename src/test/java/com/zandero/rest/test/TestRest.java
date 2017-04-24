@@ -74,6 +74,7 @@ public class TestRest {
 	@POST
 	@Path("/json/post")
 	@Produces("application/json")
+	@Consumes("application/json")
 	public Dummy echoJsonPost(Dummy postParam) {
 
 		postParam.name = "Received-" + postParam.name;

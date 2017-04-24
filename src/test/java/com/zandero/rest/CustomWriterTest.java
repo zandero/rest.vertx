@@ -92,6 +92,33 @@ public class CustomWriterTest extends VertxTest {
 		client.post("/post/json", response -> {
 
 			context.assertEquals(200, response.statusCode());
+			context.assertEquals("application/json;charset=utf-8", response.getHeader("Content-Type"));
+
+			response.handler(body -> {
+				context.assertEquals("<custom>Received-hello=Received-world</custom>", body.toString());
+				async.complete();
+			});
+		}).putHeader("Content-Type", "application/json").end(json);
+	}
+
+	@Test
+	public void testRegisteredClassTypeReaderOutput(TestContext context) {
+
+		TestPostRest testRest = new TestPostRest();
+
+		Router router = RestRouter.register(vertx, testRest);
+		vertx.createHttpServer()
+			.requestHandler(router::accept)
+			.listen(PORT);
+
+		final Async async = context.async();
+
+		Dummy dummy = new Dummy("hello", "world");
+		String json = JsonUtils.toJson(dummy);
+
+		client.put("/post/json", response -> {
+
+			context.assertEquals(200, response.statusCode());
 			context.assertEquals(MediaType.APPLICATION_JSON, response.getHeader("Content-Type"));
 
 			response.handler(body -> {

@@ -19,8 +19,8 @@ public interface HttpResponseWriter {
 		if (!response.headers().contains(HttpHeaders.CONTENT_TYPE)) {
 
 			if (definition.getProduces() != null) {
-				for (String produces : definition.getProduces()) {
-					response.putHeader(HttpHeaders.CONTENT_TYPE, produces);
+				for (MediaType produces : definition.getProduces()) {
+					response.putHeader(HttpHeaders.CONTENT_TYPE, produces.toString());
 				}
 			}
 			else {

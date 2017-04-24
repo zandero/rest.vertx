@@ -2,6 +2,9 @@ package com.zandero.rest;
 
 import com.zandero.rest.data.ArgumentProvider;
 import com.zandero.rest.data.RouteDefinition;
+import com.zandero.rest.reader.GenericBodyReader;
+import com.zandero.rest.reader.HttpRequestBodyReader;
+import com.zandero.rest.reader.JsonBodyReader;
 import com.zandero.rest.writer.*;
 import com.zandero.utils.Assert;
 import io.vertx.core.Handler;
@@ -28,6 +31,12 @@ import java.util.Map;
 public class RestRouter {
 
 	private final static Logger log = LoggerFactory.getLogger(RestRouter.class);
+
+	// map of readers by class type
+	private static Map<String, Class<? extends HttpRequestBodyReader>> CLASS_TYPE_READERS = new HashMap<>();
+
+	// map of readert by consumes / media type
+	private static Map<String, Class<? extends HttpRequestBodyReader>> MEDIA_TYPE_READERS = new HashMap<>();
 
 	// map of writers by class type
 	private static Map<String, Class<? extends HttpResponseWriter>> CLASS_TYPE_WRITERS = new HashMap<>();
@@ -92,14 +101,14 @@ public class RestRouter {
 				log.info("Registering route: " + definition);
 
 				if (definition.getConsumes() != null) {
-					for (String item : definition.getConsumes()) {
-						route.consumes(item);
+					for (MediaType item : definition.getConsumes()) {
+						route.consumes(getMediaTypeKey(item)); // remove charset when binding
 					}
 				}
 
 				if (definition.getProduces() != null) {
-					for (String item : definition.getProduces()) {
-						route.produces(item);
+					for (MediaType item : definition.getProduces()) {
+						route.produces(getMediaTypeKey(item)); // remove charset when binding
 					}
 				}
 
@@ -112,21 +121,29 @@ public class RestRouter {
 
 	private static void initWriters() {
 
-		if (CLASS_TYPE_WRITERS.size() == 0 &&
-			MEDIA_TYPE_WRITERS.size() == 0) {
+		if (CLASS_TYPE_WRITERS.size() == 0) {
+
+			CLASS_TYPE_READERS.put(String.class.getName(), GenericBodyReader.class);
+
+			MEDIA_TYPE_READERS.put(MediaType.APPLICATION_JSON, JsonBodyReader.class);
+			MEDIA_TYPE_READERS.put(MediaType.TEXT_PLAIN, GenericBodyReader.class);
+
 
 			CLASS_TYPE_WRITERS.put(Response.class.getName(), JaxResponseWriter.class);
 
-			MEDIA_TYPE_WRITERS.put(getMediaTypeKey(MediaType.APPLICATION_JSON_TYPE), JsonResponseWriter.class);
-			MEDIA_TYPE_WRITERS.put(getMediaTypeKey(MediaType.TEXT_PLAIN_TYPE), GenericResponseWriter.class);
+			MEDIA_TYPE_WRITERS.put(MediaType.APPLICATION_JSON, JsonResponseWriter.class);
+			MEDIA_TYPE_WRITERS.put(MediaType.TEXT_PLAIN, GenericResponseWriter.class);
 		}
 	}
 
 	public static void clear() {
 
 		// clears any additionally registered writers and initializes defaults
-		MEDIA_TYPE_WRITERS.clear();
+		CLASS_TYPE_READERS.clear();
+		MEDIA_TYPE_READERS.clear();
+
 		CLASS_TYPE_WRITERS.clear();
+		MEDIA_TYPE_WRITERS.clear();
 
 		initWriters();
 	}
@@ -137,7 +154,8 @@ public class RestRouter {
 
 			try {
 
-				Object[] args = ArgumentProvider.getArguments(method, definition, context);
+				HttpRequestBodyReader argumentConverter = getRequestBodyReader(method.getReturnType(), definition);
+				Object[] args = ArgumentProvider.getArguments(method, definition, context, argumentConverter);
 
 				Object result = method.invoke(toInvoke, args);
 
@@ -172,14 +190,73 @@ public class RestRouter {
 	}
 
 	/**
-	 * Checks if given arguments can be applied to method call
-	 * @param method to be called
-	 * @param args call arguments
+	 * Provides request body converter
+	 *
+	 * @param returnType method return type
+	 * @param definition route definition
+	 * @return reader to convert request body
 	 */
-	private static void checkArguments(Method method, Object[] args) {
+	private static HttpRequestBodyReader getRequestBodyReader(Class<?> returnType, RouteDefinition definition) {
 
+		Class<? extends HttpRequestBodyReader> reader = definition.getReader();
 
+		// 2. if no writer is specified ... try to find appropriate writer by response type
+		if (reader == null) {
+
+			if (returnType != null) {
+				// try to find appropriate writer if mapped
+				reader = CLASS_TYPE_READERS.get(returnType.getName());
+			}
+		}
+
+		if (reader == null) { // try by consumes
+
+			MediaType[] consumes = definition.getConsumes();
+			if (consumes != null && consumes.length > 0) {
+
+				for (MediaType type : consumes) {
+					reader = getRequestBodyReader(type);
+					if (reader != null) {
+						break;
+					}
+				}
+			}
+		}
+
+		if (reader != null) {
+
+			return getRequestBodyReaderInstance(reader);
+		}
+
+		// fall back to generic writer ...
+		return new GenericBodyReader();
 	}
+
+	private static Class<? extends HttpRequestBodyReader> getRequestBodyReader(MediaType mediaType) {
+
+		if (mediaType == null) {
+			return null;
+		}
+
+		return MEDIA_TYPE_READERS.get(getMediaTypeKey(mediaType));
+	}
+
+	private static HttpRequestBodyReader getRequestBodyReaderInstance(Class<? extends HttpRequestBodyReader> reader) {
+
+		if (reader != null) {
+			try {
+				// TODO .. might be a good idea to cache reader instances for some time
+				return reader.newInstance();
+			}
+			catch (InstantiationException | IllegalAccessException e) {
+				log.error("Failed to instantiate request body reader '" + reader.getName() + "' " + e.getMessage(), e);
+				// TODO: probably best to throw exception here
+			}
+		}
+
+		return null;
+	}
+
 
 	public static void registerWriter(String mediaType, Class<? extends HttpResponseWriter> writer) {
 
@@ -188,8 +265,8 @@ public class RestRouter {
 
 		MediaType type = MediaType.valueOf(mediaType);
 		Assert.notNull(type, "Unknown media type given: " + mediaType);
-		String key = getMediaTypeKey(type);
 
+		String key = getMediaTypeKey(type);
 		MEDIA_TYPE_WRITERS.put(key, writer);
 	}
 
@@ -212,7 +289,11 @@ public class RestRouter {
 
 	private static String getMediaTypeKey(MediaType mediaType) {
 
-		return mediaType.getType() + "/" + mediaType.getSubtype();
+		if (mediaType == null) {
+			return MediaType.WILDCARD;
+		}
+
+		return mediaType.getType() + "/" + mediaType.getSubtype(); // remove charset if present when searching for
 	}
 
 	/**
@@ -235,23 +316,17 @@ public class RestRouter {
 			}
 			else {
 				// try to find appropriate writer if mapped
-				for (String clazz : CLASS_TYPE_WRITERS.keySet()) {
-
-					if (clazz.equals(returnType.getName())) {
-						writer = CLASS_TYPE_WRITERS.get(clazz);
-						break;
-					}
-				}
+				writer = CLASS_TYPE_WRITERS.get(returnType.getName());
 			}
 		}
 
 		if (writer == null) { // try by produces
 
-			String[] produces = definition.getProduces();
+			MediaType[] produces = definition.getProduces();
 			if (produces != null && produces.length > 0) {
 
-				for (String type : produces) {
-					writer = getResponseWriter(type);
+				for (MediaType type : produces) {
+					writer = getResponseWriter(getMediaTypeKey(type));
 					if (writer != null) {
 						break;
 					}
