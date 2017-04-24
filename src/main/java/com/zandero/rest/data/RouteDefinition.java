@@ -1,6 +1,7 @@
 package com.zandero.rest.data;
 
 import com.zandero.rest.AnnotationProcessor;
+import com.zandero.rest.annotation.Blocking;
 import com.zandero.rest.annotation.RequestReader;
 import com.zandero.rest.annotation.ResponseWriter;
 import com.zandero.rest.annotation.RouteOrder;
@@ -53,6 +54,8 @@ public class RouteDefinition {
 	private Map<String, MethodParameter> params = new HashMap<>();
 
 	private int order;
+
+	private boolean blocking = false; // vert.x blocking
 
 	public RouteDefinition(Class clazz) {
 
@@ -124,6 +127,10 @@ public class RouteDefinition {
 
 			if (annotation instanceof RequestReader) {
 				reader = ((RequestReader) annotation).value();
+			}
+
+			if (annotation instanceof Blocking) {
+				blocking = ((Blocking) annotation).value();
 			}
 		}
 	}
@@ -439,6 +446,11 @@ public class RouteDefinition {
 		}
 
 		return false;
+	}
+
+	public boolean isBlocking() {
+
+		return blocking;
 	}
 
 	@Override

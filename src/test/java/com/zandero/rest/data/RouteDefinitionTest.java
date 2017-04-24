@@ -1,5 +1,6 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.annotation.RouteOrder;
 import com.zandero.rest.test.TestPostRest;
 import com.zandero.rest.test.TestRegExRest;
 import com.zandero.rest.test.TestRest;
@@ -8,6 +9,8 @@ import io.vertx.core.http.HttpMethod;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import static org.junit.Assert.*;
 
@@ -47,6 +50,13 @@ public class RouteDefinitionTest {
 	public void getBodyParamTest() throws NoSuchMethodException {
 
 		RouteDefinition base = new RouteDefinition(TestPostRest.class);
+
+		Method[] methods = TestPostRest.class.getMethods();
+
+		Arrays.sort(methods, Comparator.comparingInt(method -> {
+			RouteOrder order = method.getAnnotation(RouteOrder.class);
+			return order == null ? 0 : order.value();
+		}));
 
 		// 1.
 		Method method = TestPostRest.class.getMethods()[0];

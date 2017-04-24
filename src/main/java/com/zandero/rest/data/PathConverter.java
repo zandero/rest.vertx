@@ -7,6 +7,7 @@ import java.util.List;
 
 /**
  * Converts {path}/{subPath} into Vert.X path matching format
+ * Also handles regular expression cases
  */
 public final class PathConverter {
 

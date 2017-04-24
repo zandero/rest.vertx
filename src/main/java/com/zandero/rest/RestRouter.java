@@ -3,6 +3,7 @@ package com.zandero.rest;
 import com.zandero.rest.data.ArgumentProvider;
 import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.rest.data.RouteDefinition;
+import com.zandero.rest.exception.ExecuteException;
 import com.zandero.rest.reader.HttpRequestBodyReader;
 import com.zandero.rest.reader.ReaderFactory;
 import com.zandero.rest.writer.HttpResponseWriter;
@@ -117,36 +118,85 @@ public class RestRouter {
 				HttpRequestBodyReader argumentConverter = readers.getRequestBodyReader(method.getReturnType(), definition);
 				Object[] args = ArgumentProvider.getArguments(method, definition, context, argumentConverter);
 
-				Object result = method.invoke(toInvoke, args);
+				if (definition.isBlocking()) {
 
-				HttpServerResponse response = context.response();
-				HttpServerRequest request = context.request();
+					context.vertx().executeBlocking(future -> {
 
-				// find suitable writer to produce response
-				HttpResponseWriter writer = writers.getResponseWriter(method.getReturnType(), definition);
+						Object result = execute(method, toInvoke, args);
+						future.complete(result);
 
-				// add default response headers per definition
-				writer.addResponseHeaders(definition, response);
+					}, res -> {
 
-				// write response and override headers if necessary
-				writer.write(result, request, response);
+						if (res.succeeded()) {
 
-				// finish if not finished by writer
-				if (!response.ended()) {
-					response.end();
+							produceResponse(res, context, method, definition);
+						}
+						else {
+
+							ExecuteException ex = new ExecuteException(500, res.cause());
+							produceResponse(ex, context, method, definition);
+						}
+					});
+				}
+				else {
+
+					Object result = execute(method, toInvoke, args);
+					produceResponse(result, context, method, definition);
 				}
 			}
 			catch (IllegalArgumentException e) { // TODO: replace with custom exception
-				log.error("Invalid parameters provided: " + e.getMessage(), e);
-				context.response().setStatusCode(400).end(e.getMessage());
-			}
-			catch (IllegalAccessException | InvocationTargetException e) {
-				// return 500 error with stack trace
-				// e.printStackTrace();
-				log.error("Failed to call: " + method.getName() + " " + e.getMessage(), e);
-				context.response().setStatusCode(500).end(e.getMessage());
+
+				ExecuteException ex = new ExecuteException(400, e);
+				produceResponse(ex, context, method, definition);
 			}
 		};
+	}
+
+	private static Object execute(Method method, Object toInvoke, Object[] arguments) {
+
+		try {
+			return method.invoke(toInvoke, arguments);
+		}
+		catch (IllegalArgumentException e) { // TODO: replace with custom exception
+			//log.error("Invalid parameters provided: " + e.getMessage(), e);
+			return new ExecuteException(400, e);
+		}
+		catch (IllegalAccessException | InvocationTargetException e) {
+			// return 500 error with stack trace
+			//log.error("Failed to call: " + method.getName() + " " + e.getMessage(), e);
+			return new ExecuteException(500, e);
+		}
+	}
+
+	private static void produceResponse(Object result, RoutingContext context, Method method, RouteDefinition definition) {
+
+		HttpServerResponse response = context.response();
+
+		if (result instanceof ExecuteException) {
+
+			ExecuteException exception = (ExecuteException) result;
+			log.error("Failed to invoke method: " + method + ", " + exception.getMessage(), exception);
+
+			response.setStatusCode(exception.getStatusCode()).end(exception.getMessage());
+		}
+		else {
+
+			HttpServerRequest request = context.request();
+
+			// find suitable writer to produce response
+			HttpResponseWriter writer = writers.getResponseWriter(method.getReturnType(), definition);
+
+			// add default response headers per definition
+			writer.addResponseHeaders(definition, response);
+
+			// write response and override headers if necessary
+			writer.write(result, request, response);
+
+			// finish if not finished by writer
+			if (!response.ended()) {
+				response.end();
+			}
+		}
 	}
 
 	public static WriterFactory getWriters() {
