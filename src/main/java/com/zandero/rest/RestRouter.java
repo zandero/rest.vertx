@@ -129,7 +129,7 @@ public class RestRouter {
 
 						if (res.succeeded()) {
 
-							produceResponse(res, context, method, definition);
+							produceResponse(res.result(), context, method, definition);
 						}
 						else {
 
