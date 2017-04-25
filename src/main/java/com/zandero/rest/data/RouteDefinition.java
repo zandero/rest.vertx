@@ -512,6 +512,20 @@ public class RouteDefinition {
 	@Override
 	public String toString() {
 
-		return method + " " + routePath;
+		String prefix = "        "; // to improve formatting ...
+		prefix = prefix.substring(0, prefix.length() - method.toString().length());
+
+		String security = "";
+		if (checkSecurity()) {
+
+			if (permitAll != null) {
+				security = permitAll ? "  @PermitAll" : "  @DenyAll";
+			}
+			else {
+				security = "  [" + StringUtils.join(roles, ", ") + "]";
+			}
+		}
+
+		return prefix + method + " " + routePath + security;
 	}
 }

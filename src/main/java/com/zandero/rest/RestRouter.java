@@ -9,10 +9,12 @@ import com.zandero.rest.reader.ReaderFactory;
 import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.rest.writer.WriterFactory;
 import com.zandero.utils.Assert;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.ext.auth.User;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -20,6 +22,8 @@ import io.vertx.ext.web.handler.BodyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -71,12 +75,15 @@ public class RestRouter {
 
 			for (RouteDefinition definition : definitions.keySet()) {
 
-				Method method = definitions.get(definition);
-
 				// add BodyHandler in case request has a body ...
 				if (definition.requestHasBody() && !bodyHandlerRegistered) {
 					router.route().handler(BodyHandler.create());
 					bodyHandlerRegistered = true;
+				}
+
+				// add security check handler in front of regular route handler
+				if (definition.checkSecurity()) {
+					checkSecurity(router, definition);
 				}
 
 				// bind method execution
@@ -92,16 +99,22 @@ public class RestRouter {
 
 				if (definition.getConsumes() != null) {
 					for (MediaType item : definition.getConsumes()) {
-						route.consumes(MediaTypeHelper.getKey(item)); // remove charset when binding
+						route.consumes(MediaTypeHelper.getKey(item)); // ignore charset when binding
 					}
 				}
 
 				if (definition.getProduces() != null) {
 					for (MediaType item : definition.getProduces()) {
-						route.produces(MediaTypeHelper.getKey(item)); // remove charset when binding
+						route.produces(MediaTypeHelper.getKey(item)); // ignore charset when binding
 					}
 				}
 
+				if (definition.getOrder() != 0) {
+					route.order(definition.getOrder());
+				}
+
+				// bind handler
+				Method method = definitions.get(definition);
 				Handler<RoutingContext> handler = getHandler(api, definition, method);
 				if (definition.isBlocking()) {
 					route.blockingHandler(handler);
@@ -115,13 +128,74 @@ public class RestRouter {
 		return router;
 	}
 
+	private static void checkSecurity(Router router, RouteDefinition definition) {
+
+		Route route;
+		if (definition.pathIsRegEx()) {
+			route = router.routeWithRegex(definition.getMethod(), definition.getRoutePath());
+		}
+		else {
+			route = router.route(definition.getMethod(), definition.getRoutePath());
+		}
+
+		route.order(definition.getOrder()); // same order as following handler
+
+		Handler<RoutingContext> securityHandler = getSecurityHandler(definition);
+		if (definition.isBlocking()) {
+
+			route.blockingHandler(securityHandler);
+		}
+		else {
+			route.handler(securityHandler);
+		}
+	}
+
+	private static Handler<RoutingContext> getSecurityHandler(RouteDefinition definition) {
+
+		return context -> {
+
+			boolean allowed = isAllowed(context.user(), definition);
+
+			if (allowed) {
+				context.next();
+			}
+			else {
+				produceResponse(context, new NotAuthorizedException("Not authorized to access: " + definition));
+			}
+		};
+	}
+
+	private static boolean isAllowed(User user, RouteDefinition definition) {
+
+		if (definition.getPermitAll() != null) {
+			// allow all or deny all
+			return definition.getPermitAll();
+		}
+
+		if (user == null) {
+			return false; // no user present ... can't check
+		}
+
+		// check if given user is authorized for given role ...
+		for (String role: definition.getRoles()) {
+
+			Future<Boolean> future = Future.future();
+			user.isAuthorised(role, future.completer());
+
+			Boolean result = future.result();
+			if (result != null && result) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	private static Handler<RoutingContext> getHandler(final Object toInvoke, final RouteDefinition definition, final Method method) {
 
 		return context -> {
 
 			try {
-
-				// checkSecurity(definition, context);
 
 				HttpRequestBodyReader argumentConverter = readers.getRequestBodyReader(method.getReturnType(), definition);
 				Object[] args = ArgumentProvider.getArguments(method, definition, context, argumentConverter);
@@ -180,6 +254,12 @@ public class RestRouter {
 				response.end();
 			}
 		}
+	}
+
+	private static void produceResponse(RoutingContext context, WebApplicationException exception) {
+		context.response()
+			.setStatusCode(exception.getResponse().getStatus())
+			.end(exception.getMessage());
 	}
 
 	public static WriterFactory getWriters() {

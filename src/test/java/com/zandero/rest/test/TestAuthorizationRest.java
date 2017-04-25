@@ -54,7 +54,7 @@ public class TestAuthorizationRest {
 	}
 
 	@GET
-	@Path("/admin")
+	@Path("/other")
 	@Produces(MediaType.TEXT_PLAIN)
 	@RolesAllowed({"one", "two"})
 	public String oneOrTwo(@Context User user) {

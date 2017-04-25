@@ -2,12 +2,10 @@ package com.zandero.rest;
 
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.utils.Assert;
-import com.zandero.utils.MapUtils;
 
 import javax.ws.rs.Path;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -47,7 +45,8 @@ public final class AnnotationProcessor {
 		}
 
 		// sort routes by @RouteOrder if needed
-		output = MapUtils.sort(output, Comparator.comparing(route -> route.getKey().getOrder()));
+		// NOT NEEDED ... routes have order in themselves
+		// output = MapUtils.sort(output, Comparator.comparing(route -> route.getKey().getOrder()));
 
 		return output;
 	}
