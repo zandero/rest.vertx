@@ -13,6 +13,12 @@ public class ExecuteException extends Exception {
 		statusCode = status;
 	}
 
+	public ExecuteException(int status, String message) {
+
+		super(message);
+		statusCode = status;
+	}
+
 	public int getStatusCode() {
 
 		return statusCode;

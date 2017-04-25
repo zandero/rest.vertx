@@ -1,5 +1,6 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.exception.ContextException;
 import com.zandero.rest.reader.GenericBodyReader;
 import com.zandero.rest.reader.HttpRequestBodyReader;
 import com.zandero.utils.Assert;
@@ -66,7 +67,7 @@ public class ArgumentProvider {
 							break;
 
 						case context:
-							args[parameter.getIndex()] = provideContext(method.getParameterTypes()[parameter.getIndex()], context);
+							args[parameter.getIndex()] = provideContext(definition, method.getParameterTypes()[parameter.getIndex()], context);
 							break;
 
 						default:
@@ -74,6 +75,9 @@ public class ArgumentProvider {
 							break;
 					}
 
+				}
+				catch (ContextException e) {
+					throw new IllegalArgumentException(e.getMessage());
 				}
 				catch (Exception e) {
 
@@ -141,16 +145,18 @@ public class ArgumentProvider {
 	/**
 	 * Provides vertx context of desired type if possible
 	 *
-	 * @param type    context type
-	 * @param context to extract value from
+	 * @param definition
+	 * @param type       context type
+	 * @param context    to extract value from
 	 * @return found context or null if not found
 	 */
-	private static Object provideContext(Class<?> type, RoutingContext context) {
+	private static Object provideContext(RouteDefinition definition, Class<?> type, RoutingContext context) throws ContextException {
 
 		if (type == null) {
 			return null;
 		}
 
+		// vert.x context
 		if (type.isAssignableFrom(HttpServerResponse.class)) {
 			return context.response();
 		}
@@ -171,10 +177,16 @@ public class ArgumentProvider {
 			return context.user();
 		}
 
+		// internal context
+		if (type.isAssignableFrom(RouteDefinition.class)) {
+			return definition;
+		}
 
 		// TODO: add possibility to register some custom context object to be then provided as method parameter
 
-		return null;
+		// Given Context can not be resolved ... throw exception
+		throw new ContextException("Can't provide @Context of type: " + type);
+
 	}
 
 	private static String getParam(HttpServerRequest request, int index) {

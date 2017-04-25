@@ -176,6 +176,8 @@ public class RestRouter {
 			return false; // no user present ... can't check
 		}
 
+		// TODO: if more than one role ... use multiple futures
+
 		// check if given user is authorized for given role ...
 		for (String role: definition.getRoles()) {
 

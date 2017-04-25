@@ -33,6 +33,7 @@ public abstract class ClassFactory<T> {
 		// clears any additionally registered writers and initializes defaults
 		classTypes.clear();
 		mediaTypes.clear();
+		cache.clear();
 
 		init();
 	}
@@ -47,27 +48,27 @@ public abstract class ClassFactory<T> {
 		return cache.get(reader.getName());
 	}
 
-	protected T getClassInstance(Class<? extends T> clazz) throws ClassFactoryException {
+	private T getClassInstance(Class<? extends T> clazz) throws ClassFactoryException {
 
-		if (clazz != null) {
-			try {
-
-				T instance = getCached(clazz);
-				if (instance == null) {
-
-					instance = clazz.newInstance();
-					cache(instance);
-				}
-
-				return instance;
-			}
-			catch (InstantiationException | IllegalAccessException e) {
-				log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
-				throw new ClassFactoryException("Failed to instatinate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
-			}
+		if (clazz == null) {
+			return null;
 		}
 
-		return null;
+		try {
+
+			T instance = getCached(clazz);
+			if (instance == null) {
+
+				instance = clazz.newInstance();
+				cache(instance);
+			}
+
+			return instance;
+		}
+		catch (InstantiationException | IllegalAccessException e) {
+			log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
+			throw new ClassFactoryException("Failed to instatinate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
+		}
 	}
 
 	public void register(String mediaType, Class<? extends T> clazz) {
@@ -99,7 +100,7 @@ public abstract class ClassFactory<T> {
 		classTypes.put(response.getName(), clazz);
 	}
 
-	public T get(Class<?> returnType, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ClassFactoryException {
+	protected T get(Class<?> returnType, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ClassFactoryException {
 
 		Class<? extends T> reader = byDefinition;
 

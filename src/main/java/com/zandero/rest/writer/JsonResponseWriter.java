@@ -12,6 +12,11 @@ public class JsonResponseWriter implements HttpResponseWriter {
 	@Override
 	public void write(Object result, HttpServerRequest request, HttpServerResponse response) {
 
-		response.end(JsonUtils.toJson(result));
+		if (result != null) {
+			response.end(JsonUtils.toJson(result));
+		}
+		else {
+			response.end();
+		}
 	}
 }
