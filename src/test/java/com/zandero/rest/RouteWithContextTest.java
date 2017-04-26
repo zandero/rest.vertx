@@ -2,10 +2,13 @@ package com.zandero.rest;
 
 import com.zandero.rest.test.TestContextRest;
 import com.zandero.rest.test.VertxTest;
+import com.zandero.rest.test.json.Dummy;
+import io.vertx.core.Handler;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,10 +26,21 @@ public class RouteWithContextTest extends VertxTest {
 
 		TestContextRest testRest = new TestContextRest();
 
-		Router router = RestRouter.register(vertx, testRest);
+		Router router = Router.router(vertx);
+		router.route().handler(pushContextHandler());
+
+		router = RestRouter.register(router, testRest);
 		vertx.createHttpServer()
 			.requestHandler(router::accept)
 			.listen(PORT);
+	}
+
+	private Handler<RoutingContext> pushContextHandler() {
+
+		return context -> {
+			RestRouter.pushContext(new Dummy("test", "user"));
+			context.next();
+		};
 	}
 
 	@Test
@@ -80,4 +94,20 @@ public class RouteWithContextTest extends VertxTest {
 		});
 	}
 
+	@Test
+	public void pushContextTest(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/context/custom", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("{\"name\":\"test\",\"value\":\"user\"}", body.toString());
+				async.complete();
+			});
+		});
+	}
 }

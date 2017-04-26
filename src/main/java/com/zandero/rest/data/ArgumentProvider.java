@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class ArgumentProvider {
 
-	public static Object[] getArguments(Method method, RouteDefinition definition, RoutingContext context, HttpRequestBodyReader bodyReader) {
+	public static Object[] getArguments(Method method, RouteDefinition definition, RoutingContext context, HttpRequestBodyReader bodyReader, List<Object> contextStorage) {
 
 		Assert.notNull(method, "Missing method to provide arguments for!");
 		Assert.notNull(definition, "Missing route definition!");
@@ -68,7 +68,7 @@ public class ArgumentProvider {
 							break;
 
 						case context:
-							args[parameter.getIndex()] = provideContext(definition, method.getParameterTypes()[parameter.getIndex()], context);
+							args[parameter.getIndex()] = provideContext(definition, method.getParameterTypes()[parameter.getIndex()], context, contextStorage);
 							break;
 
 						default:
@@ -154,12 +154,13 @@ public class ArgumentProvider {
 	/**
 	 * Provides vertx context of desired type if possible
 	 *
-	 * @param definition route definition
-	 * @param type       context type
-	 * @param context    to extract value from
+	 * @param definition     route definition
+	 * @param type           context type
+	 * @param context        to extract value from
+	 * @param contextStorage storage of context objects to return (or null / empty) if none are present
 	 * @return found context or null if not found
 	 */
-	private static Object provideContext(RouteDefinition definition, Class<?> type, RoutingContext context) throws ContextException {
+	private static Object provideContext(RouteDefinition definition, Class<?> type, RoutingContext context, List<Object> contextStorage) throws ContextException {
 
 		if (type == null) {
 			return null;
@@ -191,7 +192,14 @@ public class ArgumentProvider {
 			return definition;
 		}
 
-		// TODO: add possibility to register some custom context object to be then provided as method parameter
+		// browse through context storage
+		if (contextStorage != null) {
+			for (Object item : contextStorage) {
+				if (type.isInstance(item)) {
+					return item;
+				}
+			}
+		}
 
 		// Given Context can not be resolved ... throw exception
 		throw new ContextException("Can't provide @Context of type: " + type);

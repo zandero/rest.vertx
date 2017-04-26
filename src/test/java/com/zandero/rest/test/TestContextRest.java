@@ -1,12 +1,15 @@
 package com.zandero.rest.test;
 
 import com.zandero.rest.data.RouteDefinition;
+import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 
 /**
@@ -35,5 +38,13 @@ public class TestContextRest {
 	public String getRoute(@Context Request request) {
 
 		return null;
+	}
+
+	@GET
+	@Path("/custom")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Dummy getRoute(@Context Dummy object) {
+
+		return object;
 	}
 }

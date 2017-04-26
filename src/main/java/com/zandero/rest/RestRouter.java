@@ -28,6 +28,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,6 +42,8 @@ public class RestRouter {
 	private static final WriterFactory writers = new WriterFactory();
 
 	private static final ReaderFactory readers = new ReaderFactory();
+
+	private static final ThreadLocal<List<Object>> contexts = new ThreadLocal<>();
 
 	/**
 	 * Searches for annotations to register routes ...
@@ -212,7 +216,7 @@ public class RestRouter {
 					bodyReader = readers.getRequestBodyReader(definition);
 				}
 
-				Object[] args = ArgumentProvider.getArguments(method, definition, context, bodyReader);
+				Object[] args = ArgumentProvider.getArguments(method, definition, context, bodyReader, contexts.get());
 
 				Object result = execute(method, toInvoke, args);
 				produceResponse(result, context, method, definition);
@@ -221,6 +225,11 @@ public class RestRouter {
 
 				ExecuteException ex = new ExecuteException(400, e);
 				produceResponse(ex, context, method, definition);
+			}
+			finally {
+
+				// clear context if any
+				contexts.remove();
 			}
 		};
 	}
@@ -284,5 +293,14 @@ public class RestRouter {
 	public static ReaderFactory getReaders() {
 
 		return readers;
+	}
+
+	public static void pushContext(Object object) {
+
+		if (contexts.get() == null) {
+			contexts.set(new ArrayList<>());
+		}
+
+		contexts.get().add(object);
 	}
 }

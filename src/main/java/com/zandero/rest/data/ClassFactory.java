@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -18,9 +19,9 @@ public abstract class ClassFactory<T> {
 
 	private Map<String, T> cache = new HashMap<>();
 
-	protected Map<String, Class<? extends T>> classTypes = new HashMap<>();
+	protected Map<String, Class<? extends T>> classTypes = new LinkedHashMap<>();
 
-	protected Map<String, Class<? extends T>> mediaTypes = new HashMap<>();
+	protected Map<String, Class<? extends T>> mediaTypes = new LinkedHashMap<>();
 
 	public ClassFactory() {
 		init();
