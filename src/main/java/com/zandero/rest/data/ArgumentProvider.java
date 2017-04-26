@@ -9,6 +9,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.auth.User;
+import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.RoutingContext;
 
 import java.lang.reflect.Method;
@@ -26,7 +27,6 @@ public class ArgumentProvider {
 		Assert.notNull(method, "Missing method to provide arguments for!");
 		Assert.notNull(definition, "Missing route definition!");
 		Assert.notNull(context, "Missing vert.x routing context!");
-		Assert.notNull(bodyReader, "Missing request body reader!");
 
 		Class<?>[] methodArguments = method.getParameterTypes();
 
@@ -63,6 +63,7 @@ public class ArgumentProvider {
 					switch (parameter.getType()) {
 
 						case body:
+							Assert.notNull(bodyReader, "Missing request body reader!");
 							args[parameter.getIndex()] = bodyReader.read(value, methodArguments[parameter.getIndex()]);
 							break;
 
@@ -113,26 +114,34 @@ public class ArgumentProvider {
 		return args;
 	}
 
-	private static String getValue(RouteDefinition definition, MethodParameter parameter, RoutingContext context) {
+	private static String getValue(RouteDefinition definition, MethodParameter param, RoutingContext context) {
 
-		switch (parameter.getType()) {
+		switch (param.getType()) {
 			case path:
 
 				if (definition.pathIsRegEx()) { // RegEx is special, params values are given by index
-					return getParam(context.request(), parameter.getPathIndex());
+					return getParam(context.request(), param.getPathIndex());
 				}
 
-				return context.request().getParam(parameter.getName());
+				return context.request().getParam(param.getName());
 
 			case query:
 				Map<String, String> query = UrlUtils.getQuery(context.request().query());
-				return query.get(parameter.getName());
+				return query.get(param.getName());
+
+			case cookie:
+				Cookie cookie = context.getCookie(param.getName());
+				return cookie == null ? null : cookie.getValue();
 
 			case form:
-				return context.request().getFormAttribute(parameter.getName());
+				String formParam = context.request().getFormAttribute(param.getName());
+				if (formParam == null) { // retry ... with params
+					formParam = context.request().getParam(param.getName());
+				}
+				return formParam;
 
 			case header:
-				return context.request().getHeader(parameter.getName());
+				return context.request().getHeader(param.getName());
 
 			case body:
 				return context.getBodyAsString();
@@ -145,7 +154,7 @@ public class ArgumentProvider {
 	/**
 	 * Provides vertx context of desired type if possible
 	 *
-	 * @param definition
+	 * @param definition route definition
 	 * @param type       context type
 	 * @param context    to extract value from
 	 * @return found context or null if not found

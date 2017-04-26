@@ -16,6 +16,11 @@ public enum ParameterType {
 	query("@QueryParam"),
 
 	/**
+	 *
+	 */
+	cookie("@CookieParam"),
+
+	/**
 	 * Form parameter
 	 */
 	form("@FormParam"),

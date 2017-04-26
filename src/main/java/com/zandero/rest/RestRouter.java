@@ -19,6 +19,7 @@ import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CookieHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +73,7 @@ public class RestRouter {
 			Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(api.getClass());
 
 			boolean bodyHandlerRegistered = false;
+			boolean cookieHandlerRegistered = false;
 
 			for (RouteDefinition definition : definitions.keySet()) {
 
@@ -79,6 +81,12 @@ public class RestRouter {
 				if (definition.requestHasBody() && !bodyHandlerRegistered) {
 					router.route().handler(BodyHandler.create());
 					bodyHandlerRegistered = true;
+				}
+
+				// add CookieHandler in case cookies are expected
+				if (definition.hasCookies() && !cookieHandlerRegistered) {
+					router.route().handler(CookieHandler.create());
+					cookieHandlerRegistered = true;
 				}
 
 				// add security check handler in front of regular route handler
@@ -199,8 +207,12 @@ public class RestRouter {
 
 			try {
 
-				HttpRequestBodyReader argumentConverter = readers.getRequestBodyReader(method.getReturnType(), definition);
-				Object[] args = ArgumentProvider.getArguments(method, definition, context, argumentConverter);
+				HttpRequestBodyReader bodyReader = null;
+				if (definition.requestHasBody() && definition.hasBodyParameter()) {
+					bodyReader = readers.getRequestBodyReader(definition);
+				}
+
+				Object[] args = ArgumentProvider.getArguments(method, definition, context, bodyReader);
 
 				Object result = execute(method, toInvoke, args);
 				produceResponse(result, context, method, definition);

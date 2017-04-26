@@ -67,7 +67,7 @@ public abstract class ClassFactory<T> {
 		}
 		catch (InstantiationException | IllegalAccessException e) {
 			log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
-			throw new ClassFactoryException("Failed to instatinate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
+			throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
 		}
 	}
 
@@ -100,16 +100,16 @@ public abstract class ClassFactory<T> {
 		classTypes.put(response.getName(), clazz);
 	}
 
-	protected T get(Class<?> returnType, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ClassFactoryException {
+	protected T get(Class<?> type, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ClassFactoryException {
 
 		Class<? extends T> reader = byDefinition;
 
 		// 2. if no writer is specified ... try to find appropriate writer by response type
 		if (reader == null) {
 
-			if (returnType != null) {
+			if (type != null) {
 				// try to find appropriate writer if mapped
-				reader = classTypes.get(returnType.getName());
+				reader = classTypes.get(getKey(type));
 			}
 		}
 
@@ -117,8 +117,8 @@ public abstract class ClassFactory<T> {
 
 			if (mediaTypes != null && mediaTypes.length > 0) {
 
-				for (MediaType type : mediaTypes) {
-					reader = get(type);
+				for (MediaType mediaType : mediaTypes) {
+					reader = get(mediaType);
 					if (reader != null) {
 						break;
 					}
@@ -146,5 +146,10 @@ public abstract class ClassFactory<T> {
 
 		Class<? extends T> clazz = get(MediaType.valueOf(mediaType));
 		return getClassInstance(clazz);
+	}
+
+	protected String getKey(Class<?> clazz) {
+
+		return clazz.getTypeName();
 	}
 }

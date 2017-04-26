@@ -29,7 +29,12 @@ public class GenericResponseWriter implements HttpResponseWriter {
 			writer.write(result, request, response);
 		}
 		else {
-			response.end(result.toString());
+			if (result != null) {
+				response.end(result.toString());
+			}
+			else {
+				response.end();
+			}
 		}
 	}
 }

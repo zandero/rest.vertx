@@ -10,8 +10,6 @@ import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
 import io.vertx.core.http.HttpMethod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
@@ -28,8 +26,6 @@ import java.util.*;
  * Holds definition of a route as defined with annotations
  */
 public class RouteDefinition {
-
-	private final static Logger log = LoggerFactory.getLogger(RouteDefinition.class);
 
 	private final String DELIMITER = "/";
 
@@ -83,6 +79,9 @@ public class RouteDefinition {
 		consumes = base.getConsumes();
 		produces = base.getProduces();
 		method = base.getMethod();
+
+		reader = base.getReader();
+		writer = base.getWriter();
 
 		// set root privileges
 		permitAll = base.getPermitAll();
@@ -315,6 +314,11 @@ public class RouteDefinition {
 					name = ((FormParam) annotation).value();
 				}
 
+				if (annotation instanceof CookieParam) {
+					type = ParameterType.cookie;
+					name = ((CookieParam) annotation).value();
+				}
+
 				if (annotation instanceof HeaderParam) {
 
 					type = ParameterType.header;
@@ -461,8 +465,30 @@ public class RouteDefinition {
 
 	public boolean requestHasBody() {
 
-		return !(HttpMethod.GET.equals(method) ||
-			HttpMethod.HEAD.equals(method));
+		return !(HttpMethod.GET.equals(method) || HttpMethod.HEAD.equals(method));
+	}
+
+	public boolean hasBodyParameter() {
+
+		return getBodyParameter() != null;
+	}
+
+	public MethodParameter getBodyParameter() {
+
+		if (params == null) {
+			return null;
+		}
+
+		return params.values().stream().filter(param -> ParameterType.body.equals(param.getType())).findFirst().orElse(null);
+	}
+
+	public boolean hasCookies() {
+
+		if (params == null) {
+			return false;
+		}
+
+		return params.values().stream().anyMatch(param -> ParameterType.cookie.equals(param.getType()));
 	}
 
 	public boolean pathIsRegEx() {
