@@ -329,7 +329,6 @@ public class RouteDefinition {
 
 					type = ParameterType.context;
 					name = parameters[index].getName();
-					// todo check if context is supported and provide additional info, so context can be resolved
 				}
 			}
 

@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class ArgumentProvider {
 
-	public static Object[] getArguments(Method method, RouteDefinition definition, RoutingContext context, HttpRequestBodyReader bodyReader, List<Object> contextStorage) {
+	public static Object[] getArguments(Method method, RouteDefinition definition, RoutingContext context, HttpRequestBodyReader bodyReader) {
 
 		Assert.notNull(method, "Missing method to provide arguments for!");
 		Assert.notNull(definition, "Missing route definition!");
@@ -68,7 +68,7 @@ public class ArgumentProvider {
 							break;
 
 						case context:
-							args[parameter.getIndex()] = provideContext(definition, method.getParameterTypes()[parameter.getIndex()], context, contextStorage);
+							args[parameter.getIndex()] = provideContext(definition, method.getParameterTypes()[parameter.getIndex()], context);
 							break;
 
 						default:
@@ -160,7 +160,7 @@ public class ArgumentProvider {
 	 * @param contextStorage storage of context objects to return (or null / empty) if none are present
 	 * @return found context or null if not found
 	 */
-	private static Object provideContext(RouteDefinition definition, Class<?> type, RoutingContext context, List<Object> contextStorage) throws ContextException {
+	private static Object provideContext(RouteDefinition definition, Class<?> type, RoutingContext context) throws ContextException {
 
 		if (type == null) {
 			return null;
@@ -193,8 +193,8 @@ public class ArgumentProvider {
 		}
 
 		// browse through context storage
-		if (contextStorage != null) {
-			for (Object item : contextStorage) {
+		if (context.data() != null) {
+			for (Object item : context.data().values()) {
 				if (type.isInstance(item)) {
 					return item;
 				}
@@ -218,5 +218,11 @@ public class ArgumentProvider {
 		}
 
 		return null;
+	}
+
+	public static String getContextKey(Object object) {
+
+		Assert.notNull(object, "Expected object but got null!");
+		return "RestRouter-" + Integer.toString(object.hashCode());
 	}
 }

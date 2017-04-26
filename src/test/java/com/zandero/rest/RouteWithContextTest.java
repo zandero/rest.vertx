@@ -38,7 +38,7 @@ public class RouteWithContextTest extends VertxTest {
 	private Handler<RoutingContext> pushContextHandler() {
 
 		return context -> {
-			RestRouter.pushContext(new Dummy("test", "user"));
+			RestRouter.pushContext(context, new Dummy("test", "user"));
 			context.next();
 		};
 	}

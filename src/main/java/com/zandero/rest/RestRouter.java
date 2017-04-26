@@ -9,6 +9,7 @@ import com.zandero.rest.reader.ReaderFactory;
 import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.rest.writer.WriterFactory;
 import com.zandero.utils.Assert;
+import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -43,8 +44,6 @@ public class RestRouter {
 
 	private static final ReaderFactory readers = new ReaderFactory();
 
-	private static final ThreadLocal<List<Object>> contexts = new ThreadLocal<>();
-
 	/**
 	 * Searches for annotations to register routes ...
 	 *
@@ -55,7 +54,6 @@ public class RestRouter {
 	public static Router register(Vertx vertx, Object... restApi) {
 
 		Assert.notNull(vertx, "Missing vertx!");
-		Assert.isTrue(restApi != null && restApi.length > 0, "Missing REST API class object!");
 
 		Router router = Router.router(vertx);
 		return register(router, restApi);
@@ -71,6 +69,7 @@ public class RestRouter {
 	public static Router register(Router router, Object... restApi) {
 
 		Assert.notNull(router, "Missing vert.x router!");
+		Assert.isTrue(restApi != null && restApi.length > 0, "Missing REST API class object!");
 
 		for (Object api : restApi) {
 
@@ -188,17 +187,30 @@ public class RestRouter {
 			return false; // no user present ... can't check
 		}
 
-		// TODO: if more than one role ... use multiple futures
-
 		// check if given user is authorized for given role ...
+		List<Future> list = new ArrayList<>();
+
 		for (String role: definition.getRoles()) {
 
 			Future<Boolean> future = Future.future();
 			user.isAuthorised(role, future.completer());
 
-			Boolean result = future.result();
-			if (result != null && result) {
-				return true;
+			list.add(future);
+		}
+
+		// compose multiple futures ... and return true if any of those return true
+		Future<CompositeFuture> output = Future.future();
+		CompositeFuture.all(list).setHandler(output.completer());
+
+		if (output.result() != null) {
+
+			for (int index = 0; index < output.result().size(); index ++) {
+				if (output.result().succeeded(index)) {
+
+					Object result = output.result().resultAt(index);
+					if (result instanceof Boolean && ((Boolean)result))
+						return true;
+				}
 			}
 		}
 
@@ -216,7 +228,7 @@ public class RestRouter {
 					bodyReader = readers.getRequestBodyReader(definition);
 				}
 
-				Object[] args = ArgumentProvider.getArguments(method, definition, context, bodyReader, contexts.get());
+				Object[] args = ArgumentProvider.getArguments(method, definition, context, bodyReader);
 
 				Object result = execute(method, toInvoke, args);
 				produceResponse(result, context, method, definition);
@@ -225,11 +237,6 @@ public class RestRouter {
 
 				ExecuteException ex = new ExecuteException(400, e);
 				produceResponse(ex, context, method, definition);
-			}
-			finally {
-
-				// clear context if any
-				contexts.remove();
 			}
 		};
 	}
@@ -295,12 +302,11 @@ public class RestRouter {
 		return readers;
 	}
 
-	public static void pushContext(Object object) {
+	public static void pushContext(RoutingContext context, Object object) {
 
-		if (contexts.get() == null) {
-			contexts.set(new ArrayList<>());
-		}
+		Assert.notNull(context, "Missing context!");
+		Assert.notNull(object, "Can't push null into context!");
 
-		contexts.get().add(object);
+		context.put(ArgumentProvider.getContextKey(object), object);
 	}
 }
