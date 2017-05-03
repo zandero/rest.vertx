@@ -63,4 +63,21 @@ public class RouteWithRegExTest extends VertxTest {
 		});
 	}
 
+	@Test
+	public void testSimpleRegExWithMultipleVariables(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/regEx/3/minus/2", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("1", body.toString());
+				async.complete();
+			});
+		});
+	}
+
 }

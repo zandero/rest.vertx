@@ -88,15 +88,15 @@ public final class PathConverter {
 		}
 
 		if (isRestEasyPath(path)) {
-			return getRestEasyParam(path, pathIndex);
+			return getRestEasyParam(path, paramIndex, pathIndex);
 		}
 
 		// Regular named parameter
 		int index = path.lastIndexOf(":");
 		if (index == 0) {
 			path = path.substring(1); // is vert.x path
-			MethodParameter parameter = new MethodParameter(ParameterType.path, path);
-			parameter.setPathIndex(paramIndex);
+			MethodParameter parameter = new MethodParameter(ParameterType.path, path, paramIndex);
+			parameter.setPathIndex(pathIndex);
 			return parameter;
 		}
 
@@ -104,7 +104,7 @@ public final class PathConverter {
 		if (StringUtils.isRegEx(path)) {
 
 			String name = "param" + paramIndex; // Vert.X name ... no other option here
-			MethodParameter parameter = new MethodParameter(ParameterType.path, name);
+			MethodParameter parameter = new MethodParameter(ParameterType.path, name, paramIndex);
 			parameter.setPathIndex(pathIndex);
 			parameter.setRegEx(path);
 			return parameter;
@@ -114,14 +114,14 @@ public final class PathConverter {
 	}
 
 
-	private static MethodParameter getRestEasyParam(String path, int pathIndex) {
+	private static MethodParameter getRestEasyParam(String path, int paramIndex, int pathIndex) {
 
 		// remove front and back {}
 		path = path.substring(1, path.length() - 1); // create vert.x form
 		int index = path.lastIndexOf(":");
 		// RestEasy definition of RexEx
 		if (index <= 0) {
-			MethodParameter parameter = new MethodParameter(ParameterType.path, path);
+			MethodParameter parameter = new MethodParameter(ParameterType.path, path, paramIndex);
 			parameter.setPathIndex(pathIndex);
 			return parameter;
 		}
@@ -130,7 +130,7 @@ public final class PathConverter {
 		String name = path.substring(0, index);
 		String regEx = path.substring(index + 1);
 
-		MethodParameter parameter = new MethodParameter(ParameterType.path, name);
+		MethodParameter parameter = new MethodParameter(ParameterType.path, name, paramIndex);
 		parameter.setPathIndex(pathIndex);
 		parameter.setRegEx(regEx);
 		return parameter;

@@ -53,9 +53,17 @@ public class MethodParameter {
 		name = StringUtils.trim(paramName);
 	}
 
+	public MethodParameter(ParameterType parameterType, String paramName, int argumentIndex) {
+
+		this(parameterType, paramName);
+		index = argumentIndex;
+	}
+
 	public MethodParameter(ParameterType parameterType, String paramName, Class<?> argumentType, int argumentIndex) {
 
 		this(parameterType, paramName);
+
+		Assert.isTrue(argumentIndex >= 0, "Can't set negative argument index!");
 		argument(argumentType, argumentIndex);
 	}
 

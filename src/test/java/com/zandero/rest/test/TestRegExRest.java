@@ -34,4 +34,11 @@ public class TestRegExRest {
 	public Response test(int one) {
 		return Response.ok(one).build();
 	}
+
+	@RouteOrder(15)
+	@GET
+	@Path("/\\d+/minus/\\d+")
+	public Response test(int one, int two) {
+		return Response.ok(one - two).build();
+	}
 }

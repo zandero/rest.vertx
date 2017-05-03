@@ -11,7 +11,7 @@ A JAX-RS (RestEasy) like annotation processor for vert.x verticals
 ```
 
 ## Example
-Step 1 - annotate a class with JAX-RS annotations 
+**Step 1** - annotate a class with JAX-RS annotations 
 ```java
 @Path("/test")
 public class TestRest {
@@ -27,7 +27,7 @@ public class TestRest {
 
 
 ```
-Step 2 - register annotated class as REST API
+**Step 2** - register annotated class as REST API
 ```java
 TestRest rest = new TestRest();
 Router router = RestRouter.register(vertx, rest);
@@ -37,3 +37,47 @@ vertx.createHttpServer()
 		.listen(PORT);
 ```
 
+## Paths
+Each class can be annotated with a root (or base) path @Path("/rest")
+
+Following that each public method must have a @Path annotation in order to be registered as a REST endpoint. 
+
+### Path variables
+Both class and methods support @Path variables.
+
+```java
+// RestEasy path param style
+@GET
+@Path("/execute/{param}")
+public String execute(@PathParam("param") String parameter) {
+	return parameter;
+}
+```
+
+```java
+// vert.x path param style
+@GET
+@Path("/execute/:param")
+public String execute(@PathParam("param") String parameter) {
+	return parameter;
+}
+```
+
+### Path regular expressions
+```java
+// RestEasy path param style with regular expression (parameter:>regEx<)
+@GET
+@Path("/{one:\\w+}/{two:\\d+}/{three:\\w+}")
+public String oneTwoThree(@PathParam("one") String one, @PathParam("two") int two, @PathParam("three") String three) {
+	return one + two + three;
+}
+```
+
+**Not recoomended** but possible are vert.x style paths with regular expressions:
+```java
+@GET
+@Path("/\\d+")
+public Response test(int one) {
+    return Response.ok(one).build();
+}
+```

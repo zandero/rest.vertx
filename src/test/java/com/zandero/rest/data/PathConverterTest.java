@@ -74,14 +74,20 @@ public class PathConverterTest {
 		param = list.get(0);
 		assertEquals("test", param.getName());
 		assertEquals(ParameterType.path, param.getType());
+		assertEquals(0, param.getIndex());
+		assertEquals(1, param.getPathIndex());
 
 		param = list.get(1);
 		assertEquals("test2", param.getName());
 		assertEquals(ParameterType.path, param.getType());
+		assertEquals(1, param.getIndex());
+		assertEquals(2, param.getPathIndex());
 
 		param = list.get(2);
 		assertEquals("test3", param.getName());
 		assertEquals(ParameterType.path, param.getType());
+		assertEquals(2, param.getIndex());
+		assertEquals(3, param.getPathIndex());
 	}
 
 	@Test
@@ -103,13 +109,40 @@ public class PathConverterTest {
 		param = list.get(0);
 		assertEquals("param0", param.getName());
 		assertEquals("[A-Z]", param.getRegEx());
+		assertEquals(0, param.getIndex());
+		assertEquals(1, param.getPathIndex());
 		assertTrue(param.isRegEx());
 		assertEquals(ParameterType.path, param.getType());
 
 		param = list.get(1);
 		assertEquals("test", param.getName());
 		assertEquals("\\d", param.getRegEx());
+		assertEquals(1, param.getIndex());
+		assertEquals(2, param.getPathIndex());
 		assertTrue(param.isRegEx());
+		assertEquals(ParameterType.path, param.getType());
+	}
+
+	@Test
+	public void extractRegExTest2() {
+
+		List<MethodParameter> list = PathConverter.extract("/\\d+/minus/\\w+");
+		assertEquals(2, list.size());
+
+		MethodParameter param = list.get(0);
+		assertEquals("param0", param.getName());
+		assertEquals("\\d+", param.getRegEx());
+		assertTrue(param.isRegEx());
+		assertEquals(0, param.getIndex());
+		assertEquals(1, param.getPathIndex());
+		assertEquals(ParameterType.path, param.getType());
+
+		param = list.get(1);
+		assertEquals("param1", param.getName());
+		assertEquals("\\w+", param.getRegEx());
+		assertTrue(param.isRegEx());
+		assertEquals(1, param.getIndex());
+		assertEquals(3, param.getPathIndex());
 		assertEquals(ParameterType.path, param.getType());
 	}
 
