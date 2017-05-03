@@ -386,11 +386,33 @@ public HttpServerResponse getRoute(@Context HttpServerResponse response) {
 
     response.setStatusCode(201);
     response.putHeader("X-MySessionHeader", sessionId);
+    response.end("Hello world!");
     return reponse;
 }
 ```
 
 ### JAX-RS response builder
+**NOTE** in order to utilize the JAX Response.builder() an existing JAX-RS implementation must be provided.  
+Vertx.rest uses the Glassfish Jersey implementation for testing: 
+```
+<dependency>
+    <groupId>org.glassfish.jersey.core</groupId>
+    <artifactId>jersey-common</artifactId>
+    <version>${version.glassfish}</version>
+    <scope>test</scope>
+</dependency>
+```
 
+```java
+@GET
+@Path("/login")
+public Response jax() {
+
+    return Response
+        .accepted("Hello world!!")
+        .header("X-MySessionHeader", sessionId)
+        .build();
+}
+```
 
 ## User roles & authorization
