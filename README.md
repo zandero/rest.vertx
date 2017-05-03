@@ -120,13 +120,15 @@ public class CalculateRest {
 GET /calculate/add/1/2 -> 3
 ```
 
-### Conversion of path and query variables to java 
-Rest.Vertx tries to convert path and query variables to their corresponding java types.    
+### Conversion of path and query variables to Java objects 
+Rest.Vertx tries to convert path and query variables to their corresponding Java types.
+    
 Basic (primitive) types are converted from string to given type - if conversion is not possible a **400 bad request** response follows.
  
-Complex java objects are converted according to @Consumes annotation or request body reader associated.
+Complex java objects are converted according to **@Consumes** annotation or **request body reader** associated.
 
-**Option 1** - The @Consumes annotation mime/type defines the reader to be used when converting request body to Java object. In this case a build in JSON converter is applied.
+**Option 1** - The @Consumes annotation mime/type defines the reader to be used when converting request body.  
+In this case a build in JSON converter is applied.
 ```java
 @Path("consume")
 public class ConsumeJSON {
@@ -141,7 +143,7 @@ public class ConsumeJSON {
 }
 ```  
 
-**Option 2** - The @RequestReader annotation defines a specific reader to be used when converting request body to Java object.
+**Option 2** - The @RequestReader annotation defines a specific reader to be used when converting request body.
 ```java
 @Path("consume")
 public class ConsumeJSON {
@@ -169,7 +171,6 @@ public class ConsumeJSON {
 
 	@POST
 	@Path("read")
-	@Consumes("application/json")
 	public String add(SomeClass item) {
 
 		return "OK";
@@ -202,3 +203,71 @@ First appropriate reader is assigned searching in following order:
 1. use class type specific reader
 1. use mime type assigned reader
 1. use general purpose reader
+
+## Request context
+Additional request bound variables can be provided as method arguments using the @Context annotation.
+ 
+Following types are by default supported:
+* HttpServerRequest vert.x current request
+* HttpServerResponse vert.x response (of current request)
+* Vertx vert.x instance
+* RoutingContext vert.x routing context (of current request)
+* User vert.x user entity (if set)
+* RouteDefinition vertx.rest route definition (reflection of route annotation)
+
+```java
+@GET
+@Path("/context")
+public String createdResponse(@Context HttpServerResponse response, @Context HttpServerRequest request) {
+
+	response.setStatusCode(201);
+	return request.uri();
+}
+```
+
+### Pushing a custom context
+While processing a request a custom context can be pushed into the vert.x routing context data storage.  
+This context data can than be utilized a method argument.
+
+
+In order to achieve this we need to create a custom handler that pushes the context before the REST endpoint is called:
+```java
+    Router router = Router.router(vertx);
+	router.route().handler(pushContextHandler());
+
+	router = RestRouter.register(router, new CustomContextRest());
+	vertx.createHttpServer()
+		.requestHandler(router::accept)
+		.listen(PORT);
+
+	private Handler<RoutingContext> pushContextHandler() {
+
+		return context -> {
+			RestRouter.pushContext(context, new MyCustomContext("push this into storage"));
+			context.next();
+		};
+	}
+```
+
+Then the context object can be used as a method argument 
+```java
+@Path("custom")
+public class CustomContextRest {
+	
+
+    @GET
+    @Path("/context")
+    public String createdResponse(@Context MyCustomContext context) {
+    
+    }
+```
+
+## Response building
+
+### Response writers
+
+
+### vert.x response builder
+
+### JAX-RS response builder
+
