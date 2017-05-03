@@ -157,7 +157,6 @@ public class ArgumentProvider {
 	 * @param definition     route definition
 	 * @param type           context type
 	 * @param context        to extract value from
-	 * @param contextStorage storage of context objects to return (or null / empty) if none are present
 	 * @return found context or null if not found
 	 */
 	private static Object provideContext(RouteDefinition definition, Class<?> type, RoutingContext context) throws ContextException {

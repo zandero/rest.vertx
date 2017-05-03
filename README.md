@@ -54,6 +54,10 @@ public String execute(@PathParam("param") String parameter) {
 }
 ```
 
+```
+GET /execute/that -> that
+```
+
 ```java
 // vert.x path param style
 @GET
@@ -63,9 +67,13 @@ public String execute(@PathParam("param") String parameter) {
 }
 ```
 
+```
+GET /execute/this -> this
+```
+
 ### Path regular expressions
 ```java
-// RestEasy path param style with regular expression (parameter:>regEx<)
+// RestEasy path param style with regular expression {parameter:>regEx<}
 @GET
 @Path("/{one:\\w+}/{two:\\d+}/{three:\\w+}")
 public String oneTwoThree(@PathParam("one") String one, @PathParam("two") int two, @PathParam("three") String three) {
@@ -73,11 +81,124 @@ public String oneTwoThree(@PathParam("one") String one, @PathParam("two") int tw
 }
 ```
 
-**Not recoomended** but possible are vert.x style paths with regular expressions:
+```
+GET /test/4/you -> test4you
+```
+
+**Not recoomended** but possible are vert.x style paths with regular expressions.  
+In this case method parameters correspond to path expressions by index. 
 ```java
 @GET
-@Path("/\\d+")
-public Response test(int one) {
-    return Response.ok(one).build();
+@Path("/\\d+/minus/\\d+")
+public Response test(int one, int two) {
+    return Response.ok(one - two).build();
 }
 ```
+
+```
+GET /12/minus/3 -> 9
+```
+
+### Query variables
+Query variables are defined using the @QueryParam annotation.  
+In case method arguments are not _nullable_ they must be provided or a **400 bad request** response follows. 
+
+```java
+@Path("calculate")
+public class CalculateRest {
+
+	@GET
+	@Path("add")
+	public int add(@QueryParam("one") int one, @QueryParam("two") int two) {
+
+		return one + two;
+	}
+}
+```
+
+```
+GET /calculate/add/1/2 -> 3
+```
+
+### Conversion of path and query variables to java 
+Rest.Vertx tries to convert path and query variables to their corresponding java types.    
+Basic (primitive) types are converted from string to given type - if conversion is not possible a **400 bad request** response follows.
+ 
+Complex java objects are converted according to @Consumes annotation or request body reader associated.
+
+**Option 1** - The @Consumes annotation mime/type defines the reader to be used when converting request body to Java object. In this case a build in JSON converter is applied.
+```java
+@Path("consume")
+public class ConsumeJSON {
+
+	@POST
+	@Path("read")
+	@Consumes("application/json")
+	public String add(SomeClass item) {
+
+		return "OK";
+	}
+}
+```  
+
+**Option 2** - The @RequestReader annotation defines a specific reader to be used when converting request body to Java object.
+```java
+@Path("consume")
+public class ConsumeJSON {
+
+	@POST
+	@Path("read")
+	@Consumes("application/json")
+	@RequestReader(SomeClassReader.class)
+	public String add(SomeClass item) {
+
+		return "OK";
+	}
+}
+```
+
+**Option 3** - An RequestReader is globally assigned to a specific class type.
+
+```java
+RestRouter.getReaders().register(SomeClass.class, SomeClassReader.class);
+```
+
+```java
+@Path("consume")
+public class ConsumeJSON {
+
+	@POST
+	@Path("read")
+	@Consumes("application/json")
+	public String add(SomeClass item) {
+
+		return "OK";
+	}
+}
+```
+
+**Option 4** - An RequestReader is globally assigned to a specific mime type.
+
+```java
+RestRouter.getReaders().register("application/json", SomeClassReader.class);
+```
+
+```java
+@Path("consume")
+public class ConsumeJSON {
+
+	@POST
+	@Path("read")
+	@Consumes("application/json")
+	public String add(SomeClass item) {
+
+		return "OK";
+	}
+}
+```
+
+First appropriate reader is assigned searching in following order:
+1. use assigned method RequestReader
+1. use class type specific reader
+1. use mime type assigned reader
+1. use general purpose reader
