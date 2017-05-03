@@ -47,4 +47,14 @@ public class TestContextRest {
 
 		return object;
 	}
+
+	@GET
+	@Path("/login")
+	public HttpServerResponse login(@Context HttpServerResponse response) {
+
+		response.setStatusCode(201);
+		response.putHeader("X-SessionId", "session");
+		response.end("Hello world!");
+		return response;
+	}
 }

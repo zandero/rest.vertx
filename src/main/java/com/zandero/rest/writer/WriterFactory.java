@@ -3,6 +3,7 @@ package com.zandero.rest.writer;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.exception.ClassFactoryException;
+import io.vertx.core.http.HttpServerResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,7 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 		if (classTypes.size() == 0) {
 
 			classTypes.put(Response.class.getName(), JaxResponseWriter.class);
+			classTypes.put(HttpServerResponse.class.getName(), VertxResponseWriter.class);
 
 			mediaTypes.put(MediaType.APPLICATION_JSON, JsonResponseWriter.class);
 			mediaTypes.put(MediaType.TEXT_PLAIN, GenericResponseWriter.class);

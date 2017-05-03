@@ -204,16 +204,59 @@ First appropriate reader is assigned searching in following order:
 1. use mime type assigned reader
 1. use general purpose reader
 
+### Cookies, forms and headers ...
+Cookies, HTTP form and headers can also be read via @CookieParam, @HeaderParam and @FormParam annotations.  
+
+```java
+@Path("read")
+public class TestRest {
+
+	@GET
+	@Path("cookie")
+	public String readCookie(@CookieParam("SomeCookie") String cookie) {
+
+		return cookie;
+	}
+}
+```
+
+```java
+@Path("read")
+public class TestRest {
+
+	@GET
+	@Path("header")
+	public String readHeader(@HeaderParam("X-SomeHeader") String header) {
+
+		return header;
+	}
+}
+```
+
+```java
+@Path("read")
+public class TestRest {
+
+	@POST
+	@Path("form")
+	public String readForm(@FormParam("username") String user, @FormParam("password") String password) {
+
+		return "User: " + user + ", is logged in!";
+	}
+}
+```
+
+
 ## Request context
 Additional request bound variables can be provided as method arguments using the @Context annotation.
  
 Following types are by default supported:
-* HttpServerRequest vert.x current request
-* HttpServerResponse vert.x response (of current request)
-* Vertx vert.x instance
-* RoutingContext vert.x routing context (of current request)
-* User vert.x user entity (if set)
-* RouteDefinition vertx.rest route definition (reflection of route annotation)
+* **HttpServerRequest** vert.x current request 
+* **HttpServerResponse** vert.x response (of current request)
+* **Vertx** vert.x instance
+* **RoutingContext** vert.x routing context (of current request)
+* **User** vert.x user entity (if set)
+* **RouteDefinition** vertx.rest route definition (reflection of route annotation)
 
 ```java
 @GET
@@ -227,29 +270,29 @@ public String createdResponse(@Context HttpServerResponse response, @Context Htt
 
 ### Pushing a custom context
 While processing a request a custom context can be pushed into the vert.x routing context data storage.  
-This context data can than be utilized a method argument.
+This context data can than be utilized as a method argument.
 
 
 In order to achieve this we need to create a custom handler that pushes the context before the REST endpoint is called:
 ```java
-    Router router = Router.router(vertx);
-	router.route().handler(pushContextHandler());
+Router router = Router.router(vertx);
+router.route().handler(pushContextHandler());
 
-	router = RestRouter.register(router, new CustomContextRest());
-	vertx.createHttpServer()
+router = RestRouter.register(router, new CustomContextRest());
+vertx.createHttpServer()
 		.requestHandler(router::accept)
 		.listen(PORT);
 
-	private Handler<RoutingContext> pushContextHandler() {
+private Handler<RoutingContext> pushContextHandler() {
 
-		return context -> {
-			RestRouter.pushContext(context, new MyCustomContext("push this into storage"));
-			context.next();
-		};
-	}
+	return context -> {
+		RestRouter.pushContext(context, new MyCustomContext("push this into storage"));
+		context.next();
+	};
+}
 ```
 
-Then the context object can be used as a method argument 
+Then the context object can than be used as a method argument 
 ```java
 @Path("custom")
 public class CustomContextRest {
@@ -265,9 +308,89 @@ public class CustomContextRest {
 ## Response building
 
 ### Response writers
+Metod results are converted using response writers.  
+Response writers take the method result and produce a vert.x response.
 
+**Option 1** - The @Produces annotation mime/type defines the writer to be used when converting response.  
+In this case a build in JSON writer is applied.
+```java
+@Path("produces")
+public class ConsumeJSON {
+
+	@GET
+	@Path("write")
+	@Produces("application/json")
+	public SomeClass write() {
+
+		return new SomeClass();
+	}
+}
+```
+
+**Option 2** - The @ResponseWriter annotation defines a specific writer to be used.
+```java
+@Path("produces")
+public class ConsumeJSON {
+
+	@GET
+	@Path("write")
+	@Produces("application/json")
+	@ResponseWriter(SomeClassWriter.class)
+	public SomeClass write() {
+
+		return new SomeClass();
+	}
+}
+```
+
+**Option 3** - An ResponseWriter is globally assigned to a specific class type.
+
+```java
+RestRouter.getWriters().register(SomeClass.class, SomeClassWriter.class);
+```
+
+
+**Option 4** - An ResponseWriter is globally assigned to a specific mime type.
+
+```java
+RestRouter.getWriters().register("application/json", MyJsonWriter.class);
+```
+
+```java
+@Path("produces")
+public class ConsumeJSON {
+
+	@GET
+	@Path("write")
+	@Produces("application/json")
+	public SomeClass write() {
+
+		return new SomeClass();
+	}
+}
+```
+
+First appropriate writer is assigned searching in following order:
+1. use assigned method ResponseWriter
+1. use class type specific writer
+1. use mime type assigned writer
+1. use general purpose writer (call to _.toString()_ method of returned object)
 
 ### vert.x response builder
+In order to manipulate response codes, cookies, headers ... we can utilize the @Context HttpServerResponse.
+ 
+```java
+@GET
+@Path("/login")
+public HttpServerResponse getRoute(@Context HttpServerResponse response) {
+
+    response.setStatusCode(201);
+    response.putHeader("X-MySessionHeader", sessionId);
+    return reponse;
+}
+```
 
 ### JAX-RS response builder
 
+
+## User roles & authorization

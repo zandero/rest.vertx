@@ -110,4 +110,22 @@ public class RouteWithContextTest extends VertxTest {
 			});
 		});
 	}
+
+	@Test
+	public void testResponseContex(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/context/login", response -> {
+
+			context.assertEquals(201, response.statusCode());
+			context.assertEquals("session", response.getHeader("X-SessionId"));
+
+			response.handler(body -> {
+				context.assertEquals("Hello world!", body.toString());
+				async.complete();
+			});
+		});
+	}
 }
