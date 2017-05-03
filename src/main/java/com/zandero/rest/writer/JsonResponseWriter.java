@@ -5,7 +5,7 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
 /**
- *
+ * Converts result into JSON object if not null
  */
 public class JsonResponseWriter implements HttpResponseWriter {
 

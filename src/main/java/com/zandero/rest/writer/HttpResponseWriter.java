@@ -8,7 +8,9 @@ import io.vertx.core.http.HttpServerResponse;
 import javax.ws.rs.core.MediaType;
 
 /**
- *
+ * Response writer interface to implement
+ * use RestRouter.getWriters().register(...) to register a global writer
+ * or use @ResponseWriter annotation to associate REST with given writer
  */
 public interface HttpResponseWriter {
 

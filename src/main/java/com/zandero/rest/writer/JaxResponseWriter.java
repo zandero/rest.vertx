@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
+ * Produces vert.x response based on JAX-RS response builder output
  */
 public class JaxResponseWriter implements HttpResponseWriter {
 

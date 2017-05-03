@@ -83,11 +83,6 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>com.zandero</groupId>
-            <artifactId>http</artifactId>
-            <version>${version.zandero.http}</version>
-        </dependency>
 
         <dependency>
             <groupId>io.vertx</groupId>
@@ -161,13 +156,20 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Mockito for mocking stuff-->
         <dependency>
+            <groupId>com.zandero</groupId>
+            <artifactId>http</artifactId>
+            <version>${version.zandero.http}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Mockito for mocking stuff-->
+       <!-- <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>${version.mockito-all}</version>
             <scope>test</scope>
-        </dependency>
+        </dependency>-->
 
     </dependencies>
 

@@ -4,7 +4,7 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
 /**
- *
+ * Returns 204 response code
  */
 public class NoContentResponseWriter implements HttpResponseWriter {
 
