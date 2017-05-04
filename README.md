@@ -40,10 +40,10 @@ vertx.createHttpServer()
 ## Paths
 Each class can be annotated with a root (or base) path @Path("/rest")
 
-Following that each public method must have a @Path annotation in order to be registered as a REST endpoint. 
+Following that each public method must have a **@Path** annotation in order to be registered as a REST endpoint. 
 
 ### Path variables
-Both class and methods support @Path variables.
+Both class and methods support **@Path** variables.
 
 ```java
 // RestEasy path param style
@@ -127,7 +127,7 @@ Basic (primitive) types are converted from string to given type - if conversion 
  
 Complex java objects are converted according to **@Consumes** annotation or **request body reader** associated.
 
-**Option 1** - The @Consumes annotation mime/type defines the reader to be used when converting request body.  
+**Option 1** - The **@Consumes** annotation **mime/type** defines the reader to be used when converting request body.  
 In this case a build in JSON converter is applied.
 ```java
 @Path("consume")
@@ -143,7 +143,7 @@ public class ConsumeJSON {
 }
 ```  
 
-**Option 2** - The @RequestReader annotation defines a specific reader to be used when converting request body.
+**Option 2** - The **@RequestReader** annotation defines a specific reader to be used when converting request body.
 ```java
 @Path("consume")
 public class ConsumeJSON {
@@ -205,7 +205,7 @@ First appropriate reader is assigned searching in following order:
 1. use general purpose reader
 
 ### Cookies, forms and headers ...
-Cookies, HTTP form and headers can also be read via @CookieParam, @HeaderParam and @FormParam annotations.  
+Cookies, HTTP form and headers can also be read via **@CookieParam**, **@HeaderParam** and **@FormParam** annotations.  
 
 ```java
 @Path("read")
@@ -251,12 +251,12 @@ public class TestRest {
 Additional request bound variables can be provided as method arguments using the @Context annotation.
  
 Following types are by default supported:
-* **HttpServerRequest** vert.x current request 
-* **HttpServerResponse** vert.x response (of current request)
-* **Vertx** vert.x instance
-* **RoutingContext** vert.x routing context (of current request)
-* **User** vert.x user entity (if set)
-* **RouteDefinition** vertx.rest route definition (reflection of route annotation)
+* **@Context HttpServerRequest** vert.x current request 
+* **@Context HttpServerResponse** vert.x response (of current request)
+* **@Context Vertx** vert.x instance
+* **@Context RoutingContext** vert.x routing context (of current request)
+* **@Context User** vert.x user entity (if set)
+* **@Context RouteDefinition** vertx.rest route definition (reflection of route annotation)
 
 ```java
 @GET
@@ -311,7 +311,7 @@ public class CustomContextRest {
 Metod results are converted using response writers.  
 Response writers take the method result and produce a vert.x response.
 
-**Option 1** - The @Produces annotation mime/type defines the writer to be used when converting response.  
+**Option 1** - The **@Produces** annotation **mime/type** defines the writer to be used when converting response.  
 In this case a build in JSON writer is applied.
 ```java
 @Path("produces")
@@ -327,7 +327,7 @@ public class ConsumeJSON {
 }
 ```
 
-**Option 2** - The @ResponseWriter annotation defines a specific writer to be used.
+**Option 2** - The **@ResponseWriter** annotation defines a specific writer to be used.
 ```java
 @Path("produces")
 public class ConsumeJSON {
@@ -377,7 +377,7 @@ First appropriate writer is assigned searching in following order:
 1. use general purpose writer (call to _.toString()_ method of returned object)
 
 ### vert.x response builder
-In order to manipulate returned response, we can utilize the @Context HttpServerResponse.
+In order to manipulate returned response, we can utilize the **@Context HttpServerResponse**.
  
 ```java
 @GET
@@ -417,9 +417,9 @@ public Response jax() {
 
 ## User roles & authorization
 User access is checked in case REST API is annotated with:
-* @RolesAllowed(role), @RolesAllowed(role_1, role_2, ..., role_N) - check if user is in any given role
-* @PermitAll - allow everyone
-* @DenyAll - deny everyone
+* **@RolesAllowed(role)**, **@RolesAllowed(role_1, role_2, ..., role_N)** - check if user is in any given role
+* **@PermitAll** - allow everyone
+* **@DenyAll** - deny everyone
 
 User access is checked against the vert.x _User_ entity stored in _RoutingContext_, calling the _User.isAuthorised(role, handler)_ method.
 
@@ -512,6 +512,92 @@ public class SimulatedUser extends AbstractUser {
 	@Override
 	public void setAuthProvider(AuthProvider authProvider) {
         // not utilized by Rest.vertx
+	}
+}
+```
+
+## Implementing a custom body reader
+In case needed we can implement a custom request body reader.  
+A request body reader must:
+ * implement _HttpRequestBodyReader_ interface
+ * linked to a class type, mime type or @RequestReader 
+ 
+**Example of RequestReader:**
+```java
+/**
+ * Converts request body to JSON
+ */
+public class MyCustomReader implements HttpRequestBodyReader {
+
+	@Override
+	public Object read(String value, Class<?> type) {
+
+		if (value != null && value.length() > 0) {
+			
+		    return new MyNewObject(value);
+		}
+		
+		return null;
+	}
+}
+```
+
+Using a request reader is simple:
+```java
+@Path("read")
+public class ReadMyNewObject {
+
+	@POST
+	@Path("object")
+	@RequestReader(MyCustomReader.class) // MyCustomReader will provide the MyNewObject to REST API
+	public String add(MyNewObject item) {
+
+		return "OK";
+	}
+}
+```
+
+
+## Implementing a custom response writer
+In case needed we can implement a custom response writer.  
+A request writer must:
+ * implement _HttpResponseWriter_ interface
+ * linked to a class type, mime type or @ResponseWriter
+ 
+**Example of RequestReader:**
+```java
+/**
+ * Converts request body to JSON
+ */
+public class MyCustomResponseWriter implements HttpResponseWriter {
+
+    /**
+     * result is the output of the corresponding REST API endpoint associated 
+     */
+	@Override
+	public void write(Object result, HttpServerRequest request, HttpServerResponse response) {
+
+		if (result instanceof MyNewObject) {
+		    MyNewObject object = (MyNewObject)result;
+		    
+		    response.putHeader("X-ObjectId", object.id);
+		    response.end(object.value);
+    	}
+	}
+}
+```
+
+Using a response writer is simple:
+```java
+@Path("write")
+public class ReadMyNewObject {
+
+	@GET
+	@Path("object")
+	@ResponseWriter(MyCustomResponseWriter.class) // MyCustomResponseWriter will take output and fill up response 
+	public MyNewObject output() {
+
+		return new MyNewObject("test", "me");
 	}
 }
 ```
