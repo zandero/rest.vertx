@@ -100,7 +100,7 @@ public String oneTwoThree(@PathParam("one") String one, @PathParam("two") int tw
 GET /test/4/you -> test4you
 ```
 
-**Not recoomended** but possible are vert.x style paths with regular expressions.  
+**Not recommended** but possible are vert.x style paths with regular expressions.  
 In this case method parameters correspond to path expressions by index. 
 ```java
 @GET
@@ -266,12 +266,12 @@ public class TestRest {
 Additional request bound variables can be provided as method arguments using the @Context annotation.
  
 Following types are by default supported:
-* **@Context HttpServerRequest** vert.x current request 
-* **@Context HttpServerResponse** vert.x response (of current request)
-* **@Context Vertx** vert.x instance
-* **@Context RoutingContext** vert.x routing context (of current request)
-* **@Context User** vert.x user entity (if set)
-* **@Context RouteDefinition** vertx.rest route definition (reflection of route annotation)
+* **@Context HttpServerRequest** - vert.x current request 
+* **@Context HttpServerResponse** - vert.x response (of current request)
+* **@Context Vertx** - vert.x instance
+* **@Context RoutingContext** - vert.x routing context (of current request)
+* **@Context User** - vert.x user entity (if set)
+* **@Context RouteDefinition** - vertx.rest route definition (reflection of **Rest.Vertx** route annotation data)
 
 ```java
 @GET
@@ -285,7 +285,7 @@ public String createdResponse(@Context HttpServerResponse response, @Context Htt
 
 ### Pushing a custom context
 While processing a request a custom context can be pushed into the vert.x routing context data storage.  
-This context data can than be utilized as a method argument.
+This context data can than be utilized as a method argument. The pushed context is thread safe for the current request.
 
 
 In order to achieve this we need to create a custom handler that pushes the context before the REST endpoint is called:
