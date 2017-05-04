@@ -377,12 +377,12 @@ First appropriate writer is assigned searching in following order:
 1. use general purpose writer (call to _.toString()_ method of returned object)
 
 ### vert.x response builder
-In order to manipulate response codes, cookies, headers ... we can utilize the @Context HttpServerResponse.
+In order to manipulate returned response, we can utilize the @Context HttpServerResponse.
  
 ```java
 @GET
 @Path("/login")
-public HttpServerResponse getRoute(@Context HttpServerResponse response) {
+public HttpServerResponse vertx(@Context HttpServerResponse response) {
 
     response.setStatusCode(201);
     response.putHeader("X-MySessionHeader", sessionId);
@@ -394,12 +394,12 @@ public HttpServerResponse getRoute(@Context HttpServerResponse response) {
 ### JAX-RS response builder
 **NOTE** in order to utilize the JAX Response.builder() an existing JAX-RS implementation must be provided.  
 Vertx.rest uses the Glassfish Jersey implementation for testing: 
-```
+
+```xml
 <dependency>
     <groupId>org.glassfish.jersey.core</groupId>
     <artifactId>jersey-common</artifactId>
-    <version>${version.glassfish}</version>
-    <scope>test</scope>
+    <version>2.22.2</version>
 </dependency>
 ```
 
@@ -416,3 +416,102 @@ public Response jax() {
 ```
 
 ## User roles & authorization
+User access is checked in case REST API is annotated with:
+* @RolesAllowed(role), @RolesAllowed(role_1, role_2, ..., role_N) - check if user is in any given role
+* @PermitAll - allow everyone
+* @DenyAll - deny everyone
+
+User access is checked against the vert.x _User_ entity stored in _RoutingContext_, calling the _User.isAuthorised(role, handler)_ method.
+
+In order to make this work, we need to fill up the RoutingContext with a User entity.
+
+```java
+public void init() {
+	
+    // 1. register handler to initialize User
+    Router router = Router.router(vertx);
+    router.route().handler(getUserHandler());
+
+    // 2. REST with @RolesAllowed annotations
+    TestAuthorizationRest testRest = new TestAuthorizationRest();
+    RestRouter.register(router, testRest);
+
+    vertx.createHttpServer()
+        .requestHandler(router::accept)
+        .listen(PORT);
+}
+
+// simple hanler to push a User entity into the vert.x RoutingContext
+public Handler<RoutingContext> getUserHandler() {
+
+    return context -> {
+
+        // read header ... if present ... create user with given value
+        String token = context.request().getHeader("X-Token");
+
+        // set user ...
+        if (token != null) {
+            context.setUser(new SimulatedUser(token)); // push User into context
+        }
+
+        context.next();
+    };
+}
+```
+
+```java
+@GET
+@Path("/info")
+@RolesAllowed("User")
+public String info(@Context User user) {
+
+    if (user instanceof SimulatedUser) {
+    	SimulatedUser theUser = (SimulatedUser)user;
+    	return theUser.name;
+    }
+
+    return "hello logged in " + user.principal();
+}
+```
+
+**Example of User implementation:**
+```java
+public class SimulatedUser extends AbstractUser {
+
+	private final String role; // role and role in one
+	
+	private final String name;
+
+	public SimulatedUser(String name, String role) {
+
+		this.name = name;
+		this.role = role;
+	}
+
+    /**
+     * permission has the value of @RolesAllowed annotation
+     */
+	@Override
+	protected void doIsPermitted(String permission, Handler<AsyncResult<Boolean>> resultHandler) {
+
+		resultHandler.handle(Future.succeededFuture(role != null && role.equals(permission)));
+	}
+
+    /**
+     * serialization of User entity
+     */
+	@Override
+	public JsonObject principal() {
+
+		JsonObject json = new JsonObject();
+		json.put("role", role);
+		json.put("name", name);
+		return json;
+	}
+
+	@Override
+	public void setAuthProvider(AuthProvider authProvider) {
+        // not utilized by Rest.vertx
+	}
+}
+```
