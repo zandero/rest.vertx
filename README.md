@@ -597,15 +597,15 @@ public class MyCustomResponseWriter implements HttpResponseWriter {
 		    
 		    response.putHeader("X-ObjectId", object.id);
 		    response.end(object.value);
-    	}
-	}
+        }
+    }
 }
 ```
 
 Using a response writer is simple:
 ```java
 @Path("write")
-public class ReadMyNewObject {
+public class WriteMyNewObject {
 
 	@GET
 	@Path("object")
