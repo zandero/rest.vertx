@@ -10,6 +10,9 @@ A JAX-RS (RestEasy) like annotation processor for vert.x verticals
 </dependency>
 ```
 
+**Rest.Verx** is still in beta, so please report any [issues](https://github.com/zandero/rest.vertx/issues) discovered.  
+You are highly encouraged to participate and improve upon the existing code.
+
 ## Example
 **Step 1** - annotate a class with JAX-RS annotations 
 ```java
@@ -31,6 +34,18 @@ public class TestRest {
 ```java
 TestRest rest = new TestRest();
 Router router = RestRouter.register(vertx, rest);
+
+vertx.createHttpServer()
+		.requestHandler(router::accept)
+		.listen(PORT);
+```
+
+or alternatively
+```java
+Router router = Router.router(vertx);
+
+TestRest rest = new TestRest();
+RestRouter.register(router, rest);
 
 vertx.createHttpServer()
 		.requestHandler(router::accept)
@@ -564,7 +579,7 @@ A request writer must:
  * implement _HttpResponseWriter_ interface
  * linked to a class type, mime type or @ResponseWriter
  
-**Example of RequestReader:**
+**Example of ResponseWriter:**
 ```java
 /**
  * Converts request body to JSON
