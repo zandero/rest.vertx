@@ -535,7 +535,7 @@ public class SimulatedUser extends AbstractUser {
 In case needed we can implement a custom request body reader.  
 A request body reader must:
  * implement _HttpRequestBodyReader_ interface
- * linked to a class type, mime type or @RequestReader 
+ * linked to a class type, mime type or _@RequestReader_ 
  
 **Example of RequestReader:**
 ```java
@@ -577,7 +577,7 @@ public class ReadMyNewObject {
 In case needed we can implement a custom response writer.  
 A request writer must:
  * implement _HttpResponseWriter_ interface
- * linked to a class type, mime type or @ResponseWriter
+ * linked to a class type, mime type or _@ResponseWriter_
  
 **Example of ResponseWriter:**
 ```java
@@ -614,5 +614,53 @@ public class WriteMyNewObject {
 
 		return new MyNewObject("test", "me");
 	}
+}
+```
+
+## Blocking handler
+In case the request handler should be a blocking handler the **@Blocking** annotation has to used.
+  
+```java
+@GET
+@Path("/blocking")
+@Blocking
+public Dummy echoJsonPut(Dummy postParam, @HeaderParam("X-Test") String testHeader) {
+
+    postParam.name = "Received-" + postParam.name;
+    postParam.value = "Received-" + postParam.value;
+
+    return postParam;
+}
+```
+
+## Ordering routes
+By default routes area added to the Router in the order they are listed as methods in the class when registered.
+One can manually change the route REST order with the **@RouteOrder** annotation.
+
+By default each route has the order of 0 - meaning the route ordering is ignored.  
+If route order is > 0 then route is order is set. The higher the order - the later each route is listed in _Router_.
+
+
+```java
+@RouteOrder(20)
+@GET
+@Path("/third")
+public String third() {
+
+    return "third";
+}
+
+@RouteOrder(10)
+@GET
+@Path("/first")
+public String first() {
+    return "first";
+}
+
+@RouteOrder(15)
+@GET
+@Path("/second")
+public String second() {
+    return "second";
 }
 ```
