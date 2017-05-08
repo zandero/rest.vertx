@@ -22,21 +22,17 @@ public class TestReaderRest {
 	@RequestReader(CustomBodyReader.class) // use custom reader to convert body to list of String
 	public String getWords(List<String> words) {
 
-		Set<String> unique = new HashSet<>();
-		for (String word: words) {
-			unique.add(word.toLowerCase());
-		}
-
-		// return sorted list of words
-		Object[] array = unique.toArray();
-		Arrays.sort(array);
-
-		return StringUtils.join(array, ",");
+		return getString(words);
 	}
 
 	@POST
 	@Path("/registered")
 	public String getWords2(List<String> words) { // manually assign reader ....
+
+		return getString(words);
+	}
+
+	private String getString(List<String> words) {
 
 		Set<String> unique = new HashSet<>();
 		for (String word: words) {

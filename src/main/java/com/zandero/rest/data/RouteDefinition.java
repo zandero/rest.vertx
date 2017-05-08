@@ -418,7 +418,7 @@ public class RouteDefinition {
 			return null;
 		}
 
-		return path.replaceAll("\\/", "\\\\/");
+		return path.replaceAll("/", "\\\\/");
 	}
 
 	public MediaType[] getConsumes() {

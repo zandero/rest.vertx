@@ -22,7 +22,7 @@ public final class AnnotationProcessor {
 	 * Checks class for JAX-RS annotations and returns a list of route definitions to build routes upon
 	 *
 	 * @param clazz to be checked
-	 * @return list of definitions or emtpy list if none present
+	 * @return list of definitions or empty list if none present
 	 */
 	public static Map<RouteDefinition, Method> get(Class clazz) {
 
