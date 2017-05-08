@@ -624,12 +624,9 @@ In case the request handler should be a blocking handler the **@Blocking** annot
 @GET
 @Path("/blocking")
 @Blocking
-public Dummy echoJsonPut(Dummy postParam, @HeaderParam("X-Test") String testHeader) {
+public String waitForMe() {
 
-    postParam.name = "Received-" + postParam.name;
-    postParam.value = "Received-" + postParam.value;
-
-    return postParam;
+    return "done";
 }
 ```
 
