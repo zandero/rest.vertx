@@ -57,6 +57,9 @@ Each class can be annotated with a root (or base) path @Path("/rest")
 
 Following that each public method must have a **@Path** annotation in order to be registered as a REST endpoint. 
 
+> **NOTE:** multiple identical paths can be registered - if response is not terminated (ended) the next method is executed.
+> However this should be avoided whenever possible.
+
 ### Path variables
 Both class and methods support **@Path** variables.
 
@@ -407,8 +410,8 @@ public HttpServerResponse vertx(@Context HttpServerResponse response) {
 ```
 
 ### JAX-RS response builder
-**NOTE** in order to utilize the JAX Response.builder() an existing JAX-RS implementation must be provided.  
-Vertx.rest uses the Glassfish Jersey implementation for testing: 
+> **NOTE** in order to utilize the JAX Response.builder() an existing JAX-RS implementation must be provided.  
+> Vertx.rest uses the Glassfish Jersey implementation for testing: 
 
 ```xml
 <dependency>
@@ -634,14 +637,16 @@ public String waitForMe() {
 By default routes area added to the Router in the order they are listed as methods in the class when registered.
 One can manually change the route REST order with the **@RouteOrder** annotation.
 
-By default each route has the order of 0 - meaning the route ordering is ignored.  
-If route order is > 0 then route is order is set. The higher the order - the later each route is listed in _Router_.
+By default each route has the order of 0.  
+If route order is != 0 then vertx.route order is set. The higher the order - the later each route is listed in _Router_.
+Order can also be negative, e.g. if you want to ensure a route is evaluated before route number 0.
 
 
+**Example:** despite multiple identical paths the route order determines the one being executed. 
 ```java
 @RouteOrder(20)
 @GET
-@Path("/third")
+@Path("/test")
 public String third() {
 
     return "third";
@@ -649,15 +654,19 @@ public String third() {
 
 @RouteOrder(10)
 @GET
-@Path("/first")
+@Path("/test")
 public String first() {
     return "first";
 }
 
 @RouteOrder(15)
 @GET
-@Path("/second")
+@Path("/test")
 public String second() {
     return "second";
 }
+```
+
+```java
+GET /test -> "first" 
 ```

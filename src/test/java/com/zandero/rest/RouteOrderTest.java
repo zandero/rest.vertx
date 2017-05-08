@@ -1,6 +1,6 @@
 package com.zandero.rest;
 
-import com.zandero.rest.test.TestPathRest;
+import com.zandero.rest.test.TestOrderRest;
 import com.zandero.rest.test.VertxTest;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -16,14 +16,14 @@ import java.io.IOException;
  *
  */
 @RunWith(VertxUnitRunner.class)
-public class RoutePathTest extends VertxTest {
+public class RouteOrderTest extends VertxTest {
 
 	@Before
 	public void start(TestContext context) {
 
 		super.before(context);
 
-		TestPathRest testRest = new TestPathRest();
+		TestOrderRest testRest = new TestOrderRest();
 
 		Router router = RestRouter.register(vertx, testRest);
 		vertx.createHttpServer()
@@ -36,28 +36,12 @@ public class RoutePathTest extends VertxTest {
 
 		final Async async = context.async();
 
-		client.getNow("/query/echo/this", response -> {
+		client.getNow("/order/test", response -> {
 
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("querythis", body.toString());
-				async.complete();
-			});
-		});
-	}
-
-	@Test
-	public void rootWithRootPathTest2(TestContext context) throws IOException {
-
-		final Async async = context.async();
-
-		client.getNow("/this/echo/query", response -> {
-
-			context.assertEquals(200, response.statusCode());
-
-			response.handler(body -> {
-				context.assertEquals("thisquery", body.toString());
+				context.assertEquals("first", body.toString());
 				async.complete();
 			});
 		});
