@@ -6,7 +6,7 @@ A JAX-RS (RestEasy) like annotation processor for vert.x verticals
 <dependency>      
      <groupId>com.zandero</groupId>      
      <artifactId>rest.vertx</artifactId>      
-     <version>0.1</version>      
+     <version>0.2</version>      
 </dependency>
 ```
 
