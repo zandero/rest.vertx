@@ -1,7 +1,7 @@
 package com.zandero.rest.reader;
 
 import com.zandero.rest.test.json.Dummy;
-import com.zandero.utils.JsonUtils;
+import com.zandero.utils.extra.JsonUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

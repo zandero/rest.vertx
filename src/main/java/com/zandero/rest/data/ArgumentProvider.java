@@ -4,7 +4,7 @@ import com.zandero.rest.exception.ContextException;
 import com.zandero.rest.reader.GenericBodyReader;
 import com.zandero.rest.reader.HttpRequestBodyReader;
 import com.zandero.utils.Assert;
-import com.zandero.utils.UrlUtils;
+import com.zandero.utils.extra.UrlUtils;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;

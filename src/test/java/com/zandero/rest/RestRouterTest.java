@@ -3,7 +3,7 @@ package com.zandero.rest;
 import com.zandero.rest.test.TestRest;
 import com.zandero.rest.test.VertxTest;
 import com.zandero.rest.test.json.Dummy;
-import com.zandero.utils.JsonUtils;
+import com.zandero.utils.extra.JsonUtils;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;

@@ -2,6 +2,7 @@ package com.zandero.rest.data;
 
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
+import com.zandero.utils.extra.ValidatingUtils;
 
 /**
  *
@@ -126,7 +127,7 @@ public class MethodParameter {
 		value = StringUtils.trimToNull(value);
 
 		if (value != null) {
-			Assert.isTrue(StringUtils.isRegEx(value), "Invalid regular expression: '" + value + "'!");
+			Assert.isTrue(ValidatingUtils.isRegEx(value), "Invalid regular expression: '" + value + "'!");
 		}
 
 		regularExpression = value;

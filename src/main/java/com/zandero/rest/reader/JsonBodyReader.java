@@ -1,7 +1,7 @@
 package com.zandero.rest.reader;
 
-import com.zandero.utils.JsonUtils;
 import com.zandero.utils.StringUtils;
+import com.zandero.utils.extra.JsonUtils;
 
 /**
  * Converts request body to JSON

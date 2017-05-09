@@ -1,6 +1,6 @@
 package com.zandero.rest.writer;
 
-import com.zandero.utils.JsonUtils;
+import com.zandero.utils.extra.JsonUtils;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 

@@ -1,6 +1,7 @@
 package com.zandero.rest.data;
 
 import com.zandero.utils.StringUtils;
+import com.zandero.utils.extra.ValidatingUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,7 +102,7 @@ public final class PathConverter {
 		}
 
 		// VertX definition of RegEx
-		if (StringUtils.isRegEx(path)) {
+		if (ValidatingUtils.isRegEx(path)) {
 
 			String name = "param" + paramIndex; // Vert.X name ... no other option here
 			MethodParameter parameter = new MethodParameter(ParameterType.path, name, paramIndex);
