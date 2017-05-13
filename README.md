@@ -53,9 +53,39 @@ vertx.createHttpServer()
 ```
 
 ## Paths
-Each class can be annotated with a root (or base) path @Path("/rest")
+Each class can be annotated with a root (or base) path @Path("/rest").  
+In order to be registered as a REST API endpoint the class public method must have a **@Path** annotation.  
 
-Following that each public method must have a **@Path** annotation in order to be registered as a REST endpoint. 
+
+ ```java
+@Path("/api")
+public class SomeApi {
+	
+   @GET
+   @Path("/execute")
+   public String execute() {
+ 	  return "OK";
+   }
+}
+```
+
+**OR** - if class is not annotated the method @Path is taken as the full REST API path.
+
+```java
+public class SomeApi {
+	
+   @GET
+   @Path("/api/execute")
+   public String execute() {
+ 	    return "OK";
+   }
+}
+```
+
+```
+GET /api/execute/ 
+``` 
+ 
 
 > **NOTE:** multiple identical paths can be registered - if response is not terminated (ended) the next method is executed.
 > However this should be avoided whenever possible.
