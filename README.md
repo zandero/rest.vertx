@@ -165,7 +165,7 @@ public class CalculateRest {
 ```
 
 ```
-GET /calculate/add/1/2 -> 3
+GET /calculate/add?two=2&one=1 -> 3
 ```
 
 ### Conversion of path and query variables to Java objects 
