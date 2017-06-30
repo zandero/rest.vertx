@@ -101,8 +101,7 @@ public class RestRouter {
 				Route route;
 				if (definition.pathIsRegEx()) {
 					route = router.routeWithRegex(definition.getMethod(), definition.getRoutePath());
-				}
-				else {
+				} else {
 					route = router.route(definition.getMethod(), definition.getRoutePath());
 				}
 
@@ -129,8 +128,7 @@ public class RestRouter {
 				Handler<RoutingContext> handler = getHandler(api, definition, method);
 				if (definition.isBlocking()) {
 					route.blockingHandler(handler);
-				}
-				else {
+				} else {
 					route.handler(handler);
 				}
 			}
@@ -144,8 +142,7 @@ public class RestRouter {
 		Route route;
 		if (definition.pathIsRegEx()) {
 			route = router.routeWithRegex(definition.getMethod(), definition.getRoutePath());
-		}
-		else {
+		} else {
 			route = router.route(definition.getMethod(), definition.getRoutePath());
 		}
 
@@ -155,8 +152,7 @@ public class RestRouter {
 		if (definition.isBlocking()) {
 
 			route.blockingHandler(securityHandler);
-		}
-		else {
+		} else {
 			route.handler(securityHandler);
 		}
 	}
@@ -169,8 +165,7 @@ public class RestRouter {
 
 			if (allowed) {
 				context.next();
-			}
-			else {
+			} else {
 				produceResponse(context, new NotAuthorizedException("Not authorized to access: " + definition));
 			}
 		};
@@ -190,7 +185,7 @@ public class RestRouter {
 		// check if given user is authorized for given role ...
 		List<Future> list = new ArrayList<>();
 
-		for (String role: definition.getRoles()) {
+		for (String role : definition.getRoles()) {
 
 			Future<Boolean> future = Future.future();
 			user.isAuthorised(role, future.completer());
@@ -204,11 +199,11 @@ public class RestRouter {
 
 		if (output.result() != null) {
 
-			for (int index = 0; index < output.result().size(); index ++) {
+			for (int index = 0; index < output.result().size(); index++) {
 				if (output.result().succeeded(index)) {
 
 					Object result = output.result().resultAt(index);
-					if (result instanceof Boolean && ((Boolean)result))
+					if (result instanceof Boolean && ((Boolean) result))
 						return true;
 				}
 			}
@@ -217,7 +212,8 @@ public class RestRouter {
 		return false;
 	}
 
-	private static Handler<RoutingContext> getHandler(final Object toInvoke, final RouteDefinition definition, final Method method) {
+	private static Handler<RoutingContext> getHandler(final Object toInvoke, final RouteDefinition definition,
+	                                                  final Method method) {
 
 		return context -> {
 
@@ -231,9 +227,9 @@ public class RestRouter {
 				Object[] args = ArgumentProvider.getArguments(method, definition, context, bodyReader);
 
 				Object result = execute(method, toInvoke, args);
+
 				produceResponse(result, context, method, definition);
-			}
-			catch (IllegalArgumentException e) {
+			} catch (IllegalArgumentException e) {
 
 				ExecuteException ex = new ExecuteException(400, e);
 				produceResponse(ex, context, method, definition);
@@ -245,16 +241,31 @@ public class RestRouter {
 
 		try {
 			return method.invoke(toInvoke, arguments);
-		}
-		catch (IllegalArgumentException e) {
-			return new ExecuteException(400, e);
-		}
-		catch (IllegalAccessException | InvocationTargetException e) {
-			return new ExecuteException(500, e);
+		} catch (Exception e) {
+			return getExecuteException(e);
 		}
 	}
 
-	private static void produceResponse(Object result, RoutingContext context, Method method, RouteDefinition definition) {
+	private static ExecuteException getExecuteException(Throwable e) {
+
+		// todo ... insert here execution of global error handler if binded
+
+		if (e instanceof IllegalAccessException || e instanceof InvocationTargetException) {
+
+			if (e.getCause() != null) {
+				return getExecuteException(e.getCause());
+			}
+		}
+
+		if (e instanceof IllegalArgumentException) {
+			return new ExecuteException(400, e);
+		}
+
+		return new ExecuteException(500, e);
+	}
+
+	private static void produceResponse(Object result, RoutingContext context, Method method,
+	                                    RouteDefinition definition) {
 
 		HttpServerResponse response = context.response();
 
@@ -264,8 +275,7 @@ public class RestRouter {
 			log.error("Failed to invoke method: " + method + ", " + exception.getMessage(), exception);
 
 			response.setStatusCode(exception.getStatusCode()).end(exception.getMessage());
-		}
-		else {
+		} else {
 
 			HttpServerRequest request = context.request();
 
@@ -288,8 +298,8 @@ public class RestRouter {
 
 	private static void produceResponse(RoutingContext context, WebApplicationException exception) {
 		context.response()
-			.setStatusCode(exception.getResponse().getStatus())
-			.end(exception.getMessage());
+		       .setStatusCode(exception.getResponse().getStatus())
+		       .end(exception.getMessage());
 	}
 
 	public static WriterFactory getWriters() {
