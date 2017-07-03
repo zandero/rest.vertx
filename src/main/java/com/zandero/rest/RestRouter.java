@@ -49,9 +49,9 @@ public class RestRouter {
 
 	private static final ExceptionHandlerFactory handlers = new ExceptionHandlerFactory();
 
-	private static Class<? extends ExceptionHandler> globalErrorHandler = GenericExceptionHandler.class;
+	static Class<? extends ExceptionHandler> globalErrorHandler = GenericExceptionHandler.class;
 
-	private static Class<? extends HttpResponseWriter> globalErrorWriter = null;
+	static Class<? extends HttpResponseWriter> globalErrorWriter = null;
 
 	/**
 	 * Searches for annotations to register routes ...
