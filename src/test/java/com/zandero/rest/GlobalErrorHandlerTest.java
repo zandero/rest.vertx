@@ -38,10 +38,10 @@ public class GlobalErrorHandlerTest extends VertxTest {
 
 		client.getNow("/throw/unhandled", response -> {
 
-			context.assertEquals(400, response.statusCode());
+			context.assertEquals(406, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("Ouch!", body.toString());
+				context.assertEquals("{\"message\":\"Ouch!\",\"code\":406}", body.toString());
 				async.complete();
 			});
 		});

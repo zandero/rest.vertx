@@ -651,7 +651,7 @@ public class WriteMyNewObject {
 ```
 
 ## Blocking handler
-In case the request handler should be a blocking handler the **@Blocking** annotation has to used.
+In case the request handler should be a blocking handler the **@Blocking** annotation has to be used.
   
 ```java
 @GET
@@ -700,3 +700,7 @@ public String second() {
 ```java
 GET /test -> "first" 
 ```
+
+# Error handling
+## Global error handler
+

@@ -53,4 +53,16 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 			return new GenericResponseWriter();
 		}
 	}
+
+	public HttpResponseWriter getResponseWriter(Class<? extends HttpResponseWriter> clazz) {
+
+		try {
+			HttpResponseWriter writer = getClassInstance(clazz);
+			return writer != null ? writer : new GenericResponseWriter();
+		}
+		catch (ClassFactoryException e) {
+			log.error("Failed to provide response writer: " + clazz + ", falling back to GenericResponseWriter() instead!");
+			return new GenericResponseWriter();
+		}
+	}
 }

@@ -1,10 +1,8 @@
 package com.zandero.rest.data;
 
 import com.zandero.rest.AnnotationProcessor;
-import com.zandero.rest.annotation.Blocking;
-import com.zandero.rest.annotation.RequestReader;
-import com.zandero.rest.annotation.ResponseWriter;
-import com.zandero.rest.annotation.RouteOrder;
+import com.zandero.rest.annotation.*;
+import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.reader.HttpRequestBodyReader;
 import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.utils.Assert;
@@ -61,6 +59,9 @@ public class RouteDefinition {
 
 	private String[] roles = null;
 
+	private Class<? extends ExceptionHandler> failureHandler;
+	private Class<? extends HttpResponseWriter> failureWriter;
+
 	public RouteDefinition(Class clazz) {
 
 		Class annotatedClass = AnnotationProcessor.getClassWithAnnotation(clazz, Path.class);
@@ -90,6 +91,9 @@ public class RouteDefinition {
 		if (roles != null) {
 			permitAll = null;
 		}
+
+		failureHandler = base.getFailureHandler();
+		failureWriter = base.getFailureWriter();
 
 		// complement / override with additional annotations
 		init(annotations);
@@ -126,11 +130,11 @@ public class RouteDefinition {
 			}
 
 			if (annotation instanceof GET ||
-				annotation instanceof POST ||
-				annotation instanceof PUT ||
-				annotation instanceof DELETE ||
-				annotation instanceof HEAD ||
-				annotation instanceof OPTIONS) {
+					    annotation instanceof POST ||
+					    annotation instanceof PUT ||
+					    annotation instanceof DELETE ||
+					    annotation instanceof HEAD ||
+					    annotation instanceof OPTIONS) {
 
 				method(annotation.annotationType().getSimpleName());
 			}
@@ -162,6 +166,15 @@ public class RouteDefinition {
 				roles = null; // override any previous definition
 				permitAll = true;
 			}
+
+			if (annotation instanceof Catch) {
+				failureHandler = ((Catch) annotation).value();
+
+				if (((Catch) annotation).writer() != null) {
+					failureWriter = ((Catch) annotation).writer();
+				}
+
+			}
 		}
 	}
 
@@ -190,8 +203,7 @@ public class RouteDefinition {
 
 		if (DELIMITER.equals(path)) { // default
 			path = subPath;
-		}
-		else {
+		} else {
 			path = path + subPath;
 		}
 
@@ -342,11 +354,12 @@ public class RouteDefinition {
 
 					Assert.isNull(param.getDataType(), "Duplicate argument type given: " + parameters[index].getName());
 					param.argument(parameterTypes[index]); // set missing argument type
-				}
-				else {
+				} else {
 
 					Assert.isTrue(requestHasBody(),
-						"Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @Context) for: " + parameterTypes[index].getName() + " " + parameters[index].getName());
+					              "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @Context) for: " + parameterTypes[index]
+							                                                                                                                  .getName() + " " + parameters[index]
+									                                                                                                                                     .getName());
 
 					name = parameters[index].getName();
 					type = ParameterType.body;
@@ -451,6 +464,15 @@ public class RouteDefinition {
 		return reader;
 	}
 
+	public Class<? extends ExceptionHandler> getFailureHandler() {
+
+		return failureHandler;
+	}
+
+	public Class<? extends HttpResponseWriter> getFailureWriter() {
+		return failureWriter;
+	}
+
 	public List<MethodParameter> getParameters() {
 
 		if (params == null) {
@@ -545,8 +567,7 @@ public class RouteDefinition {
 
 			if (permitAll != null) {
 				security = permitAll ? "  @PermitAll" : "  @DenyAll";
-			}
-			else {
+			} else {
 				security = "  [" + StringUtils.join(roles, ", ") + "]";
 			}
 		}

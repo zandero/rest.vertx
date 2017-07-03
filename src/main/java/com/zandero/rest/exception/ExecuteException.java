@@ -1,10 +1,13 @@
 package com.zandero.rest.exception;
 
 /**
- *
+ * Wrapper to transport exception when executing a REST call
  */
 public class ExecuteException extends Exception {
 
+	/**
+	 * Holds HTTP error code
+	 */
 	private final int statusCode;
 
 	public ExecuteException(int status, Throwable exception) {

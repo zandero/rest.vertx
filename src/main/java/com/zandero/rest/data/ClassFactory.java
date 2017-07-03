@@ -49,7 +49,7 @@ public abstract class ClassFactory<T> {
 		return cache.get(reader.getName());
 	}
 
-	private T getClassInstance(Class<? extends T> clazz) throws ClassFactoryException {
+	protected T getClassInstance(Class<? extends T> clazz) throws ClassFactoryException {
 
 		if (clazz == null) {
 			return null;

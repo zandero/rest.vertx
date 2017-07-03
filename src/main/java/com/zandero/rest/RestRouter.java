@@ -3,7 +3,10 @@ package com.zandero.rest;
 import com.zandero.rest.data.ArgumentProvider;
 import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.rest.data.RouteDefinition;
+import com.zandero.rest.exception.ExceptionHandler;
+import com.zandero.rest.exception.ExceptionHandlerFactory;
 import com.zandero.rest.exception.ExecuteException;
+import com.zandero.rest.exception.GenericExceptionHandler;
 import com.zandero.rest.reader.HttpRequestBodyReader;
 import com.zandero.rest.reader.ReaderFactory;
 import com.zandero.rest.writer.HttpResponseWriter;
@@ -43,6 +46,10 @@ public class RestRouter {
 	private static final WriterFactory writers = new WriterFactory();
 
 	private static final ReaderFactory readers = new ReaderFactory();
+
+	private static final ExceptionHandlerFactory handlers = new ExceptionHandlerFactory();
+
+	private static ExceptionHandler globalErrorHandler = new GenericExceptionHandler();
 
 	/**
 	 * Searches for annotations to register routes ...
@@ -137,6 +144,12 @@ public class RestRouter {
 		return router;
 	}
 
+	public static void errorHandler(ExceptionHandler handler) {
+
+		Assert.notNull(handler, "Missing error handler!");
+		globalErrorHandler = handler;
+	}
+
 	private static void checkSecurity(Router router, RouteDefinition definition) {
 
 		Route route;
@@ -150,7 +163,6 @@ public class RestRouter {
 
 		Handler<RoutingContext> securityHandler = getSecurityHandler(definition);
 		if (definition.isBlocking()) {
-
 			route.blockingHandler(securityHandler);
 		} else {
 			route.handler(securityHandler);
@@ -212,8 +224,7 @@ public class RestRouter {
 		return false;
 	}
 
-	private static Handler<RoutingContext> getHandler(final Object toInvoke, final RouteDefinition definition,
-	                                                  final Method method) {
+	private static Handler<RoutingContext> getHandler(final Object toInvoke, final RouteDefinition definition, final Method method) {
 
 		return context -> {
 
@@ -226,30 +237,47 @@ public class RestRouter {
 
 				Object[] args = ArgumentProvider.getArguments(method, definition, context, bodyReader);
 
-				Object result = execute(method, toInvoke, args);
+				Object result = method.invoke(toInvoke, args);
 
 				produceResponse(result, context, method, definition);
-			} catch (IllegalArgumentException e) {
 
-				ExecuteException ex = new ExecuteException(400, e);
-				produceResponse(ex, context, method, definition);
+			} catch (Exception e) {
+
+				handleException(e, context, method, definition);
 			}
 		};
 	}
 
-	private static Object execute(Method method, Object toInvoke, Object[] arguments) {
+	private static void handleException(Exception e, RoutingContext context, final Method method, final RouteDefinition definition) {
 
-		try {
-			return method.invoke(toInvoke, arguments);
-		} catch (Exception e) {
-			return getExecuteException(e);
+		ExecuteException ex = getExecuteException(e);
+
+		// fill up as much as we can ... default behavior
+		HttpResponseWriter writer;
+		if (definition.getFailureWriter() == null) {
+			writer = writers.getResponseWriter(method.getReturnType(), definition);
+		}
+		else { // use desired writer if given
+			writer = writers.getResponseWriter(definition.getFailureWriter());
+		}
+
+		HttpServerResponse response = context.response();
+		response.setStatusCode(ex.getStatusCode());
+		writer.addResponseHeaders(definition, response);
+
+		// route through handler ... to allow customization
+		ExceptionHandler handler = handlers.getFailureHandler(definition.getFailureHandler(), globalErrorHandler);
+		handler.handle(ex.getCause(), writer, context);
+
+		// end response ...
+		if (!response.ended()) {
+			response.end();
 		}
 	}
 
 	private static ExecuteException getExecuteException(Throwable e) {
 
-		// todo ... insert here execution of global error handler if binded
-
+		// unwrap invoke exception ...
 		if (e instanceof IllegalAccessException || e instanceof InvocationTargetException) {
 
 			if (e.getCause() != null) {
@@ -264,35 +292,23 @@ public class RestRouter {
 		return new ExecuteException(500, e);
 	}
 
-	private static void produceResponse(Object result, RoutingContext context, Method method,
-	                                    RouteDefinition definition) {
+	private static void produceResponse(Object result, RoutingContext context, Method method, RouteDefinition definition) {
 
 		HttpServerResponse response = context.response();
+		HttpServerRequest request = context.request();
 
-		if (result instanceof ExecuteException) {
+		// find suitable writer to produce response
+		HttpResponseWriter writer = writers.getResponseWriter(method.getReturnType(), definition);
 
-			ExecuteException exception = (ExecuteException) result;
-			log.error("Failed to invoke method: " + method + ", " + exception.getMessage(), exception);
+		// add default response headers per definition
+		writer.addResponseHeaders(definition, response);
 
-			response.setStatusCode(exception.getStatusCode()).end(exception.getMessage());
-		} else {
+		// write response and override headers if necessary
+		writer.write(result, request, response);
 
-			HttpServerRequest request = context.request();
-
-			// find suitable writer to produce response
-			HttpResponseWriter writer;
-
-			writer = writers.getResponseWriter(method.getReturnType(), definition);
-			// add default response headers per definition
-			writer.addResponseHeaders(definition, response);
-
-			// write response and override headers if necessary
-			writer.write(result, request, response);
-
-			// finish if not finished by writer
-			if (!response.ended()) {
-				response.end();
-			}
+		// finish if not finished by writer
+		if (!response.ended()) {
+			response.end();
 		}
 	}
 
@@ -312,7 +328,7 @@ public class RestRouter {
 		return readers;
 	}
 
-	public static void pushContext(RoutingContext context, Object object) {
+	static void pushContext(RoutingContext context, Object object) {
 
 		Assert.notNull(context, "Missing context!");
 		Assert.notNull(object, "Can't push null into context!");
