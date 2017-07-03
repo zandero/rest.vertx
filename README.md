@@ -764,6 +764,4 @@ In case no global error handler is associated a default (generic) error handler 
         .listen(PORT);
 ```
 
-## Error handler writers
-
 
