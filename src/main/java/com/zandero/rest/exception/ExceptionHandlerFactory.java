@@ -16,11 +16,11 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 
 	}
 
-	public ExceptionHandler getFailureHandler(Class<? extends ExceptionHandler> handler, ExceptionHandler defaultHandler) {
+	public ExceptionHandler getFailureHandler(Class<? extends ExceptionHandler> handler, Class<? extends ExceptionHandler> defaultHandler) {
 
 		// get and cache
 		if (handler == null) {
-			return getDefaultHandler(defaultHandler);
+			return getFailureHandler(defaultHandler, GenericExceptionHandler.class);
 		}
 
 		try {
@@ -28,16 +28,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 		} catch (ClassFactoryException e) {
 
 			log.error(e.getMessage());
-			return getDefaultHandler(defaultHandler);
+			return getFailureHandler(defaultHandler, GenericExceptionHandler.class);
 		}
-	}
-
-	private ExceptionHandler getDefaultHandler(ExceptionHandler defaultHandler) {
-
-		if (defaultHandler == null) {
-			return new GenericExceptionHandler();
-		}
-
-		return defaultHandler;
 	}
 }

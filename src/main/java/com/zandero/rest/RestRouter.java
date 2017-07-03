@@ -49,7 +49,7 @@ public class RestRouter {
 
 	private static final ExceptionHandlerFactory handlers = new ExceptionHandlerFactory();
 
-	private static ExceptionHandler globalErrorHandler = new GenericExceptionHandler();
+	private static Class<? extends ExceptionHandler> globalErrorHandler = GenericExceptionHandler.class;
 
 	/**
 	 * Searches for annotations to register routes ...
@@ -144,7 +144,7 @@ public class RestRouter {
 		return router;
 	}
 
-	public static void errorHandler(ExceptionHandler handler) {
+	public static void errorHandler(Class<? extends ExceptionHandler> handler) {
 
 		Assert.notNull(handler, "Missing error handler!");
 		globalErrorHandler = handler;

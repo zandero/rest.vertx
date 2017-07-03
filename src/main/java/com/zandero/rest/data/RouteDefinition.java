@@ -169,11 +169,9 @@ public class RouteDefinition {
 
 			if (annotation instanceof Catch) {
 				failureHandler = ((Catch) annotation).value();
-
-				if (((Catch) annotation).writer() != null) {
+				if (((Catch) annotation).writer() != Catch.NotImplementedWriter.class) {
 					failureWriter = ((Catch) annotation).writer();
 				}
-
 			}
 		}
 	}
