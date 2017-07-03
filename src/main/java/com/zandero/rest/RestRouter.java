@@ -51,6 +51,8 @@ public class RestRouter {
 
 	private static Class<? extends ExceptionHandler> globalErrorHandler = GenericExceptionHandler.class;
 
+	private static Class<? extends HttpResponseWriter> globalErrorWriter = null;
+
 	/**
 	 * Searches for annotations to register routes ...
 	 *
@@ -148,6 +150,14 @@ public class RestRouter {
 
 		Assert.notNull(handler, "Missing error handler!");
 		globalErrorHandler = handler;
+	}
+
+	public static void errorHandler(Class<? extends ExceptionHandler> handler, Class<? extends HttpResponseWriter> writer) {
+
+		errorHandler(handler);
+
+		Assert.notNull(handler, "Missing error writer!");
+		globalErrorWriter = writer;
 	}
 
 	private static void checkSecurity(Router router, RouteDefinition definition) {
@@ -255,7 +265,13 @@ public class RestRouter {
 		// fill up as much as we can ... default behavior
 		HttpResponseWriter writer;
 		if (definition.getFailureWriter() == null) {
-			writer = writers.getResponseWriter(method.getReturnType(), definition);
+
+			if (globalErrorWriter == null) {
+				writer = writers.getResponseWriter(method.getReturnType(), definition);
+			}
+			else {
+				writer = writers.getResponseWriter(globalErrorWriter);
+			}
 		}
 		else { // use desired writer if given
 			writer = writers.getResponseWriter(definition.getFailureWriter());

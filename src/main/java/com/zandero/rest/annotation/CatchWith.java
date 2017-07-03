@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
-public @interface Catch {
+public @interface CatchWith {
 
 	Class<? extends ExceptionHandler> value() default GenericExceptionHandler.class;
 

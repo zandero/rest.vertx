@@ -167,10 +167,10 @@ public class RouteDefinition {
 				permitAll = true;
 			}
 
-			if (annotation instanceof Catch) {
-				failureHandler = ((Catch) annotation).value();
-				if (((Catch) annotation).writer() != Catch.NotImplementedWriter.class) {
-					failureWriter = ((Catch) annotation).writer();
+			if (annotation instanceof CatchWith) {
+				failureHandler = ((CatchWith) annotation).value();
+				if (((CatchWith) annotation).writer() != CatchWith.NotImplementedWriter.class) {
+					failureWriter = ((CatchWith) annotation).writer();
 				}
 			}
 		}

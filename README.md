@@ -702,5 +702,68 @@ GET /test -> "first"
 ```
 
 # Error handling
+Unhandled exceptions can be addressed via a designated _ExceptionHandler_:
+1. for a given method path
+1. for a given root path
+1. globally assigned to the RestRouter
+
+If no designated exception handler is provided, a default exception handler kick 
+in using the response type writer associated with the given method.
+
+## Path / Method error handler
+Both class and methods support **@CatchWith** annotation.  
+
+**@CatchWith** annotation must provide an _ExceptionHandler_ implementation that handles the thrown exception: 
+
+```java
+@GET
+@Path("/test")
+@CatchWith(MyExceptionHandler.class)
+public String fail() {
+
+    throw new IllegalArgumentExcetion("Bang!"); 
+}
+```
+```java
+public class MyExceptionHandler implements ExceptionHandler {
+    @Override
+    public void handle(Throwable cause, HttpResponseWriter writer, RoutingContext context) {
+
+        context.response().setStatusCode(406);
+        writer.write("I got this ... : '" + cause.getMessage() + "'", context.request(), context.response());
+    }
+}
+```
+
+By default the _ExceptionHandler_ is provided with a writer that normally would be associated with a given method.  
+If desired a designated writer can be defined:
+
+```java
+@GET
+@Path("/test")
+@CatchWith(value = MyExceptionHandler.class, writer = MyExceptionWriter.class)
+public String fail() {
+
+    throw new IllegalArgumentExcetion("Bang!"); 
+}
+```
+
 ## Global error handler
+The global error handler is invoked in case no path or method error handler is provided.  
+In case no global error handler is associated a default (generic) error handler is invoked.
+
+```java
+    Router router = RestRouter.register(vertx, handled, unhandled);
+    RestRouter.errorHandler(MyExceptionHandler.class);  
+    
+    // OR ALTERNATIVELY
+    RestRouter.errorHandler(MyExceptionHandler.class, MyExceptionWriter.class);
+    
+    vertx.createHttpServer()
+        .requestHandler(router::accept)
+        .listen(PORT);
+```
+
+## Error handler writers
+
 
