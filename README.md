@@ -750,7 +750,7 @@ public String fail() {
 
 ```java
 public class MyExceptionWriter implements HttpResponseWriter {
-   @Override
+    @Override
    	public void write(Object result, HttpServerRequest request, HttpServerResponse response) {
    
    	    if (result instanceof MySpecialException) {

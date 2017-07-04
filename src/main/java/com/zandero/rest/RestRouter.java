@@ -6,7 +6,6 @@ import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.exception.ExceptionHandlerFactory;
 import com.zandero.rest.exception.ExecuteException;
-import com.zandero.rest.exception.GenericExceptionHandler;
 import com.zandero.rest.reader.HttpRequestBodyReader;
 import com.zandero.rest.reader.ReaderFactory;
 import com.zandero.rest.writer.HttpResponseWriter;
@@ -28,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -49,7 +47,7 @@ public class RestRouter {
 
 	private static final ExceptionHandlerFactory handlers = new ExceptionHandlerFactory();
 
-	static Class<? extends ExceptionHandler> globalErrorHandler = GenericExceptionHandler.class;
+	static Class<? extends ExceptionHandler> globalErrorHandler = null;
 
 	static Class<? extends HttpResponseWriter> globalErrorWriter = null;
 
@@ -101,9 +99,10 @@ public class RestRouter {
 					cookieHandlerRegistered = true;
 				}
 
+				Method method = definitions.get(definition);
 				// add security check handler in front of regular route handler
 				if (definition.checkSecurity()) {
-					checkSecurity(router, definition);
+					checkSecurity(router, definition, method);
 				}
 
 				// bind method execution
@@ -133,7 +132,6 @@ public class RestRouter {
 				}
 
 				// bind handler
-				Method method = definitions.get(definition);
 				Handler<RoutingContext> handler = getHandler(api, definition, method);
 				if (definition.isBlocking()) {
 					route.blockingHandler(handler);
@@ -160,7 +158,7 @@ public class RestRouter {
 		globalErrorWriter = writer;
 	}
 
-	private static void checkSecurity(Router router, RouteDefinition definition) {
+	private static void checkSecurity(Router router, final RouteDefinition definition, final Method method) {
 
 		Route route;
 		if (definition.pathIsRegEx()) {
@@ -171,7 +169,7 @@ public class RestRouter {
 
 		route.order(definition.getOrder()); // same order as following handler
 
-		Handler<RoutingContext> securityHandler = getSecurityHandler(definition);
+		Handler<RoutingContext> securityHandler = getSecurityHandler(definition, method);
 		if (definition.isBlocking()) {
 			route.blockingHandler(securityHandler);
 		} else {
@@ -179,16 +177,16 @@ public class RestRouter {
 		}
 	}
 
-	private static Handler<RoutingContext> getSecurityHandler(RouteDefinition definition) {
+	private static Handler<RoutingContext> getSecurityHandler(final RouteDefinition definition, final Method method) {
 
 		return context -> {
 
 			boolean allowed = isAllowed(context.user(), definition);
-
 			if (allowed) {
 				context.next();
-			} else {
-				produceResponse(context, new NotAuthorizedException("Not authorized to access: " + definition));
+			}
+			else {
+				handleException(new NotAuthorizedException("Not authorized to access: " + definition), context, method, definition);
 			}
 		};
 	}
@@ -262,7 +260,6 @@ public class RestRouter {
 
 		ExecuteException ex = getExecuteException(e);
 
-		// fill up as much as we can ... default behavior
 		HttpResponseWriter writer;
 		if (definition.getFailureWriter() == null) {
 
@@ -281,8 +278,12 @@ public class RestRouter {
 		response.setStatusCode(ex.getStatusCode());
 		writer.addResponseHeaders(definition, response);
 
+		// fill up as much as we can ... default behavior
+		// get default handler by exception type or use global error handler ...
+		Class<? extends ExceptionHandler> defaultHandler = globalErrorHandler == null ? handlers.get(ex.getCause().getClass()) : globalErrorHandler;
+
 		// route through handler ... to allow customization
-		ExceptionHandler handler = handlers.getFailureHandler(definition.getFailureHandler(), globalErrorHandler);
+		ExceptionHandler handler = handlers.getFailureHandler(definition.getFailureHandler(), defaultHandler);
 		handler.handle(ex.getCause(), writer, context);
 
 		// end response ...
@@ -326,12 +327,6 @@ public class RestRouter {
 		if (!response.ended()) {
 			response.end();
 		}
-	}
-
-	private static void produceResponse(RoutingContext context, WebApplicationException exception) {
-		context.response()
-		       .setStatusCode(exception.getResponse().getStatus())
-		       .end(exception.getMessage());
 	}
 
 	public static WriterFactory getWriters() {

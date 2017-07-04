@@ -3,7 +3,6 @@ package com.zandero.rest;
 import com.zandero.http.HttpUtils;
 import com.zandero.rest.test.TestPostRest;
 import com.zandero.rest.test.TestRest;
-import com.zandero.rest.test.VertxTest;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.ext.unit.Async;

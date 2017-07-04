@@ -1,7 +1,6 @@
 package com.zandero.rest;
 
 import com.zandero.rest.test.TestAuthorizationRest;
-import com.zandero.rest.test.VertxTest;
 import com.zandero.rest.test.data.SimulatedUser;
 import io.vertx.core.Handler;
 import io.vertx.ext.unit.Async;

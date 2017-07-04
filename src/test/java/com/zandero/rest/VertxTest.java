@@ -1,6 +1,5 @@
-package com.zandero.rest.test;
+package com.zandero.rest;
 
-import com.zandero.rest.RestRouter;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
@@ -28,6 +27,9 @@ public class VertxTest {
 
 		vertx = Vertx.vertx();
 		client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost(HOST).setDefaultPort(PORT));
+
+		RestRouter.globalErrorHandler = null; // clear error handlers before each test
+		RestRouter.globalErrorWriter = null; // clear error handlers before each test
 	}
 
 	@After

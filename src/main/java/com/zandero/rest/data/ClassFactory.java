@@ -103,32 +103,32 @@ public abstract class ClassFactory<T> {
 
 	protected T get(Class<?> type, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ClassFactoryException {
 
-		Class<? extends T> reader = byDefinition;
+		Class<? extends T> clazz = byDefinition;
 
 		// 2. if no writer is specified ... try to find appropriate writer by response type
-		if (reader == null) {
+		if (clazz == null) {
 
 			if (type != null) {
-				// try to find appropriate writer if mapped
-				reader = classTypes.get(getKey(type));
+				// try to find appropriate class if mapped
+				clazz = classTypes.get(getKey(type));
 			}
 		}
 
-		if (reader == null) { // try by consumes
+		if (clazz == null) { // try by consumes
 
 			if (mediaTypes != null && mediaTypes.length > 0) {
 
 				for (MediaType mediaType : mediaTypes) {
-					reader = get(mediaType);
-					if (reader != null) {
+					clazz = get(mediaType);
+					if (clazz != null) {
 						break;
 					}
 				}
 			}
 		}
 
-		if (reader != null) {
-			return getClassInstance(reader);
+		if (clazz != null) {
+			return getClassInstance(clazz);
 		}
 
 		return null;

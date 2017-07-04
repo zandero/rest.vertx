@@ -36,7 +36,7 @@ public class JaxResponseWriter implements HttpResponseWriter {
 
 				HttpResponseWriter writer;
 				try {
-					writer = RestRouter.getWriters().get(mediaType); // TODO: ... reconsider this logic ...
+					writer = RestRouter.getWriters().get(mediaType);
 				}
 				catch (ClassFactoryException e) {
 					writer = null;

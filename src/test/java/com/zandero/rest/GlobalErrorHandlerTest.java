@@ -1,9 +1,7 @@
 package com.zandero.rest;
 
-import com.zandero.rest.exception.GenericExceptionHandler;
 import com.zandero.rest.test.ErrorThrowingRest;
 import com.zandero.rest.test.ErrorThrowingRest2;
-import com.zandero.rest.test.VertxTest;
 import com.zandero.rest.test.handler.HandleRestException;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -28,7 +26,6 @@ public class GlobalErrorHandlerTest extends VertxTest {
 		ErrorThrowingRest2 unhandled = new ErrorThrowingRest2();
 
 		Router router = RestRouter.register(vertx, handled, unhandled);
-		RestRouter.globalErrorHandler = GenericExceptionHandler.class;
 
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)

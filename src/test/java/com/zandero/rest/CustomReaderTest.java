@@ -3,7 +3,6 @@ package com.zandero.rest;
 import com.zandero.rest.reader.CustomBodyReader;
 import com.zandero.rest.test.TestReaderRest;
 import com.zandero.rest.test.TestRest;
-import com.zandero.rest.test.VertxTest;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;

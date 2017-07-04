@@ -1,7 +1,6 @@
 package com.zandero.rest;
 
 import com.zandero.rest.test.TestContextRest;
-import com.zandero.rest.test.VertxTest;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.Handler;
 import io.vertx.ext.unit.Async;
