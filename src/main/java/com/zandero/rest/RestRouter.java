@@ -184,8 +184,7 @@ public class RestRouter {
 			boolean allowed = isAllowed(context.user(), definition);
 			if (allowed) {
 				context.next();
-			}
-			else {
+			} else {
 				handleException(new NotAuthorizedException("Not authorized to access: " + definition), context, method, definition);
 			}
 		};
@@ -260,19 +259,7 @@ public class RestRouter {
 
 		ExecuteException ex = getExecuteException(e);
 
-		HttpResponseWriter writer;
-		if (definition.getFailureWriter() == null) {
-
-			if (globalErrorWriter == null) {
-				writer = writers.getResponseWriter(method.getReturnType(), definition);
-			}
-			else {
-				writer = writers.getResponseWriter(globalErrorWriter);
-			}
-		}
-		else { // use desired writer if given
-			writer = writers.getResponseWriter(definition.getFailureWriter());
-		}
+		HttpResponseWriter writer = getFailureWriter(method, definition);
 
 		HttpServerResponse response = context.response();
 		response.setStatusCode(ex.getStatusCode());
@@ -289,6 +276,17 @@ public class RestRouter {
 		if (!response.ended()) {
 			response.end();
 		}
+	}
+
+	private static HttpResponseWriter getFailureWriter(Method method, RouteDefinition definition) {
+		if (definition.getFailureWriter() != null) {
+			return writers.getResponseWriter(definition.getFailureWriter());
+		}
+
+		if (globalErrorWriter == null) {
+			return writers.getResponseWriter(method.getReturnType(), definition);
+		}
+		return writers.getResponseWriter(globalErrorWriter);
 	}
 
 	private static ExecuteException getExecuteException(Throwable e) {
