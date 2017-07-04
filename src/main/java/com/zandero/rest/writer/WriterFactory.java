@@ -25,14 +25,11 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 	@Override
 	protected void init() {
 
-		if (classTypes.size() == 0) {
+		classTypes.put(Response.class.getName(), JaxResponseWriter.class);
+		classTypes.put(HttpServerResponse.class.getName(), VertxResponseWriter.class);
 
-			classTypes.put(Response.class.getName(), JaxResponseWriter.class);
-			classTypes.put(HttpServerResponse.class.getName(), VertxResponseWriter.class);
-
-			mediaTypes.put(MediaType.APPLICATION_JSON, JsonResponseWriter.class);
-			mediaTypes.put(MediaType.TEXT_PLAIN, GenericResponseWriter.class);
-		}
+		mediaTypes.put(MediaType.APPLICATION_JSON, JsonResponseWriter.class);
+		mediaTypes.put(MediaType.TEXT_PLAIN, GenericResponseWriter.class);
 	}
 
 	/**
@@ -47,8 +44,7 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 		try {
 			HttpResponseWriter writer = get(returnType, definition.getWriter(), definition.getProduces());
 			return writer != null ? writer : new GenericResponseWriter();
-		}
-		catch (ClassFactoryException e) {
+		} catch (ClassFactoryException e) {
 			log.error("Failed to provide response writer: " + returnType + ", for: " + definition + ", falling back to GenericResponseWriter() instead!");
 			return new GenericResponseWriter();
 		}
@@ -59,8 +55,7 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 		try {
 			HttpResponseWriter writer = getClassInstance(clazz);
 			return writer != null ? writer : new GenericResponseWriter();
-		}
-		catch (ClassFactoryException e) {
+		} catch (ClassFactoryException e) {
 			log.error("Failed to provide response writer: " + clazz + ", falling back to GenericResponseWriter() instead!");
 			return new GenericResponseWriter();
 		}

@@ -44,10 +44,6 @@ public final class AnnotationProcessor {
 			}
 		}
 
-		// sort routes by @RouteOrder if needed
-		// NOT NEEDED ... routes have order in themselves
-		// output = MapUtils.sort(output, Comparator.comparing(route -> route.getKey().getOrder()));
-
 		return output;
 	}
 

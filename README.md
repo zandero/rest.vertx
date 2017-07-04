@@ -707,7 +707,7 @@ Unhandled exceptions can be addressed via a designated _ExceptionHandler_:
 1. for a given root path
 1. globally assigned to the RestRouter
 
-If no designated exception handler is provided, a default exception handler kick 
+If no designated exception handler is provided, a default exception handler kicks
 in using the response type writer associated with the given method.
 
 ## Path / Method error handler
@@ -745,6 +745,37 @@ If desired a designated writer can be defined:
 public String fail() {
 
     throw new IllegalArgumentExcetion("Bang!"); 
+}
+```
+
+```java
+public class MyExceptionWriter implements HttpResponseWriter {
+   @Override
+   	public void write(Object result, HttpServerRequest request, HttpServerResponse response) {
+   
+   	    if (result instanceof MySpecialException) {
+   	    	
+   	    	MySpecialException ex = (MySpecialException)result;
+   	    	
+   	    	ErrorJSON error = new ErrorJSON();
+            error.code = ex.getStatusCode();
+            error.message = ex.getMessage();
+            error.detail = ex.getDetails();
+                	    
+            response.end(JsonUtils.toJson(error));
+   	    }
+   	
+   	    if (result instanceof Exception) {
+   	
+   	    	Exception ex = (Exception)result;
+   	    	
+   	        ErrorJSON error = new ErrorJSON();
+    		error.code = response.getStatusCode();
+    		error.message = ex.getMessage();
+    	    
+    		response.end(JsonUtils.toJson(error));
+    	}
+    }
 }
 ```
 

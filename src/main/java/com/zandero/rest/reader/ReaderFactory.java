@@ -25,12 +25,10 @@ public class ReaderFactory extends ClassFactory<HttpRequestBodyReader> {
 	@Override
 	protected void init() {
 
-		if (classTypes.size() == 0) {
-			classTypes.put(getKey(String.class), GenericBodyReader.class);
+		classTypes.put(getKey(String.class), GenericBodyReader.class);
 
-			mediaTypes.put(MediaType.APPLICATION_JSON, JsonBodyReader.class);
-			mediaTypes.put(MediaType.TEXT_PLAIN, GenericBodyReader.class);
-		}
+		mediaTypes.put(MediaType.APPLICATION_JSON, JsonBodyReader.class);
+		mediaTypes.put(MediaType.TEXT_PLAIN, GenericBodyReader.class);
 	}
 
 	/**
@@ -52,8 +50,7 @@ public class ReaderFactory extends ClassFactory<HttpRequestBodyReader> {
 
 			HttpRequestBodyReader reader = get(readerType, definition.getReader(), definition.getConsumes());
 			return reader != null ? reader : new GenericBodyReader();
-		}
-		catch (ClassFactoryException e) {
+		} catch (ClassFactoryException e) {
 			log.error("Failed to provide request body reader: " + readerType + ", for: " + definition + ", falling back to GenericBodyReader() instead!");
 			return new GenericBodyReader();
 		}
