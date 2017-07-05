@@ -12,12 +12,13 @@ import org.slf4j.LoggerFactory;
  * Tries to find and utilize associated mime type / media type writer
  * If no writer found a generic Object.toString() write is triggered
  */
-public class GenericResponseWriter implements HttpResponseWriter {
+@SuppressWarnings("unchecked")
+public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
 
 	private final static Logger log = LoggerFactory.getLogger(GenericResponseWriter.class);
 
 	@Override
-	public void write(Object result, HttpServerRequest request, HttpServerResponse response) {
+	public void write(T result, HttpServerRequest request, HttpServerResponse response) {
 
 		String mediaType = response.headers().get(HttpHeaders.CONTENT_TYPE);
 
@@ -33,7 +34,7 @@ public class GenericResponseWriter implements HttpResponseWriter {
 			writer.write(result, request, response);
 		}
 		else {
-			log.warn("No writer associated with: '" + mediaType + "', defaulting to toString() output!");
+			log.warn("No writer associated with: '" + mediaType + "', defaulting to toString() as output!");
 			if (result != null) {
 				response.end(result.toString());
 			}

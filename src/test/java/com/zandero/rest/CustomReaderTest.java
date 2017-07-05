@@ -75,4 +75,21 @@ public class CustomReaderTest extends VertxTest {
 			});
 		}).end("The quick brown fox jumps over the red dog!");
 	}
+
+	/*@Test
+	public void testInvalidReader(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.post("/read/invalidReader", response -> {
+
+			context.assertEquals(400, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("argument type mismatch", body.toString()); // returns sorted list of unique words
+				async.complete();
+			});
+		}).end("1");
+	}*/
 }

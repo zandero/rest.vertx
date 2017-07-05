@@ -4,8 +4,8 @@ import com.zandero.rest.annotation.Blocking;
 import com.zandero.rest.annotation.RequestReader;
 import com.zandero.rest.annotation.ResponseWriter;
 import com.zandero.rest.annotation.RouteOrder;
-import com.zandero.rest.reader.JsonBodyReader;
 import com.zandero.rest.test.json.Dummy;
+import com.zandero.rest.test.reader.DummyBodyReader;
 import com.zandero.rest.test.writer.TestCustomWriter;
 
 import javax.ws.rs.*;
@@ -32,7 +32,7 @@ public class TestPostRest {
 
 	@PUT
 	@Path("/json")
-	@RequestReader(JsonBodyReader.class)
+	@RequestReader(DummyBodyReader.class)
 	@ResponseWriter(TestCustomWriter.class)
 	@RouteOrder(20)
 	@Blocking

@@ -6,7 +6,7 @@ import io.vertx.core.http.HttpServerResponse;
 /**
  * Returns 204 response code
  */
-public class NoContentResponseWriter implements HttpResponseWriter {
+public class NoContentResponseWriter implements HttpResponseWriter<Object> {
 
 	@Override
 	public void write(Object result, HttpServerRequest request, HttpServerResponse response) {

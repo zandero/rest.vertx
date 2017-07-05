@@ -38,7 +38,7 @@ public final class AnnotationProcessor {
 			if (method.getAnnotation(Path.class) != null) { // Path must be present
 
 				RouteDefinition definition = new RouteDefinition(root, method.getAnnotations());
-				definition.setArguments(method);
+				definition.setArguments(method, definition.getReader());
 
 				output.put(definition, method);
 			}

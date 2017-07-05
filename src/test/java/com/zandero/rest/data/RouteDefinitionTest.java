@@ -62,7 +62,7 @@ public class RouteDefinitionTest {
 		Method method = methods[0];
 		RouteDefinition def = new RouteDefinition(base, method.getAnnotations());
 
-		def.setArguments(method);
+		def.setArguments(method, null);
 
 		assertEquals("/post/json", def.getPath());
 		assertEquals(HttpMethod.POST, def.getMethod());
@@ -107,5 +107,12 @@ public class RouteDefinitionTest {
 		assertEquals("/regEx/{one:\\w+}/{two:\\d+}/{three:\\w+}", def.getPath());
 		assertEquals("\\/regEx\\/\\w+\\/\\d+\\/\\w+", def.getRoutePath());
 		assertTrue(def.pathIsRegEx());
+	}
+
+	@Test
+	public void incompatibledReaderTypeTest() {
+
+		// TODO
+
 	}
 }

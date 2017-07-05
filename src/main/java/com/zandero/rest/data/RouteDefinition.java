@@ -8,6 +8,8 @@ import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
 import io.vertx.core.http.HttpMethod;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
+import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
@@ -18,6 +20,8 @@ import javax.ws.rs.core.MediaType;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -284,8 +288,9 @@ public class RouteDefinition {
 	 * Extracts method arguments and links them with annotated route parameters
 	 *
 	 * @param method to extract argument types and annotations from
+	 * @param reader
 	 */
-	public void setArguments(Method method) {
+	public void setArguments(Method method, Class<? extends HttpRequestBodyReader> reader) {
 
 		Parameter[] parameters = method.getParameters();
 		Class<?>[] parameterTypes = method.getParameterTypes();
@@ -354,13 +359,31 @@ public class RouteDefinition {
 					param.argument(parameterTypes[index]); // set missing argument type
 				} else {
 
-					Assert.isTrue(requestHasBody(),
-					              "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @Context) for: " + parameterTypes[index]
-							                                                                                                                  .getName() + " " + parameters[index]
-									                                                                                                                                     .getName());
+					Assert.isTrue(requestHasBody(), "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @Context) for: " +
+							                                parameterTypes[index].getName() + " " + parameters[index].getName());
 
 					name = parameters[index].getName();
 					type = ParameterType.body;
+				}
+
+				// check reader is suitable for body
+				if (reader != null) {
+
+					Type readerType = HttpRequestBodyReader.getGenericType(reader);
+					if (readerType != null) {
+
+						boolean compatibleTypes;
+						if (readerType instanceof ParameterizedType) {
+							compatibleTypes = parameters[index].getType().isAssignableFrom(((ParameterizedTypeImpl) readerType).getRawType());
+						} else if (readerType instanceof TypeVariableImpl) { // we don't know at this point ... generic type
+							compatibleTypes = true;
+						} else {
+							compatibleTypes = parameters[index].getType().isInstance(readerType);
+						}
+
+						Assert.isTrue(compatibleTypes,
+						              "Parameter type: '" + parameters[index].getType() + "' not matching reader type: '" + readerType + "' in: '" + reader + "'");
+					}
 				}
 			}
 

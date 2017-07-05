@@ -45,4 +45,12 @@ public class TestReaderRest {
 
 		return StringUtils.join(array, ",");
 	}
+/*
+	@POST
+	@Path("/invalidReader")
+	@RequestReader(IntegerBodyReader.class)
+	public Boolean getInt(Boolean number) { // manually assign reader not suitable for provided argument type ....
+
+		return number;
+	}*/
 }

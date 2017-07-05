@@ -12,9 +12,9 @@ import javax.ws.rs.core.MediaType;
  * use RestRouter.getWriters().register(...) to register a global writer
  * or use @ResponseWriter annotation to associate REST with given writer
  */
-public interface HttpResponseWriter {
+public interface HttpResponseWriter<T> {
 
-	void write(Object result, HttpServerRequest request, HttpServerResponse response);
+	void write(T result, HttpServerRequest request, HttpServerResponse response);
 
 	default void addResponseHeaders(RouteDefinition definition, HttpServerResponse response) {
 

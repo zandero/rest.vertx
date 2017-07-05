@@ -5,10 +5,10 @@ import com.zandero.utils.Assert;
 /**
  *
  */
-public class GenericBodyReader implements HttpRequestBodyReader {
+public class GenericBodyReader implements HttpRequestBodyReader<Object> {
 
 	@Override
-	public Object read(String value, Class<?> type) {
+	public Object read(String value, Class<Object> type) {
 
 		if (type.isPrimitive()) {
 			Object out = stringToPrimitiveType(value, type);

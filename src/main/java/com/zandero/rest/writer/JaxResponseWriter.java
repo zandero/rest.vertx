@@ -15,15 +15,15 @@ import java.util.List;
 /**
  * Produces vert.x response based on JAX-RS response builder output
  */
-public class JaxResponseWriter implements HttpResponseWriter {
+public class JaxResponseWriter implements HttpResponseWriter<Response> {
 
 	@Override
-	public void write(Object result, HttpServerRequest request, HttpServerResponse response) {
+	public void write(Response result, HttpServerRequest request, HttpServerResponse response) {
 
 		Assert.notNull(result, "Expected result but got null!");
-		Assert.isTrue(result instanceof Response, "Expected instance of: " + Response.class.getName() + ", but got: " + result.getClass().getName());
+		//Assert.isTrue(result instanceof Response, "Expected instance of: " + Response.class.getName() + ", but got: " + result.getClass().getName());
 
-		if (result instanceof Response) {
+		//if (result instanceof Response) {
 			Response jax = (Response) result;
 
 			response.setStatusCode(jax.getStatus());
@@ -52,7 +52,7 @@ public class JaxResponseWriter implements HttpResponseWriter {
 			else {
 				response.end();
 			}
-		}
+		//}
 	}
 
 	private static void addHeaders(Response jaxrsResponse, HttpServerResponse response) {

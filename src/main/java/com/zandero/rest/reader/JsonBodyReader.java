@@ -6,11 +6,10 @@ import com.zandero.utils.extra.JsonUtils;
 /**
  * Converts request body to JSON
  */
-public class JsonBodyReader implements HttpRequestBodyReader {
+public class JsonBodyReader<T> implements HttpRequestBodyReader<T> {
 
 	@Override
-	public Object read(String value, Class<?> type) {
-
+	public T read(String value, Class<T> type) {
 		if (StringUtils.isNullOrEmptyTrimmed(value)) {
 			return null;
 		}
