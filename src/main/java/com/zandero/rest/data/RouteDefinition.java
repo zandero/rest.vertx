@@ -134,11 +134,11 @@ public class RouteDefinition {
 			}
 
 			if (annotation instanceof GET ||
-					    annotation instanceof POST ||
-					    annotation instanceof PUT ||
-					    annotation instanceof DELETE ||
-					    annotation instanceof HEAD ||
-					    annotation instanceof OPTIONS) {
+			    annotation instanceof POST ||
+			    annotation instanceof PUT ||
+			    annotation instanceof DELETE ||
+			    annotation instanceof HEAD ||
+			    annotation instanceof OPTIONS) {
 
 				method(annotation.annotationType().getSimpleName());
 			}
@@ -173,6 +173,7 @@ public class RouteDefinition {
 
 			if (annotation instanceof CatchWith) {
 				failureHandler = ((CatchWith) annotation).value();
+
 				if (((CatchWith) annotation).writer() != CatchWith.NotImplementedWriter.class) {
 					failureWriter = ((CatchWith) annotation).writer();
 				}
@@ -288,9 +289,8 @@ public class RouteDefinition {
 	 * Extracts method arguments and links them with annotated route parameters
 	 *
 	 * @param method to extract argument types and annotations from
-	 * @param reader
 	 */
-	public void setArguments(Method method, Class<? extends HttpRequestBodyReader> reader) {
+	public void setArguments(Method method) {
 
 		Parameter[] parameters = method.getParameters();
 		Class<?>[] parameterTypes = method.getParameterTypes();
@@ -359,7 +359,7 @@ public class RouteDefinition {
 					param.argument(parameterTypes[index]); // set missing argument type
 				} else {
 
-					Assert.isTrue(requestHasBody(), "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @Context) for: " +
+					Assert.isTrue(requestHasBody(), "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam, @Context) for: " +
 							                                parameterTypes[index].getName() + " " + parameters[index].getName());
 
 					name = parameters[index].getName();
@@ -370,20 +370,7 @@ public class RouteDefinition {
 				if (reader != null) {
 
 					Type readerType = AnnotationProcessor.getGenericType(reader);
-					if (readerType != null) {
-
-						boolean compatibleTypes;
-						if (readerType instanceof ParameterizedType) {
-							compatibleTypes = parameters[index].getType().isAssignableFrom(((ParameterizedTypeImpl) readerType).getRawType());
-						} else if (readerType instanceof TypeVariableImpl) { // we don't know at this point ... generic type
-							compatibleTypes = true;
-						} else {
-							compatibleTypes = parameters[index].getType().isInstance(readerType);
-						}
-
-						Assert.isTrue(compatibleTypes,
-						              "Parameter type: '" + parameters[index].getType() + "' not matching reader type: '" + readerType + "' in: '" + reader + "'");
-					}
+					checkIfCompatibleTypes(parameters[index].getType(), readerType, "Parameter type: '" + parameters[index].getType() + "' not matching reader type: '" + readerType + "' in: '" + reader + "'");
 				}
 			}
 
@@ -394,6 +381,30 @@ public class RouteDefinition {
 
 			index++;
 		}
+
+		if (writer != null) {
+
+			Type writerType = AnnotationProcessor.getGenericType(writer);
+			checkIfCompatibleTypes(method.getReturnType(), writerType, "Response type: '" + method.getReturnType() + "' not matching writer type: '" + writerType + "' in: '" + writer + "'");
+		}
+	}
+
+	private void checkIfCompatibleTypes(Class<?> expected, Type acutal, String message) {
+
+		if (acutal != null) {
+
+			boolean compatibleTypes;
+			if (acutal instanceof ParameterizedType) {
+				compatibleTypes = expected.isAssignableFrom(((ParameterizedTypeImpl) acutal).getRawType());
+			} else if (acutal instanceof TypeVariableImpl) { // we don't know at this point ... generic type
+				compatibleTypes = true;
+			} else {
+				compatibleTypes = expected.equals(acutal) || expected.isInstance(acutal);
+			}
+
+			Assert.isTrue(compatibleTypes, message);
+		}
+
 	}
 
 	public MethodParameter findParameter(int index) {

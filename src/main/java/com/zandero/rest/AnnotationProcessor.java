@@ -39,10 +39,16 @@ public final class AnnotationProcessor {
 
 			if (method.getAnnotation(Path.class) != null) { // Path must be present
 
-				RouteDefinition definition = new RouteDefinition(root, method.getAnnotations());
-				definition.setArguments(method, definition.getReader());
+				try {
+					RouteDefinition definition = new RouteDefinition(root, method.getAnnotations());
+					definition.setArguments(method);
 
-				output.put(definition, method);
+					output.put(definition, method);
+
+				} catch (IllegalArgumentException e) {
+
+					throw new IllegalArgumentException(clazz + "." + method.getName() + "() - " + e.getMessage());
+				}
 			}
 		}
 
@@ -51,12 +57,12 @@ public final class AnnotationProcessor {
 
 	/**
 	 * Tries to find class with given annotation ... class it's interface or parent class
-	 * @param clazz to search
+	 *
+	 * @param clazz      to search
 	 * @param annotation to search for
 	 * @return found class with annotation or null if no class with given annotation could be found
 	 */
-	public static Class getClassWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotation)
-	{
+	public static Class getClassWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotation) {
 		if (clazz.isAnnotationPresent(annotation)) {
 			return clazz;
 		}

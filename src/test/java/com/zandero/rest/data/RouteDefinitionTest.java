@@ -1,9 +1,8 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.RouteOrder;
-import com.zandero.rest.test.TestPostRest;
-import com.zandero.rest.test.TestRegExRest;
-import com.zandero.rest.test.TestRest;
+import com.zandero.rest.test.*;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.http.HttpMethod;
 import org.junit.Test;
@@ -62,7 +61,7 @@ public class RouteDefinitionTest {
 		Method method = methods[0];
 		RouteDefinition def = new RouteDefinition(base, method.getAnnotations());
 
-		def.setArguments(method, null);
+		def.setArguments(method);
 
 		assertEquals("/post/json", def.getPath());
 		assertEquals(HttpMethod.POST, def.getMethod());
@@ -110,9 +109,38 @@ public class RouteDefinitionTest {
 	}
 
 	@Test
-	public void incompatibledReaderTypeTest() {
+	public void incompatibleReaderTypeTest() {
 
-		// TODO
+		try {
+			AnnotationProcessor.get(MissingAnnotationsRest.class);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("class com.zandero.rest.test.IncomparibleReaderRest.returnOuch() - Parameter type: 'class java.lang.String' " +
+					             "not matching reader type: 'class java.lang.Integer' in: 'class com.zandero.rest.reader.IntegerBodyReader'", e.getMessage());
+		}
+	}
 
+	@Test
+	public void incompatibleWriterTypeTest() {
+
+		try {
+			AnnotationProcessor.get(IncompatibleWriterRest.class);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("class com.zandero.rest.test.IncompatibleWriterRest.returnOuch() - Response type: 'class java.lang.String' " +
+					             "not matching writer type: 'class com.zandero.rest.test.json.Dummy' in: 'class com.zandero.rest.test.writer.TestDummyWriter'", e.getMessage());
+		}
+	}
+
+	@Test
+	public void missingArgumentAnnotatoinTest() {
+
+		try {
+			AnnotationProcessor.get(MissingAnnotationsRest.class);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("class com.zandero.rest.test.MissingAnnotationsRest.returnOuch() - " +
+					             "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam, @Context) for: java.lang.String arg0", e.getMessage());
+		}
 	}
 }
