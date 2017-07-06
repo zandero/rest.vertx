@@ -5,6 +5,7 @@ import com.zandero.rest.test.TestPostRest;
 import com.zandero.rest.test.TestRest;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.rest.test.writer.TestCustomWriter;
+import com.zandero.rest.test.writer.TestDummyWriter;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -81,7 +82,7 @@ public class CustomWriterTest extends VertxTest {
 			.requestHandler(router::accept)
 			.listen(PORT);
 
-		RestRouter.getWriters().register(Dummy.class, TestCustomWriter.class); // bind media type to this writer
+		RestRouter.getWriters().register(Dummy.class, TestDummyWriter.class); // bind media type to this writer
 
 		final Async async = context.async();
 

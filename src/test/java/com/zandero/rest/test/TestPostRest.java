@@ -6,7 +6,7 @@ import com.zandero.rest.annotation.ResponseWriter;
 import com.zandero.rest.annotation.RouteOrder;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.rest.test.reader.DummyBodyReader;
-import com.zandero.rest.test.writer.TestCustomWriter;
+import com.zandero.rest.test.writer.TestDummyWriter;
 
 import javax.ws.rs.*;
 
@@ -33,7 +33,7 @@ public class TestPostRest {
 	@PUT
 	@Path("/json")
 	@RequestReader(DummyBodyReader.class)
-	@ResponseWriter(TestCustomWriter.class)
+	@ResponseWriter(TestDummyWriter.class)
 	@RouteOrder(20)
 	@Blocking
 	public Dummy echoJsonPut(Dummy postParam, @HeaderParam("X-Test") String testHeader) {

@@ -6,6 +6,8 @@ import com.zandero.utils.Assert;
 import javax.ws.rs.Path;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -68,6 +70,22 @@ public final class AnnotationProcessor {
 		Class superClass = clazz.getSuperclass();
 		if (superClass != Object.class && superClass != null) {
 			return getClassWithAnnotation(superClass, annotation);
+		}
+
+		return null;
+	}
+
+	public static Type getGenericType(Class clazz) {
+
+		Assert.notNull(clazz, "Missing class!");
+		Type[] genericInterfaces = clazz.getGenericInterfaces();
+		for (Type genericInterface : genericInterfaces) {
+
+			if (genericInterface instanceof ParameterizedType) {
+
+				Type[] genericTypes = ((ParameterizedType) genericInterface).getActualTypeArguments();
+				return genericTypes[0];
+			}
 		}
 
 		return null;

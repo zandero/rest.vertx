@@ -369,7 +369,7 @@ public class RouteDefinition {
 				// check reader is suitable for body
 				if (reader != null) {
 
-					Type readerType = HttpRequestBodyReader.getGenericType(reader);
+					Type readerType = AnnotationProcessor.getGenericType(reader);
 					if (readerType != null) {
 
 						boolean compatibleTypes;
