@@ -9,6 +9,7 @@ A JAX-RS (RestEasy) like annotation processor for vert.x verticals
      <version>0.3</version>      
 </dependency>
 ```
+See also: [older versions](https://github.com/zandero/rest.vertx/wiki/Versions)
 
 **Rest.Verx** is still in beta, so please report any [issues](https://github.com/zandero/rest.vertx/issues) discovered.  
 You are highly encouraged to participate and improve upon the existing code.
