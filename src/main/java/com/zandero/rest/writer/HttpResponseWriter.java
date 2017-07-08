@@ -18,7 +18,8 @@ public interface HttpResponseWriter<T> {
 
 	default void addResponseHeaders(RouteDefinition definition, HttpServerResponse response) {
 
-		if (!response.headers().contains(HttpHeaders.CONTENT_TYPE)) {
+		if (!response.ended() &&
+			!response.headers().contains(HttpHeaders.CONTENT_TYPE)) {
 
 			if (definition.getProduces() != null) {
 				for (MediaType produces : definition.getProduces()) {
