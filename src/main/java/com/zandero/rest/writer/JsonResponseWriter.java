@@ -13,7 +13,7 @@ public class JsonResponseWriter<T> implements HttpResponseWriter<T> {
 	public void write(T result, HttpServerRequest request, HttpServerResponse response) {
 
 		if (result != null) {
-			response.end(JsonUtils.toJson(result));
+			response.end(JsonUtils.toJson(result, io.vertx.core.json.Json.mapper));
 		}
 		else {
 			response.end();

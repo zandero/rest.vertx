@@ -45,6 +45,16 @@ public class TestReaderRest {
 
 		return StringUtils.join(array, ",");
 	}
+
+	/*@POST
+	@Path("/jacksonMapper")
+	@RequestReader(JsonBodyReader.class)
+	public String readWithCustomJacksonMapper(String input) {
+
+
+		return null;
+	}*/
+
 /*
 	@POST
 	@Path("/invalidReader")

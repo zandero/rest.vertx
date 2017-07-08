@@ -112,10 +112,10 @@ public class RouteDefinitionTest {
 	public void incompatibleReaderTypeTest() {
 
 		try {
-			AnnotationProcessor.get(MissingAnnotationsRest.class);
+			AnnotationProcessor.get(IncompatibleReaderRest.class);
 			fail();
 		} catch (IllegalArgumentException e) {
-			assertEquals("class com.zandero.rest.test.IncomparibleReaderRest.returnOuch() - Parameter type: 'class java.lang.String' " +
+			assertEquals("class com.zandero.rest.test.IncompatibleReaderRest.returnOuch() - Parameter type: 'class java.lang.String' " +
 					             "not matching reader type: 'class java.lang.Integer' in: 'class com.zandero.rest.reader.IntegerBodyReader'", e.getMessage());
 		}
 	}

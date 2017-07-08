@@ -45,11 +45,11 @@ public class AnnotationProcessorTest {
 				Method method = definitions.get(definition);
 
 				assertEquals(HttpMethod.GET, definition.getMethod());
-				/*assertNotNull(definition.getProduces());
+				assertNotNull(definition.getProduces());
 				assertEquals(1, definition.getProduces().length);
-				assertEquals("application/json", definition.getProduces()[0]);
+				assertEquals("application/json", definition.getProduces()[0].toString());
 
-				assertEquals("echo", method.getName());*/
+				assertEquals("jax", method.getName());
 			}
 		}
 	}
