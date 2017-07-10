@@ -6,7 +6,7 @@ A JAX-RS (RestEasy) like annotation processor for vert.x verticals
 <dependency>      
      <groupId>com.zandero</groupId>      
      <artifactId>rest.vertx</artifactId>      
-     <version>0.3</version>      
+     <version>0.4</version>      
 </dependency>
 ```
 See also: [older versions](https://github.com/zandero/rest.vertx/wiki/Versions)
@@ -174,7 +174,7 @@ Rest.Vertx tries to convert path and query variables to their corresponding Java
     
 Basic (primitive) types are converted from string to given type - if conversion is not possible a **400 bad request** response follows.
  
-Complex java objects are converted according to **@Consumes** annotation or **request body reader** associated.
+Complex java objects are converted according to **@Consumes** annotation or **@RequestReader** _request body reader_ associated.
 
 **Option 1** - The **@Consumes** annotation **mime/type** defines the reader to be used when converting request body.  
 In this case a build in JSON converter is applied.
@@ -576,10 +576,10 @@ A request body reader must:
 /**
  * Converts request body to JSON
  */
-public class MyCustomReader implements HttpRequestBodyReader {
+public class MyCustomReader implements HttpRequestBodyReader<MyNewObject> {
 
 	@Override
-	public Object read(String value, Class<?> type) {
+	public MyNewObject read(String value, Class<MyNewObject> type) {
 
 		if (value != null && value.length() > 0) {
 			
@@ -618,20 +618,16 @@ A request writer must:
 /**
  * Converts request body to JSON
  */
-public class MyCustomResponseWriter implements HttpResponseWriter {
+public class MyCustomResponseWriter implements HttpResponseWriter<MyObject> {
 
     /**
      * result is the output of the corresponding REST API endpoint associated 
      */
 	@Override
-	public void write(Object result, HttpServerRequest request, HttpServerResponse response) {
+	public void write(MyObject data, HttpServerRequest request, HttpServerResponse response) {
 
-		if (result instanceof MyNewObject) {
-		    MyNewObject object = (MyNewObject)result;
-		    
-		    response.putHeader("X-ObjectId", object.id);
-		    response.end(object.value);
-        }
+		response.putHeader("X-ObjectId", data.id);
+		response.end(data.value);
     }
 }
 ```
@@ -639,14 +635,14 @@ public class MyCustomResponseWriter implements HttpResponseWriter {
 Using a response writer is simple:
 ```java
 @Path("write")
-public class WriteMyNewObject {
+public class WriteMyObject {
 
 	@GET
 	@Path("object")
 	@ResponseWriter(MyCustomResponseWriter.class) // MyCustomResponseWriter will take output and fill up response 
-	public MyNewObject output() {
+	public MyObject output() {
 
-		return new MyNewObject("test", "me");
+		return new MyObject("test", "me");
 	}
 }
 ```

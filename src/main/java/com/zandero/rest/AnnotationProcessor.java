@@ -2,6 +2,8 @@ package com.zandero.rest;
 
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.utils.Assert;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
+import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import javax.ws.rs.Path;
 import java.lang.annotation.Annotation;
@@ -95,5 +97,22 @@ public final class AnnotationProcessor {
 		}
 
 		return null;
+	}
+
+	public static void checkIfCompatibleTypes(Class<?> expected, Type actual, String message) {
+
+		if (actual != null) {
+
+			boolean compatibleTypes;
+			if (actual instanceof ParameterizedType) {
+				compatibleTypes = expected.isAssignableFrom(((ParameterizedTypeImpl) actual).getRawType());
+			} else if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
+				compatibleTypes = true;
+			} else {
+				compatibleTypes = expected.equals(actual) || expected.isInstance(actual);
+			}
+
+			Assert.isTrue(compatibleTypes, message);
+		}
 	}
 }

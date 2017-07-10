@@ -8,8 +8,6 @@ import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
 import io.vertx.core.http.HttpMethod;
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
-import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
@@ -20,7 +18,6 @@ import javax.ws.rs.core.MediaType;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -370,7 +367,7 @@ public class RouteDefinition {
 				if (reader != null) {
 
 					Type readerType = AnnotationProcessor.getGenericType(reader);
-					checkIfCompatibleTypes(parameters[index].getType(), readerType, "Parameter type: '" + parameters[index].getType() + "' not matching reader type: '" + readerType + "' in: '" + reader + "'");
+					AnnotationProcessor.checkIfCompatibleTypes(parameters[index].getType(), readerType, "Parameter type: '" + parameters[index].getType() + "' not matching reader type: '" + readerType + "' in: '" + reader + "'");
 				}
 			}
 
@@ -385,27 +382,11 @@ public class RouteDefinition {
 		if (writer != null) {
 
 			Type writerType = AnnotationProcessor.getGenericType(writer);
-			checkIfCompatibleTypes(method.getReturnType(), writerType, "Response type: '" + method.getReturnType() + "' not matching writer type: '" + writerType + "' in: '" + writer + "'");
+			AnnotationProcessor.checkIfCompatibleTypes(method.getReturnType(), writerType, "Response type: '" + method.getReturnType() + "' not matching writer type: '" + writerType + "' in: '" + writer + "'");
 		}
 	}
 
-	private void checkIfCompatibleTypes(Class<?> expected, Type acutal, String message) {
 
-		if (acutal != null) {
-
-			boolean compatibleTypes;
-			if (acutal instanceof ParameterizedType) {
-				compatibleTypes = expected.isAssignableFrom(((ParameterizedTypeImpl) acutal).getRawType());
-			} else if (acutal instanceof TypeVariableImpl) { // we don't know at this point ... generic type
-				compatibleTypes = true;
-			} else {
-				compatibleTypes = expected.equals(acutal) || expected.isInstance(acutal);
-			}
-
-			Assert.isTrue(compatibleTypes, message);
-		}
-
-	}
 
 	public MethodParameter findParameter(int index) {
 

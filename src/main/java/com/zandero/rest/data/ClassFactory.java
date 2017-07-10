@@ -1,11 +1,14 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.utils.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import javax.ws.rs.core.MediaType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -93,12 +96,17 @@ public abstract class ClassFactory<T> {
 		mediaTypes.put(key, clazz);
 	}
 
-	public void register(Class<?> response, Class<? extends T> clazz) {
+	public void register(Class<?> responseClass, Class<? extends T> clazz) {
 
-		Assert.notNull(response, "Missing response class!");
+		Assert.notNull(responseClass, "Missing response class!");
 		Assert.notNull(clazz, "Missing response type class");
 
-		classTypes.put(response.getName(), clazz);
+		// check clazz / responseClass compatibility
+		Type expected = ((ParameterizedTypeImpl) clazz.getGenericInterfaces()[0]).getActualTypeArguments()[0];
+
+		AnnotationProcessor.checkIfCompatibleTypes(responseClass, expected, "Incopartible types: '" + responseClass + "' and: '" + clazz+ "'");
+
+		classTypes.put(responseClass.getName(), clazz);
 	}
 
 	protected T get(Class<?> type, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ClassFactoryException {
