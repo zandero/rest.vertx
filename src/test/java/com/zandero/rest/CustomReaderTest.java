@@ -76,6 +76,8 @@ public class CustomReaderTest extends VertxTest {
 		}).end("The quick brown fox jumps over the red dog!");
 	}
 
+
+
 	/*@Test
 	public void testInvalidReader(TestContext context) {
 

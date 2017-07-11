@@ -8,17 +8,12 @@ import javax.ws.rs.WebApplicationException;
 /**
  *
  */
-public class WebApplicationExceptionHandler implements ExceptionHandler {
+public class WebApplicationExceptionHandler implements ExceptionHandler<WebApplicationException> {
 
 	@Override
-	public void handle(Throwable cause, HttpResponseWriter writer, RoutingContext context) {
+	public void handle(WebApplicationException cause, HttpResponseWriter writer, RoutingContext context) {
 
-		if (cause instanceof WebApplicationException) {
-
-			WebApplicationException exception = (WebApplicationException)cause;
-
-			context.response().setStatusCode(exception.getResponse().getStatus());
-			writer.write(exception.getMessage(), context.request(), context.response());
-		}
+		context.response().setStatusCode(cause.getResponse().getStatus());
+		writer.write(cause.getMessage(), context.request(), context.response());
 	}
 }

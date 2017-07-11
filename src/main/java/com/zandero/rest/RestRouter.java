@@ -269,7 +269,7 @@ public class RestRouter {
 		// get default handler by exception type or use global error handler ...
 
 		// route through handler ... to allow customization
-		ExceptionHandler handler = handlers.getFailureHandler(definition.getFailureHandler(), globalErrorHandler, ex.getCause().getClass());
+		ExceptionHandler handler = handlers.getFailureHandler(definition.getFailureHandlers(), globalErrorHandler, ex.getCause().getClass());
 		handler.handle(ex.getCause(), writer, context);
 
 		// end response ...

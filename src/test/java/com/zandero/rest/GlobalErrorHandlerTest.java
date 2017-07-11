@@ -3,6 +3,7 @@ package com.zandero.rest;
 import com.zandero.rest.test.ErrorThrowingRest;
 import com.zandero.rest.test.ErrorThrowingRest2;
 import com.zandero.rest.test.handler.HandleRestException;
+import com.zandero.rest.test.writer.IllegalArgumentExceptionWriter;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -60,7 +61,7 @@ public class GlobalErrorHandlerTest extends VertxTest {
 			context.assertEquals(400, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("Huh this produced an error: 'Bang!'", body.toString());
+				context.assertEquals("java.lang.IllegalArgumentException: Bang!", body.toString());
 				async.complete();
 			});
 		});
@@ -71,7 +72,7 @@ public class GlobalErrorHandlerTest extends VertxTest {
 
 		// call and check response
 		final Async async = context.async();
-		RestRouter.errorHandler(HandleRestException.class);
+		RestRouter.errorHandler(HandleRestException.class, IllegalArgumentExceptionWriter.class);
 
 		client.getNow("/throw/unhandled", response -> {
 

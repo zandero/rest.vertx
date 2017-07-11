@@ -5,7 +5,6 @@ import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.utils.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import javax.ws.rs.core.MediaType;
 import java.lang.reflect.Type;
@@ -101,10 +100,8 @@ public abstract class ClassFactory<T> {
 		Assert.notNull(responseClass, "Missing response class!");
 		Assert.notNull(clazz, "Missing response type class");
 
-		// check clazz / responseClass compatibility
-		Type expected = ((ParameterizedTypeImpl) clazz.getGenericInterfaces()[0]).getActualTypeArguments()[0];
-
-		AnnotationProcessor.checkIfCompatibleTypes(responseClass, expected, "Incopartible types: '" + responseClass + "' and: '" + clazz+ "'");
+		Type expected = AnnotationProcessor.getGenericType(clazz);
+		AnnotationProcessor.checkIfCompatibleTypes(responseClass, expected, "Incompatible types: '" + responseClass + "' and: '" + expected+ "' using: '" + clazz + "'");
 
 		classTypes.put(responseClass.getName(), clazz);
 	}

@@ -101,18 +101,22 @@ public final class AnnotationProcessor {
 
 	public static void checkIfCompatibleTypes(Class<?> expected, Type actual, String message) {
 
-		if (actual != null) {
+		boolean compatibleTypes = checkIfCompatibleTypes(expected, actual);
+		Assert.isTrue(compatibleTypes, message);
+	}
 
-			boolean compatibleTypes;
-			if (actual instanceof ParameterizedType) {
-				compatibleTypes = expected.isAssignableFrom(((ParameterizedTypeImpl) actual).getRawType());
-			} else if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
-				compatibleTypes = true;
-			} else {
-				compatibleTypes = expected.equals(actual) || expected.isInstance(actual);
-			}
+	public static boolean checkIfCompatibleTypes(Class<?> expected, Type actual) {
 
-			Assert.isTrue(compatibleTypes, message);
+		if (actual == null) {
+			return true;
+		}
+
+		if (actual instanceof ParameterizedType) {
+			return expected.isAssignableFrom(((ParameterizedTypeImpl) actual).getRawType());
+		} else if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
+			return true;
+		} else {
+			return expected.equals(actual) || expected.isInstance(actual);
 		}
 	}
 }

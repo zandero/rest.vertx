@@ -1,5 +1,6 @@
 package com.zandero.rest;
 
+import com.zandero.rest.reader.IntegerBodyReader;
 import com.zandero.rest.test.TestRest;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
@@ -12,6 +13,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Basic GET, POST tests
@@ -29,8 +34,8 @@ public class RestRouterTest extends VertxTest {
 		Router router = RestRouter.register(vertx, testRest);
 
 		vertx.createHttpServer()
-			.requestHandler(router::accept)
-			.listen(PORT);
+		     .requestHandler(router::accept)
+		     .listen(PORT);
 	}
 
 	@Test
@@ -156,7 +161,7 @@ public class RestRouterTest extends VertxTest {
 			});
 		}).putHeader("Content-Type", "application/json").end(json);
 
-	//	async.complete();
+		//	async.complete();
 	}
 
 	@Test
@@ -172,5 +177,17 @@ public class RestRouterTest extends VertxTest {
 				async.complete();
 			});
 		});
+	}
+
+	@Test
+	public void invalidReaderRegistrationTest() {
+
+		try {
+
+			RestRouter.getReaders().register(List.class, IntegerBodyReader.class);
+			fail();
+		} catch (Exception e) {
+			assertEquals("Incompatible types: 'interface java.util.List' and: 'class java.lang.Integer' using: 'class com.zandero.rest.reader.IntegerBodyReader'", e.getMessage());
+		}
 	}
 }

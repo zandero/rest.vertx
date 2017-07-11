@@ -3,11 +3,14 @@ package com.zandero.rest;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.reader.IntegerBodyReader;
 import com.zandero.rest.test.TestRest;
+import com.zandero.rest.test.handler.HandleRestException;
 import com.zandero.rest.test.reader.DummyBodyReader;
+import com.zandero.rest.test.writer.IllegalArgumentExceptionWriter;
 import io.vertx.core.http.HttpMethod;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -58,8 +61,23 @@ public class AnnotationProcessorTest {
 	public void getGenericTypeTest() {
 
 		assertNull(AnnotationProcessor.getGenericType(DummyBodyReader.class)); // type erasure ... we can't tell
-		//	assertEquals(Dummy.class, DummyBodyReader.class.getMethods()[0].getParameters()[1].getType());
+
 		assertEquals(Integer.class, AnnotationProcessor.getGenericType(IntegerBodyReader.class)); // at least we know so much
 
+		assertEquals(IllegalArgumentException.class, AnnotationProcessor.getGenericType(IllegalArgumentExceptionWriter.class)); // at least we know so much
+
+		assertEquals(IllegalArgumentException.class, AnnotationProcessor.getGenericType(HandleRestException.class)); // at least we know so much
+	}
+
+	@Test
+	public void typeAreCompatibleTest() {
+
+		Type type = AnnotationProcessor.getGenericType(HandleRestException.class);
+		try {
+			AnnotationProcessor.checkIfCompatibleTypes(IllegalArgumentException.class, type, "Fail");
+		}
+		catch (Exception e) {
+			fail(e.getMessage());
+		}
 	}
 }

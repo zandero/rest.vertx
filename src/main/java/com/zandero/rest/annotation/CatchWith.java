@@ -18,7 +18,9 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface CatchWith {
 
-	Class<? extends ExceptionHandler> value() default GenericExceptionHandler.class;
+	Class<? extends ExceptionHandler>[] value() default GenericExceptionHandler.class;
+
+	//Class<? extends ExceptionHandler>[] value()[] default
 
 	/**
 	 * @return alternative response writer, provided in handle() when ExceptionHandler is invoked

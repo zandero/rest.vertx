@@ -7,10 +7,11 @@ import io.vertx.ext.web.RoutingContext;
 /**
  *
  */
-public class HandleRestException implements ExceptionHandler {
-	@Override
-	public void handle(Throwable cause, HttpResponseWriter writer, RoutingContext context) {
+public class HandleRestException implements ExceptionHandler<IllegalArgumentException> {
 
-		writer.write("Huh this produced an error: '" + cause.getMessage() + "'", context.request(), context.response());
+	@Override
+	public void handle(IllegalArgumentException cause, HttpResponseWriter<IllegalArgumentException> writer, RoutingContext context) {
+
+		writer.write(cause, context.request(), context.response());
 	}
 }
