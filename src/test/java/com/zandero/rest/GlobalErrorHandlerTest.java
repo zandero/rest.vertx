@@ -84,4 +84,38 @@ public class GlobalErrorHandlerTest extends VertxTest {
 			});
 		});
 	}
+
+	@Test
+	public void throwDifferentExceptionTestOne(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/throw/multi/one", response -> {
+
+			context.assertEquals(405, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("HTTP 405 Method Not Allowed", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void throwDifferentExceptionTestTwo(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/throw/multi/two", response -> {
+
+			context.assertEquals(400, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("java.lang.IllegalArgumentException: Bang!", body.toString());
+				async.complete();
+			});
+		});
+	}
 }

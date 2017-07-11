@@ -1,6 +1,7 @@
 package com.zandero.rest;
 
 import com.zandero.rest.data.RouteDefinition;
+import com.zandero.rest.exception.WebApplicationExceptionHandler;
 import com.zandero.rest.reader.IntegerBodyReader;
 import com.zandero.rest.test.TestRest;
 import com.zandero.rest.test.handler.HandleRestException;
@@ -9,6 +10,8 @@ import com.zandero.rest.test.writer.IllegalArgumentExceptionWriter;
 import io.vertx.core.http.HttpMethod;
 import org.junit.Test;
 
+import javax.ws.rs.NotAllowedException;
+import javax.ws.rs.WebApplicationException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -67,6 +70,8 @@ public class AnnotationProcessorTest {
 		assertEquals(IllegalArgumentException.class, AnnotationProcessor.getGenericType(IllegalArgumentExceptionWriter.class)); // at least we know so much
 
 		assertEquals(IllegalArgumentException.class, AnnotationProcessor.getGenericType(HandleRestException.class)); // at least we know so much
+
+		assertEquals(WebApplicationException.class, AnnotationProcessor.getGenericType(WebApplicationExceptionHandler.class)); // at least we know so much
 	}
 
 	@Test
@@ -75,6 +80,25 @@ public class AnnotationProcessorTest {
 		Type type = AnnotationProcessor.getGenericType(HandleRestException.class);
 		try {
 			AnnotationProcessor.checkIfCompatibleTypes(IllegalArgumentException.class, type, "Fail");
+		}
+		catch (Exception e) {
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void inheritedTypeAreCompatibleTest() {
+
+		Type type = AnnotationProcessor.getGenericType(WebApplicationExceptionHandler.class);
+		try {
+			AnnotationProcessor.checkIfCompatibleTypes(WebApplicationException.class, type, "Fail");
+		}
+		catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		try {
+			AnnotationProcessor.checkIfCompatibleTypes(NotAllowedException.class, type, "Fail");
 		}
 		catch (Exception e) {
 			fail(e.getMessage());

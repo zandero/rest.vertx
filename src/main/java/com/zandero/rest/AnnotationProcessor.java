@@ -116,7 +116,7 @@ public final class AnnotationProcessor {
 		} else if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
 			return true;
 		} else {
-			return expected.equals(actual) || expected.isInstance(actual);
+			return expected.equals(actual) || expected.isInstance(actual) || ((Class)actual).isAssignableFrom(expected);
 		}
 	}
 }
