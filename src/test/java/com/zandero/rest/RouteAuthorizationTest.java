@@ -141,7 +141,7 @@ public class RouteAuthorizationTest extends VertxTest {
 			context.assertEquals(401, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("HTTP 401 Unauthorized", body.toString());
+				context.assertEquals("javax.ws.rs.NotAuthorizedException: HTTP 401 Unauthorized", body.toString());
 				async.complete();
 			});
 		}).putHeader("X-Token", "user").end();
@@ -158,7 +158,7 @@ public class RouteAuthorizationTest extends VertxTest {
 			context.assertEquals(401, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("HTTP 401 Unauthorized", body.toString());
+				context.assertEquals("javax.ws.rs.NotAuthorizedException: HTTP 401 Unauthorized", body.toString());
 				async.complete();
 			});
 		}).putHeader("X-Token", "user").end();

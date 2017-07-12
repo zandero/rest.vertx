@@ -14,6 +14,6 @@ public class WebApplicationExceptionHandler implements ExceptionHandler<WebAppli
 	public void handle(WebApplicationException cause, HttpResponseWriter writer, RoutingContext context) {
 
 		context.response().setStatusCode(cause.getResponse().getStatus());
-		writer.write(cause.getMessage(), context.request(), context.response());
+		writer.write(cause, context.request(), context.response());
 	}
 }

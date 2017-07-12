@@ -96,7 +96,7 @@ public class GlobalErrorHandlerTest extends VertxTest {
 			context.assertEquals(405, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("HTTP 405 Method Not Allowed", body.toString());
+				context.assertEquals("Exception: HTTP 405 Method Not Allowed", body.toString()); // ExceptionWriter kicked in
 				async.complete();
 			});
 		});
@@ -113,7 +113,7 @@ public class GlobalErrorHandlerTest extends VertxTest {
 			context.assertEquals(400, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("java.lang.IllegalArgumentException: Bang!", body.toString());
+				context.assertEquals("Huh this produced an error: 'Bang!'", body.toString()); // IllegalArgumentExceptionWriter kicked in
 				async.complete();
 			});
 		});

@@ -4,6 +4,8 @@ import com.zandero.rest.annotation.CatchWith;
 import com.zandero.rest.exception.WebApplicationExceptionHandler;
 import com.zandero.rest.test.handler.HandleRestException;
 import com.zandero.rest.test.handler.UnhandledRestErrorHandler;
+import com.zandero.rest.test.writer.ExceptionWriter;
+import com.zandero.rest.test.writer.IllegalArgumentExceptionWriter;
 import com.zandero.rest.writer.GenericResponseWriter;
 
 import javax.ws.rs.*;
@@ -37,14 +39,14 @@ public class ErrorThrowingRest {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("multi/{bang}")
 	@CatchWith(value = {HandleRestException.class, WebApplicationExceptionHandler.class},
-	           writer = GenericResponseWriter.class)
+	           writer = {IllegalArgumentExceptionWriter.class, ExceptionWriter.class})
 	public String returnMultiBang(@PathParam("bang") String bang) {
 
 		switch (bang) {
-			case "one" :
+			case "one":
 				throw new NotAllowedException("Not for you!");
 
-			case "two" :
+			case "two":
 			default:
 				throw new IllegalArgumentException("Bang!");
 		}
