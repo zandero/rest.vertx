@@ -1,12 +1,14 @@
 package com.zandero.rest.data;
 
-import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.utils.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
+import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import javax.ws.rs.core.MediaType;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -100,8 +102,8 @@ public abstract class ClassFactory<T> {
 		Assert.notNull(responseClass, "Missing response class!");
 		Assert.notNull(clazz, "Missing response type class");
 
-		Type expected = AnnotationProcessor.getGenericType(clazz);
-		AnnotationProcessor.checkIfCompatibleTypes(responseClass, expected, "Incompatible types: '" + responseClass + "' and: '" + expected+ "' using: '" + clazz + "'");
+		Type expected = getGenericType(clazz);
+		checkIfCompatibleTypes(responseClass, expected, "Incompatible types: '" + responseClass + "' and: '" + expected+ "' using: '" + clazz + "'");
 
 		classTypes.put(responseClass.getName(), clazz);
 	}
@@ -157,5 +159,43 @@ public abstract class ClassFactory<T> {
 	protected String getKey(Class<?> clazz) {
 
 		return clazz.getTypeName();
+	}
+
+
+	public static Type getGenericType(Class clazz) {
+
+		Assert.notNull(clazz, "Missing class!");
+		Type[] genericInterfaces = clazz.getGenericInterfaces();
+		for (Type genericInterface : genericInterfaces) {
+
+			if (genericInterface instanceof ParameterizedType) {
+
+				Type[] genericTypes = ((ParameterizedType) genericInterface).getActualTypeArguments();
+				return genericTypes[0];
+			}
+		}
+
+		return null;
+	}
+
+	public static void checkIfCompatibleTypes(Class<?> expected, Type actual, String message) {
+
+		boolean compatibleTypes = checkIfCompatibleTypes(expected, actual);
+		Assert.isTrue(compatibleTypes, message);
+	}
+
+	public static boolean checkIfCompatibleTypes(Class<?> expected, Type actual) {
+
+		if (actual == null) {
+			return true;
+		}
+
+		if (actual instanceof ParameterizedType) {
+			return expected.isAssignableFrom(((ParameterizedTypeImpl) actual).getRawType());
+		} else if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
+			return true;
+		} else {
+			return expected.equals(actual) || expected.isInstance(actual) || ((Class)actual).isAssignableFrom(expected);
+		}
 	}
 }

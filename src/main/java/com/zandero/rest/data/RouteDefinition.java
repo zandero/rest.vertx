@@ -367,8 +367,8 @@ public class RouteDefinition {
 				// check reader is suitable for body
 				if (reader != null) {
 
-					Type readerType = AnnotationProcessor.getGenericType(reader);
-					AnnotationProcessor.checkIfCompatibleTypes(parameters[index].getType(), readerType, "Parameter type: '" + parameters[index].getType() + "' not matching reader type: '" + readerType + "' in: '" + reader + "'");
+					Type readerType = ClassFactory.getGenericType(reader);
+					ClassFactory.checkIfCompatibleTypes(parameters[index].getType(), readerType, "Parameter type: '" + parameters[index].getType() + "' not matching reader type: '" + readerType + "' in: '" + reader + "'");
 				}
 			}
 
@@ -382,8 +382,8 @@ public class RouteDefinition {
 
 		if (writer != null) {
 
-			Type writerType = AnnotationProcessor.getGenericType(writer);
-			AnnotationProcessor.checkIfCompatibleTypes(method.getReturnType(), writerType, "Response type: '" + method.getReturnType() + "' not matching writer type: '" + writerType + "' in: '" + writer + "'");
+			Type writerType = ClassFactory.getGenericType(writer);
+			ClassFactory.checkIfCompatibleTypes(method.getReturnType(), writerType, "Response type: '" + method.getReturnType() + "' not matching writer type: '" + writerType + "' in: '" + writer + "'");
 		}
 	}
 

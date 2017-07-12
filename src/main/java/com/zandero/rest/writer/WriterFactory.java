@@ -1,6 +1,5 @@
 package com.zandero.rest.writer;
 
-import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.exception.ClassFactoryException;
@@ -78,8 +77,8 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 
 			for (Class<? extends HttpResponseWriter> writer: writers) {
 
-				Type type = AnnotationProcessor.getGenericType(writer);
-				if (AnnotationProcessor.checkIfCompatibleTypes(aClass, type)) {
+				Type type = getGenericType(writer);
+				if (checkIfCompatibleTypes(aClass, type)) {
 					found = writer;
 					break;
 				}

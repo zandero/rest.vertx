@@ -2,14 +2,10 @@ package com.zandero.rest;
 
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.utils.Assert;
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
-import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import javax.ws.rs.Path;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -81,42 +77,5 @@ public final class AnnotationProcessor {
 		}
 
 		return null;
-	}
-
-	public static Type getGenericType(Class clazz) {
-
-		Assert.notNull(clazz, "Missing class!");
-		Type[] genericInterfaces = clazz.getGenericInterfaces();
-		for (Type genericInterface : genericInterfaces) {
-
-			if (genericInterface instanceof ParameterizedType) {
-
-				Type[] genericTypes = ((ParameterizedType) genericInterface).getActualTypeArguments();
-				return genericTypes[0];
-			}
-		}
-
-		return null;
-	}
-
-	public static void checkIfCompatibleTypes(Class<?> expected, Type actual, String message) {
-
-		boolean compatibleTypes = checkIfCompatibleTypes(expected, actual);
-		Assert.isTrue(compatibleTypes, message);
-	}
-
-	public static boolean checkIfCompatibleTypes(Class<?> expected, Type actual) {
-
-		if (actual == null) {
-			return true;
-		}
-
-		if (actual instanceof ParameterizedType) {
-			return expected.isAssignableFrom(((ParameterizedTypeImpl) actual).getRawType());
-		} else if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
-			return true;
-		} else {
-			return expected.equals(actual) || expected.isInstance(actual) || ((Class)actual).isAssignableFrom(expected);
-		}
 	}
 }

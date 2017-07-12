@@ -1,6 +1,5 @@
 package com.zandero.rest.exception;
 
-import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.data.ClassFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +52,8 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 
 			for (Class<? extends ExceptionHandler> handler: handlers) {
 
-				Type type = AnnotationProcessor.getGenericType(handler);
-				if (AnnotationProcessor.checkIfCompatibleTypes(aClass, type)) {
+				Type type = getGenericType(handler);
+				if (checkIfCompatibleTypes(aClass, type)) {
 					found = handler;
 					break;
 				}
