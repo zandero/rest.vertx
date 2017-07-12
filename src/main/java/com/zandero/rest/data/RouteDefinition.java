@@ -61,7 +61,7 @@ public class RouteDefinition {
 	private String[] roles = null;
 
 	private Class<? extends ExceptionHandler>[] failureHandlers;
-	private Class<? extends HttpResponseWriter> failureWriter;
+	private Class<? extends HttpResponseWriter>[] failureWriters;
 
 	public RouteDefinition(Class clazz) {
 
@@ -94,7 +94,7 @@ public class RouteDefinition {
 		}
 
 		failureHandlers = base.getFailureHandlers();
-		failureWriter = base.getFailureWriter();
+		failureWriters = base.getFailureWriters();
 
 		// complement / override with additional annotations
 		init(annotations);
@@ -171,8 +171,9 @@ public class RouteDefinition {
 			if (annotation instanceof CatchWith) {
 				failureHandlers = ((CatchWith) annotation).value();
 
-				if (((CatchWith) annotation).writer() != CatchWith.NotImplementedWriter.class) {
-					failureWriter = ((CatchWith) annotation).writer();
+				Class<? extends HttpResponseWriter>[] writers = ((CatchWith) annotation).writer();
+				if (writers != null && writers.length >= 0) {
+					failureWriters = writers;
 				}
 			}
 		}
@@ -482,8 +483,8 @@ public class RouteDefinition {
 		return failureHandlers;
 	}
 
-	public Class<? extends HttpResponseWriter> getFailureWriter() {
-		return failureWriter;
+	public Class<? extends HttpResponseWriter>[] getFailureWriters() {
+		return failureWriters;
 	}
 
 	public List<MethodParameter> getParameters() {

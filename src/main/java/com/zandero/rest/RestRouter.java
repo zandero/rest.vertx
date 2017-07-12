@@ -259,7 +259,11 @@ public class RestRouter {
 
 		ExecuteException ex = getExecuteException(e);
 
-		HttpResponseWriter writer = getFailureWriter(method, definition);
+		// get appropriate writer ...
+		HttpResponseWriter writer = writers.getFailureWriter(definition.getFailureWriters(),
+		                                                     globalErrorWriter,
+		                                                     ex.getCause().getClass(),
+		                                                     definition);
 
 		HttpServerResponse response = context.response();
 		response.setStatusCode(ex.getStatusCode());
@@ -269,24 +273,15 @@ public class RestRouter {
 		// get default handler by exception type or use global error handler ...
 
 		// route through handler ... to allow customization
-		ExceptionHandler handler = handlers.getFailureHandler(definition.getFailureHandlers(), globalErrorHandler, ex.getCause().getClass());
+		ExceptionHandler handler = handlers.getFailureHandler(definition.getFailureHandlers(),
+		                                                      globalErrorHandler,
+		                                                      ex.getCause().getClass());
 		handler.handle(ex.getCause(), writer, context);
 
 		// end response ...
 		if (!response.ended()) {
 			response.end();
 		}
-	}
-
-	private static HttpResponseWriter getFailureWriter(Method method, RouteDefinition definition) {
-		if (definition.getFailureWriter() != null) {
-			return writers.getResponseWriter(definition.getFailureWriter());
-		}
-
-		if (globalErrorWriter == null) {
-			return writers.getResponseWriter(method.getReturnType(), definition);
-		}
-		return writers.getResponseWriter(globalErrorWriter);
 	}
 
 	private static ExecuteException getExecuteException(Throwable e) {
