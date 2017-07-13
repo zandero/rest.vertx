@@ -25,7 +25,7 @@ public class ReaderFactory extends ClassFactory<HttpRequestBodyReader> {
 	@Override
 	protected void init() {
 
-		classTypes.put(getKey(String.class), GenericBodyReader.class);
+		classTypes.put(String.class, GenericBodyReader.class);
 
 		mediaTypes.put(MediaType.APPLICATION_JSON, JsonBodyReader.class);
 		mediaTypes.put(MediaType.TEXT_PLAIN, GenericBodyReader.class);

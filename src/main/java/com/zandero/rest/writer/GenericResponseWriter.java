@@ -27,6 +27,7 @@ public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
 			writer = RestRouter.getWriters().get(mediaType);
 		}
 		catch (ClassFactoryException e) {
+			// writer = RestRouter.getWriters().get(result);
 			writer = null;
 		}
 
@@ -34,6 +35,7 @@ public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
 			writer.write(result, request, response);
 		}
 		else {
+
 			log.warn("No writer associated with: '" + mediaType + "', defaulting to toString() as output!");
 			if (result != null) {
 				response.end(result.toString());

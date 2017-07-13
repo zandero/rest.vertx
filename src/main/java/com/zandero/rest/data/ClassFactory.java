@@ -23,7 +23,7 @@ public abstract class ClassFactory<T> {
 
 	private Map<String, T> cache = new HashMap<>();
 
-	protected Map<String, Class<? extends T>> classTypes = new LinkedHashMap<>();
+	protected Map<Class, Class<? extends T>> classTypes = new LinkedHashMap<>();
 
 	protected Map<String, Class<? extends T>> mediaTypes = new LinkedHashMap<>();
 
@@ -105,7 +105,7 @@ public abstract class ClassFactory<T> {
 		Type expected = getGenericType(clazz);
 		checkIfCompatibleTypes(responseClass, expected, "Incompatible types: '" + responseClass + "' and: '" + expected+ "' using: '" + clazz + "'");
 
-		classTypes.put(responseClass.getName(), clazz);
+		classTypes.put(responseClass, clazz);
 	}
 
 	protected T get(Class<?> type, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ClassFactoryException {
@@ -116,8 +116,17 @@ public abstract class ClassFactory<T> {
 		if (clazz == null) {
 
 			if (type != null) {
-				// try to find appropriate class if mapped
-				clazz = classTypes.get(getKey(type));
+				// try to find appropriate class if mapped (by exact type)
+				clazz = classTypes.get(type);
+
+				if (clazz == null) { // exact match failed ... go over keys and check if classes are related (inherited from ...)
+					for (Class key: classTypes.keySet()) {
+						if (type.isInstance(key) || type.isAssignableFrom(key)) {
+							clazz = classTypes.get(key);
+							break;
+						}
+					}
+				}
 			}
 		}
 
@@ -127,6 +136,7 @@ public abstract class ClassFactory<T> {
 
 				for (MediaType mediaType : mediaTypes) {
 					clazz = get(mediaType);
+
 					if (clazz != null) {
 						break;
 					}
@@ -154,11 +164,6 @@ public abstract class ClassFactory<T> {
 
 		Class<? extends T> clazz = get(MediaType.valueOf(mediaType));
 		return getClassInstance(clazz);
-	}
-
-	protected String getKey(Class<?> clazz) {
-
-		return clazz.getTypeName();
 	}
 
 

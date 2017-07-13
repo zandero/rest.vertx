@@ -2,8 +2,11 @@ package com.zandero.rest.test;
 
 import com.zandero.rest.annotation.RequestReader;
 import com.zandero.rest.reader.CustomBodyReader;
+import com.zandero.rest.test.json.Dummy;
+import com.zandero.rest.test.json.ExtendedDummy;
 import com.zandero.utils.StringUtils;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import java.util.Arrays;
@@ -46,21 +49,19 @@ public class TestReaderRest {
 		return StringUtils.join(array, ",");
 	}
 
-	/*@POST
-	@Path("/jacksonMapper")
-	@RequestReader(JsonBodyReader.class)
-	public String readWithCustomJacksonMapper(String input) {
-
-
-		return null;
-	}*/
-
-/*
 	@POST
-	@Path("/invalidReader")
-	@RequestReader(IntegerBodyReader.class)
-	public Boolean getInt(Boolean number) { // manually assign reader not suitable for provided argument type ....
+	@Path("/normal/dummy")
+	@Consumes("application/json")
+	public String getDummy(Dummy dummy) {
 
-		return number;
-	}*/
+		return dummy.name + "=" + dummy.value;
+	}
+
+	@POST
+	@Path("/extended/dummy")
+	@Consumes("application/json;charset=UTF-8")
+	public String getExtendedDummy(ExtendedDummy dummy) {
+
+		return dummy.name + "=" + dummy.value + " (" + dummy.type + ")";
+	}
 }

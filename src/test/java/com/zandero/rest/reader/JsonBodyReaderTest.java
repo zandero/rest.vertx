@@ -27,5 +27,4 @@ public class JsonBodyReaderTest {
 		assertEquals("Hello", dummy.name);
 		assertEquals("World", dummy.value);
 	}
-
 }

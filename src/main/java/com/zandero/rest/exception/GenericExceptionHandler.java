@@ -12,6 +12,7 @@ public class GenericExceptionHandler implements ExceptionHandler<Throwable> {
 	@Override
 	public void handle(Throwable cause, HttpResponseWriter writer, RoutingContext context) {
 
+		// TODO: use cause only
 		writer.write(cause.getMessage(), context.request(), context.response());
 	}
 }
