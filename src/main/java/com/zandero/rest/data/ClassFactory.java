@@ -119,9 +119,10 @@ public abstract class ClassFactory<T> {
 				// try to find appropriate class if mapped (by exact type)
 				clazz = classTypes.get(type);
 
-				if (clazz == null) { // exact match failed ... go over keys and check if classes are related (inherited from ...)
+				// exact match failed ... go over keys and check if classes are related (inherited from ...)
+				if (clazz == null) {
 					for (Class key: classTypes.keySet()) {
-						if (type.isInstance(key) || type.isAssignableFrom(key)) {
+						if (key.isInstance(type) || key.isAssignableFrom(type)) {
 							clazz = classTypes.get(key);
 							break;
 						}
@@ -130,7 +131,8 @@ public abstract class ClassFactory<T> {
 			}
 		}
 
-		if (clazz == null) { // try by consumes
+		// try by consumes annotation
+		if (clazz == null) {
 
 			if (mediaTypes != null && mediaTypes.length > 0) {
 
@@ -189,6 +191,7 @@ public abstract class ClassFactory<T> {
 		Assert.isTrue(compatibleTypes, message);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static boolean checkIfCompatibleTypes(Class<?> expected, Type actual) {
 
 		if (actual == null) {

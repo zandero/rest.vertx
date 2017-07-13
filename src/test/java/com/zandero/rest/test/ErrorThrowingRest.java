@@ -7,6 +7,7 @@ import com.zandero.rest.test.handler.UnhandledRestErrorHandler;
 import com.zandero.rest.test.writer.ExceptionWriter;
 import com.zandero.rest.test.writer.IllegalArgumentExceptionWriter;
 import com.zandero.rest.writer.GenericResponseWriter;
+import com.zandero.rest.writer.JsonResponseWriter;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -15,7 +16,7 @@ import javax.ws.rs.core.MediaType;
  *
  */
 @Path("/throw")
-@CatchWith(UnhandledRestErrorHandler.class) // catch globally for whole root
+@CatchWith(value = UnhandledRestErrorHandler.class, writer = JsonResponseWriter.class) // catch globally for whole root
 public class ErrorThrowingRest {
 
 	@GET

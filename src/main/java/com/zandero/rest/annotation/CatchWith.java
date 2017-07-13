@@ -2,7 +2,7 @@ package com.zandero.rest.annotation;
 
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.exception.GenericExceptionHandler;
-import com.zandero.rest.writer.GenericResponseWriter;
+import com.zandero.rest.writer.GenericExceptionWriter;
 import com.zandero.rest.writer.HttpResponseWriter;
 
 import java.lang.annotation.ElementType;
@@ -27,5 +27,5 @@ public @interface CatchWith {
 	 * @return alternative response writer for given exception type,
 	 * provided in handle() when ExceptionHandler is invoked
 	 */
-	Class<? extends HttpResponseWriter>[] writer() default GenericResponseWriter.class;
+	Class<? extends HttpResponseWriter>[] writer() default GenericExceptionWriter.class;
 }

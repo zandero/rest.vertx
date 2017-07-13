@@ -29,6 +29,7 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 		// TODO: classTypes.put(Throwable.class, JaxResponseWriter.class);
 		classTypes.put(Response.class, JaxResponseWriter.class);
 		classTypes.put(HttpServerResponse.class, VertxResponseWriter.class);
+		classTypes.put(Throwable.class, GenericExceptionWriter.class);
 
 		mediaTypes.put(MediaType.APPLICATION_JSON, JsonResponseWriter.class);
 		mediaTypes.put(MediaType.TEXT_PLAIN, GenericResponseWriter.class);
