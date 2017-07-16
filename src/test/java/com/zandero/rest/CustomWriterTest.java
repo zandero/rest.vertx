@@ -49,14 +49,12 @@ public class CustomWriterTest extends VertxTest {
 	@Test
 	public void testRegisteredContentTypeWriterOutput(TestContext context) {
 
-		TestHtmlRest testRest = new TestHtmlRest();
+		RestRouter.getWriters().register(MediaType.TEXT_HTML, TestCustomWriter.class); // bind media type to this writer
 
-		Router router = RestRouter.register(vertx, testRest);
+		Router router = RestRouter.register(vertx, TestHtmlRest.class);
 		vertx.createHttpServer()
 			.requestHandler(router::accept)
 			.listen(PORT);
-
-		RestRouter.getWriters().register(MediaType.TEXT_HTML, TestCustomWriter.class); // bind media type to this writer
 
 		final Async async = context.async();
 
@@ -75,14 +73,13 @@ public class CustomWriterTest extends VertxTest {
 	@Test
 	public void testRegisteredClassTypeWriterOutput(TestContext context) {
 
-		TestPostRest testRest = new TestPostRest();
+		RestRouter.getWriters().register(Dummy.class, TestDummyWriter.class); // bind media type to this writer
 
-		Router router = RestRouter.register(vertx, testRest);
+		Router router = RestRouter.register(vertx, TestPostRest.class);
 		vertx.createHttpServer()
 			.requestHandler(router::accept)
 			.listen(PORT);
 
-		RestRouter.getWriters().register(Dummy.class, TestDummyWriter.class); // bind media type to this writer
 
 		final Async async = context.async();
 
@@ -104,9 +101,7 @@ public class CustomWriterTest extends VertxTest {
 	@Test
 	public void testRegisteredClassTypeReaderOutput(TestContext context) {
 
-		TestPostRest testRest = new TestPostRest();
-
-		Router router = RestRouter.register(vertx, testRest);
+		Router router = RestRouter.register(vertx, TestPostRest.class);
 		vertx.createHttpServer()
 			.requestHandler(router::accept)
 			.listen(PORT);

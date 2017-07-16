@@ -76,6 +76,21 @@ public abstract class ClassFactory<T> {
 		}
 	}
 
+	public static Object newInstanceOf(Class<?> clazz) throws ClassFactoryException {
+
+		if (clazz == null) {
+			return null;
+		}
+
+		try {
+			return clazz.newInstance();
+		}
+		catch (InstantiationException | IllegalAccessException e) {
+			log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
+			throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
+		}
+	}
+
 	public void register(String mediaType, Class<? extends T> clazz) {
 
 		Assert.notNull(mediaType, "Missing media type!");

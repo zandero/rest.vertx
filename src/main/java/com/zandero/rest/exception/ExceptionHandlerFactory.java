@@ -22,8 +22,8 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 	protected void init() {
 
 		exceptionTypes = new LinkedHashMap<>();
-		exceptionTypes.put(IllegalArgumentException.class, GenericExceptionHandler.class);
 		exceptionTypes.put(WebApplicationException.class, WebApplicationExceptionHandler.class);
+		exceptionTypes.put(Throwable.class, GenericExceptionHandler.class);
 	}
 
 	public Class<? extends ExceptionHandler> get(Class<?> type) {

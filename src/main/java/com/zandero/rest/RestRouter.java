@@ -1,8 +1,7 @@
 package com.zandero.rest;
 
-import com.zandero.rest.data.ArgumentProvider;
-import com.zandero.rest.data.MediaTypeHelper;
-import com.zandero.rest.data.RouteDefinition;
+import com.zandero.rest.data.*;
+import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.exception.ExceptionHandlerFactory;
 import com.zandero.rest.exception.ExecuteException;
@@ -30,6 +29,7 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.MediaType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -75,10 +75,22 @@ public class RestRouter {
 	 */
 	public static Router register(Router router, Object... restApi) {
 
+		// TODO: split into smaller chucks
+
 		Assert.notNull(router, "Missing vert.x router!");
 		Assert.isTrue(restApi != null && restApi.length > 0, "Missing REST API class object!");
 
 		for (Object api : restApi) {
+
+			// check if api is an instance of a class or a class type
+			if (api instanceof Class) {
+				Class inspectApi = (Class) api;
+				try {
+					api = ClassFactory.newInstanceOf(inspectApi);
+				} catch (ClassFactoryException e) {
+					throw new IllegalArgumentException(e.getMessage());
+				}
+			}
 
 			Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(api.getClass());
 
@@ -131,8 +143,15 @@ public class RestRouter {
 					route.order(definition.getOrder());
 				}
 
+				// check body and reader compatibility
+				// check reader is suitable for body
+				HttpRequestBodyReader bodyReader = getBodyReader(definition);
+
+				// check writer
+				HttpResponseWriter writer = getWriter(method, definition);
+
 				// bind handler
-				Handler<RoutingContext> handler = getHandler(api, definition, method);
+				Handler<RoutingContext> handler = getHandler(api, definition, method, bodyReader, writer);
 				if (definition.isBlocking()) {
 					route.blockingHandler(handler);
 				} else {
@@ -142,6 +161,43 @@ public class RestRouter {
 		}
 
 		return router;
+	}
+
+	private static HttpRequestBodyReader getBodyReader(RouteDefinition definition) {
+
+		if (!definition.requestHasBody() || !definition.hasBodyParameter()) {
+			return null;
+		}
+
+		HttpRequestBodyReader bodyReader = readers.getRequestBodyReader(definition);
+
+		if (bodyReader != null) {
+
+			Type readerType = ClassFactory.getGenericType(bodyReader.getClass());
+			MethodParameter bodyParameter = definition.getBodyParameter();
+
+			ClassFactory.checkIfCompatibleTypes(bodyParameter.getDataType(), readerType, definition.toString().trim() + " - Parameter type: '" +
+					                                                                             bodyParameter.getDataType() + "' not matching reader type: '" +
+					                                                                             readerType + "' in: '" + bodyReader
+					                                                                                                                                                                                                                   .getClass() + "'");
+		}
+
+		return bodyReader;
+	}
+
+	private static HttpResponseWriter getWriter(Method method, RouteDefinition definition) {
+
+		HttpResponseWriter writer = writers.getResponseWriter(method.getReturnType(), definition);
+		if (writer == null) {
+			return null;
+		}
+
+		Type writerType = ClassFactory.getGenericType(writer.getClass());
+		ClassFactory.checkIfCompatibleTypes(method.getReturnType(), writerType, definition.toString().trim() + " - Response type: '" +
+				                                                                        method.getReturnType() + "' not matching writer type: '" +
+				                                                                        writerType + "' in: '" + writer.getClass() + "'");
+
+		return writer;
 	}
 
 	public static void errorHandler(Class<? extends ExceptionHandler> handler) {
@@ -231,22 +287,18 @@ public class RestRouter {
 		return false;
 	}
 
-	private static Handler<RoutingContext> getHandler(final Object toInvoke, final RouteDefinition definition, final Method method) {
+	private static Handler<RoutingContext> getHandler(final Object toInvoke, final RouteDefinition definition, final Method method,
+	                                                  final HttpRequestBodyReader bodyReader, HttpResponseWriter writer) {
 
 		return context -> {
 
 			try {
 
-				HttpRequestBodyReader bodyReader = null;
-				if (definition.requestHasBody() && definition.hasBodyParameter()) {
-					bodyReader = readers.getRequestBodyReader(definition);
-				}
-
 				Object[] args = ArgumentProvider.getArguments(method, definition, context, bodyReader);
 
 				Object result = method.invoke(toInvoke, args);
 
-				produceResponse(result, context, method, definition);
+				produceResponse(result, context, definition, writer);
 
 			} catch (Exception e) {
 
@@ -301,13 +353,10 @@ public class RestRouter {
 		return new ExecuteException(500, e);
 	}
 
-	private static void produceResponse(Object result, RoutingContext context, Method method, RouteDefinition definition) {
+	private static void produceResponse(Object result, RoutingContext context, RouteDefinition definition, HttpResponseWriter writer) {
 
 		HttpServerResponse response = context.response();
 		HttpServerRequest request = context.request();
-
-		// find suitable writer to produce response
-		HttpResponseWriter writer = writers.getResponseWriter(method.getReturnType(), definition);
 
 		// add default response headers per definition
 		writer.addResponseHeaders(definition, response);

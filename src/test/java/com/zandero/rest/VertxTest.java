@@ -30,13 +30,15 @@ public class VertxTest {
 
 		RestRouter.globalErrorHandler = null; // clear error handlers before each test
 		RestRouter.globalErrorWriter = null; // clear error handlers before each test
+
+		// clear all registered writers or reader
+		RestRouter.getReaders().clear();
+		RestRouter.getWriters().clear();
 	}
 
 	@After
 	public void after(TestContext context) {
 
 		vertx.close(context.asyncAssertSuccess());
-		RestRouter.getReaders().clear();
-		RestRouter.getWriters().clear();
 	}
 }

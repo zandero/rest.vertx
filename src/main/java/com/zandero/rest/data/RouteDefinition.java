@@ -18,7 +18,6 @@ import javax.ws.rs.core.MediaType;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -363,13 +362,6 @@ public class RouteDefinition {
 					name = parameters[index].getName();
 					type = ParameterType.body;
 				}
-
-				// check reader is suitable for body
-				if (reader != null) {
-
-					Type readerType = ClassFactory.getGenericType(reader);
-					ClassFactory.checkIfCompatibleTypes(parameters[index].getType(), readerType, "Parameter type: '" + parameters[index].getType() + "' not matching reader type: '" + readerType + "' in: '" + reader + "'");
-				}
 			}
 
 			if (name != null) {
@@ -380,11 +372,11 @@ public class RouteDefinition {
 			index++;
 		}
 
-		if (writer != null) {
+		/*if (writer != null) {
 
 			Type writerType = ClassFactory.getGenericType(writer);
 			ClassFactory.checkIfCompatibleTypes(method.getReturnType(), writerType, "Response type: '" + method.getReturnType() + "' not matching writer type: '" + writerType + "' in: '" + writer + "'");
-		}
+		}*/
 	}
 
 

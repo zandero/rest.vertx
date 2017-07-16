@@ -2,7 +2,10 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.RouteOrder;
-import com.zandero.rest.test.*;
+import com.zandero.rest.test.MissingAnnotationsRest;
+import com.zandero.rest.test.TestPostRest;
+import com.zandero.rest.test.TestRegExRest;
+import com.zandero.rest.test.TestRest;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.http.HttpMethod;
 import org.junit.Test;
@@ -108,7 +111,7 @@ public class RouteDefinitionTest {
 		assertTrue(def.pathIsRegEx());
 	}
 
-	@Test
+	/*@Test
 	public void incompatibleReaderTypeTest() {
 
 		try {
@@ -118,9 +121,9 @@ public class RouteDefinitionTest {
 			assertEquals("class com.zandero.rest.test.IncompatibleReaderRest.returnOuch() - Parameter type: 'class java.lang.String' " +
 					             "not matching reader type: 'class java.lang.Integer' in: 'class com.zandero.rest.reader.IntegerBodyReader'", e.getMessage());
 		}
-	}
+	}*/
 
-	@Test
+	/*@Test
 	public void incompatibleWriterTypeTest() {
 
 		try {
@@ -130,10 +133,10 @@ public class RouteDefinitionTest {
 			assertEquals("class com.zandero.rest.test.IncompatibleWriterRest.returnOuch() - Response type: 'class java.lang.String' " +
 					             "not matching writer type: 'class com.zandero.rest.test.json.Dummy' in: 'class com.zandero.rest.test.writer.TestDummyWriter'", e.getMessage());
 		}
-	}
+	}*/
 
 	@Test
-	public void missingArgumentAnnotatoinTest() {
+	public void missingArgumentAnnotationTest() {
 
 		try {
 			AnnotationProcessor.get(MissingAnnotationsRest.class);
