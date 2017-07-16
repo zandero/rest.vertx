@@ -1,11 +1,14 @@
 package com.zandero.rest;
 
 import com.zandero.rest.reader.CustomBodyReader;
+import com.zandero.rest.reader.IntegerBodyReader;
+import com.zandero.rest.test.TestPostRest;
 import com.zandero.rest.test.TestReaderRest;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.rest.test.json.ExtendedDummy;
 import com.zandero.rest.test.reader.DummyBodyReader;
 import com.zandero.rest.test.reader.ExtendedDummyBodyReader;
+import com.zandero.rest.test.writer.TestCustomWriter;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -15,6 +18,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  *
@@ -167,8 +173,6 @@ public class CustomReaderTest extends VertxTest {
 	@Test
 	public void extendedContentTypeByMediaType(TestContext context) {
 
-		RestRouter.getReaders().register("application/json", DummyBodyReader.class);
-
 		TestReaderRest testRest = new TestReaderRest();
 
 		Router router = RestRouter.register(vertx, testRest);
@@ -176,6 +180,9 @@ public class CustomReaderTest extends VertxTest {
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)
 		     .listen(PORT);
+
+		// register reader afterwards - should still work
+		RestRouter.getReaders().register("application/json", DummyBodyReader.class);
 
 		final Async async = context.async();
 		client.post("/read/normal/dummy", response -> {
@@ -188,5 +195,37 @@ public class CustomReaderTest extends VertxTest {
 			});
 		}).putHeader("Content-Type", "application/json;charset=UTF-8")
 		      .end(JsonUtils.toJson(new Dummy("one", "dummy")));
+	}
+
+	@Test
+	public void incompatibleMimeTypeReaderTest() {
+
+		// register application/json to IntegerReader
+		RestRouter.getReaders().register("application/json", IntegerBodyReader.class);
+
+		// bind rest that consumes application/json
+		try {
+			RestRouter.register(vertx, TestPostRest.class);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("POST /post/json - Parameter type: 'class com.zandero.rest.test.json.Dummy' not matching reader type: 'class java.lang.Integer' in: 'class com.zandero.rest.reader.IntegerBodyReader'",
+			             e.getMessage());
+		}
+	}
+
+	@Test
+	public void incompatibleMimeTypeWriterTest() {
+
+		// register application/json to String writer
+		RestRouter.getWriters().register("application/json", TestCustomWriter.class);
+
+		// bind rest that consumes application/json
+		try {
+			RestRouter.register(vertx, TestPostRest.class);
+			fail();
+		} catch (IllegalArgumentException e) {
+			assertEquals("POST /post/json - Response type: 'class com.zandero.rest.test.json.Dummy' not matching writer type: 'class java.lang.String' in: 'class com.zandero.rest.test.writer.TestCustomWriter'",
+			             e.getMessage());
+		}
 	}
 }

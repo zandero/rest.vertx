@@ -143,15 +143,14 @@ public class RestRouter {
 					route.order(definition.getOrder());
 				}
 
-				// check body and reader compatibility
-				// check reader is suitable for body
-				HttpRequestBodyReader bodyReader = getBodyReader(definition);
+				// check body and reader compatibility beforehand
+				getBodyReader(definition);
 
-				// check writer
-				HttpResponseWriter writer = getWriter(method, definition);
+				// check writer compatibility beforehand
+				getWriter(method, definition);
 
 				// bind handler
-				Handler<RoutingContext> handler = getHandler(api, definition, method, bodyReader, writer);
+				Handler<RoutingContext> handler = getHandler(api, definition, method);
 				if (definition.isBlocking()) {
 					route.blockingHandler(handler);
 				} else {
@@ -287,14 +286,16 @@ public class RestRouter {
 		return false;
 	}
 
-	private static Handler<RoutingContext> getHandler(final Object toInvoke, final RouteDefinition definition, final Method method,
-	                                                  final HttpRequestBodyReader bodyReader, HttpResponseWriter writer) {
+	private static Handler<RoutingContext> getHandler(final Object toInvoke, final RouteDefinition definition, final Method method) {
 
 		return context -> {
 
 			try {
 
-				Object[] args = ArgumentProvider.getArguments(method, definition, context, bodyReader);
+				HttpResponseWriter writer = getWriter(method, definition);
+				HttpRequestBodyReader reader = getBodyReader(definition);
+
+				Object[] args = ArgumentProvider.getArguments(method, definition, context, reader);
 
 				Object result = method.invoke(toInvoke, args);
 
