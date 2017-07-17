@@ -177,8 +177,7 @@ public class RestRouter {
 
 			ClassFactory.checkIfCompatibleTypes(bodyParameter.getDataType(), readerType, definition.toString().trim() + " - Parameter type: '" +
 					                                                                             bodyParameter.getDataType() + "' not matching reader type: '" +
-					                                                                             readerType + "' in: '" + bodyReader
-					                                                                                                                                                                                                                   .getClass() + "'");
+					                                                                             readerType + "' in: '" + bodyReader.getClass() + "'");
 		}
 
 		return bodyReader;
@@ -199,12 +198,14 @@ public class RestRouter {
 		return writer;
 	}
 
+	@SafeVarargs
 	public static void errorHandler(Class<? extends ExceptionHandler>... exceptionHandlers) {
 
 		Assert.notNullOrEmpty(exceptionHandlers, "Missing error handler(s)!");
 		globalErrorHandlers = exceptionHandlers;
 	}
 
+	@SafeVarargs
 	public static void errorWriter(Class<? extends HttpResponseWriter>... exceptionWriters) {
 
 		Assert.notNullOrEmpty(exceptionWriters, "Missing error writer(s)!");
