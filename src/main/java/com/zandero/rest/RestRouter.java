@@ -47,7 +47,7 @@ public class RestRouter {
 
 	private static final ExceptionHandlerFactory handlers = new ExceptionHandlerFactory();
 
-	static Class<? extends ExceptionHandler> globalErrorHandlers[] = null;
+	static Class<? extends ExceptionHandler> globalExceptionHandlers[] = null;
 
 	/**
 	 * Searches for annotations to register routes ...
@@ -77,6 +77,7 @@ public class RestRouter {
 
 		Assert.notNull(router, "Missing vert.x router!");
 		Assert.isTrue(restApi != null && restApi.length > 0, "Missing REST API class object!");
+		assert restApi != null;
 
 		for (Object api : restApi) {
 
@@ -197,10 +198,10 @@ public class RestRouter {
 	}
 
 	@SafeVarargs
-	public static void errorHandler(Class<? extends ExceptionHandler>... exceptionWriters) {
+	public static void exceptionHandler(Class<? extends ExceptionHandler>... exceptionHandlers) {
 
-		Assert.notNullOrEmpty(exceptionWriters, "Missing error writer(s)!");
-		globalErrorHandlers = exceptionWriters;
+		Assert.notNullOrEmpty(exceptionHandlers, "Missing exception handlers(s)!");
+		globalExceptionHandlers = exceptionHandlers;
 	}
 
 	private static void checkSecurity(Router router, final RouteDefinition definition, final Method method) {
@@ -298,28 +299,21 @@ public class RestRouter {
 		};
 	}
 
+	@SuppressWarnings("unchecked")
 	private static void handleException(Exception e, RoutingContext context, final RouteDefinition definition) {
 
 		ExecuteException ex = getExecuteException(e);
 
 		// get appropriate writer ...
-		ExceptionHandler writer = handlers.getExceptionHandler(definition.getExceptionHandlers(globalErrorHandlers),
+		ExceptionHandler handler = handlers.getExceptionHandler(definition.getExceptionHandlers(globalExceptionHandlers),
 		                                                       ex.getCause().getClass());
 
 		HttpServerResponse response = context.response();
 		response.setStatusCode(ex.getStatusCode());
-		writer.addResponseHeaders(definition, response);
+		handler.addResponseHeaders(definition, response);
 
-		writer.write(ex.getCause(), context.request(), context.response());
+		handler.write(ex.getCause(), context.request(), context.response());
 
-		/*// fill up as much as we can ... default behavior
-		// get default handler by exception type or use global error handler ...
-
-		// route through handler ... to allow customization
-		ExceptionHandler handler = handlers.getExceptionHandler(definition.getFailureHandlers(globalErrorHandlers),
-		                                                      ex.getCause().getClass());
-		handler.handle(ex.getCause(), writer, context);
-*/
 		// end response ...
 		if (!response.ended()) {
 			response.end();
@@ -343,6 +337,7 @@ public class RestRouter {
 		return new ExecuteException(500, e);
 	}
 
+	@SuppressWarnings("unchecked")
 	private static void produceResponse(Object result, RoutingContext context, RouteDefinition definition, HttpResponseWriter writer) {
 
 		HttpServerResponse response = context.response();

@@ -22,7 +22,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 	@Override
 	protected void init() {
 
-		// register handlers specific to general ...
+		// register handlers from specific to general ...
 		// when searching we go over handlers ... first match is returned
 		exceptionTypes = new LinkedHashMap<>();
 		exceptionTypes.put(WebApplicationException.class, WebApplicationExceptionHandler.class);
