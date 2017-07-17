@@ -28,8 +28,8 @@ public class VertxTest {
 		vertx = Vertx.vertx();
 		client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost(HOST).setDefaultPort(PORT));
 
-		RestRouter.globalErrorHandler = null; // clear error handlers before each test
-		RestRouter.globalErrorWriter = null; // clear error handlers before each test
+		RestRouter.globalErrorHandlers = null; // clear error handlers before each test
+		RestRouter.globalErrorWriters = null; // clear error handlers before each test
 
 		// clear all registered writers or reader
 		RestRouter.getReaders().clear();

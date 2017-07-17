@@ -72,7 +72,8 @@ public class GlobalErrorHandlerTest extends VertxTest {
 
 		// call and check response
 		final Async async = context.async();
-		RestRouter.errorHandler(HandleRestException.class, IllegalArgumentExceptionWriter.class);
+		RestRouter.errorHandler(HandleRestException.class);
+		RestRouter.errorWriter(IllegalArgumentExceptionWriter.class);
 
 		client.getNow("/throw/unhandled", response -> {
 

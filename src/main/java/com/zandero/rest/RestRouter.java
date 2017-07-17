@@ -47,9 +47,9 @@ public class RestRouter {
 
 	private static final ExceptionHandlerFactory handlers = new ExceptionHandlerFactory();
 
-	static Class<? extends ExceptionHandler> globalErrorHandler = null;
+	static Class<? extends ExceptionHandler> globalErrorHandlers[] = null;
 
-	static Class<? extends HttpResponseWriter> globalErrorWriter = null;
+	static Class<? extends HttpResponseWriter> globalErrorWriters[] = null;
 
 	/**
 	 * Searches for annotations to register routes ...
@@ -199,18 +199,16 @@ public class RestRouter {
 		return writer;
 	}
 
-	public static void errorHandler(Class<? extends ExceptionHandler> handler) {
+	public static void errorHandler(Class<? extends ExceptionHandler>... exceptionHandlers) {
 
-		Assert.notNull(handler, "Missing error handler!");
-		globalErrorHandler = handler;
+		Assert.notNullOrEmpty(exceptionHandlers, "Missing error handler(s)!");
+		globalErrorHandlers = exceptionHandlers;
 	}
 
-	public static void errorHandler(Class<? extends ExceptionHandler> handler, Class<? extends HttpResponseWriter> writer) {
+	public static void errorWriter(Class<? extends HttpResponseWriter>... exceptionWriters) {
 
-		errorHandler(handler);
-
-		Assert.notNull(handler, "Missing error writer!");
-		globalErrorWriter = writer;
+		Assert.notNullOrEmpty(exceptionWriters, "Missing error writer(s)!");
+		globalErrorWriters = exceptionWriters;
 	}
 
 	private static void checkSecurity(Router router, final RouteDefinition definition, final Method method) {
@@ -240,7 +238,7 @@ public class RestRouter {
 			if (allowed) {
 				context.next();
 			} else {
-				handleException(new NotAuthorizedException("Not authorized to access: " + definition), context, method, definition);
+				handleException(new NotAuthorizedException("Not authorized to access: " + definition), context, definition);
 			}
 		};
 	}
@@ -303,18 +301,17 @@ public class RestRouter {
 
 			} catch (Exception e) {
 
-				handleException(e, context, method, definition);
+				handleException(e, context, definition);
 			}
 		};
 	}
 
-	private static void handleException(Exception e, RoutingContext context, final Method method, final RouteDefinition definition) {
+	private static void handleException(Exception e, RoutingContext context, final RouteDefinition definition) {
 
 		ExecuteException ex = getExecuteException(e);
 
 		// get appropriate writer ...
-		HttpResponseWriter writer = writers.getFailureWriter(definition.getFailureWriters(),
-		                                                     globalErrorWriter,
+		HttpResponseWriter writer = writers.getFailureWriter(definition.getFailureWriters(globalErrorWriters),
 		                                                     ex.getCause().getClass(),
 		                                                     definition);
 
@@ -326,8 +323,7 @@ public class RestRouter {
 		// get default handler by exception type or use global error handler ...
 
 		// route through handler ... to allow customization
-		ExceptionHandler handler = handlers.getFailureHandler(definition.getFailureHandlers(),
-		                                                      globalErrorHandler,
+		ExceptionHandler handler = handlers.getFailureHandler(definition.getFailureHandlers(globalErrorHandlers),
 		                                                      ex.getCause().getClass());
 		handler.handle(ex.getCause(), writer, context);
 

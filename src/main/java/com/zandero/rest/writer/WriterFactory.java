@@ -3,6 +3,7 @@ package com.zandero.rest.writer;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.exception.ClassFactoryException;
+import com.zandero.rest.utils.ArrayUtils;
 import io.vertx.core.http.HttpServerResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,19 +66,15 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 	}
 
 	public HttpResponseWriter getFailureWriter(Class<? extends HttpResponseWriter>[] writers,
-	                                           Class<? extends HttpResponseWriter> defaultWriter,
 	                                           Class<? extends Throwable> aClass,
 	                                           RouteDefinition definition) {
 
 		// trickle down ... from definition to default handler
 		Class<? extends HttpResponseWriter> found = null;
 
-		if (writers == null || writers.length == 0) {
-			found = defaultWriter;
-		}
-		else {
+		if (writers != null && writers.length > 0) {
 
-			for (Class<? extends HttpResponseWriter> writer: writers) {
+			for (Class<? extends HttpResponseWriter> writer : writers) {
 
 				Type type = getGenericType(writer);
 				if (checkIfCompatibleTypes(aClass, type)) {
@@ -97,7 +94,7 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 		} catch (ClassFactoryException ex) {
 
 			log.error(ex.getMessage());
-			return getFailureWriter(null, GenericResponseWriter.class, aClass, definition);
+			return getFailureWriter(ArrayUtils.join(null, GenericResponseWriter.class), aClass, definition);
 		}
 	}
 }

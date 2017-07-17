@@ -4,6 +4,7 @@ import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.*;
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.reader.HttpRequestBodyReader;
+import com.zandero.rest.utils.ArrayUtils;
 import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
@@ -92,8 +93,8 @@ public class RouteDefinition {
 			permitAll = null;
 		}
 
-		failureHandlers = base.getFailureHandlers();
-		failureWriters = base.getFailureWriters();
+		failureHandlers = base.getFailureHandlers(null);
+		failureWriters = base.getFailureWriters(null);
 
 		// complement / override with additional annotations
 		init(annotations);
@@ -470,13 +471,14 @@ public class RouteDefinition {
 		return reader;
 	}
 
-	public Class<? extends ExceptionHandler>[] getFailureHandlers() {
-
-		return failureHandlers;
+	public Class<? extends ExceptionHandler>[] getFailureHandlers(Class<? extends ExceptionHandler>[] globalHandlers) {
+		// join failure handlers with global ... and return
+		return ArrayUtils.join(failureHandlers, globalHandlers);
 	}
 
-	public Class<? extends HttpResponseWriter>[] getFailureWriters() {
-		return failureWriters;
+	public Class<? extends HttpResponseWriter>[] getFailureWriters(Class<? extends HttpResponseWriter>[] globalWriters) {
+		// join failure writers with global ... and return
+		return ArrayUtils.join(failureWriters, globalWriters);
 	}
 
 	public List<MethodParameter> getParameters() {

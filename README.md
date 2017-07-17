@@ -6,7 +6,7 @@ A JAX-RS (RestEasy) like annotation processor for vert.x verticals
 <dependency>      
      <groupId>com.zandero</groupId>      
      <artifactId>rest.vertx</artifactId>      
-     <version>0.4</version>      
+     <version>0.5</version>      
 </dependency>
 ```
 See also: [older versions](https://github.com/zandero/rest.vertx/wiki/Versions)
@@ -52,6 +52,20 @@ vertx.createHttpServer()
 		.requestHandler(router::accept)
 		.listen(PORT);
 ```
+
+### Registering by class type
+> version 0.5 (or later)
+
+Alternatively RESTs can be registered by class type only (in case they have an empty constructor).  
+
+```java
+Router router = RestRouter.register(vertx, TestRest.class);
+
+vertx.createHttpServer()
+		.requestHandler(router::accept)
+		.listen(PORT);
+```
+
 
 ## Paths
 Each class can be annotated with a root (or base) path @Path("/rest").  
@@ -776,20 +790,47 @@ public class MyExceptionWriter implements HttpResponseWriter {
 }
 ```
 
-## Global error handler
+## Multiple exception handlers and writers
+Alternatively multiple handlers can be bound to a method, serving different exceptions.  
+Handlers are considered in order given, first matching handler is used.
+
+```java
+@GET
+@Path("/test")
+@CatchWith(value = {HandleRestException.class, WebApplicationExceptionHandler.class},
+	           writer = {IllegalArgumentExceptionWriter.class, ExceptionWriter.class})
+public String fail() {
+
+    throw new IllegalArgumentExcetion("Bang!"); 
+}
+```
+
+## Global error handler(s)
 The global error handler is invoked in case no path or method error handler is provided.  
 In case no global error handler is associated a default (generic) error handler is invoked.
 
 ```java
-    Router router = RestRouter.register(vertx, handled, unhandled);
+    Router router = RestRouter.register(vertx, SomeRest.class);
     RestRouter.errorHandler(MyExceptionHandler.class);  
     
-    // OR ALTERNATIVELY
-    RestRouter.errorHandler(MyExceptionHandler.class, MyExceptionWriter.class);
+    // define global error writer
+    RestRouter.errorWriter(MyExceptionWriter.class);
     
     vertx.createHttpServer()
         .requestHandler(router::accept)
         .listen(PORT);
 ```
 
+or alternatively we bind multiple exception handlers.  
+Handlers are considered in order given, first matching handler is used.
+  
+Writers are matched via type in order given, first matching writer is used. 
+
+```java
+    Router router = RestRouter.register(vertx, SomeRest.class);
+    RestRouter.errorHandler(MyExceptionHandler.class, GeneralExceptionHandler.class);  
+    
+    // add list of error writers
+    RestRouter.errorWriter(MyExceptionWriter.class, GlobalExceptionWriter.class);
+```
 

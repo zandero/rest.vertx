@@ -1,6 +1,7 @@
 package com.zandero.rest.exception;
 
 import com.zandero.rest.data.ClassFactory;
+import com.zandero.rest.utils.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,8 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 	@Override
 	protected void init() {
 
+		// register handlers specific to general ...
+		// when searching we go over handlers ... first match is returned
 		exceptionTypes = new LinkedHashMap<>();
 		exceptionTypes.put(WebApplicationException.class, WebApplicationExceptionHandler.class);
 		exceptionTypes.put(Throwable.class, GenericExceptionHandler.class);
@@ -39,16 +42,12 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 	}
 
 	public ExceptionHandler getFailureHandler(Class<? extends ExceptionHandler>[] handlers,
-	                                          Class<? extends ExceptionHandler> defaultHandler,
 	                                          Class<? extends Throwable> aClass) {
 
 		// trickle down ... from definition to default handler
 		Class<? extends ExceptionHandler> found = null;
 
-		if (handlers == null || handlers.length == 0) {
-			found = defaultHandler;
-		}
-		else {
+		if (handlers != null && handlers.length != 0) {
 
 			for (Class<? extends ExceptionHandler> handler: handlers) {
 
@@ -74,7 +73,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 		} catch (ClassFactoryException ex) {
 
 			log.error(ex.getMessage());
-			return getFailureHandler(null, GenericExceptionHandler.class, ex.getCause().getClass());
+			return getFailureHandler(ArrayUtils.join(null, GenericExceptionHandler.class), ex.getCause().getClass());
 		}
 	}
 }
