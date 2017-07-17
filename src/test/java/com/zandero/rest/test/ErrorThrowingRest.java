@@ -1,13 +1,11 @@
 package com.zandero.rest.test;
 
 import com.zandero.rest.annotation.CatchWith;
+import com.zandero.rest.exception.GenericExceptionHandler;
 import com.zandero.rest.exception.WebApplicationExceptionHandler;
-import com.zandero.rest.test.handler.HandleRestException;
-import com.zandero.rest.test.handler.UnhandledRestErrorHandler;
-import com.zandero.rest.test.writer.ExceptionWriter;
-import com.zandero.rest.test.writer.IllegalArgumentExceptionWriter;
-import com.zandero.rest.writer.GenericResponseWriter;
-import com.zandero.rest.writer.JsonResponseWriter;
+import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
+import com.zandero.rest.test.handler.JsonExceptionHandler;
+import com.zandero.rest.test.handler.MyExceptionHandler;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -16,7 +14,7 @@ import javax.ws.rs.core.MediaType;
  *
  */
 @Path("/throw")
-@CatchWith(value = UnhandledRestErrorHandler.class, writer = JsonResponseWriter.class) // catch globally for whole root
+@CatchWith(JsonExceptionHandler.class) // catch globally for whole root
 public class ErrorThrowingRest {
 
 	@GET
@@ -30,17 +28,16 @@ public class ErrorThrowingRest {
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("bang")
-	@CatchWith(value = HandleRestException.class, writer = GenericResponseWriter.class)
+	@CatchWith(GenericExceptionHandler.class)
 	public String returnBang() {
 
 		throw new IllegalArgumentException("Bang!");
 	}
 
 	@GET
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("multi/{bang}")
-	@CatchWith(value = {HandleRestException.class, WebApplicationExceptionHandler.class},
-	           writer = {IllegalArgumentExceptionWriter.class, ExceptionWriter.class})
+	@CatchWith({IllegalArgumentExceptionHandler.class, WebApplicationExceptionHandler.class, MyExceptionHandler.class})
 	public String returnMultiBang(@PathParam("bang") String bang) {
 
 		switch (bang) {
@@ -50,6 +47,12 @@ public class ErrorThrowingRest {
 			case "two":
 			default:
 				throw new IllegalArgumentException("Bang!");
+
+			case "three":
+				throw new NumberFormatException("WHAT!");
+
+			case "four":
+				throw new AbstractMethodError("ADIOS!");
 		}
 	}
 

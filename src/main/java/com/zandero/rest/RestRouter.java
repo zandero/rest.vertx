@@ -49,8 +49,6 @@ public class RestRouter {
 
 	static Class<? extends ExceptionHandler> globalErrorHandlers[] = null;
 
-	static Class<? extends HttpResponseWriter> globalErrorWriters[] = null;
-
 	/**
 	 * Searches for annotations to register routes ...
 	 *
@@ -199,17 +197,10 @@ public class RestRouter {
 	}
 
 	@SafeVarargs
-	public static void errorHandler(Class<? extends ExceptionHandler>... exceptionHandlers) {
-
-		Assert.notNullOrEmpty(exceptionHandlers, "Missing error handler(s)!");
-		globalErrorHandlers = exceptionHandlers;
-	}
-
-	@SafeVarargs
-	public static void errorWriter(Class<? extends HttpResponseWriter>... exceptionWriters) {
+	public static void errorHandler(Class<? extends ExceptionHandler>... exceptionWriters) {
 
 		Assert.notNullOrEmpty(exceptionWriters, "Missing error writer(s)!");
-		globalErrorWriters = exceptionWriters;
+		globalErrorHandlers = exceptionWriters;
 	}
 
 	private static void checkSecurity(Router router, final RouteDefinition definition, final Method method) {
@@ -312,22 +303,23 @@ public class RestRouter {
 		ExecuteException ex = getExecuteException(e);
 
 		// get appropriate writer ...
-		HttpResponseWriter writer = writers.getFailureWriter(definition.getFailureWriters(globalErrorWriters),
-		                                                     ex.getCause().getClass(),
-		                                                     definition);
+		ExceptionHandler writer = handlers.getExceptionHandler(definition.getExceptionHandlers(globalErrorHandlers),
+		                                                       ex.getCause().getClass());
 
 		HttpServerResponse response = context.response();
 		response.setStatusCode(ex.getStatusCode());
 		writer.addResponseHeaders(definition, response);
 
-		// fill up as much as we can ... default behavior
+		writer.write(ex.getCause(), context.request(), context.response());
+
+		/*// fill up as much as we can ... default behavior
 		// get default handler by exception type or use global error handler ...
 
 		// route through handler ... to allow customization
-		ExceptionHandler handler = handlers.getFailureHandler(definition.getFailureHandlers(globalErrorHandlers),
+		ExceptionHandler handler = handlers.getExceptionHandler(definition.getFailureHandlers(globalErrorHandlers),
 		                                                      ex.getCause().getClass());
 		handler.handle(ex.getCause(), writer, context);
-
+*/
 		// end response ...
 		if (!response.ended()) {
 			response.end();

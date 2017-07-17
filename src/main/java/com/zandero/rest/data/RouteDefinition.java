@@ -60,8 +60,7 @@ public class RouteDefinition {
 
 	private String[] roles = null;
 
-	private Class<? extends ExceptionHandler>[] failureHandlers;
-	private Class<? extends HttpResponseWriter>[] failureWriters;
+	private Class<? extends ExceptionHandler>[] failureWriters;
 
 	public RouteDefinition(Class clazz) {
 
@@ -93,8 +92,8 @@ public class RouteDefinition {
 			permitAll = null;
 		}
 
-		failureHandlers = base.getFailureHandlers(null);
-		failureWriters = base.getFailureWriters(null);
+	//	failureHandlers = base.getFailureHandlers(null);
+		failureWriters = base.getExceptionHandlers(null);
 
 		// complement / override with additional annotations
 		init(annotations);
@@ -169,12 +168,7 @@ public class RouteDefinition {
 			}
 
 			if (annotation instanceof CatchWith) {
-				failureHandlers = ((CatchWith) annotation).value();
-
-				Class<? extends HttpResponseWriter>[] writers = ((CatchWith) annotation).writer();
-				if (writers != null && writers.length >= 0) {
-					failureWriters = writers;
-				}
+				failureWriters = ArrayUtils.join(((CatchWith) annotation).value(), failureWriters);
 			}
 		}
 	}
@@ -471,12 +465,7 @@ public class RouteDefinition {
 		return reader;
 	}
 
-	public Class<? extends ExceptionHandler>[] getFailureHandlers(Class<? extends ExceptionHandler>[] globalHandlers) {
-		// join failure handlers with global ... and return
-		return ArrayUtils.join(failureHandlers, globalHandlers);
-	}
-
-	public Class<? extends HttpResponseWriter>[] getFailureWriters(Class<? extends HttpResponseWriter>[] globalWriters) {
+	public Class<? extends ExceptionHandler>[] getExceptionHandlers(Class<? extends ExceptionHandler>[] globalWriters) {
 		// join failure writers with global ... and return
 		return ArrayUtils.join(failureWriters, globalWriters);
 	}

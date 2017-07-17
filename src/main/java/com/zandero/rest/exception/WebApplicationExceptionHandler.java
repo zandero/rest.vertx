@@ -1,7 +1,7 @@
 package com.zandero.rest.exception;
 
-import com.zandero.rest.writer.HttpResponseWriter;
-import io.vertx.ext.web.RoutingContext;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 
 import javax.ws.rs.WebApplicationException;
 
@@ -11,9 +11,9 @@ import javax.ws.rs.WebApplicationException;
 public class WebApplicationExceptionHandler implements ExceptionHandler<WebApplicationException> {
 
 	@Override
-	public void handle(WebApplicationException cause, HttpResponseWriter writer, RoutingContext context) {
+	public void write(WebApplicationException result, HttpServerRequest request, HttpServerResponse response) {
 
-		context.response().setStatusCode(cause.getResponse().getStatus());
-		writer.write(cause, context.request(), context.response());
+		response.setStatusCode(result.getResponse().getStatus());
+		response.end(result.getMessage());
 	}
 }

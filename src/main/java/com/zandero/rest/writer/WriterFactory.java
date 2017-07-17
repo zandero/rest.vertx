@@ -3,14 +3,12 @@ package com.zandero.rest.writer;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.exception.ClassFactoryException;
-import com.zandero.rest.utils.ArrayUtils;
 import io.vertx.core.http.HttpServerResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.lang.reflect.Type;
 
 /**
  * Provides definition and caching of response writer implementations
@@ -27,10 +25,8 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 	@Override
 	protected void init() {
 
-		// TODO: classTypes.put(Throwable.class, JaxResponseWriter.class);
 		classTypes.put(Response.class, JaxResponseWriter.class);
 		classTypes.put(HttpServerResponse.class, VertxResponseWriter.class);
-		classTypes.put(Throwable.class, GenericExceptionWriter.class);
 
 		mediaTypes.put(MediaType.APPLICATION_JSON, JsonResponseWriter.class);
 		mediaTypes.put(MediaType.TEXT_PLAIN, GenericResponseWriter.class);
@@ -62,39 +58,6 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 		} catch (ClassFactoryException e) {
 			log.error("Failed to provide response writer: " + clazz + ", falling back to GenericResponseWriter() instead!");
 			return new GenericResponseWriter();
-		}
-	}
-
-	public HttpResponseWriter getFailureWriter(Class<? extends HttpResponseWriter>[] writers,
-	                                           Class<? extends Throwable> aClass,
-	                                           RouteDefinition definition) {
-
-		// trickle down ... from definition to default handler
-		Class<? extends HttpResponseWriter> found = null;
-
-		if (writers != null && writers.length > 0) {
-
-			for (Class<? extends HttpResponseWriter> writer : writers) {
-
-				Type type = getGenericType(writer);
-				if (checkIfCompatibleTypes(aClass, type)) {
-					found = writer;
-					break;
-				}
-			}
-		}
-
-		if (found == null) {
-			return getResponseWriter(aClass, definition);
-		}
-
-		try {
-			return super.getClassInstance(found);
-
-		} catch (ClassFactoryException ex) {
-
-			log.error(ex.getMessage());
-			return getFailureWriter(ArrayUtils.join(null, GenericResponseWriter.class), aClass, definition);
 		}
 	}
 }

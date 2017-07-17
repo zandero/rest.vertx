@@ -41,8 +41,8 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 		return null;
 	}
 
-	public ExceptionHandler getFailureHandler(Class<? extends ExceptionHandler>[] handlers,
-	                                          Class<? extends Throwable> aClass) {
+	public ExceptionHandler getExceptionHandler(Class<? extends ExceptionHandler>[] handlers,
+	                                            Class<? extends Throwable> aClass) {
 
 		// trickle down ... from definition to default handler
 		Class<? extends ExceptionHandler> found = null;
@@ -73,7 +73,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 		} catch (ClassFactoryException ex) {
 
 			log.error(ex.getMessage());
-			return getFailureHandler(ArrayUtils.join(null, GenericExceptionHandler.class), ex.getCause().getClass());
+			return getExceptionHandler(ArrayUtils.join(null, GenericExceptionHandler.class), ex.getCause().getClass());
 		}
 	}
 }

@@ -2,9 +2,8 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.exception.WebApplicationExceptionHandler;
 import com.zandero.rest.reader.IntegerBodyReader;
-import com.zandero.rest.test.handler.HandleRestException;
+import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
 import com.zandero.rest.test.reader.DummyBodyReader;
-import com.zandero.rest.test.writer.IllegalArgumentExceptionWriter;
 import org.junit.Test;
 
 import javax.ws.rs.NotAllowedException;
@@ -25,9 +24,7 @@ public class ClassFactoryTest {
 
 		assertEquals(Integer.class, ClassFactory.getGenericType(IntegerBodyReader.class)); // at least we know so much
 
-		assertEquals(IllegalArgumentException.class, ClassFactory.getGenericType(IllegalArgumentExceptionWriter.class)); // at least we know so much
-
-		assertEquals(IllegalArgumentException.class, ClassFactory.getGenericType(HandleRestException.class)); // at least we know so much
+		assertEquals(IllegalArgumentException.class, ClassFactory.getGenericType(IllegalArgumentExceptionHandler.class)); // at least we know so much
 
 		assertEquals(WebApplicationException.class, ClassFactory.getGenericType(WebApplicationExceptionHandler.class)); // at least we know so much
 	}
@@ -35,7 +32,7 @@ public class ClassFactoryTest {
 	@Test
 	public void typeAreCompatibleTest() {
 
-		Type type = ClassFactory.getGenericType(HandleRestException.class);
+		Type type = ClassFactory.getGenericType(NumberFormatException.class);
 		try {
 			ClassFactory.checkIfCompatibleTypes(IllegalArgumentException.class, type, "Fail");
 		}
