@@ -92,8 +92,7 @@ public class RouteDefinition {
 			permitAll = null;
 		}
 
-	//	failureHandlers = base.getFailureHandlers(null);
-		failureWriters = base.getExceptionHandlers(null);
+		failureWriters = base.getExceptionHandlers();
 
 		// complement / override with additional annotations
 		init(annotations);
@@ -465,9 +464,9 @@ public class RouteDefinition {
 		return reader;
 	}
 
-	public Class<? extends ExceptionHandler>[] getExceptionHandlers(Class<? extends ExceptionHandler>[] globalWriters) {
+	public Class<? extends ExceptionHandler>[] getExceptionHandlers() {
 		// join failure writers with global ... and return
-		return ArrayUtils.join(failureWriters, globalWriters);
+		return failureWriters;
 	}
 
 	public List<MethodParameter> getParameters() {

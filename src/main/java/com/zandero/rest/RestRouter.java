@@ -47,8 +47,6 @@ public class RestRouter {
 
 	private static final ExceptionHandlerFactory handlers = new ExceptionHandlerFactory();
 
-	static Class<? extends ExceptionHandler> globalExceptionHandlers[] = null;
-
 	/**
 	 * Searches for annotations to register routes ...
 	 *
@@ -197,12 +195,12 @@ public class RestRouter {
 		return writer;
 	}
 
-	@SafeVarargs
+	/*@SafeVarargs
 	public static void exceptionHandler(Class<? extends ExceptionHandler>... exceptionHandlers) {
 
 		Assert.notNullOrEmpty(exceptionHandlers, "Missing exception handlers(s)!");
 		globalExceptionHandlers = exceptionHandlers;
-	}
+	}*/
 
 	private static void checkSecurity(Router router, final RouteDefinition definition, final Method method) {
 
@@ -305,8 +303,8 @@ public class RestRouter {
 		ExecuteException ex = getExecuteException(e);
 
 		// get appropriate writer ...
-		ExceptionHandler handler = handlers.getExceptionHandler(definition.getExceptionHandlers(globalExceptionHandlers),
-		                                                       ex.getCause().getClass());
+		ExceptionHandler handler = handlers.getExceptionHandler(definition.getExceptionHandlers(),
+		                                                        ex.getCause().getClass());
 
 		HttpServerResponse response = context.response();
 		response.setStatusCode(ex.getStatusCode());
@@ -363,6 +361,11 @@ public class RestRouter {
 	public static ReaderFactory getReaders() {
 
 		return readers;
+	}
+
+	public static ExceptionHandlerFactory getExceptionHandlers() {
+
+		return handlers;
 	}
 
 	static void pushContext(RoutingContext context, Object object) {

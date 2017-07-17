@@ -72,7 +72,7 @@ public class GlobalErrorHandlerTest extends VertxTest {
 
 		// call and check response
 		final Async async = context.async();
-		RestRouter.exceptionHandler(IllegalArgumentExceptionHandler.class);
+		RestRouter.getExceptionHandlers().register(IllegalArgumentExceptionHandler.class);
 
 		client.getNow("/throw/unhandled", response -> {
 
@@ -125,7 +125,7 @@ public class GlobalErrorHandlerTest extends VertxTest {
 		// call and check response
 		final Async async = context.async();
 
-		RestRouter.exceptionHandler(JsonExceptionHandler.class);
+		RestRouter.getExceptionHandlers().register(JsonExceptionHandler.class);
 
 		client.getNow("/throw/multi/four", response -> {
 
