@@ -55,4 +55,22 @@ public class ReaderFactory extends ClassFactory<HttpRequestBodyReader> {
 			return new GenericBodyReader();
 		}
 	}
+
+	public void register(Class<?> aClass, Class<? extends HttpRequestBodyReader> clazz) {
+
+		Assert.notNull(aClass, "Missing request body class!");
+		Assert.notNull(clazz, "Missing request reader type class");
+
+		super.register(aClass, clazz);
+	}
+
+	public void register(String mediaType, Class<? extends HttpRequestBodyReader> clazz) {
+
+		super.register(mediaType, clazz);
+	}
+
+	public void register(MediaType mediaType, Class<? extends HttpRequestBodyReader> clazz) {
+
+		super.register(mediaType, clazz);
+	}
 }

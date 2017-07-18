@@ -69,8 +69,7 @@ public abstract class ClassFactory<T> {
 			}
 
 			return instance;
-		}
-		catch (InstantiationException | IllegalAccessException e) {
+		} catch (InstantiationException | IllegalAccessException e) {
 			log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
 			throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
 		}
@@ -84,14 +83,13 @@ public abstract class ClassFactory<T> {
 
 		try {
 			return clazz.newInstance();
-		}
-		catch (InstantiationException | IllegalAccessException e) {
+		} catch (InstantiationException | IllegalAccessException e) {
 			log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
 			throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
 		}
 	}
 
-	public void register(String mediaType, Class<? extends T> clazz) {
+	protected void register(String mediaType, Class<? extends T> clazz) {
 
 		Assert.notNull(mediaType, "Missing media type!");
 		Assert.notNull(clazz, "Missing media type class");
@@ -103,7 +101,7 @@ public abstract class ClassFactory<T> {
 		mediaTypes.put(key, clazz);
 	}
 
-	public void register(MediaType mediaType, Class<? extends T> clazz) {
+	protected void register(MediaType mediaType, Class<? extends T> clazz) {
 
 		Assert.notNull(mediaType, "Missing media type!");
 		Assert.notNull(clazz, "Missing media type class");
@@ -112,15 +110,15 @@ public abstract class ClassFactory<T> {
 		mediaTypes.put(key, clazz);
 	}
 
-	public void register(Class<?> responseClass, Class<? extends T> clazz) {
+	protected void register(Class<?> aClass, Class<? extends T> clazz) {
 
-		Assert.notNull(responseClass, "Missing response class!");
+		Assert.notNull(aClass, "Missing associated class!");
 		Assert.notNull(clazz, "Missing response type class");
 
 		Type expected = getGenericType(clazz);
-		checkIfCompatibleTypes(responseClass, expected, "Incompatible types: '" + responseClass + "' and: '" + expected+ "' using: '" + clazz + "'");
+		checkIfCompatibleTypes(aClass, expected, "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + clazz + "'");
 
-		classTypes.put(responseClass, clazz);
+		classTypes.put(aClass, clazz);
 	}
 
 	protected T get(Class<?> type, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ClassFactoryException {
@@ -130,20 +128,21 @@ public abstract class ClassFactory<T> {
 		// 2. if no writer is specified ... try to find appropriate writer by response type
 		if (clazz == null) {
 
-			if (type != null) {
+			clazz = get(type);
+			/*if (type != null) {
 				// try to find appropriate class if mapped (by exact type)
 				clazz = classTypes.get(type);
 
 				// exact match failed ... go over keys and check if classes are related (inherited from ...)
 				if (clazz == null) {
-					for (Class key: classTypes.keySet()) {
+					for (Class key : classTypes.keySet()) {
 						if (key.isInstance(type) || key.isAssignableFrom(type)) {
 							clazz = classTypes.get(key);
 							break;
 						}
 					}
 				}
-			}
+			}*/
 		}
 
 		// try by consumes annotation
@@ -183,6 +182,20 @@ public abstract class ClassFactory<T> {
 		return getClassInstance(clazz);
 	}
 
+	public Class<? extends T>  get(Class<?> type) {
+
+		if (type == null) {
+			return null;
+		}
+		// try to find appropriate class if mapped (by type)
+			for (Class key : classTypes.keySet()) {
+				if (key.isInstance(type) || key.isAssignableFrom(type)) {
+					return classTypes.get(key);
+				}
+			}
+
+		return null;
+	}
 
 	public static Type getGenericType(Class clazz) {
 
@@ -218,7 +231,7 @@ public abstract class ClassFactory<T> {
 		} else if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
 			return true;
 		} else {
-			return expected.equals(actual) || expected.isInstance(actual) || ((Class)actual).isAssignableFrom(expected);
+			return expected.equals(actual) || expected.isInstance(actual) || ((Class) actual).isAssignableFrom(expected);
 		}
 	}
 }

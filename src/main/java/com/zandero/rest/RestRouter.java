@@ -1,10 +1,7 @@
 package com.zandero.rest;
 
 import com.zandero.rest.data.*;
-import com.zandero.rest.exception.ClassFactoryException;
-import com.zandero.rest.exception.ExceptionHandler;
-import com.zandero.rest.exception.ExceptionHandlerFactory;
-import com.zandero.rest.exception.ExecuteException;
+import com.zandero.rest.exception.*;
 import com.zandero.rest.reader.HttpRequestBodyReader;
 import com.zandero.rest.reader.ReaderFactory;
 import com.zandero.rest.writer.HttpResponseWriter;
@@ -302,9 +299,18 @@ public class RestRouter {
 
 		ExecuteException ex = getExecuteException(e);
 
-		// get appropriate writer ...
-		ExceptionHandler handler = handlers.getExceptionHandler(definition.getExceptionHandlers(),
-		                                                        ex.getCause().getClass());
+		// get appropriate exception handler/writer ...
+		ExceptionHandler handler;
+		try {
+			handler = handlers.getExceptionHandler(definition.getExceptionHandlers(), ex.getCause().getClass());
+		}
+		catch (ClassFactoryException classException) {
+			// Can't provide exception handler ... rethrow
+			log.error("Can't provide exception handler!", classException);
+			// fall back to generic ...
+			handler = new GenericExceptionHandler();
+			ex = new ExecuteException(500, classException);
+		}
 
 		HttpServerResponse response = context.response();
 		response.setStatusCode(ex.getStatusCode());

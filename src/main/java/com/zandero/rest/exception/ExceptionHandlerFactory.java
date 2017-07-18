@@ -1,14 +1,16 @@
 package com.zandero.rest.exception;
 
 import com.zandero.rest.data.ClassFactory;
-import com.zandero.rest.utils.ArrayUtils;
 import com.zandero.utils.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.WebApplicationException;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  *
@@ -17,7 +19,9 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 
 	private final static Logger log = LoggerFactory.getLogger(ExceptionHandlerFactory.class);
 
-	private Map<Class<? extends Throwable>, Class<? extends ExceptionHandler>> exceptionTypes;
+	/**
+	 * standalone list of global handlers
+ 	 */
 	private List<Class<? extends ExceptionHandler>> exceptionHandlers = new ArrayList<>();
 
 	@Override
@@ -27,25 +31,13 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 
 		// register handlers from specific to general ...
 		// when searching we go over handlers ... first match is returned
-		exceptionTypes = new LinkedHashMap<>();
-		exceptionTypes.put(WebApplicationException.class, WebApplicationExceptionHandler.class);
-		exceptionTypes.put(Throwable.class, GenericExceptionHandler.class);
-	}
-
-	public Class<? extends ExceptionHandler> get(Class<?> type) {
-
-		for (Class<? extends Throwable> clazz: exceptionTypes.keySet()) {
-
-			if (clazz.isAssignableFrom(type)) {
-				return exceptionTypes.get(clazz);
-			}
-		}
-
-		return null;
+		classTypes = new LinkedHashMap<>();
+		classTypes.put(WebApplicationException.class, WebApplicationExceptionHandler.class);
+		classTypes.put(Throwable.class, GenericExceptionHandler.class);
 	}
 
 	public ExceptionHandler getExceptionHandler(Class<? extends ExceptionHandler>[] handlers,
-	                                            Class<? extends Throwable> aClass) {
+	                                            Class<? extends Throwable> aClass) throws ClassFactoryException {
 
 		// trickle down ... from definition to default handler
 		Class<? extends ExceptionHandler> found = null;
@@ -73,9 +65,9 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 			}
 		}
 
-		// get by exception type from exceptionTypes list
+		// get by exception type from classTypes list
 		if (found == null) {
-			found = get(aClass);
+			found = super.get(aClass);
 		}
 
 		// nothing found provide generic
@@ -83,14 +75,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 			found = GenericExceptionHandler.class;
 		}
 
-		try {
-			return super.getClassInstance(found);
-
-		} catch (ClassFactoryException ex) {
-
-			log.error(ex.getMessage());
-			return getExceptionHandler(ArrayUtils.join(null, GenericExceptionHandler.class), ex.getCause().getClass());
-		}
+		return super.getClassInstance(found);
 	}
 
 	@SafeVarargs

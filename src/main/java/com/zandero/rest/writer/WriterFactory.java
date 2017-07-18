@@ -3,6 +3,7 @@ package com.zandero.rest.writer;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.exception.ClassFactoryException;
+import com.zandero.utils.Assert;
 import io.vertx.core.http.HttpServerResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,14 +51,21 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 		}
 	}
 
-	public HttpResponseWriter getResponseWriter(Class<? extends HttpResponseWriter> clazz) {
+	public void register(Class<?> aClass, Class<? extends HttpResponseWriter> clazz) {
 
-		try {
-			HttpResponseWriter writer = getClassInstance(clazz);
-			return writer != null ? writer : new GenericResponseWriter();
-		} catch (ClassFactoryException e) {
-			log.error("Failed to provide response writer: " + clazz + ", falling back to GenericResponseWriter() instead!");
-			return new GenericResponseWriter();
-		}
+		Assert.notNull(aClass, "Missing response class!");
+		Assert.notNull(clazz, "Missing response writer type class");
+
+		super.register(aClass, clazz);
+	}
+
+	public void register(String mediaType, Class<? extends HttpResponseWriter> clazz) {
+
+		super.register(mediaType, clazz);
+	}
+
+	public void register(MediaType mediaType, Class<? extends HttpResponseWriter> clazz) {
+
+		super.register(mediaType, clazz);
 	}
 }
