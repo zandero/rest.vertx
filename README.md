@@ -718,8 +718,10 @@ Unhandled exceptions can be addressed via a designated _ExceptionHandler_:
 1. for a given root path
 1. globally assigned to the RestRouter
 
+> NOTE: An exception handler is a designated response writer bound to a Throwable class
+
 If no designated exception handler is provided, a default exception handler kicks
-in using the response type writer associated with the given method.
+in trying to match the exception type with a build in exception handler.
 
 ## Path / Method error handler
 Both class and methods support **@CatchWith** annotation.  
@@ -736,69 +738,24 @@ public String fail() {
 }
 ```
 ```java
-public class MyExceptionHandler implements ExceptionHandler {
+public class MyExceptionHandler implements ExceptionHandler<Throwable> {
     @Override
-    public void handle(Throwable cause, HttpResponseWriter writer, RoutingContext context) {
+    public void write(Throwable result, HttpServerRequest request, HttpServerResponse response) {
 
-        context.response().setStatusCode(406);
-        writer.write("I got this ... : '" + cause.getMessage() + "'", context.request(), context.response());
+        response.setStatusCode(406);
+        response.end("I got this ... : '" + cause.getMessage() + "'");
     }
 }
 ```
 
-By default the _ExceptionHandler_ is provided with a writer that normally would be associated with a given method.  
-If desired a designated writer can be defined:
-
-```java
-@GET
-@Path("/test")
-@CatchWith(value = MyExceptionHandler.class, writer = MyExceptionWriter.class)
-public String fail() {
-
-    throw new IllegalArgumentExcetion("Bang!"); 
-}
-```
-
-```java
-public class MyExceptionWriter implements HttpResponseWriter {
-    @Override
-   	public void write(Object result, HttpServerRequest request, HttpServerResponse response) {
-   
-   	    if (result instanceof MySpecialException) {
-   	    	
-   	    	MySpecialException ex = (MySpecialException)result;
-   	    	
-   	    	ErrorJSON error = new ErrorJSON();
-            error.code = ex.getStatusCode();
-            error.message = ex.getMessage();
-            error.detail = ex.getDetails();
-                	    
-            response.end(JsonUtils.toJson(error));
-   	    }
-   	
-   	    if (result instanceof Exception) {
-   	
-   	    	Exception ex = (Exception)result;
-   	    	
-   	        ErrorJSON error = new ErrorJSON();
-    		error.code = response.getStatusCode();
-    		error.message = ex.getMessage();
-    	    
-    		response.end(JsonUtils.toJson(error));
-    	}
-    }
-}
-```
-
-## Multiple exception handlers and writers
-Alternatively multiple handlers can be bound to a method, serving different exceptions.  
+## Multiple exception handlers
+Alternatively multiple handlers can be bound to a method / class, serving different exceptions.  
 Handlers are considered in order given, first matching handler is used.
 
 ```java
 @GET
 @Path("/test")
-@CatchWith(value = {HandleRestException.class, WebApplicationExceptionHandler.class},
-	           writer = {IllegalArgumentExceptionWriter.class, ExceptionWriter.class})
+@CatchWith({HandleRestException.class, WebApplicationExceptionHandler.class})
 public String fail() {
 
     throw new IllegalArgumentExcetion("Bang!"); 
@@ -806,15 +763,12 @@ public String fail() {
 ```
 
 ## Global error handler(s)
-The global error handler is invoked in case no path or method error handler is provided.  
+The global error handler is invoked in case no other error handler is provided or no other exception type maches given handlers.  
 In case no global error handler is associated a default (generic) error handler is invoked.
 
 ```java
     Router router = RestRouter.register(vertx, SomeRest.class);
-    RestRouter.errorHandler(MyExceptionHandler.class);  
-    
-    // define global error writer
-    RestRouter.errorWriter(MyExceptionWriter.class);
+    RestRouter.getExceptionHandlers().register(MyExceptionHandler.class);  
     
     vertx.createHttpServer()
         .requestHandler(router::accept)
@@ -824,13 +778,8 @@ In case no global error handler is associated a default (generic) error handler 
 or alternatively we bind multiple exception handlers.  
 Handlers are considered in order given, first matching handler is used.
   
-Writers are matched via type in order given, first matching writer is used. 
-
 ```java
     Router router = RestRouter.register(vertx, SomeRest.class);
-    RestRouter.errorHandler(MyExceptionHandler.class, GeneralExceptionHandler.class);  
-    
-    // add list of error writers
-    RestRouter.errorWriter(MyExceptionWriter.class, GlobalExceptionWriter.class);
+    RestRouter.getExceptionHandlers().register(MyExceptionHandler.class, GeneralExceptionHandler.class);  
 ```
 

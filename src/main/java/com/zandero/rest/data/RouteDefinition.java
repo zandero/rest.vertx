@@ -49,6 +49,8 @@ public class RouteDefinition {
 
 	private Class<? extends HttpRequestBodyReader> reader;
 
+	private Class<? extends ExceptionHandler>[] exceptionHandlers;
+
 	private Map<String, MethodParameter> params = new HashMap<>();
 
 	private int order;
@@ -59,8 +61,6 @@ public class RouteDefinition {
 	private Boolean permitAll = null; // true - permit all, false - deny all, null - check roles
 
 	private String[] roles = null;
-
-	private Class<? extends ExceptionHandler>[] failureWriters;
 
 	public RouteDefinition(Class clazz) {
 
@@ -92,7 +92,7 @@ public class RouteDefinition {
 			permitAll = null;
 		}
 
-		failureWriters = base.getExceptionHandlers();
+		exceptionHandlers = base.getExceptionHandlers();
 
 		// complement / override with additional annotations
 		init(annotations);
@@ -167,7 +167,7 @@ public class RouteDefinition {
 			}
 
 			if (annotation instanceof CatchWith) {
-				failureWriters = ArrayUtils.join(((CatchWith) annotation).value(), failureWriters);
+				exceptionHandlers = ArrayUtils.join(((CatchWith) annotation).value(), exceptionHandlers);
 			}
 		}
 	}
@@ -466,7 +466,7 @@ public class RouteDefinition {
 
 	public Class<? extends ExceptionHandler>[] getExceptionHandlers() {
 		// join failure writers with global ... and return
-		return failureWriters;
+		return exceptionHandlers;
 	}
 
 	public List<MethodParameter> getParameters() {
