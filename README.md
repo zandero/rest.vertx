@@ -1,5 +1,5 @@
 # rest.vertx
-A JAX-RS (RestEasy) like annotation processor for vert.x verticals
+Lightweight JAX-RS (RestEasy) like annotation processor for vert.x verticals
  
 ## Setup
 ```xml
@@ -37,8 +37,8 @@ TestRest rest = new TestRest();
 Router router = RestRouter.register(vertx, rest);
 
 vertx.createHttpServer()
-		.requestHandler(router::accept)
-		.listen(PORT);
+	.requestHandler(router::accept)
+	.listen(PORT);
 ```
 
 or alternatively
@@ -49,8 +49,8 @@ TestRest rest = new TestRest();
 RestRouter.register(router, rest);
 
 vertx.createHttpServer()
-		.requestHandler(router::accept)
-		.listen(PORT);
+	.requestHandler(router::accept)
+	.listen(PORT);
 ```
 
 ### Registering by class type
@@ -62,8 +62,8 @@ Alternatively RESTs can be registered by class type only (in case they have an e
 Router router = RestRouter.register(vertx, TestRest.class);
 
 vertx.createHttpServer()
-		.requestHandler(router::accept)
-		.listen(PORT);
+	.requestHandler(router::accept)
+	.listen(PORT);
 ```
 
 
@@ -541,41 +541,40 @@ public String info(@Context User user) {
 ```java
 public class SimulatedUser extends AbstractUser {
 
-	private final String role; // role and role in one
+  private final String role; // role and role in one
 	
-	private final String name;
+  private final String name;
 
-	public SimulatedUser(String name, String role) {
+  public SimulatedUser(String name, String role) {
+    this.name = name;
+    this.role = role;
+  }
+  
+  /**
+   * permission has the value of @RolesAllowed annotation
+   */
+  @Override
+  protected void doIsPermitted(String permission, Handler<AsyncResult<Boolean>> resultHandler) {
 
-		this.name = name;
-		this.role = role;
-	}
+    resultHandler.handle(Future.succeededFuture(role != null && role.equals(permission)));
+  }
 
-    /**
-     * permission has the value of @RolesAllowed annotation
-     */
-	@Override
-	protected void doIsPermitted(String permission, Handler<AsyncResult<Boolean>> resultHandler) {
+  /**
+   * serialization of User entity
+   */  
+  @Override
+  public JsonObject principal() {
 
-		resultHandler.handle(Future.succeededFuture(role != null && role.equals(permission)));
-	}
+    JsonObject json = new JsonObject();
+    json.put("role", role);
+    json.put("name", name);
+    return json;  
+  }
 
-    /**
-     * serialization of User entity
-     */
-	@Override
-	public JsonObject principal() {
-
-		JsonObject json = new JsonObject();
-		json.put("role", role);
-		json.put("name", name);
-		return json;
-	}
-
-	@Override
-	public void setAuthProvider(AuthProvider authProvider) {
-        // not utilized by Rest.vertx
-	}
+  @Override
+  public void setAuthProvider(AuthProvider authProvider) {
+    // not utilized by Rest.vertx  
+  }
 }
 ```
 
@@ -610,13 +609,12 @@ Using a request reader is simple:
 @Path("read")
 public class ReadMyNewObject {
 
-	@POST
-	@Path("object")
-	@RequestReader(MyCustomReader.class) // MyCustomReader will provide the MyNewObject to REST API
-	public String add(MyNewObject item) {
-
-		return "OK";
-	}
+  @POST
+  @Path("object")
+  @RequestReader(MyCustomReader.class) // MyCustomReader will provide the MyNewObject to REST API
+  public String add(MyNewObject item) {
+    return "OK";
+  }
 }
 ```
 
@@ -634,15 +632,15 @@ A request writer must:
  */
 public class MyCustomResponseWriter implements HttpResponseWriter<MyObject> {
 
-    /**
-     * result is the output of the corresponding REST API endpoint associated 
-     */
-	@Override
-	public void write(MyObject data, HttpServerRequest request, HttpServerResponse response) {
-
-		response.putHeader("X-ObjectId", data.id);
-		response.end(data.value);
-    }
+  /**
+   * result is the output of the corresponding REST API endpoint associated 
+   */  
+  @Override
+  public void write(MyObject data, HttpServerRequest request, HttpServerResponse response) {
+    
+  	response.putHeader("X-ObjectId", data.id);
+    response.end(data.value);
+  }
 }
 ```
 
@@ -650,14 +648,14 @@ Using a response writer is simple:
 ```java
 @Path("write")
 public class WriteMyObject {
-
-	@GET
-	@Path("object")
-	@ResponseWriter(MyCustomResponseWriter.class) // MyCustomResponseWriter will take output and fill up response 
-	public MyObject output() {
-
-		return new MyObject("test", "me");
-	}
+  
+  @GET
+  @Path("object")
+  @ResponseWriter(MyCustomResponseWriter.class) // MyCustomResponseWriter will take output and fill up response 
+  public MyObject output() {
+    
+  	return new MyObject("test", "me");
+  }
 }
 ```
 
@@ -669,8 +667,8 @@ In case the request handler should be a blocking handler the **@Blocking** annot
 @Path("/blocking")
 @Blocking
 public String waitForMe() {
-
-    return "done";
+  
+  return "done";
 }
 ```
 
@@ -689,22 +687,21 @@ Order can also be negative, e.g. if you want to ensure a route is evaluated befo
 @GET
 @Path("/test")
 public String third() {
-
-    return "third";
+  return "third";
 }
 
 @RouteOrder(10)
 @GET
 @Path("/test")
 public String first() {
-    return "first";
+  return "first";
 }
 
 @RouteOrder(15)
 @GET
 @Path("/test")
 public String second() {
-    return "second";
+  return "second";
 }
 ```
 
@@ -734,7 +731,7 @@ Both class and methods support **@CatchWith** annotation.
 @CatchWith(MyExceptionHandler.class)
 public String fail() {
 
-    throw new IllegalArgumentExcetion("Bang!"); 
+  throw new IllegalArgumentExcetion("Bang!"); 
 }
 ```
 ```java
@@ -767,19 +764,19 @@ The global error handler is invoked in case no other error handler is provided o
 In case no global error handler is associated a default (generic) error handler is invoked.
 
 ```java
-    Router router = RestRouter.register(vertx, SomeRest.class);
-    RestRouter.getExceptionHandlers().register(MyExceptionHandler.class);  
+  Router router = RestRouter.register(vertx, SomeRest.class);
+  RestRouter.getExceptionHandlers().register(MyExceptionHandler.class);  
     
-    vertx.createHttpServer()
-        .requestHandler(router::accept)
-        .listen(PORT);
+  vertx.createHttpServer()
+    .requestHandler(router::accept)
+    .listen(PORT);
 ```
 
 or alternatively we bind multiple exception handlers.  
 Handlers are considered in order given, first matching handler is used.
   
-```java
-    Router router = RestRouter.register(vertx, SomeRest.class);
-    RestRouter.getExceptionHandlers().register(MyExceptionHandler.class, GeneralExceptionHandler.class);  
+```java  
+  Router router = RestRouter.register(vertx, SomeRest.class);
+  RestRouter.getExceptionHandlers().register(MyExceptionHandler.class, GeneralExceptionHandler.class);  
 ```
 
