@@ -65,6 +65,30 @@ public class ClassFactoryTest {
 	}
 
 	@Test
+	public void convertPrimitiveTypes() {
+
+		assertEquals(1, ClassFactory.stringToPrimitiveType("1", int.class));
+		assertEquals(false, ClassFactory.stringToPrimitiveType("FALSE", boolean.class));
+		assertEquals('a', ClassFactory.stringToPrimitiveType("a", char.class));
+		assertEquals((short)100, ClassFactory.stringToPrimitiveType("100", short.class));
+		assertEquals(100_100_100L, ClassFactory.stringToPrimitiveType("100100100", long.class));
+		assertEquals((float)100100.98, ClassFactory.stringToPrimitiveType("100100.98", float.class));
+		assertEquals(100100.987, ClassFactory.stringToPrimitiveType("100100.987", double.class));
+	}
+
+	@Test
+	public void convertNullableTypes() {
+
+		assertEquals(1, ClassFactory.stringToPrimitiveType("1", Integer.class));
+		assertEquals(false, ClassFactory.stringToPrimitiveType("FALSE", Boolean.class));
+		assertEquals('a', ClassFactory.stringToPrimitiveType("a", Character.class));
+		assertEquals((short)100, ClassFactory.stringToPrimitiveType("100", Short.class));
+		assertEquals(100_100_100L, ClassFactory.stringToPrimitiveType("100100100", Long.class));
+		assertEquals((float)100100.98, ClassFactory.stringToPrimitiveType("100100.98", Float.class));
+		assertEquals(100100.987, ClassFactory.stringToPrimitiveType("100100.987", Double.class));
+	}
+	
+	@Test
 	public void constructTypeTest() throws ClassFactoryException {
 
 		Object out = ClassFactory.constructType(Dummy.class, "{\"name\":\"unknown\", \"value\": \"user\"}");
