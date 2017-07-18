@@ -365,15 +365,7 @@ public class RouteDefinition {
 
 			index++;
 		}
-
-		/*if (writer != null) {
-
-			Type writerType = ClassFactory.getGenericType(writer);
-			ClassFactory.checkIfCompatibleTypes(method.getReturnType(), writerType, "Response type: '" + method.getReturnType() + "' not matching writer type: '" + writerType + "' in: '" + writer + "'");
-		}*/
 	}
-
-
 
 	public MethodParameter findParameter(int index) {
 

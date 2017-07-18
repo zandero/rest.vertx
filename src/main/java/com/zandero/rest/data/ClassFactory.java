@@ -1,6 +1,7 @@
 package com.zandero.rest.data;
 
 import com.zandero.rest.exception.ClassFactoryException;
+import com.zandero.rest.reader.GenericBodyReader;
 import com.zandero.utils.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,8 @@ import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import javax.ws.rs.core.MediaType;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -182,17 +185,17 @@ public abstract class ClassFactory<T> {
 		return getClassInstance(clazz);
 	}
 
-	public Class<? extends T>  get(Class<?> type) {
+	public Class<? extends T> get(Class<?> type) {
 
 		if (type == null) {
 			return null;
 		}
 		// try to find appropriate class if mapped (by type)
-			for (Class key : classTypes.keySet()) {
-				if (key.isInstance(type) || key.isAssignableFrom(type)) {
-					return classTypes.get(key);
-				}
+		for (Class key : classTypes.keySet()) {
+			if (key.isInstance(type) || key.isAssignableFrom(type)) {
+				return classTypes.get(key);
 			}
+		}
 
 		return null;
 	}
@@ -233,5 +236,57 @@ public abstract class ClassFactory<T> {
 		} else {
 			return expected.equals(actual) || expected.isInstance(actual) || ((Class) actual).isAssignableFrom(expected);
 		}
+	}
+
+	/**
+	 * Aims to custruct given type utilizing a constructor that takes String or other primitive type values
+	 *
+	 * @param type         to be constructed
+	 * @param defaultValue constructor param
+	 * @return class object
+	 * @throws ClassFactoryException in case type could not be constructed
+	 */
+	public static Object constructType(Class<?> type, String defaultValue) throws ClassFactoryException {
+
+		Assert.notNull(type, "Missing type!");
+		Assert.notNullOrEmptyTrimmed(defaultValue, "Missing default value!");
+
+		Class[] primitiveTypes = new Class[]{
+				String.class,
+				int.class, Integer.class,
+				boolean.class, Boolean.class,
+				byte.class, Byte.class,
+				char.class, Character.class,
+				short.class, Short.class,
+				long.class, Long.class,
+				float.class, Float.class,
+				double.class, Double.class
+		};
+
+		Constructor[] allConstructors = type.getDeclaredConstructors();
+		for (Constructor ctor : allConstructors) {
+
+			Class<?>[] pType = ctor.getParameterTypes();
+			if (pType.length == 1) { // ok ... match ... might be possible to use
+
+				try {
+
+					for (Class primitive : primitiveTypes) {
+
+						if (pType[0].isAssignableFrom(primitive)) {
+
+							Object value = GenericBodyReader.stringToPrimitiveType(defaultValue, primitive);
+							return ctor.newInstance(value);
+						}
+					}
+				} catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+					//continue; // try next one ... if any
+					log.warn("Failed constructing: " + ctor, e);
+				}
+			}
+		}
+
+		throw new ClassFactoryException("Could not construct: " + type + " with default value: '" + defaultValue + "', " +
+				                                "must provide String only or primitive type constructor!", null);
 	}
 }

@@ -1,5 +1,6 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.ContextException;
 import com.zandero.rest.reader.GenericBodyReader;
 import com.zandero.rest.reader.HttpRequestBodyReader;
@@ -11,6 +12,8 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.RoutingContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -21,6 +24,8 @@ import java.util.Map;
  * Extracts arguments to be provided for given method from definition and current context (request)
  */
 public class ArgumentProvider {
+
+	private final static Logger log = LoggerFactory.getLogger(ArgumentProvider.class);
 
 	public static Object[] getArguments(Method method, RouteDefinition definition, RoutingContext context, HttpRequestBodyReader bodyReader) {
 
@@ -68,7 +73,7 @@ public class ArgumentProvider {
 							break;
 
 						case context:
-							args[parameter.getIndex()] = provideContext(definition, method.getParameterTypes()[parameter.getIndex()], context);
+							args[parameter.getIndex()] = provideContext(definition, method.getParameterTypes()[parameter.getIndex()], parameter.getDefaultValue(), context);
 							break;
 
 						default:
@@ -156,10 +161,12 @@ public class ArgumentProvider {
 	 *
 	 * @param definition     route definition
 	 * @param type           context type
+	 * @param defaultValue          default value if given
 	 * @param context        to extract value from
 	 * @return found context or null if not found
 	 */
-	private static Object provideContext(RouteDefinition definition, Class<?> type, RoutingContext context) throws ContextException {
+	private static Object provideContext(RouteDefinition definition, Class<?> type, String defaultValue,
+	                                     RoutingContext context) throws ContextException {
 
 		if (type == null) {
 			return null;
@@ -197,6 +204,16 @@ public class ArgumentProvider {
 				if (type.isInstance(item)) {
 					return item;
 				}
+			}
+		}
+
+		if (defaultValue != null) {
+			// check if type has constructor that can be used with defaultValue ... and create Context type on the fly
+			try {
+				return ClassFactory.constructType(type, defaultValue);
+			}
+			catch (ClassFactoryException e) {
+				log.error("Could not construct: " + type + " with default value: '" + defaultValue + "', must provide String only or primitive type constructor!");
 			}
 		}
 

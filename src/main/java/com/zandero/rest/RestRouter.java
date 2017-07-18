@@ -192,13 +192,6 @@ public class RestRouter {
 		return writer;
 	}
 
-	/*@SafeVarargs
-	public static void exceptionHandler(Class<? extends ExceptionHandler>... exceptionHandlers) {
-
-		Assert.notNullOrEmpty(exceptionHandlers, "Missing exception handlers(s)!");
-		globalExceptionHandlers = exceptionHandlers;
-	}*/
-
 	private static void checkSecurity(Router router, final RouteDefinition definition, final Method method) {
 
 		Route route;

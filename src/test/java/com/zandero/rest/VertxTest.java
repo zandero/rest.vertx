@@ -7,9 +7,12 @@ import io.vertx.ext.unit.TestContext;
 import org.junit.After;
 import org.junit.Before;
 
+import javax.ws.rs.ext.Provider;
+
 /**
  *
  */
+@Provider
 public class VertxTest {
 
 	protected static final int PORT = 4444;

@@ -309,6 +309,36 @@ public class TestRest {
 }
 ```
 
+## @DefaultValue annotation
+We can provide default values in case parameter values are not present with @DefaultValue annotation.
+
+@DefaultValue annotation can be used on:
+* @PathParam
+* @QueryParam
+* @FormParam
+* @CookieParam
+* @HeaderParam 
+* @Context
+
+```java
+public class TestRest {
+
+	@GET
+	@Path("user")
+	public String read(@QueryParam("username") @DefaultValue("unknown") String user) {
+
+		return "User is: " + user;
+	}
+}
+```
+
+```
+GET /user -> "User is: unknown
+   
+GET /user?username=Foo -> "User is: Foo
+```
+
+
 
 ## Request context
 Additional request bound variables can be provided as method arguments using the @Context annotation.

@@ -19,6 +19,10 @@ public class SimulatedUser extends AbstractUser {
 		role = name;
 	}
 
+	public String getRole() {
+		return role;
+	}
+
 	@Override
 	protected void doIsPermitted(String permission, Handler<AsyncResult<Boolean>> resultHandler) {
 
