@@ -1,5 +1,7 @@
 package com.zandero.rest;
 
+import com.zandero.rest.context.ContextProvider;
+import com.zandero.rest.context.ContextProviders;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.reader.HttpRequestBodyReader;
@@ -43,6 +45,8 @@ public class RestRouter {
 	private static final ReaderFactory readers = new ReaderFactory();
 
 	private static final ExceptionHandlerFactory handlers = new ExceptionHandlerFactory();
+
+	private static final ContextProviders providers = new ContextProviders();
 
 	/**
 	 * Searches for annotations to register routes ...
@@ -274,7 +278,7 @@ public class RestRouter {
 				HttpResponseWriter writer = getWriter(method, definition);
 				HttpRequestBodyReader reader = getBodyReader(definition);
 
-				Object[] args = ArgumentProvider.getArguments(method, definition, context, reader);
+				Object[] args = ArgumentProvider.getArguments(method, definition, context, reader, providers);
 
 				Object result = method.invoke(toInvoke, args);
 
@@ -365,6 +369,16 @@ public class RestRouter {
 	public static ExceptionHandlerFactory getExceptionHandlers() {
 
 		return handlers;
+	}
+
+	/**
+	 * Registers a context provider for given type of class
+	 * @param aClass
+	 * @param provider
+	 */
+	public static <T> void addContextProvider(Class<T> aClass, ContextProvider<T> provider) {
+
+		providers.register(aClass, provider);
 	}
 
 	static void pushContext(RoutingContext context, Object object) {

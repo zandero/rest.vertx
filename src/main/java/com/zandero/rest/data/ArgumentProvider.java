@@ -1,5 +1,7 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.context.ContextProvider;
+import com.zandero.rest.context.ContextProviders;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.ContextException;
 import com.zandero.rest.reader.HttpRequestBodyReader;
@@ -22,7 +24,10 @@ import java.util.Map;
  */
 public class ArgumentProvider {
 
-    public static Object[] getArguments(Method method, RouteDefinition definition, RoutingContext context, HttpRequestBodyReader bodyReader) {
+    public static Object[] getArguments(Method method,
+                                        RouteDefinition definition,
+                                        RoutingContext context,
+                                        HttpRequestBodyReader bodyReader, ContextProviders providers) {
 
         Assert.notNull(method, "Missing method to provide arguments for!");
         Assert.notNull(definition, "Missing route definition!");
@@ -66,6 +71,16 @@ public class ArgumentProvider {
                             break;
 
                         case context:
+
+                            // check if providers need to be called to assure context
+                            ContextProvider provider = providers.get(dataType);
+                            if (provider != null) {
+                                Object result = provider.provide(context.request());
+                                if (result != null) {
+                                    context.data().put(getContextKey(dataType), result);
+                                }
+                            }
+
                             args[parameter.getIndex()] = provideContext(definition, method.getParameterTypes()[parameter.getIndex()], parameter.getDefaultValue(), context);
                             break;
 
@@ -234,7 +249,7 @@ public class ArgumentProvider {
         return getContextKey(object.getClass());
     }
 
-    public static String getContextKey(Class clazz) {
+    private static String getContextKey(Class clazz) {
         Assert.notNull(clazz, "Missing class!");
         return "RestRouter-" + clazz.getName();
     }

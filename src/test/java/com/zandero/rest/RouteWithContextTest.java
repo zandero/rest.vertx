@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  *
  */
@@ -30,8 +31,8 @@ public class RouteWithContextTest extends VertxTest {
 
 		router = RestRouter.register(router, testRest);
 		vertx.createHttpServer()
-			.requestHandler(router::accept)
-			.listen(PORT);
+		     .requestHandler(router::accept)
+		     .listen(PORT);
 	}
 
 	private Handler<RoutingContext> pushContextHandler() {

@@ -21,326 +21,305 @@ import java.util.Map;
  */
 public abstract class ClassFactory<T> {
 
-    private final static Logger log = LoggerFactory.getLogger(ClassFactory.class);
+	private final static Logger log = LoggerFactory.getLogger(ClassFactory.class);
 
-    private Map<String, T> cache = new HashMap<>();
+	private Map<String, T> cache = new HashMap<>();
 
-    protected Map<Class, Class<? extends T>> classTypes = new LinkedHashMap<>();
+	protected Map<Class, Class<? extends T>> classTypes = new LinkedHashMap<>();
 
-    protected Map<String, Class<? extends T>> mediaTypes = new LinkedHashMap<>();
+	protected Map<String, Class<? extends T>> mediaTypes = new LinkedHashMap<>();
 
-    public ClassFactory() {
+	private static Class[] PRIMITIVE_TYPE = new Class[]{
+			String.class,
+			int.class, Integer.class,
+			boolean.class, Boolean.class,
+			byte.class, Byte.class,
+			char.class, Character.class,
+			short.class, Short.class,
+			long.class, Long.class,
+			float.class, Float.class,
+			double.class, Double.class
+	};
 
-        init();
-    }
+	public ClassFactory() {
 
-    abstract protected void init();
+		init();
+	}
 
-    public void clear() {
+	abstract protected void init();
 
-        // clears any additionally registered writers and initializes defaults
-        classTypes.clear();
-        mediaTypes.clear();
-        cache.clear();
+	public void clear() {
 
-        init();
-    }
+		// clears any additionally registered writers and initializes defaults
+		classTypes.clear();
+		mediaTypes.clear();
+		cache.clear();
 
-    private void cache(T instance) {
+		init();
+	}
 
-        cache.put(instance.getClass().getName(), instance);
-    }
+	private void cache(T instance) {
 
-    private T getCached(Class<? extends T> reader) {
+		cache.put(instance.getClass().getName(), instance);
+	}
 
-        return cache.get(reader.getName());
-    }
+	private T getCached(Class<? extends T> reader) {
 
-    protected T getClassInstance(Class<? extends T> clazz) throws ClassFactoryException {
+		return cache.get(reader.getName());
+	}
 
-        if (clazz == null) {
-            return null;
-        }
+	protected T getClassInstance(Class<? extends T> clazz) throws ClassFactoryException {
 
-        try {
+		if (clazz == null) {
+			return null;
+		}
 
-            T instance = getCached(clazz);
-            if (instance == null) {
+		try {
 
-                instance = clazz.newInstance();
-                cache(instance);
-            }
+			T instance = getCached(clazz);
+			if (instance == null) {
 
-            return instance;
-        }
-        catch (InstantiationException | IllegalAccessException e) {
-            log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
-            throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
-        }
-    }
+				instance = clazz.newInstance();
+				cache(instance);
+			}
 
-    public static Object newInstanceOf(Class<?> clazz) throws ClassFactoryException {
+			return instance;
+		} catch (InstantiationException | IllegalAccessException e) {
+			log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
+			throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
+		}
+	}
 
-        if (clazz == null) {
-            return null;
-        }
+	public static Object newInstanceOf(Class<?> clazz) throws ClassFactoryException {
 
-        try {
-            return clazz.newInstance();
-        }
-        catch (InstantiationException | IllegalAccessException e) {
-            log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
-            throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
-        }
-    }
+		if (clazz == null) {
+			return null;
+		}
 
-    protected void register(String mediaType, Class<? extends T> clazz) {
+		try {
+			return clazz.newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
+			throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
+		}
+	}
 
-        Assert.notNull(mediaType, "Missing media type!");
-        Assert.notNull(clazz, "Missing media type class");
+	protected void register(String mediaType, Class<? extends T> clazz) {
 
-        MediaType type = MediaType.valueOf(mediaType);
-        Assert.notNull(type, "Unknown media type given: " + mediaType);
+		Assert.notNull(mediaType, "Missing media type!");
+		Assert.notNull(clazz, "Missing media type class");
 
-        String key = MediaTypeHelper.getKey(type);
-        mediaTypes.put(key, clazz);
-    }
+		MediaType type = MediaType.valueOf(mediaType);
+		Assert.notNull(type, "Unknown media type given: " + mediaType);
 
-    protected void register(MediaType mediaType, Class<? extends T> clazz) {
+		String key = MediaTypeHelper.getKey(type);
+		mediaTypes.put(key, clazz);
+	}
 
-        Assert.notNull(mediaType, "Missing media type!");
-        Assert.notNull(clazz, "Missing media type class");
+	protected void register(MediaType mediaType, Class<? extends T> clazz) {
 
-        String key = MediaTypeHelper.getKey(mediaType);
-        mediaTypes.put(key, clazz);
-    }
+		Assert.notNull(mediaType, "Missing media type!");
+		Assert.notNull(clazz, "Missing media type class");
 
-    protected void register(Class<?> aClass, Class<? extends T> clazz) {
+		String key = MediaTypeHelper.getKey(mediaType);
+		mediaTypes.put(key, clazz);
+	}
 
-        Assert.notNull(aClass, "Missing associated class!");
-        Assert.notNull(clazz, "Missing response type class");
+	protected void register(Class<?> aClass, Class<? extends T> clazz) {
 
-        Type expected = getGenericType(clazz);
-        checkIfCompatibleTypes(aClass, expected, "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + clazz + "'");
+		Assert.notNull(aClass, "Missing associated class!");
+		Assert.notNull(clazz, "Missing response type class");
 
-        classTypes.put(aClass, clazz);
-    }
+		Type expected = getGenericType(clazz);
+		checkIfCompatibleTypes(aClass, expected, "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + clazz + "'");
 
-    protected T get(Class<?> type, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ClassFactoryException {
+		classTypes.put(aClass, clazz);
+	}
 
-        Class<? extends T> clazz = byDefinition;
+	protected T get(Class<?> type, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ClassFactoryException {
 
-        // 2. if no writer is specified ... try to find appropriate writer by response type
-        if (clazz == null) {
+		Class<? extends T> clazz = byDefinition;
 
-            clazz = get(type);
-            /*if (type != null) {
-				// try to find appropriate class if mapped (by exact type)
-				clazz = classTypes.get(type);
+		// 2. if no writer is specified ... try to find appropriate writer by response type
+		if (clazz == null) {
+			clazz = get(type);
+		}
 
-				// exact match failed ... go over keys and check if classes are related (inherited from ...)
-				if (clazz == null) {
-					for (Class key : classTypes.keySet()) {
-						if (key.isInstance(type) || key.isAssignableFrom(type)) {
-							clazz = classTypes.get(key);
-							break;
-						}
+		// try by consumes annotation
+		if (clazz == null) {
+
+			if (mediaTypes != null && mediaTypes.length > 0) {
+
+				for (MediaType mediaType : mediaTypes) {
+					clazz = get(mediaType);
+
+					if (clazz != null) {
+						break;
 					}
 				}
-			}*/
-        }
+			}
+		}
 
-        // try by consumes annotation
-        if (clazz == null) {
+		if (clazz != null) {
+			return getClassInstance(clazz);
+		}
 
-            if (mediaTypes != null && mediaTypes.length > 0) {
+		return null;
+	}
 
-                for (MediaType mediaType : mediaTypes) {
-                    clazz = get(mediaType);
+	private Class<? extends T> get(MediaType mediaType) {
 
-                    if (clazz != null) {
-                        break;
-                    }
-                }
-            }
-        }
+		if (mediaType == null) {
+			return null;
+		}
 
-        if (clazz != null) {
-            return getClassInstance(clazz);
-        }
+		return mediaTypes.get(MediaTypeHelper.getKey(mediaType));
+	}
 
-        return null;
-    }
+	public T get(String mediaType) throws ClassFactoryException {
 
-    private Class<? extends T> get(MediaType mediaType) {
+		Class<? extends T> clazz = get(MediaType.valueOf(mediaType));
+		return getClassInstance(clazz);
+	}
 
-        if (mediaType == null) {
-            return null;
-        }
+	public Class<? extends T> get(Class<?> type) {
 
-        return mediaTypes.get(MediaTypeHelper.getKey(mediaType));
-    }
+		if (type == null) {
+			return null;
+		}
+		// try to find appropriate class if mapped (by type)
+		for (Class key : classTypes.keySet()) {
+			if (key.isInstance(type) || key.isAssignableFrom(type)) {
+				return classTypes.get(key);
+			}
+		}
 
-    public T get(String mediaType) throws ClassFactoryException {
+		return null;
+	}
 
-        Class<? extends T> clazz = get(MediaType.valueOf(mediaType));
-        return getClassInstance(clazz);
-    }
+	public static Type getGenericType(Class clazz) {
 
-    public Class<? extends T> get(Class<?> type) {
+		Assert.notNull(clazz, "Missing class!");
+		Type[] genericInterfaces = clazz.getGenericInterfaces();
+		for (Type genericInterface : genericInterfaces) {
 
-        if (type == null) {
-            return null;
-        }
-        // try to find appropriate class if mapped (by type)
-        for (Class key : classTypes.keySet()) {
-            if (key.isInstance(type) || key.isAssignableFrom(type)) {
-                return classTypes.get(key);
-            }
-        }
+			if (genericInterface instanceof ParameterizedType) {
 
-        return null;
-    }
+				Type[] genericTypes = ((ParameterizedType) genericInterface).getActualTypeArguments();
+				return genericTypes[0];
+			}
+		}
 
-    public static Type getGenericType(Class clazz) {
+		return null;
+	}
 
-        Assert.notNull(clazz, "Missing class!");
-        Type[] genericInterfaces = clazz.getGenericInterfaces();
-        for (Type genericInterface : genericInterfaces) {
+	public static void checkIfCompatibleTypes(Class<?> expected, Type actual, String message) {
 
-            if (genericInterface instanceof ParameterizedType) {
+		boolean compatibleTypes = checkIfCompatibleTypes(expected, actual);
+		Assert.isTrue(compatibleTypes, message);
+	}
 
-                Type[] genericTypes = ((ParameterizedType) genericInterface).getActualTypeArguments();
-                return genericTypes[0];
-            }
-        }
+	@SuppressWarnings("unchecked")
+	protected static boolean checkIfCompatibleTypes(Class<?> expected, Type actual) {
 
-        return null;
-    }
+		if (actual == null) {
+			return true;
+		}
 
-    public static void checkIfCompatibleTypes(Class<?> expected, Type actual, String message) {
+		if (actual instanceof ParameterizedType) {
+			return expected.isAssignableFrom(((ParameterizedTypeImpl) actual).getRawType());
+		} else if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
+			return true;
+		} else {
+			return expected.equals(actual) || expected.isInstance(actual) || ((Class) actual).isAssignableFrom(expected);
+		}
+	}
 
-        boolean compatibleTypes = checkIfCompatibleTypes(expected, actual);
-        Assert.isTrue(compatibleTypes, message);
-    }
+	public static Object stringToPrimitiveType(String value, Class<?> dataType) {
 
-    @SuppressWarnings("unchecked")
-    protected static boolean checkIfCompatibleTypes(Class<?> expected, Type actual) {
+		if (value == null) {
+			return null;
+		}
 
-        if (actual == null) {
-            return true;
-        }
+		if (dataType.equals(String.class)) {
+			return value;
+		}
 
-        if (actual instanceof ParameterizedType) {
-            return expected.isAssignableFrom(((ParameterizedTypeImpl) actual).getRawType());
-        }
-        else if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
-            return true;
-        }
-        else {
-            return expected.equals(actual) || expected.isInstance(actual) || ((Class) actual).isAssignableFrom(expected);
-        }
-    }
+		// primitive types need to be cast differently
+		if (dataType.isAssignableFrom(boolean.class) || dataType.isAssignableFrom(Boolean.class)) {
+			return Boolean.valueOf(value);
+		}
 
-    public static Object stringToPrimitiveType(String value, Class<?> dataType) {
+		if (dataType.isAssignableFrom(byte.class) || dataType.isAssignableFrom(Byte.class)) {
+			return Byte.valueOf(value);
+		}
 
-        if (value == null) {
-            return null;
-        }
+		if (dataType.isAssignableFrom(char.class) || dataType.isAssignableFrom(Character.class)) {
 
-        if (dataType.equals(String.class)) {
-            return value;
-        }
+			Assert.isTrue(value.length() != 0, "Expected Character but got: null");
+			return value.charAt(0);
+		}
 
-        // primitive types need to be cast differently
-        if (dataType.isAssignableFrom(boolean.class) || dataType.isAssignableFrom(Boolean.class)) {
-            return Boolean.valueOf(value);
-        }
+		if (dataType.isAssignableFrom(short.class) || dataType.isAssignableFrom(Short.class)) {
+			return Short.valueOf(value);
+		}
 
-        if (dataType.isAssignableFrom(byte.class) || dataType.isAssignableFrom(Byte.class)) {
-            return Byte.valueOf(value);
-        }
+		if (dataType.isAssignableFrom(int.class) || dataType.isAssignableFrom(Integer.class)) {
+			return Integer.valueOf(value);
+		}
 
-        if (dataType.isAssignableFrom(char.class) || dataType.isAssignableFrom(Character.class)) {
+		if (dataType.isAssignableFrom(long.class) || dataType.isAssignableFrom(Long.class)) {
+			return Long.valueOf(value);
+		}
 
-            Assert.isTrue(value.length() != 0, "Expected Character but got: null");
-            return value.charAt(0);
-        }
+		if (dataType.isAssignableFrom(float.class) || dataType.isAssignableFrom(Float.class)) {
+			return Float.valueOf(value);
+		}
 
-        if (dataType.isAssignableFrom(short.class) || dataType.isAssignableFrom(Short.class)) {
-            return Short.valueOf(value);
-        }
+		if (dataType.isAssignableFrom(double.class) || dataType.isAssignableFrom(Double.class)) {
+			return Double.valueOf(value);
+		}
 
-        if (dataType.isAssignableFrom(int.class) || dataType.isAssignableFrom(Integer.class)) {
-            return Integer.valueOf(value);
-        }
+		return null;
+	}
 
-        if (dataType.isAssignableFrom(long.class) || dataType.isAssignableFrom(Long.class)) {
-            return Long.valueOf(value);
-        }
+	/**
+	 * Aims to custruct given type utilizing a constructor that takes String or other primitive type values
+	 *
+	 * @param type         to be constructed
+	 * @param defaultValue constructor param
+	 * @return class object
+	 * @throws ClassFactoryException in case type could not be constructed
+	 */
+	public static Object constructType(Class<?> type, String defaultValue) throws ClassFactoryException {
 
-        if (dataType.isAssignableFrom(float.class) || dataType.isAssignableFrom(Float.class)) {
-            return Float.valueOf(value);
-        }
+		Assert.notNull(type, "Missing type!");
+		Assert.notNullOrEmptyTrimmed(defaultValue, "Missing default value!");
 
-        if (dataType.isAssignableFrom(double.class) || dataType.isAssignableFrom(Double.class)) {
-            return Double.valueOf(value);
-        }
+		Constructor[] allConstructors = type.getDeclaredConstructors();
+		for (Constructor ctor : allConstructors) {
 
-        return null;
-    }
+			Class<?>[] pType = ctor.getParameterTypes();
+			if (pType.length == 1) { // ok ... match ... might be possible to use
 
-    /**
-     * Aims to custruct given type utilizing a constructor that takes String or other primitive type values
-     *
-     * @param type         to be constructed
-     * @param defaultValue constructor param
-     * @return class object
-     *
-     * @throws ClassFactoryException in case type could not be constructed
-     */
-    public static Object constructType(Class<?> type, String defaultValue) throws ClassFactoryException {
+				try {
 
-        Assert.notNull(type, "Missing type!");
-        Assert.notNullOrEmptyTrimmed(defaultValue, "Missing default value!");
+					for (Class primitive : PRIMITIVE_TYPE) {
 
-        Class[] primitiveTypes = new Class[]{
-            String.class,
-            int.class, Integer.class,
-            boolean.class, Boolean.class,
-            byte.class, Byte.class,
-            char.class, Character.class,
-            short.class, Short.class,
-            long.class, Long.class,
-            float.class, Float.class,
-            double.class, Double.class
-        };
+						if (pType[0].isAssignableFrom(primitive)) {
 
-        Constructor[] allConstructors = type.getDeclaredConstructors();
-        for (Constructor ctor : allConstructors) {
+							Object value = stringToPrimitiveType(defaultValue, primitive);
+							return ctor.newInstance(value);
+						}
+					}
+				} catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+					//continue; // try next one ... if any
+					log.warn("Failed constructing: " + ctor, e);
+				}
+			}
+		}
 
-            Class<?>[] pType = ctor.getParameterTypes();
-            if (pType.length == 1) { // ok ... match ... might be possible to use
-
-                try {
-
-                    for (Class primitive : primitiveTypes) {
-
-                        if (pType[0].isAssignableFrom(primitive)) {
-
-                            Object value = stringToPrimitiveType(defaultValue, primitive);
-                            return ctor.newInstance(value);
-                        }
-                    }
-                }
-                catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                    //continue; // try next one ... if any
-                    log.warn("Failed constructing: " + ctor, e);
-                }
-            }
-        }
-
-        throw new ClassFactoryException("Could not construct: " + type + " with default value: '" + defaultValue + "', " +
-            "must provide String only or primitive type constructor!", null);
-    }
+		throw new ClassFactoryException("Could not construct: " + type + " with default value: '" + defaultValue + "', " +
+				                                "must provide String only or primitive type constructor!", null);
+	}
 }

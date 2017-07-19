@@ -2,8 +2,6 @@ package com.zandero.rest.exception;
 
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.utils.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.WebApplicationException;
 import java.lang.reflect.Type;
@@ -16,8 +14,6 @@ import java.util.List;
  *
  */
 public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
-
-	private final static Logger log = LoggerFactory.getLogger(ExceptionHandlerFactory.class);
 
 	/**
 	 * standalone list of global handlers
@@ -43,16 +39,17 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 		Class<? extends ExceptionHandler> found = null;
 
 		List<Class<? extends ExceptionHandler>> joined = new ArrayList<>();
-		// as given in REST (class or method annotation)
+		// add as given in REST (class or method annotation)
 		if (handlers != null && handlers.length > 0) {
 			joined.addAll(Arrays.asList(handlers));
 		}
 
-		// as globally registered
+		// add globally registered
 		if (exceptionHandlers != null && exceptionHandlers.size() > 0) {
 			joined.addAll(exceptionHandlers);
 		}
 
+		// go over list and try to find matching handler
 		if (joined.size() > 0) {
 
 			for (Class<? extends ExceptionHandler> handler: joined) {
