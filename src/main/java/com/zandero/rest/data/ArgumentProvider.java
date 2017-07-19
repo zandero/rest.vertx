@@ -11,8 +11,6 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.RoutingContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -23,8 +21,6 @@ import java.util.Map;
  * Extracts arguments to be provided for given method from definition and current context (request)
  */
 public class ArgumentProvider {
-
-    private final static Logger log = LoggerFactory.getLogger(ArgumentProvider.class);
 
     public static Object[] getArguments(Method method, RouteDefinition definition, RoutingContext context, HttpRequestBodyReader bodyReader) {
 
@@ -40,8 +36,6 @@ public class ArgumentProvider {
 
         // get parameters and extract from request their values
         List<MethodParameter> params = definition.getParameters(); // returned sorted by index
-
-        //Map<String, String> query = UrlUtils.getQuery(context.request().query());
 
         Object[] args = new Object[methodArguments.length];
 
@@ -68,7 +62,7 @@ public class ArgumentProvider {
 
                         case body:
                             Assert.notNull(bodyReader, "Missing request body reader!");
-                            args[parameter.getIndex()] = bodyReader.read(value, methodArguments[parameter.getIndex()]);
+                            args[parameter.getIndex()] = bodyReader.read(value, dataType);
                             break;
 
                         case context:
@@ -164,8 +158,7 @@ public class ArgumentProvider {
      * @param context      to extract value from
      * @return found context or null if not found
      */
-    private static Object provideContext(RouteDefinition definition, Class<?> type, String defaultValue,
-                                         RoutingContext context) throws ContextException {
+    private static Object provideContext(RouteDefinition definition, Class<?> type, String defaultValue, RoutingContext context) throws ContextException {
 
         if (type == null) {
             return null;
@@ -198,27 +191,27 @@ public class ArgumentProvider {
         }
 
         // browse through context storage
-        if (context.data() != null) {
-            for (Object item : context.data().values()) {
-                if (type.isInstance(item)) {
-                    return item;
-                }
+        if (context.data() != null && context.data().size() > 0) {
+
+            Object item = context.data().get(getContextKey(type));
+            if (item != null) { // found in storage ... return
+                return item;
             }
         }
 
         if (defaultValue != null) {
-            // check if type has constructor that can be used with defaultValue ... and create Context type on the fly
+            // check if type has constructor that can be used with defaultValue ...
+            // and create Context type on the fly constructed with defaultValue
             try {
                 return ClassFactory.constructType(type, defaultValue);
             }
             catch (ClassFactoryException e) {
-                log.error("Could not construct: " + type + " with default value: '" + defaultValue + "', must provide String only or primitive type constructor!");
+                throw new ContextException("Can't provide @Context of type: " + type + ". " + e.getMessage());
             }
         }
 
         // Given Context can not be resolved ... throw exception
         throw new ContextException("Can't provide @Context of type: " + type);
-
     }
 
     private static String getParam(HttpServerRequest request, int index) {
@@ -238,6 +231,12 @@ public class ArgumentProvider {
     public static String getContextKey(Object object) {
 
         Assert.notNull(object, "Expected object but got null!");
-        return "RestRouter-" + Integer.toString(object.hashCode());
+        return getContextKey(object.getClass());
     }
+
+    public static String getContextKey(Class clazz) {
+        Assert.notNull(clazz, "Missing class!");
+        return "RestRouter-" + clazz.getName();
+    }
+
 }
