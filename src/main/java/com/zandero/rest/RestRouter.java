@@ -381,6 +381,10 @@ public class RestRouter {
 		providers.register(aClass, provider);
 	}
 
+	public static ContextProviders getContextProviders() {
+		return providers;
+	}
+
 	static void pushContext(RoutingContext context, Object object) {
 
 		Assert.notNull(context, "Missing context!");
@@ -388,4 +392,5 @@ public class RestRouter {
 
 		context.put(ArgumentProvider.getContextKey(object), object);
 	}
+
 }

@@ -94,4 +94,30 @@ public class RouteWithQueryTest extends VertxTest {
 			});
 		});
 	}
+
+	@Test
+	public void queryNegativeTest(TestContext context) {
+
+		final Async async = context.async();
+
+		client.getNow("/query/invert?negative=true&value=2.4", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("-2.4", body.toString());
+				async.complete();
+			});
+		});
+
+		client.getNow("/query/invert?negative=false&value=2.4", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("2.4", body.toString());
+				async.complete();
+			});
+		});
+	}
 }

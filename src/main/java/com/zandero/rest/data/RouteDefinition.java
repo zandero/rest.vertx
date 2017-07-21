@@ -247,6 +247,7 @@ public class RouteDefinition {
 
 		for (HttpMethod item : HttpMethod.values()) {
 			if (StringUtils.equals(value, item.name(), true)) {
+				Assert.isNull(method, "Method already set to: " + method + "!");
 				method = item;
 				break;
 			}

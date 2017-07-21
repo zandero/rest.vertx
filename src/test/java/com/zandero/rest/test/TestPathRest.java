@@ -16,4 +16,11 @@ public class TestPathRest {
 
 		return rootPath + param;
 	}
+
+	// Root only
+	@GET
+	public String echoRoot(@PathParam("root") String rootPath) {
+
+		return rootPath;
+	}
 }

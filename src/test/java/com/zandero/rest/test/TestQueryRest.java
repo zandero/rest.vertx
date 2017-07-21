@@ -16,4 +16,15 @@ public class TestQueryRest {
 
 		return one + two;
 	}
+
+	@GET
+	@Path("invert")
+	public float add(@QueryParam("negative") boolean negative, @QueryParam("value") float value) {
+
+		if (negative) {
+			return -value;
+		}
+
+		return value;
+	}
 }

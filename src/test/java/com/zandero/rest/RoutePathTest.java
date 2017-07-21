@@ -1,5 +1,6 @@
 package com.zandero.rest;
 
+import com.zandero.rest.test.TestInvalidMethodRest;
 import com.zandero.rest.test.TestPathRest;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -10,6 +11,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  *
@@ -60,5 +64,33 @@ public class RoutePathTest extends VertxTest {
 				async.complete();
 			});
 		});
+	}
+
+	@Test
+	public void rootWithoutPathTest(TestContext context) throws IOException {
+
+		final Async async = context.async();
+
+		client.getNow("/this", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("this", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void invalidDuplicateMethodRestTest() {
+
+		try {
+			RestRouter.register(vertx, TestInvalidMethodRest.class);
+			fail();
+		}
+		catch (Exception e) {
+			assertEquals("class com.zandero.rest.test.TestInvalidMethodRest.echo() - Method already set to: POST!", e.getMessage());
+		}
 	}
 }

@@ -45,4 +45,8 @@ public class ContextProviders {
 	public ContextProvider get(Class clazz) {
 		return providers.get(clazz);
 	}
+
+	public void clear() {
+		providers.clear();
+	}
 }

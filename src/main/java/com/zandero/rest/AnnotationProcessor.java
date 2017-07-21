@@ -3,10 +3,12 @@ package com.zandero.rest;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.utils.Assert;
 
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,7 +37,7 @@ public final class AnnotationProcessor {
 		Map<RouteDefinition, Method> output = new LinkedHashMap<>();
 		for (Method method : clazz.getMethods()) {
 
-			if (method.getAnnotation(Path.class) != null) { // Path must be present
+			if (isRestMethod(method)) { // Path must be present
 
 				try {
 					RouteDefinition definition = new RouteDefinition(root, method.getAnnotations());
@@ -51,6 +53,31 @@ public final class AnnotationProcessor {
 		}
 
 		return output;
+	}
+
+	/**
+	 * A Rest method can have a Path and must have GET, POST ...
+	 * @param method to examine
+	 * @return true if REST method, false otherwise
+	 */
+	private static boolean isRestMethod(Method method) {
+
+		List<Class<? extends Annotation>> search = Arrays.asList(Path.class,
+		                                                         HttpMethod.class,
+		                                                         GET.class,
+		                                                         POST.class,
+		                                                         PUT.class,
+		                                                         DELETE.class,
+		                                                         OPTIONS.class,
+		                                                         HEAD.class);
+
+		for (Class<? extends Annotation> item: search) {
+			if (method.getAnnotation(item) != null) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

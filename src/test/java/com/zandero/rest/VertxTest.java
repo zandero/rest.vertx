@@ -35,6 +35,7 @@ public class VertxTest {
 		RestRouter.getReaders().clear();
 		RestRouter.getWriters().clear();
 		RestRouter.getExceptionHandlers().clear();
+		RestRouter.getContextProviders().clear();
 	}
 
 	@After
