@@ -43,6 +43,9 @@ public final class AnnotationProcessor {
 					RouteDefinition definition = new RouteDefinition(root, method.getAnnotations());
 					definition.setArguments(method);
 
+					// check route path is not null
+					Assert.notNullOrEmptyTrimmed(definition.getRoutePath(), "Missing route @Path!");
+
 					output.put(definition, method);
 
 				} catch (IllegalArgumentException e) {

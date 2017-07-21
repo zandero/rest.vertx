@@ -1,6 +1,7 @@
 package com.zandero.rest;
 
 import com.zandero.rest.test.TestInvalidMethodRest;
+import com.zandero.rest.test.TestMissingPathRest;
 import com.zandero.rest.test.TestPathRest;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -91,6 +92,18 @@ public class RoutePathTest extends VertxTest {
 		}
 		catch (Exception e) {
 			assertEquals("class com.zandero.rest.test.TestInvalidMethodRest.echo() - Method already set to: POST!", e.getMessage());
+		}
+	}
+
+	@Test
+	public void noPathRestTest() {
+
+		try {
+			RestRouter.register(vertx, TestMissingPathRest.class);
+			fail();
+		}
+		catch (Exception e) {
+			assertEquals("class com.zandero.rest.test.TestMissingPathRest.echo() - Missing route @Path!", e.getMessage());
 		}
 	}
 }
