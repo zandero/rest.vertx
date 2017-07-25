@@ -16,7 +16,7 @@ public enum ParameterType {
 	query("@QueryParam"),
 
 	/**
-	 *
+	 * Cookie in request
 	 */
 	cookie("@CookieParam"),
 
@@ -29,6 +29,11 @@ public enum ParameterType {
 	 * Request header
 	 */
 	header("@HeaderParam"),
+
+	/**
+	 * Matrix parameter
+	 */
+	matrix("@Matrix"),
 
 	/**
 	 * Request body

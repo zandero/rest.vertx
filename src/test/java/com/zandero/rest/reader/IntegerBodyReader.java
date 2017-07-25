@@ -3,7 +3,7 @@ package com.zandero.rest.reader;
 /**
  *
  */
-public class IntegerBodyReader implements HttpRequestBodyReader<Integer> {
+public class IntegerBodyReader implements ValueReader<Integer> {
 
 	@Override
 	public Integer read(String value, Class<Integer> type) {

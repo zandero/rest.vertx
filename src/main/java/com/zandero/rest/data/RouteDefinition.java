@@ -3,7 +3,7 @@ package com.zandero.rest.data;
 import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.*;
 import com.zandero.rest.exception.ExceptionHandler;
-import com.zandero.rest.reader.HttpRequestBodyReader;
+import com.zandero.rest.reader.ValueReader;
 import com.zandero.rest.utils.ArrayUtils;
 import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.utils.Assert;
@@ -47,7 +47,7 @@ public class RouteDefinition {
 
 	private Class<? extends HttpResponseWriter> writer;
 
-	private Class<? extends HttpRequestBodyReader> reader;
+	private Class<? extends ValueReader> reader;
 
 	private Class<? extends ExceptionHandler>[] exceptionHandlers;
 
@@ -295,6 +295,7 @@ public class RouteDefinition {
 			String name = null;
 			ParameterType type = null;
 			String defaultValue = null;
+			Class<? extends ValueReader> valueReader = null;
 
 			for (Annotation annotation : ann) {
 
@@ -310,11 +311,6 @@ public class RouteDefinition {
 					type = ParameterType.query;
 				}
 
-				if (annotation instanceof DefaultValue) {
-
-					defaultValue = ((DefaultValue) annotation).value();
-				}
-
 				if (annotation instanceof FormParam) {
 
 					type = ParameterType.form;
@@ -328,9 +324,26 @@ public class RouteDefinition {
 
 				if (annotation instanceof HeaderParam) {
 
+					// TODO: ... implement details
 					type = ParameterType.header;
 					name = ((HeaderParam) annotation).value();
 				}
+
+				if (annotation instanceof MatrixParam) {
+					type = ParameterType.matrix;
+					name = ((MatrixParam) annotation).value();
+				}
+
+				if (annotation instanceof DefaultValue) {
+
+					defaultValue = ((DefaultValue) annotation).value();
+				}
+
+				if (annotation instanceof RequestReader) {
+
+					valueReader = ((RequestReader)annotation).value();
+				}
+
 
 				if (annotation instanceof Context) {
 
@@ -351,6 +364,13 @@ public class RouteDefinition {
 					param.argument(parameterTypes[index]); // set missing argument type
 				} else {
 
+					if (valueReader == null) {
+						valueReader = reader; // take reader from method / class definition
+					}
+					else {
+						reader = valueReader; // set body reader from field
+					}
+
 					Assert.isTrue(requestHasBody(), "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam, @Context) for: " +
 							                                parameterTypes[index].getName() + " " + parameters[index].getName());
 
@@ -360,7 +380,7 @@ public class RouteDefinition {
 			}
 
 			if (name != null) {
-				MethodParameter parameter = provideArgument(name, type, defaultValue, parameterTypes[index], index);
+				MethodParameter parameter = provideArgument(name, type, defaultValue, parameterTypes[index], valueReader, index);
 				params.put(name, parameter);
 			}
 
@@ -383,7 +403,12 @@ public class RouteDefinition {
 		return null;
 	}
 
-	private MethodParameter provideArgument(String name, ParameterType type, String defaultValue, Class<?> parameterType, int index) {
+	private MethodParameter provideArgument(String name,
+	                                        ParameterType type,
+	                                        String defaultValue,
+	                                        Class<?> parameterType,
+	                                        Class<? extends ValueReader> valueReader,
+	                                        int index) {
 
 		Assert.notNull(type, "Argument: " + name + " (" + parameterType + ") can't be provided with Vert.x request, check and annotate method arguments!");
 
@@ -402,6 +427,7 @@ public class RouteDefinition {
 
 				MethodParameter newParam = new MethodParameter(type, name, parameterType, index);
 				newParam.setDefaultValue(defaultValue);
+				newParam.setValueReader(valueReader);
 				return newParam;
 		}
 	}
@@ -452,7 +478,7 @@ public class RouteDefinition {
 		return writer;
 	}
 
-	public Class<? extends HttpRequestBodyReader> getReader() {
+	public Class<? extends ValueReader> getReader() {
 
 		return reader;
 	}

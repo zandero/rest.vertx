@@ -29,4 +29,8 @@ public class Dummy {
 	public String name;
 
 	public String value;
+
+	public static Dummy valueOf(String json) {
+		return JsonUtils.fromJson(json, Dummy.class);
+	}
 }

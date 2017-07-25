@@ -18,7 +18,7 @@ public class JsonBodyReaderTest {
 		Dummy test = new Dummy("Hello", "World");
 		String value = JsonUtils.toJson(test);
 
-		JsonBodyReader reader = new JsonBodyReader();
+		JsonValueReader reader = new JsonValueReader();
 		Object item = reader.read(value, Dummy.class);
 
 		assertTrue(item instanceof Dummy);

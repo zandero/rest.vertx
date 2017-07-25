@@ -1,5 +1,6 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.reader.ValueReader;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
 import com.zandero.utils.extra.ValidatingUtils;
@@ -43,6 +44,11 @@ public class MethodParameter {
 	 * path is a regular expression
 	 */
 	private String regularExpression;
+
+	/**
+	 * String to type converter
+	 */
+	private Class<? extends ValueReader> reader;
 
 
 	public MethodParameter(ParameterType parameterType, String paramName) {
@@ -148,6 +154,16 @@ public class MethodParameter {
 		return pathIndex;
 	}
 
+	public void setValueReader(Class<? extends ValueReader> valueReader) {
+
+		reader = valueReader;
+	}
+
+	public Class<? extends ValueReader> getReader() {
+
+		return reader;
+	}
+
 	@Override
 	public String toString() {
 
@@ -157,5 +173,4 @@ public class MethodParameter {
 
 		return type.getDescription() + "(\"" + name + "\")";
 	}
-
 }

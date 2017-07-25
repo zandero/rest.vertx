@@ -43,19 +43,19 @@ public class RouteRegistrationTest extends VertxTest {
 		StringEntity input = new StringEntity(JsonUtils.toJson(json));
 		input.setContentType("application/json");
 
-		HttpPost request = (HttpPost) HttpUtils.post(ROOT_PATH + "/test/json/post", null, null, input, null);
+	/*	HttpPost request = (HttpPost) HttpUtils.post(ROOT_PATH + "/test/json/post", null, null, input, null);
 		HttpResponse response = HttpUtils.execute(request);
 
 		assertEquals(200, response.getStatusLine().getStatusCode());
 		String output = HttpUtils.getContentAsString(response);
 		assertEquals("{\"name\":\"Received-test\",\"value\":\"Received-me\"}", output);
-
+*/
 		// 2nd REST
-		request = (HttpPost) HttpUtils.post(ROOT_PATH + "/post/json", null, null, input, null);
-		response = HttpUtils.execute(request);
+		HttpPost request = (HttpPost) HttpUtils.post(ROOT_PATH + "/post/json", null, null, input, null);
+		HttpResponse response = HttpUtils.execute(request);
 
 		assertEquals(200, response.getStatusLine().getStatusCode());
-		output = HttpUtils.getContentAsString(response);
+		String output = HttpUtils.getContentAsString(response);
 		assertEquals("{\"name\":\"Received-test\",\"value\":\"Received-me\"}", output);
 
 		async.complete();

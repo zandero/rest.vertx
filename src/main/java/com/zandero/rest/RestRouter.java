@@ -4,8 +4,8 @@ import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.context.ContextProviders;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
-import com.zandero.rest.reader.HttpRequestBodyReader;
 import com.zandero.rest.reader.ReaderFactory;
+import com.zandero.rest.reader.ValueReader;
 import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.rest.writer.WriterFactory;
 import com.zandero.utils.Assert;
@@ -119,7 +119,8 @@ public class RestRouter {
 				Route route;
 				if (definition.pathIsRegEx()) {
 					route = router.routeWithRegex(definition.getMethod(), definition.getRoutePath());
-				} else {
+				}
+				else {
 					route = router.route(definition.getMethod(), definition.getRoutePath());
 				}
 
@@ -151,7 +152,8 @@ public class RestRouter {
 				Handler<RoutingContext> handler = getHandler(api, definition, method);
 				if (definition.isBlocking()) {
 					route.blockingHandler(handler);
-				} else {
+				}
+				else {
 					route.handler(handler);
 				}
 			}
@@ -160,22 +162,23 @@ public class RestRouter {
 		return router;
 	}
 
-	private static HttpRequestBodyReader getBodyReader(RouteDefinition definition) {
+	private static ValueReader getBodyReader(RouteDefinition definition) {
 
 		if (!definition.requestHasBody() || !definition.hasBodyParameter()) {
 			return null;
 		}
 
-		HttpRequestBodyReader bodyReader = readers.getRequestBodyReader(definition);
+		ValueReader bodyReader = readers.get(definition.getBodyParameter(), definition.getReader(), definition.getConsumes());
 
 		if (bodyReader != null) {
 
 			Type readerType = ClassFactory.getGenericType(bodyReader.getClass());
 			MethodParameter bodyParameter = definition.getBodyParameter();
 
-			ClassFactory.checkIfCompatibleTypes(bodyParameter.getDataType(), readerType, definition.toString().trim() + " - Parameter type: '" +
-					                                                                             bodyParameter.getDataType() + "' not matching reader type: '" +
-					                                                                             readerType + "' in: '" + bodyReader.getClass() + "'");
+			ClassFactory.checkIfCompatibleTypes(bodyParameter.getDataType(), readerType,
+			                                    definition.toString().trim() + " - Parameter type: '" +
+			                                    bodyParameter.getDataType() + "' not matching reader type: '" +
+			                                    readerType + "' in: '" + bodyReader.getClass() + "'");
 		}
 
 		return bodyReader;
@@ -190,8 +193,8 @@ public class RestRouter {
 
 		Type writerType = ClassFactory.getGenericType(writer.getClass());
 		ClassFactory.checkIfCompatibleTypes(method.getReturnType(), writerType, definition.toString().trim() + " - Response type: '" +
-				                                                                        method.getReturnType() + "' not matching writer type: '" +
-				                                                                        writerType + "' in: '" + writer.getClass() + "'");
+		                                                                        method.getReturnType() + "' not matching writer type: '" +
+		                                                                        writerType + "' in: '" + writer.getClass() + "'");
 
 		return writer;
 	}
@@ -201,7 +204,8 @@ public class RestRouter {
 		Route route;
 		if (definition.pathIsRegEx()) {
 			route = router.routeWithRegex(definition.getMethod(), definition.getRoutePath());
-		} else {
+		}
+		else {
 			route = router.route(definition.getMethod(), definition.getRoutePath());
 		}
 
@@ -210,7 +214,8 @@ public class RestRouter {
 		Handler<RoutingContext> securityHandler = getSecurityHandler(definition, method);
 		if (definition.isBlocking()) {
 			route.blockingHandler(securityHandler);
-		} else {
+		}
+		else {
 			route.handler(securityHandler);
 		}
 	}
@@ -222,7 +227,8 @@ public class RestRouter {
 			boolean allowed = isAllowed(context.user(), definition);
 			if (allowed) {
 				context.next();
-			} else {
+			}
+			else {
 				handleException(new NotAuthorizedException("Not authorized to access: " + definition), context, definition);
 			}
 		};
@@ -260,8 +266,7 @@ public class RestRouter {
 				if (output.result().succeeded(index)) {
 
 					Object result = output.result().resultAt(index);
-					if (result instanceof Boolean && ((Boolean) result))
-						return true;
+					if (result instanceof Boolean && ((Boolean) result)) { return true; }
 				}
 			}
 		}
@@ -276,9 +281,8 @@ public class RestRouter {
 			try {
 
 				HttpResponseWriter writer = getWriter(method, definition);
-				HttpRequestBodyReader reader = getBodyReader(definition);
 
-				Object[] args = ArgumentProvider.getArguments(method, definition, context, reader, providers);
+				Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers);
 
 				Object result = method.invoke(toInvoke, args);
 
@@ -300,8 +304,7 @@ public class RestRouter {
 		ExceptionHandler handler;
 		try {
 			handler = handlers.getExceptionHandler(definition.getExceptionHandlers(), ex.getCause().getClass());
-		}
-		catch (ClassFactoryException classException) {
+		} catch (ClassFactoryException classException) {
 			// Can't provide exception handler ... rethrow
 			log.error("Can't provide exception handler!", classException);
 			// fall back to generic ...
@@ -373,6 +376,7 @@ public class RestRouter {
 
 	/**
 	 * Registers a context provider for given type of class
+	 *
 	 * @param aClass
 	 * @param provider
 	 */

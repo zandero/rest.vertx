@@ -4,7 +4,8 @@ import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.context.ContextProviders;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.ContextException;
-import com.zandero.rest.reader.HttpRequestBodyReader;
+import com.zandero.rest.reader.ReaderFactory;
+import com.zandero.rest.reader.ValueReader;
 import com.zandero.utils.Assert;
 import com.zandero.utils.extra.UrlUtils;
 import io.vertx.core.Vertx;
@@ -13,6 +14,8 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.RoutingContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -24,234 +27,250 @@ import java.util.Map;
  */
 public class ArgumentProvider {
 
-    public static Object[] getArguments(Method method,
-                                        RouteDefinition definition,
-                                        RoutingContext context,
-                                        HttpRequestBodyReader bodyReader, ContextProviders providers) {
+	private final static Logger log = LoggerFactory.getLogger(ArgumentProvider.class);
 
-        Assert.notNull(method, "Missing method to provide arguments for!");
-        Assert.notNull(definition, "Missing route definition!");
-        Assert.notNull(context, "Missing vert.x routing context!");
+	public static Object[] getArguments(Method method,
+	                                    RouteDefinition definition,
+	                                    RoutingContext context,
+	                                    ReaderFactory readers,
+	                                    ContextProviders providers) {
 
-        Class<?>[] methodArguments = method.getParameterTypes();
+		Assert.notNull(method, "Missing method to provide arguments for!");
+		Assert.notNull(definition, "Missing route definition!");
+		Assert.notNull(context, "Missing vert.x routing context!");
 
-        if (methodArguments.length == 0) {
-            return null;    // no arguments needed ...
-        }
+		Class<?>[] methodArguments = method.getParameterTypes();
 
-        // get parameters and extract from request their values
-        List<MethodParameter> params = definition.getParameters(); // returned sorted by index
+		if (methodArguments.length == 0) {
+			return null;    // no arguments needed ...
+		}
 
-        Object[] args = new Object[methodArguments.length];
+		// get parameters and extract from request their values
+		List<MethodParameter> params = definition.getParameters(); // returned sorted by index
 
-        for (MethodParameter parameter : params) {
+		Object[] args = new Object[methodArguments.length];
 
-            // get value
-            String value = getValue(definition, parameter, context);
+		for (MethodParameter parameter : params) {
 
-            if (value == null) {
-                value = parameter.getDefaultValue();
-            }
+			// get value
+			String value = getValue(definition, parameter, context, parameter.getDefaultValue());
 
-            // set if we have a place to set it ... otherwise ignore
-            if (parameter.getIndex() < args.length) {
+			// set if we have a place to set it ... otherwise ignore
+			if (parameter.getIndex() < args.length) {
 
-                Class<?> dataType = parameter.getDataType();
-                if (dataType == null) {
-                    dataType = methodArguments[parameter.getIndex()];
-                }
+				Class<?> dataType = parameter.getDataType();
+				if (dataType == null) {
+					dataType = methodArguments[parameter.getIndex()];
+				}
 
-                try {
+				try {
+					switch (parameter.getType()) {
 
-                    switch (parameter.getType()) {
+						case context:
 
-                        case body:
-                            Assert.notNull(bodyReader, "Missing request body reader!");
-                            args[parameter.getIndex()] = bodyReader.read(value, dataType);
-                            break;
+							// check if providers need to be called to assure context
+							ContextProvider provider = providers.get(dataType);
+							if (provider != null) {
+								Object result = provider.provide(context.request());
+								if (result != null) {
+									context.data().put(getContextKey(dataType), result);
+								}
+							}
 
-                        case context:
+							args[parameter.getIndex()] = provideContext(definition, method.getParameterTypes()[parameter.getIndex()], parameter.getDefaultValue(), context);
+							break;
 
-                            // check if providers need to be called to assure context
-                            ContextProvider provider = providers.get(dataType);
-                            if (provider != null) {
-                                Object result = provider.provide(context.request());
-                                if (result != null) {
-                                    context.data().put(getContextKey(dataType), result);
-                                }
-                            }
+						default:
 
-                            args[parameter.getIndex()] = provideContext(definition, method.getParameterTypes()[parameter.getIndex()], parameter.getDefaultValue(), context);
-                            break;
+							ValueReader valueReader = getValueReader(readers, parameter, definition);
 
-                        default:
-                            args[parameter.getIndex()] = ClassFactory.stringToPrimitiveType(value, dataType);
-                            break;
-                    }
+							if (valueReader != null) {
+								// create instance
+								args[parameter.getIndex()] = valueReader.read(value, dataType);
+							}
+							else {
+								args[parameter.getIndex()] = ClassFactory.constructType(dataType, value);
+							}
+							break;
+					}
+				} catch (ContextException e) {
+					throw new IllegalArgumentException(e.getMessage());
+				} catch (Exception e) {
 
-                }
-                catch (ContextException e) {
-                    throw new IllegalArgumentException(e.getMessage());
-                }
-                catch (Exception e) {
+					MethodParameter paramDefinition = definition.findParameter(parameter.getIndex());
+					String providedType = value != null ? value.getClass().getSimpleName() : "null";
+					String expectedType = method.getParameterTypes()[parameter.getIndex()].getTypeName();
 
-                    MethodParameter paramDefinition = definition.findParameter(parameter.getIndex());
-                    String providedType = value != null ? value.getClass().getSimpleName() : "null";
-                    String expectedType = method.getParameterTypes()[parameter.getIndex()].getTypeName();
+					if (paramDefinition != null) {
+						throw new IllegalArgumentException(
+						                                  "Invalid parameter type for: " + paramDefinition + " for: " + definition.getPath() + ", expected: " + expectedType + ", but got: " + providedType);
+					}
 
-                    if (paramDefinition != null) {
-                        throw new IllegalArgumentException(
-                            "Invalid parameter type for: " + paramDefinition + " for: " + definition.getPath() + ", expected: " + expectedType + ", but got: " + providedType);
-                    }
+					throw new IllegalArgumentException(
+					                                  "Invalid parameter type for " + (parameter.getIndex() + 1) + " argument for: " + method + " expected: " + expectedType + ", but got: " + providedType);
+				}
+			}
+		}
 
-                    throw new IllegalArgumentException(
-                        "Invalid parameter type for " + (parameter.getIndex() + 1) + " argument for: " + method + " expected: " + expectedType + ", but got: " + providedType);
-                }
-            }
-        }
+		// parameter check ...
+		for (int index = 0; index < args.length; index++) {
+			Parameter param = method.getParameters()[index];
+			if (args[index] == null && param.getType().isPrimitive()) {
 
-        // parameter check ...
-        for (int index = 0; index < args.length; index++) {
-            Parameter param = method.getParameters()[index];
-            if (args[index] == null && param.getType().isPrimitive()) {
+				MethodParameter paramDefinition = definition.findParameter(index);
+				if (paramDefinition != null) {
+					throw new IllegalArgumentException("Missing " + paramDefinition + " for: " + definition.getPath());
+				}
 
-                MethodParameter paramDefinition = definition.findParameter(index);
-                if (paramDefinition != null) {
-                    throw new IllegalArgumentException("Missing " + paramDefinition + " for: " + definition.getPath());
-                }
+				throw new IllegalArgumentException("Missing " + (index + 1) + " argument for: " + method + " expected: " + param.getType() + ", but: null was provided!");
+			}
+		}
 
-                throw new IllegalArgumentException("Missing " + (index + 1) + " argument for: " + method + " expected: " + param.getType() + ", but: null was provided!");
-            }
-        }
+		return args;
+	}
 
-        return args;
-    }
+	private static String getValue(RouteDefinition definition, MethodParameter param, RoutingContext context, String defaultValue) {
 
-    private static String getValue(RouteDefinition definition, MethodParameter param, RoutingContext context) {
+		String value = getValue(definition, param, context);
 
-        switch (param.getType()) {
-            case path:
+		if (value == null) {
+			return defaultValue;
+		}
 
-                if (definition.pathIsRegEx()) { // RegEx is special, params values are given by index
-                    return getParam(context.request(), param.getPathIndex());
-                }
+		return value;
+	}
 
-                return context.request().getParam(param.getName());
+	private static String getValue(RouteDefinition definition, MethodParameter param, RoutingContext context) {
 
-            case query:
-                Map<String, String> query = UrlUtils.getQuery(context.request().query());
-                return query.get(param.getName());
+		switch (param.getType()) {
+			case path:
 
-            case cookie:
-                Cookie cookie = context.getCookie(param.getName());
-                return cookie == null ? null : cookie.getValue();
+				if (definition.pathIsRegEx()) { // RegEx is special, params values are given by index
+					return getParam(context.request(), param.getPathIndex());
+				}
 
-            case form:
-                String formParam = context.request().getFormAttribute(param.getName());
-                if (formParam == null) { // retry ... with params
-                    formParam = context.request().getParam(param.getName());
-                }
-                return formParam;
+				return context.request().getParam(param.getName());
 
-            case header:
-                return context.request().getHeader(param.getName());
+			case query:
+				Map<String, String> query = UrlUtils.getQuery(context.request().query());
+				return query.get(param.getName());
 
-            case body:
-                return context.getBodyAsString();
+			case cookie:
+				Cookie cookie = context.getCookie(param.getName());
+				return cookie == null ? null : cookie.getValue();
 
-            default:
-                return null;
-        }
-    }
+			case form:
+				String formParam = context.request().getFormAttribute(param.getName());
+				if (formParam == null) { // retry ... with params
+					formParam = context.request().getParam(param.getName());
+				}
+				return formParam;
 
-    /**
-     * Provides vertx context of desired type if possible
-     *
-     * @param definition   route definition
-     * @param type         context type
-     * @param defaultValue default value if given
-     * @param context      to extract value from
-     * @return found context or null if not found
-     */
-    private static Object provideContext(RouteDefinition definition, Class<?> type, String defaultValue, RoutingContext context) throws ContextException {
+			case header:
+				return context.request().getHeader(param.getName());
 
-        if (type == null) {
-            return null;
-        }
+			case body:
+				return context.getBodyAsString();
 
-        // vert.x context
-        if (type.isAssignableFrom(HttpServerResponse.class)) {
-            return context.response();
-        }
+			default:
+				return null;
+		}
+	}
 
-        if (type.isAssignableFrom(HttpServerRequest.class)) {
-            return context.request();
-        }
+	private static ValueReader getValueReader(ReaderFactory readers, MethodParameter parameter, RouteDefinition definition) throws ClassFactoryException {
 
-        if (type.isAssignableFrom(RoutingContext.class)) {
-            return context;
-        }
+		// get associated reader set in parameter
+		return readers.get(parameter, definition.getReader(), definition.getConsumes());
+	}
 
-        if (type.isAssignableFrom(Vertx.class)) {
-            return context.vertx();
-        }
+	/**
+	 * Provides vertx context of desired type if possible
+	 *
+	 * @param definition   route definition
+	 * @param type         context type
+	 * @param defaultValue default value if given
+	 * @param context      to extract value from
+	 * @return found context or null if not found
+	 */
+	private static Object provideContext(RouteDefinition definition, Class<?> type, String defaultValue, RoutingContext context)
+	throws ContextException {
 
-        if (type.isAssignableFrom(User.class)) {
-            return context.user();
-        }
+		if (type == null) {
+			return null;
+		}
 
-        // internal context
-        if (type.isAssignableFrom(RouteDefinition.class)) {
-            return definition;
-        }
+		// vert.x context
+		if (type.isAssignableFrom(HttpServerResponse.class)) {
+			return context.response();
+		}
 
-        // browse through context storage
-        if (context.data() != null && context.data().size() > 0) {
+		if (type.isAssignableFrom(HttpServerRequest.class)) {
+			return context.request();
+		}
 
-            Object item = context.data().get(getContextKey(type));
-            if (item != null) { // found in storage ... return
-                return item;
-            }
-        }
+		if (type.isAssignableFrom(RoutingContext.class)) {
+			return context;
+		}
 
-        if (defaultValue != null) {
-            // check if type has constructor that can be used with defaultValue ...
-            // and create Context type on the fly constructed with defaultValue
-            try {
-                return ClassFactory.constructType(type, defaultValue);
-            }
-            catch (ClassFactoryException e) {
-                throw new ContextException("Can't provide @Context of type: " + type + ". " + e.getMessage());
-            }
-        }
+		if (type.isAssignableFrom(Vertx.class)) {
+			return context.vertx();
+		}
 
-        // Given Context can not be resolved ... throw exception
-        throw new ContextException("Can't provide @Context of type: " + type);
-    }
+		if (type.isAssignableFrom(User.class)) {
+			return context.user();
+		}
 
-    private static String getParam(HttpServerRequest request, int index) {
+		// internal context
+		if (type.isAssignableFrom(RouteDefinition.class)) {
+			return definition;
+		}
 
-        String param = request.getParam("param" + index);
-        if (param == null) { // failed to get directly ... try from request path
+		// browse through context storage
+		if (context.data() != null && context.data().size() > 0) {
 
-            String[] items = request.path().split("/");
-            if (index < items.length) { // simplistic way to find param value from path by index
-                return items[index];
-            }
-        }
+			Object item = context.data().get(getContextKey(type));
+			if (item != null) { // found in storage ... return
+				return item;
+			}
+		}
 
-        return null;
-    }
+		if (defaultValue != null) {
+			// check if type has constructor that can be used with defaultValue ...
+			// and create Context type on the fly constructed with defaultValue
+			try {
+				return ClassFactory.constructType(type, defaultValue);
+			} catch (ClassFactoryException e) {
+				throw new ContextException("Can't provide @Context of type: " + type + ". " + e.getMessage());
+			}
+		}
 
-    public static String getContextKey(Object object) {
+		// Given Context can not be resolved ... throw exception
+		throw new ContextException("Can't provide @Context of type: " + type);
+	}
 
-        Assert.notNull(object, "Expected object but got null!");
-        return getContextKey(object.getClass());
-    }
+	private static String getParam(HttpServerRequest request, int index) {
 
-    private static String getContextKey(Class clazz) {
-        Assert.notNull(clazz, "Missing class!");
-        return "RestRouter-" + clazz.getName();
-    }
+		String param = request.getParam("param" + index);
+		if (param == null) { // failed to get directly ... try from request path
+
+			String[] items = request.path().split("/");
+			if (index < items.length) { // simplistic way to find param value from path by index
+				return items[index];
+			}
+		}
+
+		return null;
+	}
+
+	public static String getContextKey(Object object) {
+
+		Assert.notNull(object, "Expected object but got null!");
+		return getContextKey(object.getClass());
+	}
+
+	private static String getContextKey(Class clazz) {
+		Assert.notNull(clazz, "Missing class!");
+		return "RestRouter-" + clazz.getName();
+	}
 
 }

@@ -41,4 +41,8 @@ public class SimulatedUser extends AbstractUser {
 	public void setAuthProvider(AuthProvider authProvider) {
 
 	}
+
+	public static SimulatedUser fromString(String value) {
+		return new SimulatedUser(value);
+	}
 }

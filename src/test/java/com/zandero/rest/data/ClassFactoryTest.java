@@ -14,6 +14,8 @@ import javax.ws.rs.NotAllowedException;
 import javax.ws.rs.WebApplicationException;
 import java.lang.reflect.Type;
 
+import static com.zandero.rest.data.ClassFactory.constructViaConstructor;
+import static com.zandero.rest.data.ClassFactory.constructViaMethod;
 import static org.junit.Assert.*;
 
 /**
@@ -102,13 +104,42 @@ public class ClassFactoryTest {
 		SimulatedUser user = (SimulatedUser) ClassFactory.constructType(SimulatedUser.class, "BLA");
 		assertNotNull(user);
 		assertEquals("BLA", user.getRole());
-	}
-
-	@Test
-	public void constructIntegerTest() throws ClassFactoryException {
 
 		IntegerHolder holder = (IntegerHolder) ClassFactory.constructType(IntegerHolder.class, "1");
 		assertNotNull(holder);
 		assertEquals(1, holder.value);
+	}
+
+	@Test
+	public void constructViaConstructorTest() {
+
+		Dummy dummy = (Dummy) ClassFactory.constructViaConstructor(Dummy.class, "{\"name\":\"unknown\", \"value\": \"user\"}");
+		assertNotNull(dummy);
+		assertEquals("unknown", dummy.name);
+		assertEquals("user", dummy.value);
+
+		SimulatedUser user = (SimulatedUser) ClassFactory.constructViaConstructor(SimulatedUser.class, "BLA");
+		assertNotNull(user);
+		assertEquals("BLA", user.getRole());
+
+		IntegerHolder holder = (IntegerHolder) constructViaConstructor(IntegerHolder.class, "10");
+		assertNotNull(holder);
+		assertEquals(10, holder.value);
+	}
+
+	@Test
+	public void constructViaMethodTest() {
+
+		Dummy dummy = (Dummy) ClassFactory.constructViaMethod(Dummy.class, "{\"name\":\"unknown\", \"value\": \"user\"}");
+		assertNotNull(dummy);
+		assertEquals("unknown", dummy.name);
+		assertEquals("user", dummy.value);
+
+		SimulatedUser user = (SimulatedUser) ClassFactory.constructViaMethod(SimulatedUser.class, "BLA");
+		assertNotNull(user);
+		assertEquals("BLA", user.getRole());
+
+		IntegerHolder holder = (IntegerHolder) constructViaMethod(IntegerHolder.class, "10");
+		assertNull(holder);
 	}
 }

@@ -7,7 +7,7 @@ package com.zandero.rest.reader;
  * Use RestRouter.getReaders().register(...) to register a global reader
  * or use @RequestReader annotation to associate REST with given reader
  */
-public interface HttpRequestBodyReader<T> {
+public interface ValueReader<T> {
 
 	T read(String value, Class<T> type);
 }

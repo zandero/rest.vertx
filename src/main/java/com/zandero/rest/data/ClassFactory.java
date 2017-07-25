@@ -8,10 +8,7 @@ import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import javax.ws.rs.core.MediaType;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,16 +26,16 @@ public abstract class ClassFactory<T> {
 
 	protected Map<String, Class<? extends T>> mediaTypes = new LinkedHashMap<>();
 
-	private static Class[] PRIMITIVE_TYPE = new Class[]{
-			String.class,
-			int.class, Integer.class,
-			boolean.class, Boolean.class,
-			byte.class, Byte.class,
-			char.class, Character.class,
-			short.class, Short.class,
-			long.class, Long.class,
-			float.class, Float.class,
-			double.class, Double.class
+	private static Class[] SIMPLE_TYPE = new Class[]{
+	String.class,
+	int.class, Integer.class,
+	boolean.class, Boolean.class,
+	byte.class, Byte.class,
+	char.class, Character.class,
+	short.class, Short.class,
+	long.class, Long.class,
+	float.class, Float.class,
+	double.class, Double.class
 	};
 
 	public ClassFactory() {
@@ -228,9 +225,11 @@ public abstract class ClassFactory<T> {
 
 		if (actual instanceof ParameterizedType) {
 			return expected.isAssignableFrom(((ParameterizedTypeImpl) actual).getRawType());
-		} else if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
+		}
+		else if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
 			return true;
-		} else {
+		}
+		else {
 			return expected.equals(actual) || expected.isInstance(actual) || ((Class) actual).isAssignableFrom(expected);
 		}
 	}
@@ -283,18 +282,69 @@ public abstract class ClassFactory<T> {
 		return null;
 	}
 
+	// TODO:
+	/*
+	Be a primitive type
+	Have a constructor that accepts a single String argument
+	Have a static method named valueOf or fromString that accepts a single String argument (see, for example, Integer.valueOf(String))
+	Have a registered implementation of ParamConverterProvider JAX-RS extension SPI that returns a ParamConverter instance capable of a "from string" conversion for the type.
+	Be List, Set or SortedSet, where T satisfies 2, 3 or 4 above. The resulting collection is read-only.
+	*/
+
 	/**
-	 * Aims to custruct given type utilizing a constructor that takes String or other primitive type values
+	 * Aims to construct given type utilizing a constructor that takes String or other primitive type values
 	 *
-	 * @param type         to be constructed
-	 * @param defaultValue constructor param
+	 * @param type      to be constructed
+	 * @param fromValue constructor param
 	 * @return class object
 	 * @throws ClassFactoryException in case type could not be constructed
 	 */
-	public static Object constructType(Class<?> type, String defaultValue) throws ClassFactoryException {
+	public static <T> Object constructType(Class<T> type, String fromValue) throws ClassFactoryException {
 
 		Assert.notNull(type, "Missing type!");
-		Assert.notNullOrEmptyTrimmed(defaultValue, "Missing default value!");
+
+		// a primitive or "simple" type
+		if (isSimpleType(type)) {
+			return stringToPrimitiveType(fromValue, type);
+		}
+
+		// have a constructor that accepts a single argument (String or any other primitive type that can be converted from String)
+		Object result = constructViaConstructor(type, fromValue);
+		if (result != null) {
+			return result;
+		}
+
+		result = constructViaMethod(type, fromValue);
+		if (result != null) {
+			return result;
+		}
+
+
+		// have a registered implementation of ParamConverterProvider JAX-RS extension SPI that returns a ParamConverter instance capable of a "from string" conversion for the type.
+
+		// Be List, Set or SortedSet, where T satisfies 2, 3 or 4 above. The resulting collection is read-only.
+
+		throw new ClassFactoryException("Could not construct: " + type + " with default value: '" + fromValue + "', " +
+		                                "must provide String only or primitive type constructor, " +
+		                                "static fromString() or valueOf() methods!", null);
+	}
+
+	private static <T> boolean isSimpleType(Class<T> type) {
+
+		for (Class primitive : SIMPLE_TYPE) {
+			if (type.isAssignableFrom(primitive)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * have a constructor that accepts a single argument
+	 * (String or any other primitive type that can be converted from String)
+	 */
+	static <T> Object constructViaConstructor(Class<T> type, String fromValue) {
 
 		Constructor[] allConstructors = type.getDeclaredConstructors();
 		for (Constructor ctor : allConstructors) {
@@ -304,11 +354,11 @@ public abstract class ClassFactory<T> {
 
 				try {
 
-					for (Class primitive : PRIMITIVE_TYPE) {
+					for (Class primitive : SIMPLE_TYPE) {
 
 						if (pType[0].isAssignableFrom(primitive)) {
 
-							Object value = stringToPrimitiveType(defaultValue, primitive);
+							Object value = stringToPrimitiveType(fromValue, primitive);
 							return ctor.newInstance(value);
 						}
 					}
@@ -319,7 +369,37 @@ public abstract class ClassFactory<T> {
 			}
 		}
 
-		throw new ClassFactoryException("Could not construct: " + type + " with default value: '" + defaultValue + "', " +
-				                                "must provide String only or primitive type constructor!", null);
+		return null;
+	}
+
+	/**
+	 * Constructs type via static method fromString(String value) or valueOf(String value)
+	 * @param type to be constructed
+	 * @param fromValue value to take
+	 * @param <T> class type
+	 * @return Object of type or null if failed to construct
+	 */
+	static <T> Object constructViaMethod(Class<T> type, String fromValue) {
+
+		for (Method method : type.getMethods()) {
+			if (Modifier.isStatic(method.getModifiers()) &&
+				method.getReturnType().equals(type) &&
+			    method.getParameterTypes().length == 1 &&
+			    method.getParameterTypes()[0].isAssignableFrom(String.class) &&
+			    (method.getName().equals("fromString") || method.getName().equals("valueOf"))) {
+
+				try {
+					return method.invoke(null, fromValue);
+				} catch (IllegalAccessException | InvocationTargetException e) {
+					log.warn("Failed invoking static method: " + method.getName());
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private static <T> Object constructViaProvider(Class<T> type, String fromValue) {
+		return null;
 	}
 }

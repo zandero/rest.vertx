@@ -6,7 +6,7 @@ import com.zandero.utils.extra.JsonUtils;
 /**
  * Converts request body to JSON
  */
-public class JsonBodyReader<T> implements HttpRequestBodyReader<T> {
+public class JsonValueReader<T> implements ValueReader<T> {
 
 	@Override
 	public T read(String value, Class<T> type) {
