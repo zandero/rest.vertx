@@ -1,7 +1,7 @@
 package com.zandero.rest.test;
 
 import com.zandero.rest.annotation.RequestReader;
-import com.zandero.rest.reader.CustomBodyReader;
+import com.zandero.rest.reader.CustomWordListReader;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.rest.test.json.ExtendedDummy;
 import com.zandero.utils.StringUtils;
@@ -22,7 +22,7 @@ public class TestReaderRest {
 
 	@POST
 	@Path("/custom")
-	@RequestReader(CustomBodyReader.class) // use custom reader to convert body to list of String
+	@RequestReader(CustomWordListReader.class) // use custom reader to convert body to list of String
 	public String getWords(List<String> words) {
 
 		return getString(words);

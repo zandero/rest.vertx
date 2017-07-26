@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Produces list of String as output
  */
-public class CustomBodyReader implements ValueReader<List<String>> {
+public class CustomWordListReader implements ValueReader<List<String>> {
 
 	@Override
 	public List<String> read(String value, Class<List<String>> type) {

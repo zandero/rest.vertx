@@ -212,7 +212,7 @@ public class RestRouterTest extends VertxTest {
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertEquals("GET /incompatible/ouch - Response type: 'class java.lang.String' " +
-					             "not matching writer type: 'class com.zandero.rest.test.json.Dummy' in: 'class com.zandero.rest.test.writer.TestDummyWriter'", e.getMessage());
+					             "not matching writer type: 'class com.zandero.rest.test.json.Dummy' in: 'class com.zandero.rest.writer.TestDummyWriter'", e.getMessage());
 		}
 	}
 }

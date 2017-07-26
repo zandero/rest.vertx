@@ -31,53 +31,29 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 	}
 
 	/**
-	 * Provides request body converter
-	 *
-	 * @param definition route definition
-	 * @return reader to convert request body
-	 */
-	/*public ValueReader getRequestBodyReader(RouteDefinition definition) {
-
-		Class<?> readerType = null;
-
-		try {
-			// find body argument
-			MethodParameter parameter = definition.getBodyParameter();
-			Assert.notNull(parameter, "No body reader present for " + definition + ", register body reader via @RequestReader or RestRouter.getReaders().register()");
-
-			readerType = parameter.getDataType();
-
-			ValueReader reader = get(readerType, definition.getReader(), definition.getConsumes());
-			return reader != null ? reader : new GenericBodyReader();
-		} catch (ClassFactoryException e) {
-			log.error("Failed to provide request body reader: " + readerType + ", for: " + definition + ", falling back to GenericBodyReader() instead!");
-			return new GenericBodyReader();
-		}
-	}*/
-
-	/**
 	 * Step over all possibilities to provide desired reader
 	 * @param parameter check parameter if reader is set or we have a type reader present
-	 * @param method check default definition
+	 * @param byMethodDefinition check default definition
 	 * @param mediaType check by consumes annotation
 	 * @return found reader or GenericBodyReader
 	 */
-	public ValueReader get(MethodParameter parameter, Class<? extends ValueReader> method, MediaType... mediaType) {
+	public ValueReader get(MethodParameter parameter, Class<? extends ValueReader> byMethodDefinition, MediaType... mediaType) {
 
 		// by type
 		Class<?> readerType = null;
 		try {
 
-			// reader parameter
+			// reader parameter as given
+			Assert.notNull(parameter, "Missing parameter!");
 			Class<? extends ValueReader> reader = parameter.getReader();
 			if (reader != null) {
 				return getClassInstance(reader);
 			}
 
-			Assert.notNull(parameter, "Missing parameter!");
+			// by value type, if body also by method/class definition or consumes media type  
 			readerType = parameter.getDataType();
 
-			ValueReader valueReader = get(readerType, method, mediaType);
+			ValueReader valueReader = get(readerType, byMethodDefinition, mediaType);
 			return valueReader != null ? valueReader : new GenericValueReader();
 		} catch (ClassFactoryException e) {
 

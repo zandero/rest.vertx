@@ -1,6 +1,5 @@
-package com.zandero.rest.test.reader;
+package com.zandero.rest.reader;
 
-import com.zandero.rest.reader.JsonValueReader;
 import com.zandero.rest.test.json.ExtendedDummy;
 
 /**

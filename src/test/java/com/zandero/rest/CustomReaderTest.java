@@ -1,14 +1,14 @@
 package com.zandero.rest;
 
-import com.zandero.rest.reader.CustomBodyReader;
+import com.zandero.rest.reader.CustomWordListReader;
+import com.zandero.rest.reader.DummyBodyReader;
+import com.zandero.rest.reader.ExtendedDummyBodyReader;
 import com.zandero.rest.reader.IntegerBodyReader;
 import com.zandero.rest.test.TestPostRest;
 import com.zandero.rest.test.TestReaderRest;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.rest.test.json.ExtendedDummy;
-import com.zandero.rest.test.reader.DummyBodyReader;
-import com.zandero.rest.test.reader.ExtendedDummyBodyReader;
-import com.zandero.rest.test.writer.TestCustomWriter;
+import com.zandero.rest.writer.TestCustomWriter;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -57,7 +57,7 @@ public class CustomReaderTest extends VertxTest {
 	public void testCustomInput_2(TestContext context) {
 
 		RestRouter.getReaders()
-		          .register(List.class, CustomBodyReader.class); // all arguments that are List<> go through this reader ... (reader returns List<String> as output)
+		          .register(List.class, CustomWordListReader.class); // all arguments that are List<> go through this reader ... (reader returns List<String> as output)
 
 		Router router = RestRouter.register(vertx, TestReaderRest.class);
 		vertx.createHttpServer()
@@ -224,7 +224,7 @@ public class CustomReaderTest extends VertxTest {
 			RestRouter.register(vertx, TestPostRest.class);
 			fail();
 		} catch (IllegalArgumentException e) {
-			assertEquals("POST /post/json - Response type: 'class com.zandero.rest.test.json.Dummy' not matching writer type: 'class java.lang.String' in: 'class com.zandero.rest.test.writer.TestCustomWriter'",
+			assertEquals("POST /post/json - Response type: 'class com.zandero.rest.test.json.Dummy' not matching writer type: 'class java.lang.String' in: 'class com.zandero.rest.writer.TestCustomWriter'",
 			             e.getMessage());
 		}
 	}

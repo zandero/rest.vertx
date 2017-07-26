@@ -2,7 +2,7 @@ package com.zandero.rest.test;
 
 import com.zandero.rest.annotation.ResponseWriter;
 import com.zandero.rest.test.json.Dummy;
-import com.zandero.rest.test.writer.TestCustomWriter;
+import com.zandero.rest.writer.TestCustomWriter;
 import io.vertx.core.http.HttpServerRequest;
 
 import javax.ws.rs.*;

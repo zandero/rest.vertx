@@ -1,8 +1,10 @@
 package com.zandero.rest.test;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
+import com.zandero.rest.annotation.RequestReader;
+import com.zandero.rest.reader.DummyBodyReader;
+import com.zandero.rest.test.json.Dummy;
+
+import javax.ws.rs.*;
 
 /**
  *
@@ -26,5 +28,14 @@ public class TestQueryRest {
 		}
 
 		return value;
+	}
+
+	@GET
+	@Path("/json")
+	@Consumes("application/json;charset=UTF-8") // should be ignored
+	@Produces("application/json;charset=UTF-8")
+	public Dummy echoGetDummy(@QueryParam("dummy") @RequestReader(DummyBodyReader.class) Dummy dummy, @HeaderParam("X-Test") String testHeader) {
+
+		return dummy;
 	}
 }

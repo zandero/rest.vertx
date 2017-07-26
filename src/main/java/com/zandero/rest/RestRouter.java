@@ -126,7 +126,7 @@ public class RestRouter {
 
 				log.info("Registering route: " + definition);
 
-				if (definition.getConsumes() != null) {
+				if (definition.requestHasBody() && definition.getConsumes() != null) { // only register if request with body
 					for (MediaType item : definition.getConsumes()) {
 						route.consumes(MediaTypeHelper.getKey(item)); // ignore charset when binding
 					}

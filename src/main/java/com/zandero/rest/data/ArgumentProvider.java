@@ -82,15 +82,8 @@ public class ArgumentProvider {
 
 						default:
 
-							ValueReader valueReader = getValueReader(readers, parameter, definition);
-
-							if (valueReader != null) {
-								// create instance
-								args[parameter.getIndex()] = valueReader.read(value, dataType);
-							}
-							else {
-								args[parameter.getIndex()] = ClassFactory.constructType(dataType, value);
-							}
+							ValueReader valueReader = getValueReader(parameter, definition, readers);
+							args[parameter.getIndex()] = valueReader.read(value, dataType);
 							break;
 					}
 				} catch (ContextException e) {
@@ -177,10 +170,16 @@ public class ArgumentProvider {
 		}
 	}
 
-	private static ValueReader getValueReader(ReaderFactory readers, MethodParameter parameter, RouteDefinition definition) throws ClassFactoryException {
+	private static ValueReader getValueReader(MethodParameter parameter, RouteDefinition definition, ReaderFactory readers) throws ClassFactoryException {
 
 		// get associated reader set in parameter
-		return readers.get(parameter, definition.getReader(), definition.getConsumes());
+		if (parameter.isBody()) {
+			return readers.get(parameter, definition.getReader(), definition.getConsumes());
+		}
+		else {
+			return readers.get(parameter, definition.getReader());
+		}
+
 	}
 
 	/**

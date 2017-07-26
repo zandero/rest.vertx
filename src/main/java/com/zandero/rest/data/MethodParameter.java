@@ -164,6 +164,10 @@ public class MethodParameter {
 		return reader;
 	}
 
+	public boolean isBody() {
+		return ParameterType.body.equals(type);
+	}
+
 	@Override
 	public String toString() {
 

@@ -1,7 +1,6 @@
-package com.zandero.rest.test.writer;
+package com.zandero.rest.writer;
 
 import com.zandero.rest.test.json.Dummy;
-import com.zandero.rest.writer.HttpResponseWriter;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 

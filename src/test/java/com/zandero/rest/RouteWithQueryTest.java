@@ -1,6 +1,8 @@
 package com.zandero.rest;
 
 import com.zandero.rest.test.TestQueryRest;
+import com.zandero.rest.test.json.Dummy;
+import com.zandero.utils.extra.JsonUtils;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -116,6 +118,24 @@ public class RouteWithQueryTest extends VertxTest {
 
 			response.handler(body -> {
 				context.assertEquals("2.4", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void echoDummyJsonTest(TestContext context) {
+
+		final Async async = context.async();
+		Dummy dummy = new Dummy("one", "dude");
+		String json = JsonUtils.toJson(dummy);
+
+		client.getNow("/query/json?dummy=" + json, response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals(json, body.toString());
 				async.complete();
 			});
 		});

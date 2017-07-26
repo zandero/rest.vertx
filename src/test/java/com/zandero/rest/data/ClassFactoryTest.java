@@ -2,12 +2,12 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.WebApplicationExceptionHandler;
+import com.zandero.rest.reader.DummyBodyReader;
 import com.zandero.rest.reader.IntegerBodyReader;
 import com.zandero.rest.test.data.IntegerHolder;
 import com.zandero.rest.test.data.SimulatedUser;
 import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
 import com.zandero.rest.test.json.Dummy;
-import com.zandero.rest.test.reader.DummyBodyReader;
 import org.junit.Test;
 
 import javax.ws.rs.NotAllowedException;
