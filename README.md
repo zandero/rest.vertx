@@ -701,6 +701,18 @@ public class ReadMyNewObject {
 }
 ```
 
+We can utilize request readers also on queries, headers and cookies:
+```java
+@Path("read")
+public class ReadMyNewObject {
+ 
+   @GET
+   @Path("query")
+   public String add(@QueryParam("value") @RequestReader(MyCustomReader.class) MyNewObject item) {
+     return item.getName();
+   }
+}
+
 
 ## Implementing a custom response writer
 In case needed we can implement a custom response writer.  
