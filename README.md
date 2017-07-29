@@ -377,7 +377,8 @@ public String createdResponse(@Context HttpServerResponse response, @Context Htt
 ```
 
 ### Registering a context provider
-If desired a custom context provider can be implemented to extract information from _request_ into a object.
+If desired a custom context provider can be implemented to extract information from _request_ into a object.  
+The context provider is only invoked in when the context object type is needed. 
 
 ```java
 RestRouter.addContextProvider(Token.class, request -> {
@@ -407,6 +408,8 @@ If **@Context** for given class **can not** be provided than a **400** _@Context
 While processing a request a custom context can be pushed into the vert.x routing context data storage.  
 This context data can than be utilized as a method argument. The pushed context is thread safe for the current request.
 
+> The main difference between a context push and a context provider is that the context push is executed on every request, 
+while the registered provider is only invoked when needed!
 
 In order to achieve this we need to create a custom handler that pushes the context before the REST endpoint is called:
 ```java
