@@ -319,10 +319,15 @@ public abstract class ClassFactory<T> {
 			return result;
 		}
 
-
+		//
 		// have a registered implementation of ParamConverterProvider JAX-RS extension SPI that returns a ParamConverter instance capable of a "from string" conversion for the type.
+		//
 
 		// Be List, Set or SortedSet, where T satisfies 2, 3 or 4 above. The resulting collection is read-only.
+		/*if (type.isAssignableFrom(List.class) ||
+			type.isAssignableFrom(Set.class) ||
+			type.isAssignableFrom(SortedSet.class))*/
+
 
 		throw new ClassFactoryException("Could not construct: " + type + " with default value: '" + fromValue + "', " +
 		                                "must provide String only or primitive type constructor, " +
