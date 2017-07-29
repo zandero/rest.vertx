@@ -206,7 +206,13 @@ public class ConsumeJSON {
 }
 ```  
 
-**Option 2** - The **@RequestReader** annotation defines a specific reader to be used when converting request body.
+**Option 2** - The **@RequestReader** annotation defines a _ValueReader_ to convert a String to a specific class, converting:  
+ * request body
+ * path
+ * query
+ * cookie
+ * header
+ 
 ```java
 @Path("consume")
 public class ConsumeJSON {
@@ -262,10 +268,19 @@ public class ConsumeJSON {
 ```
 
 First appropriate reader is assigned searching in following order:
-1. use assigned method RequestReader
-1. use class type specific reader
-1. use mime type assigned reader
-1. use general purpose reader
+1. use parameter ValueReader
+1. use method ValueReader
+1. use class type specific ValueReader
+1. use mime type assigned ValueReader
+1. use general purpose ValueReader
+
+#### Missing ValueReader?
+
+If no specific ValueReader is assigned to a given class type, **rest.vertx** tries to instantiate the class:
+* converting String to primitive type if class is a String or primitive type
+* using a single String constructor
+* using a single primitive type constructor if given String can be converted to the specific type  
+* using static method _fromString(String value)_ or _valueOf(String value)_
 
 ### Cookies, forms and headers ...
 Cookies, HTTP form and headers can also be read via **@CookieParam**, **@HeaderParam** and **@FormParam** annotations.  
@@ -608,10 +623,10 @@ public class SimulatedUser extends AbstractUser {
 }
 ```
 
-## Implementing a custom body reader
-In case needed we can implement a custom request body reader.  
-A request body reader must:
- * implement _HttpRequestBodyReader_ interface
+## Implementing a custom value reader
+In case needed we can implement a custom value reader.  
+A value reader must:
+ * implement _ValueReader_ interface
  * linked to a class type, mime type or _@RequestReader_ 
  
 **Example of RequestReader:**
@@ -619,7 +634,7 @@ A request body reader must:
 /**
  * Converts request body to JSON
  */
-public class MyCustomReader implements HttpRequestBodyReader<MyNewObject> {
+public class MyCustomReader implements ValueReader<MyNewObject> {
 
 	@Override
 	public MyNewObject read(String value, Class<MyNewObject> type) {
@@ -634,7 +649,7 @@ public class MyCustomReader implements HttpRequestBodyReader<MyNewObject> {
 }
 ```
 
-Using a request reader is simple:
+Using a value reader is simple:
 ```java
 @Path("read")
 public class ReadMyNewObject {
@@ -644,6 +659,14 @@ public class ReadMyNewObject {
   @RequestReader(MyCustomReader.class) // MyCustomReader will provide the MyNewObject to REST API
   public String add(MyNewObject item) {
     return "OK";
+  }
+  
+  // OR
+  
+  @PUT
+  @Path("object")
+  public String add(@RequestReader(MyCustomReader.class) MyNewObject item) {
+      return "OK";
   }
 }
 ```
