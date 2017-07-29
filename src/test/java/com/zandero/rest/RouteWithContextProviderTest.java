@@ -1,6 +1,7 @@
 package com.zandero.rest;
 
 import com.zandero.rest.test.TestContextRest;
+import com.zandero.rest.test.data.Token;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -24,7 +25,18 @@ public class RouteWithContextProviderTest extends VertxTest {
 		TestContextRest testRest = new TestContextRest();
 
 		Router router = RestRouter.register(vertx, testRest);
+
 		RestRouter.addContextProvider(Dummy.class, request -> new Dummy("test", "name"));
+
+		RestRouter.addContextProvider(Token.class, request -> {
+			String token = request.getHeader("X-Token");
+			if (token != null) {
+				return new Token(token);
+			}
+
+			return null;
+		});
+
 
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)
@@ -43,6 +55,40 @@ public class RouteWithContextProviderTest extends VertxTest {
 
 			response.handler(body -> {
 				context.assertEquals("{\"name\":\"test\",\"value\":\"name\"}", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void pushContextTokenTest(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.get("/context/token", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("mySession", body.toString());
+				async.complete();
+			});
+		}).putHeader("X-Token", "mySession").end();
+	}
+
+	@Test
+	public void noContextTokenTest(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/context/token", response -> {
+
+			context.assertEquals(400, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("Can't provide @Context of type: class com.zandero.rest.test.data.Token", body.toString());
 				async.complete();
 			});
 		});

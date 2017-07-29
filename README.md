@@ -376,6 +376,33 @@ public String createdResponse(@Context HttpServerResponse response, @Context Htt
 }
 ```
 
+### Registering a context provider
+If desired a custom context provider can be implemented to extract information from _request_ into a object.
+
+```java
+RestRouter.addContextProvider(Token.class, request -> {
+		String token = request.getHeader("X-Token");
+		if (token != null) {
+			return new Token(token);
+		}
+			
+		return null;
+	});
+```
+
+
+```java
+@GET
+@Path("/token")
+public String readToken(@Context Token token) {
+
+	return token.getToken();
+}
+```
+
+If **@Context** for given class **can not** be provided than a **400** _@Context can not be provided_ exception is thrown 
+
+
 ### Pushing a custom context
 While processing a request a custom context can be pushed into the vert.x routing context data storage.  
 This context data can than be utilized as a method argument. The pushed context is thread safe for the current request.

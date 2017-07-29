@@ -1,6 +1,7 @@
 package com.zandero.rest.test;
 
 import com.zandero.rest.data.RouteDefinition;
+import com.zandero.rest.test.data.Token;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
@@ -56,5 +57,12 @@ public class TestContextRest {
 		response.putHeader("X-SessionId", "session");
 		response.end("Hello world!");
 		return response;
+	}
+
+	@GET
+	@Path("/token")
+	public String login(@Context Token token) {
+
+		return token.token;
 	}
 }
