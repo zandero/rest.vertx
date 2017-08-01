@@ -29,7 +29,7 @@ public class RouteDefinition {
 	private final String DELIMITER = "/";
 
 	/**
-	 * Original path
+	 * Original path as given in annotation
 	 */
 	private String path = DELIMITER;
 
@@ -210,7 +210,7 @@ public class RouteDefinition {
 			path = path + subPath;
 		}
 
-		// extract parameters if any
+		// extract parameters from path if any (
 		List<MethodParameter> params = PathConverter.extract(path);
 		params(params);
 
@@ -298,8 +298,10 @@ public class RouteDefinition {
 		Annotation[][] annotations = method.getParameterAnnotations();
 
 		int index = 0;
+		Map<String, MethodParameter> arguments = new LinkedHashMap<>();
 
 		for (Annotation[] ann : annotations) {
+
 
 			String name = null;
 			ParameterType type = null;
@@ -388,13 +390,17 @@ public class RouteDefinition {
 				}
 			}
 
+			// collect only needed params for this method
 			if (name != null) {
 				MethodParameter parameter = provideArgument(name, type, defaultValue, parameterTypes[index], valueReader, index);
-				params.put(name, parameter);
+				arguments.put(name, parameter);
 			}
 
 			index++;
 		}
+
+		// copy over
+		params = arguments;
 	}
 
 	public MethodParameter findParameter(int index) {

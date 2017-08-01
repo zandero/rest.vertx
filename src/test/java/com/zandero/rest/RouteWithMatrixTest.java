@@ -27,7 +27,7 @@ public class RouteWithMatrixTest extends VertxTest {
 	}
 
 	@Test
-	public void matrixTest(TestContext context) {
+	public void matrixExtractTest(TestContext context) {
 
 		final Async async = context.async();
 
@@ -37,6 +37,22 @@ public class RouteWithMatrixTest extends VertxTest {
 
 			response.handler(body -> {
 				context.assertEquals("result=3", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void matrixRegExTest(TestContext context) {
+
+		final Async async = context.async();
+
+		client.getNow("/matrix/direct/param;one=1;two=2", response -> {
+
+			//context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("3", body.toString());
 				async.complete();
 			});
 		});

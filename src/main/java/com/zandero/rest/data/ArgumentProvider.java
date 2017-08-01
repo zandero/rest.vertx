@@ -160,11 +160,7 @@ public class ArgumentProvider {
 				return cookie == null ? null : cookie.getValue();
 
 			case form:
-				String formParam = context.request().getFormAttribute(param.getName());
-				if (formParam == null) { // retry ... with params
-					formParam = context.request().getParam(param.getName());
-				}
-				return formParam;
+				return context.request().getFormAttribute(param.getName());
 
 			case matrix:
 				return getMatrixParam(context.request(), param.getName());
@@ -279,8 +275,12 @@ public class ArgumentProvider {
 	 */
 	private static String removeMatrixFromPath(String path, RouteDefinition definition) {
 
+		// simple removal ... we don't care what matrix attributes were given
 		if (definition.hasMatrixParams()) {
-			// TODO> implement
+			int index = path.indexOf(";");
+			if (index > 0) {
+				return path.substring(0, index);
+			}
 		}
 
 		return path;

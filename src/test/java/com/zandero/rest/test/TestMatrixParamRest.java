@@ -20,7 +20,7 @@ public class TestMatrixParamRest {
 	}
 
 	@GET
-	@Path("direct/param")
+	@Path("direct/{placeholder:.*}")
 	public int add(@MatrixParam("one") int one, @MatrixParam("two") int two) {
 
 		return one + two;
