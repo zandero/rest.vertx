@@ -51,11 +51,20 @@ public class RouteDefinition {
 
 	private Class<? extends ExceptionHandler>[] exceptionHandlers;
 
+	/**
+	 * Parameters extracted from request path, query, headers, cookies ...
+	 */
 	private Map<String, MethodParameter> params = new HashMap<>();
 
+	/**
+	 * Route order lower is earlier or 0 for default
+	 */
 	private int order;
 
-	private boolean blocking = false; // vert.x blocking
+	/**
+	 * vert.x blocking request
+ 	 */
+	private boolean blocking = false;
 
 	// security
 	private Boolean permitAll = null; // true - permit all, false - deny all, null - check roles
@@ -318,13 +327,13 @@ public class RouteDefinition {
 				}
 
 				if (annotation instanceof CookieParam) {
+
 					type = ParameterType.cookie;
 					name = ((CookieParam) annotation).value();
 				}
 
 				if (annotation instanceof HeaderParam) {
 
-					// TODO: ... implement details
 					type = ParameterType.header;
 					name = ((HeaderParam) annotation).value();
 				}
@@ -525,6 +534,15 @@ public class RouteDefinition {
 		}
 
 		return params.values().stream().anyMatch(param -> ParameterType.cookie.equals(param.getType()));
+	}
+
+	public boolean hasMatrixParams() {
+
+		if (params == null) {
+			return false;
+		}
+
+		return params.values().stream().anyMatch(param -> ParameterType.matrix.equals(param.getType()));
 	}
 
 	public boolean pathIsRegEx() {

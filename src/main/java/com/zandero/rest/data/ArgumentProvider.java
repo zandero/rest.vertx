@@ -95,12 +95,12 @@ public class ArgumentProvider {
 					String expectedType = method.getParameterTypes()[parameter.getIndex()].getTypeName();
 
 					if (paramDefinition != null) {
-						throw new IllegalArgumentException(
-						                                  "Invalid parameter type for: " + paramDefinition + " for: " + definition.getPath() + ", expected: " + expectedType + ", but got: " + providedType);
+						throw new IllegalArgumentException("Invalid parameter type for: " + paramDefinition + " for: " + definition.getPath() +
+						                                   ", expected: " + expectedType + ", but got: " + providedType);
 					}
 
-					throw new IllegalArgumentException(
-					                                  "Invalid parameter type for " + (parameter.getIndex() + 1) + " argument for: " + method + " expected: " + expectedType + ", but got: " + providedType);
+					throw new IllegalArgumentException("Invalid parameter type for " + (parameter.getIndex() + 1) + " argument for: " + method +
+					                                   " expected: " + expectedType + ", but got: " + providedType);
 				}
 			}
 		}
@@ -115,7 +115,8 @@ public class ArgumentProvider {
 					throw new IllegalArgumentException("Missing " + paramDefinition + " for: " + definition.getPath());
 				}
 
-				throw new IllegalArgumentException("Missing " + (index + 1) + " argument for: " + method + " expected: " + param.getType() + ", but: null was provided!");
+				throw new IllegalArgumentException("Missing " + (index + 1) + " argument for: " + method +
+				                                   " expected: " + param.getType() + ", but: null was provided!");
 			}
 		}
 
@@ -138,11 +139,17 @@ public class ArgumentProvider {
 		switch (param.getType()) {
 			case path:
 
+				String path;
 				if (definition.pathIsRegEx()) { // RegEx is special, params values are given by index
-					return getParam(context.request(), param.getPathIndex());
+					path = getParam(context.request(), param.getPathIndex());
+				}
+				else {
+					path = context.request().getParam(param.getName());
 				}
 
-				return context.request().getParam(param.getName());
+				// if @MatrixParams are present ... those need to be removed
+				path = removeMatrixFromPath(path, definition);
+				return path;
 
 			case query:
 				Map<String, String> query = UrlUtils.getQuery(context.request().query());
@@ -158,6 +165,9 @@ public class ArgumentProvider {
 					formParam = context.request().getParam(param.getName());
 				}
 				return formParam;
+
+			case matrix:
+				return getMatrixParam(context.request(), param.getName());
 
 			case header:
 				return context.request().getHeader(param.getName());
@@ -255,6 +265,36 @@ public class ArgumentProvider {
 			String[] items = request.path().split("/");
 			if (index < items.length) { // simplistic way to find param value from path by index
 				return items[index];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Removes matrix params from path
+	 * @param path to clean up
+	 * @param definition to check if matrix params are present
+	 * @return cleaned up path
+	 */
+	private static String removeMatrixFromPath(String path, RouteDefinition definition) {
+
+		if (definition.hasMatrixParams()) {
+			// TODO> implement
+		}
+
+		return path;
+	}
+
+	private static String getMatrixParam(HttpServerRequest request, String name) {
+
+		// get URL ... and find ;name=value pair
+		String url = request.uri();
+		String[] items = url.split(";");
+		for (String item: items) {
+			String[] nameValue = item.split("=");
+			if (nameValue.length == 2 && nameValue[0].equals(name)) {
+				return nameValue[1];
 			}
 		}
 

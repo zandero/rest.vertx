@@ -33,7 +33,7 @@ public enum ParameterType {
 	/**
 	 * Matrix parameter
 	 */
-	matrix("@Matrix"),
+	matrix("@MatrixParam"),
 
 	/**
 	 * Request body
