@@ -21,14 +21,19 @@ public class MethodParameter {
 	private final String name;
 
 	/**
-	 * index matching method argument index
+	 * index matching method argument index 0..N-1
 	 */
-	private int index;
+	private int index = -1;
 
 	/**
 	 * Absolute index in path (if path parameter)
 	 */
 	private int pathIndex = -1;
+
+	/**
+	 * Index of argument in reg ex if not given as @PathParam()
+	 */
+	private int regExIndex = -1;
 
 	/**
 	 * type of parameter expected by method
@@ -108,6 +113,16 @@ public class MethodParameter {
 		return index;
 	}
 
+	public int getRegExIndex() {
+
+		return regExIndex;
+	}
+
+	public void setRegExIndex(int index) {
+
+		regExIndex = index;
+	}
+
 	public Class<?> getDataType() {
 
 		return dataType;
@@ -166,6 +181,10 @@ public class MethodParameter {
 
 	public boolean isBody() {
 		return ParameterType.body.equals(type);
+	}
+
+	public boolean isUsedAsArgument() {
+		return index >= 0;
 	}
 
 	@Override

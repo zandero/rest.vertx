@@ -30,11 +30,11 @@ public final class PathConverter {
 
 		if (items.length > 0) {
 
-		int pathIndex = 0;
+			int pathIndex = 0;
 			int index = 0;
 			for (String item : items) {
 
-				MethodParameter param = getParamFromPath(item, index, pathIndex);
+				MethodParameter param = getParamFromPath(item, index, pathIndex); // set negative index until confirmed that needed
 
 				if (param != null) {
 					output.add(param);
@@ -82,21 +82,22 @@ public final class PathConverter {
 		return out.toString();
 	}
 
-	private static MethodParameter getParamFromPath(String path, int paramIndex, int pathIndex) {
+	private static MethodParameter getParamFromPath(String path, int regExIndex, int pathIndex) {
 
 		if (StringUtils.isNullOrEmptyTrimmed(path)) {
 			return null;
 		}
 
 		if (isRestEasyPath(path)) {
-			return getRestEasyParam(path, paramIndex, pathIndex);
+			return getRestEasyParam(path, regExIndex, pathIndex);
 		}
 
 		// Regular named parameter
 		int index = path.lastIndexOf(":");
 		if (index == 0) {
 			path = path.substring(1); // is vert.x path
-			MethodParameter parameter = new MethodParameter(ParameterType.path, path, paramIndex);
+			MethodParameter parameter = new MethodParameter(ParameterType.path, path);
+			parameter.setRegExIndex(regExIndex);
 			parameter.setPathIndex(pathIndex);
 			return parameter;
 		}
@@ -104,8 +105,9 @@ public final class PathConverter {
 		// VertX definition of RegEx
 		if (ValidatingUtils.isRegEx(path)) {
 
-			String name = "param" + paramIndex; // Vert.X name ... no other option here
-			MethodParameter parameter = new MethodParameter(ParameterType.path, name, paramIndex);
+			String name = "param" + regExIndex; // Vert.X name ... no other option here
+			MethodParameter parameter = new MethodParameter(ParameterType.path, name);
+			parameter.setRegExIndex(regExIndex);
 			parameter.setPathIndex(pathIndex);
 			parameter.setRegEx(path);
 			return parameter;
@@ -122,8 +124,9 @@ public final class PathConverter {
 		int index = path.lastIndexOf(":");
 		// RestEasy definition of RexEx
 		if (index <= 0) {
-			MethodParameter parameter = new MethodParameter(ParameterType.path, path, paramIndex);
+			MethodParameter parameter = new MethodParameter(ParameterType.path, path);
 			parameter.setPathIndex(pathIndex);
+			parameter.setRegExIndex(paramIndex);
 			return parameter;
 		}
 
@@ -131,9 +134,10 @@ public final class PathConverter {
 		String name = path.substring(0, index);
 		String regEx = path.substring(index + 1);
 
-		MethodParameter parameter = new MethodParameter(ParameterType.path, name, paramIndex);
+		MethodParameter parameter = new MethodParameter(ParameterType.path, name);
 		parameter.setPathIndex(pathIndex);
 		parameter.setRegEx(regEx);
+		parameter.setRegExIndex(paramIndex);
 		return parameter;
 	}
 

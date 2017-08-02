@@ -298,10 +298,9 @@ public class RouteDefinition {
 		Annotation[][] annotations = method.getParameterAnnotations();
 
 		int index = 0;
-		Map<String, MethodParameter> arguments = new LinkedHashMap<>();
+		Map<String, MethodParameter> arguments = new HashMap<>();
 
 		for (Annotation[] ann : annotations) {
-
 
 			String name = null;
 			ParameterType type = null;
@@ -323,19 +322,16 @@ public class RouteDefinition {
 				}
 
 				if (annotation instanceof FormParam) {
-
 					type = ParameterType.form;
 					name = ((FormParam) annotation).value();
 				}
 
 				if (annotation instanceof CookieParam) {
-
 					type = ParameterType.cookie;
 					name = ((CookieParam) annotation).value();
 				}
 
 				if (annotation instanceof HeaderParam) {
-
 					type = ParameterType.header;
 					name = ((HeaderParam) annotation).value();
 				}
@@ -346,18 +342,16 @@ public class RouteDefinition {
 				}
 
 				if (annotation instanceof DefaultValue) {
-
 					defaultValue = ((DefaultValue) annotation).value();
 				}
 
 				if (annotation instanceof RequestReader) {
-
 					valueReader = ((RequestReader)annotation).value();
 				}
 
 
+				// TODO> check if OK?
 				if (annotation instanceof Context) {
-
 					type = ParameterType.context;
 					name = parameters[index].getName();
 				}
@@ -372,7 +366,7 @@ public class RouteDefinition {
 				if (param != null) {
 
 					Assert.isNull(param.getDataType(), "Duplicate argument type given: " + parameters[index].getName());
-					param.argument(parameterTypes[index]); // set missing argument type
+					param.argument(parameterTypes[index], index); // set missing argument type and index
 				} else {
 
 					if (valueReader == null) {
@@ -399,8 +393,22 @@ public class RouteDefinition {
 			index++;
 		}
 
-		// copy over
-		params = arguments;
+		setUsedArguments(arguments);
+	}
+
+	private void setUsedArguments(Map<String, MethodParameter> arguments) {
+
+		for (String key: params.keySet()) {
+			if (arguments.containsKey(key)) {
+				params.put(key, arguments.get(key)); // override existing
+			}
+		}
+
+		for (String key: arguments.keySet()) {
+			if (!params.containsKey(key)) {
+				params.put(key, arguments.get(key)); // add missing
+			}
+		}
 	}
 
 	public MethodParameter findParameter(int index) {
@@ -410,8 +418,19 @@ public class RouteDefinition {
 		}
 
 		for (MethodParameter parameter : params.values()) {
+
 			if (parameter.getIndex() == index) {
 				return parameter;
+			}
+		}
+
+		// try reg ex index
+		if (pathIsRegEx()) {
+			for (MethodParameter parameter : params.values()) {
+
+				if (parameter.getRegExIndex() == index) {
+					return parameter;
+				}
 			}
 		}
 

@@ -211,7 +211,7 @@ public class RestRouter {
 
 		route.order(definition.getOrder()); // same order as following handler
 
-		Handler<RoutingContext> securityHandler = getSecurityHandler(definition, method);
+		Handler<RoutingContext> securityHandler = getSecurityHandler(definition, method); // TODO: add security handler the same way as Context handlers are added
 		if (definition.isBlocking()) {
 			route.blockingHandler(securityHandler);
 		}

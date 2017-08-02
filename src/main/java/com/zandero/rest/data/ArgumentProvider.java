@@ -52,6 +52,9 @@ public class ArgumentProvider {
 
 		for (MethodParameter parameter : params) {
 
+			if (!parameter.isUsedAsArgument()) {
+				continue;
+			}
 			// get value
 			String value = getValue(definition, parameter, context, parameter.getDefaultValue());
 
