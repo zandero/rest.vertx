@@ -65,26 +65,12 @@ public class MethodParameter {
 		name = StringUtils.trim(paramName);
 	}
 
-	public MethodParameter(ParameterType parameterType, String paramName, int argumentIndex) {
-
-		this(parameterType, paramName);
-		index = argumentIndex;
-	}
-
 	public MethodParameter(ParameterType parameterType, String paramName, Class<?> argumentType, int argumentIndex) {
 
 		this(parameterType, paramName);
 
 		Assert.isTrue(argumentIndex >= 0, "Can't set negative argument index!");
 		argument(argumentType, argumentIndex);
-	}
-
-	public MethodParameter argument(Class<?> argumentType) {
-
-		Assert.notNull(argumentType, "Missing argument type!");
-
-		dataType = argumentType;
-		return this;
 	}
 
 	public MethodParameter argument(Class<?> argumentType, int argumentIndex) {
@@ -118,11 +104,6 @@ public class MethodParameter {
 		return regExIndex;
 	}
 
-	public void setRegExIndex(int index) {
-
-		regExIndex = index;
-	}
-
 	public Class<?> getDataType() {
 
 		return dataType;
@@ -143,7 +124,7 @@ public class MethodParameter {
 		return regularExpression;
 	}
 
-	public void setRegEx(String value) {
+	public void setRegEx(String value, int index) {
 
 		value = StringUtils.trimToNull(value);
 
@@ -151,7 +132,10 @@ public class MethodParameter {
 			Assert.isTrue(ValidatingUtils.isRegEx(value), "Invalid regular expression: '" + value + "'!");
 		}
 
+		Assert.isTrue(index >= 0, "Can't set negative regular expression index!");
+
 		regularExpression = value;
+		regExIndex = index;
 	}
 
 	public boolean isRegEx() {

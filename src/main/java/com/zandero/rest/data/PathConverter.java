@@ -97,7 +97,6 @@ public final class PathConverter {
 		if (index == 0) {
 			path = path.substring(1); // is vert.x path
 			MethodParameter parameter = new MethodParameter(ParameterType.path, path);
-			parameter.setRegExIndex(regExIndex);
 			parameter.setPathIndex(pathIndex);
 			return parameter;
 		}
@@ -107,9 +106,8 @@ public final class PathConverter {
 
 			String name = "param" + regExIndex; // Vert.X name ... no other option here
 			MethodParameter parameter = new MethodParameter(ParameterType.path, name);
-			parameter.setRegExIndex(regExIndex);
 			parameter.setPathIndex(pathIndex);
-			parameter.setRegEx(path);
+			parameter.setRegEx(path, regExIndex);
 			return parameter;
 		}
 
@@ -126,7 +124,6 @@ public final class PathConverter {
 		if (index <= 0) {
 			MethodParameter parameter = new MethodParameter(ParameterType.path, path);
 			parameter.setPathIndex(pathIndex);
-			parameter.setRegExIndex(paramIndex);
 			return parameter;
 		}
 
@@ -136,8 +133,7 @@ public final class PathConverter {
 
 		MethodParameter parameter = new MethodParameter(ParameterType.path, name);
 		parameter.setPathIndex(pathIndex);
-		parameter.setRegEx(regEx);
-		parameter.setRegExIndex(paramIndex);
+		parameter.setRegEx(regEx, paramIndex);
 		return parameter;
 	}
 

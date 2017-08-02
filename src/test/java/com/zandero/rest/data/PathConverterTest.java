@@ -75,21 +75,21 @@ public class PathConverterTest {
 		assertEquals("test", param.getName());
 		assertEquals(ParameterType.path, param.getType());
 		assertEquals(-1, param.getIndex());
-		assertEquals(0, param.getRegExIndex());
+		assertEquals(-1, param.getRegExIndex());
 		assertEquals(1, param.getPathIndex());
 
 		param = list.get(1);
 		assertEquals("test2", param.getName());
 		assertEquals(ParameterType.path, param.getType());
 		assertEquals(-1, param.getIndex());
-		assertEquals(1, param.getRegExIndex());
+		assertEquals(-1, param.getRegExIndex());
 		assertEquals(2, param.getPathIndex());
 
 		param = list.get(2);
 		assertEquals("test3", param.getName());
 		assertEquals(ParameterType.path, param.getType());
 		assertEquals(-1, param.getIndex());
-		assertEquals(2, param.getRegExIndex());
+		assertEquals(-1, param.getRegExIndex());
 		assertEquals(3, param.getPathIndex());
 	}
 
