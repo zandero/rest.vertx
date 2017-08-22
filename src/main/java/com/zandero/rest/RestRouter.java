@@ -143,7 +143,7 @@ public class RestRouter {
 				}
 
 				// check body and reader compatibility beforehand
-				getBodyReader(definition);
+				checkBodyReader(definition);
 
 				// check writer compatibility beforehand
 				getWriter(method, definition);
@@ -162,10 +162,10 @@ public class RestRouter {
 		return router;
 	}
 
-	private static ValueReader getBodyReader(RouteDefinition definition) {
+	private static void checkBodyReader(RouteDefinition definition) {
 
 		if (!definition.requestHasBody() || !definition.hasBodyParameter()) {
-			return null;
+			return;
 		}
 
 		ValueReader bodyReader = readers.get(definition.getBodyParameter(), definition.getReader(), definition.getConsumes());
@@ -180,8 +180,6 @@ public class RestRouter {
 			                                    bodyParameter.getDataType() + "' not matching reader type: '" +
 			                                    readerType + "' in: '" + bodyReader.getClass() + "'");
 		}
-
-		return bodyReader;
 	}
 
 	private static HttpResponseWriter getWriter(Method method, RouteDefinition definition) {
@@ -377,8 +375,8 @@ public class RestRouter {
 	/**
 	 * Registers a context provider for given type of class
 	 *
-	 * @param aClass
-	 * @param provider
+	 * @param aClass to register context provider for
+	 * @param provider to be registered
 	 */
 	public static <T> void addContextProvider(Class<T> aClass, ContextProvider<T> provider) {
 
@@ -396,5 +394,4 @@ public class RestRouter {
 
 		context.put(ArgumentProvider.getContextKey(object), object);
 	}
-
 }

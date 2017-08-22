@@ -14,8 +14,6 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.RoutingContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -26,8 +24,6 @@ import java.util.Map;
  * Extracts arguments to be provided for given method from definition and current context (request)
  */
 public class ArgumentProvider {
-
-	private final static Logger log = LoggerFactory.getLogger(ArgumentProvider.class);
 
 	public static Object[] getArguments(Method method,
 	                                    RouteDefinition definition,
@@ -179,7 +175,8 @@ public class ArgumentProvider {
 		}
 	}
 
-	private static ValueReader getValueReader(MethodParameter parameter, RouteDefinition definition, ReaderFactory readers) throws ClassFactoryException {
+	private static ValueReader getValueReader(MethodParameter parameter, RouteDefinition definition, ReaderFactory readers)
+	throws ClassFactoryException {
 
 		// get associated reader set in parameter
 		if (parameter.isBody()) {
@@ -272,7 +269,8 @@ public class ArgumentProvider {
 
 	/**
 	 * Removes matrix params from path
-	 * @param path to clean up
+	 *
+	 * @param path       to clean up
 	 * @param definition to check if matrix params are present
 	 * @return cleaned up path
 	 */
@@ -294,7 +292,7 @@ public class ArgumentProvider {
 		// get URL ... and find ;name=value pair
 		String url = request.uri();
 		String[] items = url.split(";");
-		for (String item: items) {
+		for (String item : items) {
 			String[] nameValue = item.split("=");
 			if (nameValue.length == 2 && nameValue[0].equals(name)) {
 				return nameValue[1];
@@ -314,5 +312,4 @@ public class ArgumentProvider {
 		Assert.notNull(clazz, "Missing class!");
 		return "RestRouter-" + clazz.getName();
 	}
-
 }
