@@ -712,7 +712,7 @@ public class ReadMyNewObject {
      return item.getName();
    }
 }
-
+```
 
 ## Implementing a custom response writer
 In case needed we can implement a custom response writer.  
