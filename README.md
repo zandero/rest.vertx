@@ -183,6 +183,36 @@ public class CalculateRest {
 GET /calculate/add?two=2&one=1 -> 3
 ```
 
+### Matrix parameters
+Matrix parameters are defined using the @MatrixParam annotation.
+
+```java
+@Path("calculate")
+public class CalculateRest {
+	
+	@GET
+    @Path("{operation}")
+    public int calculate(@PathParam("operation") String operation, @MatrixParam("one") int one, @MatrixParam("two") int two) {
+    
+		switch (operation) {
+			case "add":
+			    return one + two;
+			    
+			case "multiply" :
+				return one * two;
+				
+			default:
+				return 0;
+		}
+    }
+}
+```
+
+```
+GET /calculate/add;one=1;two=2 -> 3
+```
+
+
 ### Conversion of path and query variables to Java objects 
 Rest.Vertx tries to convert path and query variables to their corresponding Java types.
     
