@@ -148,6 +148,8 @@ public class RestBuilder {
 
 		Router output = getRouter();
 
+		apis.forEach(api -> RestRouter.register(router, api));
+
 		if (classValueReaders.size() > 0) {
 			classValueReaders.forEach((clazz, reader) -> RestRouter.getReaders().register(clazz, reader));
 		}
