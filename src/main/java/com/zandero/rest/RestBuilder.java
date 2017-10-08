@@ -144,12 +144,14 @@ public class RestBuilder {
 
 	public Router build() {
 
-		check();
+		Assert.notNullOrEmpty(apis, "No REST API given, register at least one!");
 
 		Router output = getRouter();
 
-		apis.forEach(api -> RestRouter.register(router, api));
+		// register APIs
+		apis.forEach(api -> RestRouter.register(output, api));
 
+		// register readers
 		if (classValueReaders.size() > 0) {
 			classValueReaders.forEach((clazz, reader) -> RestRouter.getReaders().register(clazz, reader));
 		}
@@ -157,7 +159,7 @@ public class RestBuilder {
 			mediaTypeValueReaders.forEach((type, reader) -> RestRouter.getReaders().register(type, reader));
 		}
 
-
+		// register writers
 		if (classResponseWriters.size() > 0) {
 			classResponseWriters.forEach((clazz, reader) -> RestRouter.getWriters().register(clazz, reader));
 		}
@@ -165,20 +167,16 @@ public class RestBuilder {
 			mediaTypeResponseWriters.forEach((type, reader) -> RestRouter.getWriters().register(type, reader));
 		}
 
-
+		// register exception handlers
 		if (exceptionHandlers.size() > 0) {
 			exceptionHandlers.forEach(handler -> RestRouter.getExceptionHandlers().register(handler));
 		}
 
-
+		// register context providers
 		if (contextProviders.size() > 0) {
 			contextProviders.forEach((clazz, provider) -> RestRouter.getContextProviders().register(clazz, provider));
 		}
 
 		return output;
-	}
-
-	private void check() {
-		Assert.notNullOrEmpty(apis, "No REST API given, register at least one!");
 	}
 }
