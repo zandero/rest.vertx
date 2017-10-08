@@ -54,7 +54,7 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 	public void register(Class<?> aClass, Class<? extends HttpResponseWriter> clazz) {
 
 		Assert.notNull(aClass, "Missing response class!");
-		Assert.notNull(clazz, "Missing response writer type class");
+		Assert.notNull(clazz, "Missing response writer type class!");
 
 		super.register(aClass, clazz);
 	}

@@ -15,28 +15,31 @@ public class ContextProviders {
 
 	/**
 	 * Adds a class context provider
-	 * @param aClass type to be provided
+	 * @param clazz type to be provided
 	 * @param provider to provide the type
 	 */
-	public void register(Class<?> aClass, ContextProvider provider) {
+	public void register(Class<?> clazz, ContextProvider provider) {
 
-		Assert.notNull(aClass, "Missing provider class type!");
-		Assert.notNull(provider, "Missing provider!");
+		Assert.notNull(clazz, "Missing provider class type!");
+		Assert.notNull(provider, "Missing context provider!");
 
-		Assert.isFalse(providers.containsKey(aClass), "Provider: " + aClass.getName() + " already registered!");
-		providers.put(aClass, provider);
+		Assert.isFalse(providers.containsKey(clazz), "Provider: " + clazz.getName() + " already registered!");
+		providers.put(clazz, provider);
 	}
 
 	/**
 	 * Adds a class context provider
-	 * @param aClass type to be provided
+	 * @param clazz type to be provided
 	 * @param provider to provide the type
 	 */
-	public void register(Class<?> aClass, Class<? extends ContextProvider> provider) {
+	public void register(Class<?> clazz, Class<? extends ContextProvider> provider) {
+
+		Assert.notNull(clazz, "Missing provider class type!");
+		Assert.notNull(provider, "Missing context provider!");
 
 		try {
 			ContextProvider instance = (ContextProvider) ClassFactory.newInstanceOf(provider);
-			register(aClass, instance);
+			register(clazz, instance);
 		} catch (ClassFactoryException e) {
 			throw new IllegalArgumentException(e.getMessage());
 		}

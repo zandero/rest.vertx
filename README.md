@@ -733,7 +733,7 @@ public class MyCustomResponseWriter implements HttpResponseWriter<MyObject> {
   @Override
   public void write(MyObject data, HttpServerRequest request, HttpServerResponse response) {
     
-  	response.putHeader("X-ObjectId", data.id);
+    response.putHeader("X-ObjectId", data.id);
     response.end(data.value);
   }
 }

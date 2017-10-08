@@ -74,7 +74,7 @@ public class RestRouter {
 
 		// TODO: split into smaller chucks
 
-		Assert.notNull(router, "Missing vert.x router!");
+		Assert.notNull(router, "Missing vertx router!");
 		Assert.isTrue(restApi != null && restApi.length > 0, "Missing REST API class object!");
 		assert restApi != null;
 
