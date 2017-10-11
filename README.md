@@ -53,6 +53,8 @@ vertx.createHttpServer()
 	.listen(PORT);
 ```
 
+or alternatively use _RestBuilder_ helper to build up endpoints.
+
 ### Registering by class type
 > version 0.5 (or later)
 
@@ -66,6 +68,28 @@ vertx.createHttpServer()
 	.listen(PORT);
 ```
 
+## RestBuilder
+> since version 0.7
+
+Rest endpoints, error handlers, writers and readers can be bound in one go using the RestBuilder.
+
+```java
+Router router = new RestBuilder(vertx)
+    .register(RestApi.class, OtherRestApi.class)
+    .reader(MyClass.class, MyBodyReader.class)
+    .writer(MediaType.APPLICATION_JSON, CustomWriter.class)
+    .errorHandler(IllegalArgumentExceptionHandler.class)
+    .errorHandler(MyExceptionHandler.class)
+    .build();
+```
+
+or
+ 
+```java
+router = new RestBuilder(router)
+    .register(AdditionalApi.class)		                
+    .build();
+```
 
 ## Paths
 Each class can be annotated with a root (or base) path @Path("/rest").  
@@ -187,34 +211,30 @@ GET /calculate/add?two=2&one=1 -> 3
 Matrix parameters are defined using the @MatrixParam annotation.
 
 ```java
-@Path("calculate")
-public class CalculateRest {
-	
-	@GET
-    @Path("{operation}")
-    public int calculate(@PathParam("operation") String operation, @MatrixParam("one") int one, @MatrixParam("two") int two) {
+@GET
+@Path("{operation}")
+public int calculate(@PathParam("operation") String operation, @MatrixParam("one") int one, @MatrixParam("two") int two) {
     
-		switch (operation) {
-			case "add":
-			    return one + two;
-			    
-			case "multiply" :
-				return one * two;
-				
-			default:
-				return 0;
-		}
+  switch (operation) {
+    case "add":
+      return one + two;
+      
+	case "multiply" :
+	  return one * two;
+	
+	  default:
+	    return 0;
     }
 }
 ```
 
 ```
-GET /calculate/add;one=1;two=2 -> 3
+GET /add;one=1;two=2 -> 3
 ```
 
 
-### Conversion of path and query variables to Java objects 
-Rest.Vertx tries to convert path and query variables to their corresponding Java types.
+### Conversion of path, query, ... variables to Java objects 
+Rest.Vertx tries to convert path, query, cookie, header and other variables to their corresponding Java types.
     
 Basic (primitive) types are converted from string to given type - if conversion is not possible a **400 bad request** response follows.
  
