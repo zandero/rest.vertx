@@ -42,7 +42,7 @@ public class JaxResponseWriter implements HttpResponseWriter<Response> {
 					writer = null;
 				}
 
-				if (writer != null && !(writer instanceof JsonResponseWriter)) {
+				if (writer != null) {
 					writer.write(jax.getEntity(), request, response);
 				}
 				else {

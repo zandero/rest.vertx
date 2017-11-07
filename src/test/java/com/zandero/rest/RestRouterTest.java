@@ -68,7 +68,7 @@ public class RestRouterTest extends VertxTest {
 			context.assertEquals("Test", response.getHeader("X-Test"));
 
 			response.handler(body -> {
-				context.assertEquals("Hello", body.toString());
+				context.assertEquals("\"Hello\"", body.toString()); // produces JSON ... so quotes are correct
 				async.complete();
 			});
 		});
@@ -84,7 +84,7 @@ public class RestRouterTest extends VertxTest {
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("hello/world", body.toString());
+				context.assertEquals("\"hello/world\"", body.toString());
 				async.complete();
 			});
 		});
@@ -100,7 +100,7 @@ public class RestRouterTest extends VertxTest {
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("hello/world", body.toString());
+				context.assertEquals("\"hello/world\"", body.toString());
 				async.complete();
 			});
 		});
@@ -116,7 +116,7 @@ public class RestRouterTest extends VertxTest {
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("2/true", body.toString());
+				context.assertEquals("\"2/true\"", body.toString());
 				async.complete();
 			});
 		});
@@ -132,7 +132,7 @@ public class RestRouterTest extends VertxTest {
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("2/a", body.toString());
+				context.assertEquals("\"2/a\"", body.toString());
 				async.complete();
 			});
 		});
