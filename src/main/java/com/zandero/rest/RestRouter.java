@@ -85,7 +85,8 @@ public class RestRouter {
 				Class inspectApi = (Class) api;
 				try {
 					api = ClassFactory.newInstanceOf(inspectApi);
-				} catch (ClassFactoryException e) {
+				}
+				catch (ClassFactoryException e) {
 					throw new IllegalArgumentException(e.getMessage());
 				}
 			}
@@ -119,8 +120,7 @@ public class RestRouter {
 				Route route;
 				if (definition.pathIsRegEx()) {
 					route = router.routeWithRegex(definition.getMethod(), definition.getRoutePath());
-				}
-				else {
+				} else {
 					route = router.route(definition.getMethod(), definition.getRoutePath());
 				}
 
@@ -152,8 +152,7 @@ public class RestRouter {
 				Handler<RoutingContext> handler = getHandler(api, definition, method);
 				if (definition.isBlocking()) {
 					route.blockingHandler(handler);
-				}
-				else {
+				} else {
 					route.handler(handler);
 				}
 			}
@@ -202,18 +201,17 @@ public class RestRouter {
 		Route route;
 		if (definition.pathIsRegEx()) {
 			route = router.routeWithRegex(definition.getMethod(), definition.getRoutePath());
-		}
-		else {
+		} else {
 			route = router.route(definition.getMethod(), definition.getRoutePath());
 		}
 
 		route.order(definition.getOrder()); // same order as following handler
 
-		Handler<RoutingContext> securityHandler = getSecurityHandler(definition, method); // TODO: add security handler the same way as Context handlers are added
+		Handler<RoutingContext> securityHandler =
+			getSecurityHandler(definition, method); // TODO: add security handler the same way as Context handlers are added
 		if (definition.isBlocking()) {
 			route.blockingHandler(securityHandler);
-		}
-		else {
+		} else {
 			route.handler(securityHandler);
 		}
 	}
@@ -225,8 +223,7 @@ public class RestRouter {
 			boolean allowed = isAllowed(context.user(), definition);
 			if (allowed) {
 				context.next();
-			}
-			else {
+			} else {
 				handleException(new NotAuthorizedException("Not authorized to access: " + definition), context, definition);
 			}
 		};
@@ -264,7 +261,9 @@ public class RestRouter {
 				if (output.result().succeeded(index)) {
 
 					Object result = output.result().resultAt(index);
-					if (result instanceof Boolean && ((Boolean) result)) { return true; }
+					if (result instanceof Boolean && ((Boolean) result)) {
+						return true;
+					}
 				}
 			}
 		}
@@ -286,7 +285,8 @@ public class RestRouter {
 
 				produceResponse(result, context, definition, writer);
 
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 
 				handleException(e, context, definition);
 			}
@@ -302,7 +302,8 @@ public class RestRouter {
 		ExceptionHandler handler;
 		try {
 			handler = handlers.getExceptionHandler(definition.getExceptionHandlers(), ex.getCause().getClass());
-		} catch (ClassFactoryException classException) {
+		}
+		catch (ClassFactoryException classException) {
 			// Can't provide exception handler ... rethrow
 			log.error("Can't provide exception handler!", classException);
 			// fall back to generic ...
@@ -375,8 +376,9 @@ public class RestRouter {
 	/**
 	 * Registers a context provider for given type of class
 	 *
-	 * @param aClass to register context provider for
+	 * @param aClass   to register context provider for
 	 * @param provider to be registered
+	 * @param <T>      provider type
 	 */
 	public static <T> void addContextProvider(Class<T> aClass, ContextProvider<T> provider) {
 

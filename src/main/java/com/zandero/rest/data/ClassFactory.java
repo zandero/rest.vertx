@@ -27,15 +27,15 @@ public abstract class ClassFactory<T> {
 	protected Map<String, Class<? extends T>> mediaTypes = new LinkedHashMap<>();
 
 	private static Class[] SIMPLE_TYPE = new Class[]{
-	String.class,
-	int.class, Integer.class,
-	boolean.class, Boolean.class,
-	byte.class, Byte.class,
-	char.class, Character.class,
-	short.class, Short.class,
-	long.class, Long.class,
-	float.class, Float.class,
-	double.class, Double.class
+		String.class,
+		int.class, Integer.class,
+		boolean.class, Boolean.class,
+		byte.class, Byte.class,
+		char.class, Character.class,
+		short.class, Short.class,
+		long.class, Long.class,
+		float.class, Float.class,
+		double.class, Double.class
 	};
 
 	public ClassFactory() {
@@ -81,7 +81,8 @@ public abstract class ClassFactory<T> {
 			}
 
 			return instance;
-		} catch (InstantiationException | IllegalAccessException e) {
+		}
+		catch (InstantiationException | IllegalAccessException e) {
 			log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
 			throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
 		}
@@ -95,7 +96,8 @@ public abstract class ClassFactory<T> {
 
 		try {
 			return clazz.newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
+		}
+		catch (InstantiationException | IllegalAccessException e) {
 			log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
 			throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
 		}
@@ -225,11 +227,9 @@ public abstract class ClassFactory<T> {
 
 		if (actual instanceof ParameterizedType) {
 			return expected.isAssignableFrom(((ParameterizedTypeImpl) actual).getRawType());
-		}
-		else if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
+		} else if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
 			return true;
-		}
-		else {
+		} else {
 			return expected.equals(actual) || expected.isInstance(actual) || ((Class) actual).isAssignableFrom(expected);
 		}
 	}
@@ -296,6 +296,7 @@ public abstract class ClassFactory<T> {
 	 *
 	 * @param type      to be constructed
 	 * @param fromValue constructor param
+	 * @param <T>       type of value
 	 * @return class object
 	 * @throws ClassFactoryException in case type could not be constructed
 	 */
@@ -367,7 +368,8 @@ public abstract class ClassFactory<T> {
 							return ctor.newInstance(value);
 						}
 					}
-				} catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+				}
+				catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
 					//continue; // try next one ... if any
 					log.warn("Failed constructing: " + ctor, e);
 				}
@@ -379,23 +381,25 @@ public abstract class ClassFactory<T> {
 
 	/**
 	 * Constructs type via static method fromString(String value) or valueOf(String value)
-	 * @param type to be constructed
+	 *
+	 * @param type      to be constructed
 	 * @param fromValue value to take
-	 * @param <T> class type
+	 * @param <T>       class type
 	 * @return Object of type or null if failed to construct
 	 */
 	static <T> Object constructViaMethod(Class<T> type, String fromValue) {
 
 		for (Method method : type.getMethods()) {
 			if (Modifier.isStatic(method.getModifiers()) &&
-				method.getReturnType().equals(type) &&
+			    method.getReturnType().equals(type) &&
 			    method.getParameterTypes().length == 1 &&
 			    method.getParameterTypes()[0].isAssignableFrom(String.class) &&
 			    (method.getName().equals("fromString") || method.getName().equals("valueOf"))) {
 
 				try {
 					return method.invoke(null, fromValue);
-				} catch (IllegalAccessException | InvocationTargetException e) {
+				}
+				catch (IllegalAccessException | InvocationTargetException e) {
 					log.warn("Failed invoking static method: " + method.getName());
 				}
 			}
