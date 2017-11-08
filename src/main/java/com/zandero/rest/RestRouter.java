@@ -146,7 +146,7 @@ public class RestRouter {
 				checkBodyReader(definition);
 
 				// check writer compatibility beforehand
-				getWriter(method, definition);
+				getWriter(method, definition, null); // no way to know the accept content at this point
 
 				// bind handler
 				Handler<RoutingContext> handler = getHandler(api, definition, method);
@@ -181,9 +181,9 @@ public class RestRouter {
 		}
 	}
 
-	private static HttpResponseWriter getWriter(Method method, RouteDefinition definition) {
+	private static HttpResponseWriter getWriter(Method method, RouteDefinition definition, MediaType acceptHeader) {
 
-		HttpResponseWriter writer = writers.getResponseWriter(method.getReturnType(), definition);
+		HttpResponseWriter writer = writers.getResponseWriter(method.getReturnType(), definition, acceptHeader);
 		if (writer == null) {
 			return null;
 		}
@@ -277,7 +277,8 @@ public class RestRouter {
 
 			try {
 
-				HttpResponseWriter writer = getWriter(method, definition);
+				MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
+				HttpResponseWriter writer = getWriter(method, definition, accept);
 
 				Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers);
 

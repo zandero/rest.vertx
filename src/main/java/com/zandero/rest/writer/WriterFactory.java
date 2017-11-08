@@ -40,13 +40,23 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 	 * @param definition method definition
 	 * @return writer to be used to produce response, or {@link GenericResponseWriter} in case no suitable writer could be found
 	 */
-	public HttpResponseWriter getResponseWriter(Class<?> returnType, RouteDefinition definition) {
+	public HttpResponseWriter getResponseWriter(Class<?> returnType, RouteDefinition definition, MediaType accept) {
 
 		try {
-			HttpResponseWriter writer = get(returnType, definition.getWriter(), definition.getProduces());
+			HttpResponseWriter writer = null;
+			if (accept != null) {
+				writer = get(returnType, definition.getWriter(), new MediaType[]{accept});
+			}
+
+			if (writer == null) {
+				writer = get(returnType, definition.getWriter(), definition.getProduces());
+			}
+
 			return writer != null ? writer : new GenericResponseWriter();
-		} catch (ClassFactoryException e) {
-			log.error("Failed to provide response writer: " + returnType + ", for: " + definition + ", falling back to GenericResponseWriter() instead!");
+		}
+		catch (ClassFactoryException e) {
+			log.error(
+				"Failed to provide response writer: " + returnType + ", for: " + definition + ", falling back to GenericResponseWriter() instead!");
 			return new GenericResponseWriter();
 		}
 	}
