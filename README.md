@@ -14,10 +14,10 @@ See also: [older versions](https://github.com/zandero/rest.vertx/releases)
 **Rest.Verx** is still in beta, so please report any [issues](https://github.com/zandero/rest.vertx/issues) discovered.  
 You are highly encouraged to participate and improve upon the existing code.
 
-### Acknowledgments
+## Acknowledgments
 This project uses:
  * the superb [IntelliJ Idea](https://www.jetbrains.com/idea/) 
- * the excellent <img src="https://www.yourkit.com/images/yklogo.png" width="70"> [Java Profiler](https://www.yourkit.com/java/profiler/Your)
+ * the excellent <img src="https://www.yourkit.com/images/yklogo.png" width="80"> [Java Profiler](https://www.yourkit.com/java/profiler/)
 
 ## Example
 **Step 1** - annotate a class with JAX-RS annotations 
