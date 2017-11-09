@@ -6,13 +6,18 @@ Lightweight JAX-RS (RestEasy) like annotation processor for vert.x verticals
 <dependency>      
      <groupId>com.zandero</groupId>      
      <artifactId>rest.vertx</artifactId>      
-     <version>0.7.1</version>      
+     <version>0.7.2</version>      
 </dependency>
 ```
 See also: [older versions](https://github.com/zandero/rest.vertx/releases)
 
 **Rest.Verx** is still in beta, so please report any [issues](https://github.com/zandero/rest.vertx/issues) discovered.  
 You are highly encouraged to participate and improve upon the existing code.
+
+### Acknowledgments
+This project uses:
+ * the superb [IntelliJ Idea](https://www.jetbrains.com/idea/) 
+ * the excellent ![YourKit](https://www.yourkit.com/images/yklogo.png) [YourKit Java Profiler](https://www.yourkit.com/java/profiler/Your)
 
 ## Example
 **Step 1** - annotate a class with JAX-RS annotations 

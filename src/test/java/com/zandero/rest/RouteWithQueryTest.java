@@ -25,6 +25,7 @@ public class RouteWithQueryTest extends VertxTest {
 		TestQueryRest testRest = new TestQueryRest();
 
 		Router router = RestRouter.register(vertx, testRest);
+		router.mountSubRouter("/sub", router);
 		vertx.createHttpServer()
 			.requestHandler(router::accept)
 			.listen(PORT);
@@ -37,6 +38,16 @@ public class RouteWithQueryTest extends VertxTest {
 		final Async async = context.async();
 
 		client.getNow("/query/add?one=1&two=2", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("3", body.toString());
+				async.complete();
+			});
+		});
+
+		client.getNow("/sub/query/add?one=1&two=2", response -> {
 
 			context.assertEquals(200, response.statusCode());
 
