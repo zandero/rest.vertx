@@ -27,8 +27,8 @@ public class RouteWithQueryTest extends VertxTest {
 		Router router = RestRouter.register(vertx, testRest);
 		router.mountSubRouter("/sub", router);
 		vertx.createHttpServer()
-			.requestHandler(router::accept)
-			.listen(PORT);
+		     .requestHandler(router::accept)
+		     .listen(PORT);
 	}
 
 	@Test
@@ -46,6 +46,13 @@ public class RouteWithQueryTest extends VertxTest {
 				async.complete();
 			});
 		});
+	}
+
+	@Test
+	public void testSubAdd(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
 
 		client.getNow("/sub/query/add?one=1&two=2", response -> {
 
@@ -102,7 +109,8 @@ public class RouteWithQueryTest extends VertxTest {
 			context.assertEquals(400, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("Invalid parameter type for: @QueryParam(\"one\") for: /query/add, expected: int, but got: String", body.toString());
+				context.assertEquals("Invalid parameter type for: @QueryParam(\"one\") for: /query/add, expected: int, but got: String",
+				                     body.toString());
 				async.complete();
 			});
 		});
@@ -122,6 +130,12 @@ public class RouteWithQueryTest extends VertxTest {
 				async.complete();
 			});
 		});
+	}
+
+	@Test
+	public void queryNegativeTest2(TestContext context) {
+
+		final Async async = context.async();
 
 		client.getNow("/query/invert?negative=false&value=2.4", response -> {
 

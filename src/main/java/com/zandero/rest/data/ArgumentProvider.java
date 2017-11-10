@@ -7,6 +7,7 @@ import com.zandero.rest.exception.ContextException;
 import com.zandero.rest.reader.ReaderFactory;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.utils.Assert;
+import com.zandero.utils.StringUtils;
 import com.zandero.utils.extra.UrlUtils;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
@@ -140,7 +141,7 @@ public class ArgumentProvider {
 
 				String path;
 				if (definition.pathIsRegEx()) { // RegEx is special, params values are given by index
-					path = getParam(context.request(), param.getPathIndex());
+					path = getParam(context.mountPoint(), context.request(), param.getPathIndex());
 				}
 				else {
 					path = context.request().getParam(param.getName());
@@ -253,18 +254,29 @@ public class ArgumentProvider {
 		throw new ContextException("Can't provide @Context of type: " + type);
 	}
 
-	private static String getParam(HttpServerRequest request, int index) {
+	private static String getParam(String mountPoint, HttpServerRequest request, int index) {
 
 		String param = request.getParam("param" + index);
 		if (param == null) { // failed to get directly ... try from request path
 
-			String[] items = request.path().split("/");
+			String path = removeMountPoint(mountPoint, request.path());
+
+			String[] items = path.split("/");
 			if (index < items.length) { // simplistic way to find param value from path by index
 				return items[index];
 			}
 		}
 
 		return null;
+	}
+
+	private static String removeMountPoint(String mountPoint, String path) {
+
+		if (StringUtils.isNullOrEmptyTrimmed(mountPoint)) {
+			return path;
+		}
+
+		return path.substring(mountPoint.length());
 	}
 
 	/**

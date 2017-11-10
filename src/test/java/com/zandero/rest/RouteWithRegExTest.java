@@ -22,10 +22,11 @@ public class RouteWithRegExTest extends VertxTest {
 
 		TestRegExRest testRest = new TestRegExRest();
 		Router router = RestRouter.register(vertx, testRest);
+		router = router.mountSubRouter("/sub", router);
 
 		vertx.createHttpServer()
-			.requestHandler(router::accept)
-			.listen(PORT);
+		     .requestHandler(router::accept)
+		     .listen(PORT);
 	}
 
 	@Test
@@ -46,7 +47,59 @@ public class RouteWithRegExTest extends VertxTest {
 	}
 
 	@Test
+	public void testSubSimpleRegEx(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+
+		client.getNow("/sub/regEx/231", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("231", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
 	public void testRegEx(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/regEx/1/minus/2", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("-1", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void testSubRegEx(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/sub/regEx/2/minus/1", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("1", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void testSimpleRegExWithMultipleVariables(TestContext context) {
 
 		// call and check response
 		final Async async = context.async();
@@ -63,17 +116,17 @@ public class RouteWithRegExTest extends VertxTest {
 	}
 
 	@Test
-	public void testSimpleRegExWithMultipleVariables(TestContext context) {
+	public void testSubSimpleRegExWithMultipleVariables(TestContext context) {
 
 		// call and check response
 		final Async async = context.async();
 
-		client.getNow("/regEx/3/minus/2", response -> {
+		client.getNow("/sub/regEx/ena/2/tri", response -> {
 
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("1", body.toString());
+				context.assertEquals("{one=ena, two=2, three=tri}", body.toString());
 				async.complete();
 			});
 		});
