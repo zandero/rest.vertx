@@ -1,13 +1,17 @@
 package com.zandero.rest.test;
 
 import com.zandero.rest.annotation.CatchWith;
+import com.zandero.rest.exception.ExecuteException;
 import com.zandero.rest.exception.GenericExceptionHandler;
 import com.zandero.rest.exception.WebApplicationExceptionHandler;
 import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
 import com.zandero.rest.test.handler.JsonExceptionHandler;
 import com.zandero.rest.test.handler.MyExceptionHandler;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -38,11 +42,11 @@ public class ErrorThrowingRest {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("multi/{bang}")
 	@CatchWith({IllegalArgumentExceptionHandler.class, WebApplicationExceptionHandler.class, MyExceptionHandler.class})
-	public String returnMultiBang(@PathParam("bang") String bang) {
+	public String returnMultiBang(@PathParam("bang") String bang) throws ExecuteException {
 
 		switch (bang) {
 			case "one":
-				throw new NotAllowedException("Not for you!");
+				throw new ExecuteException(405, "HTTP 405 Method Not Allowed");
 
 			case "two":
 			default:

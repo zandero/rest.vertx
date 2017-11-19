@@ -1,6 +1,7 @@
 package com.zandero.rest;
 
 import com.zandero.rest.context.ContextProvider;
+import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.rest.writer.HttpResponseWriter;
@@ -79,7 +80,7 @@ public class RestBuilder {
 		Assert.notNullOrEmptyTrimmed(mediaType, "Missing media type!");
 		Assert.notNull(writer, "Missing response writer class!");
 
-		MediaType type = MediaType.valueOf(mediaType);
+		MediaType type = MediaTypeHelper.valueOf(mediaType);
 		Assert.notNull(type, "Unknown media type given: " + mediaType);
 
 		mediaTypeResponseWriters.put(type, writer);
@@ -109,7 +110,7 @@ public class RestBuilder {
 		Assert.notNullOrEmptyTrimmed(mediaType, "Missing media type!");
 		Assert.notNull(reader, "Missing value reader class!");
 
-		MediaType type = MediaType.valueOf(mediaType);
+		MediaType type = MediaTypeHelper.valueOf(mediaType);
 		Assert.notNull(type, "Unknown media type given: " + mediaType);
 
 		mediaTypeValueReaders.put(type, reader);

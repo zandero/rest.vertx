@@ -22,6 +22,12 @@ public class ExecuteException extends Exception {
 		statusCode = status;
 	}
 
+	public ExecuteException(int status, String message, Throwable cause) {
+
+		super(message, cause);
+		statusCode = status;
+	}
+
 	public int getStatusCode() {
 
 		return statusCode;

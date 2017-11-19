@@ -21,38 +21,31 @@ public class JaxResponseWriter implements HttpResponseWriter<Response> {
 	public void write(Response result, HttpServerRequest request, HttpServerResponse response) {
 
 		Assert.notNull(result, "Expected result but got null!");
-		//Assert.isTrue(result instanceof Response, "Expected instance of: " + Response.class.getName() + ", but got: " + result.getClass().getName());
 
-		//if (result instanceof Response) {
-			Response jax = (Response) result;
+		response.setStatusCode(result.getStatus());
+		addHeaders(result, response);
 
-			response.setStatusCode(jax.getStatus());
-			addHeaders(jax, response);
+		if (result.getEntity() != null) {
 
-			if (jax.getEntity() != null) {
+			// try to find appropriate writer ...
+			String mediaType = response.headers().get(HttpHeaders.CONTENT_TYPE);
 
-				// try to find appropriate writer ...
-				String mediaType = response.headers().get(HttpHeaders.CONTENT_TYPE);
-
-				HttpResponseWriter writer;
-				try {
-					writer = RestRouter.getWriters().get(mediaType);
-				}
-				catch (ClassFactoryException e) {
-					writer = null;
-				}
-
-				if (writer != null) {
-					writer.write(jax.getEntity(), request, response);
-				}
-				else {
-					response.end(jax.getEntity().toString());
-				}
+			HttpResponseWriter writer;
+			try {
+				writer = RestRouter.getWriters().get(mediaType);
 			}
-			else {
-				response.end();
+			catch (ClassFactoryException e) {
+				writer = null;
 			}
-		//}
+
+			if (writer != null) {
+				writer.write(result.getEntity(), request, response);
+			} else {
+				response.end(result.getEntity().toString());
+			}
+		} else {
+			response.end();
+		}
 	}
 
 	private static void addHeaders(Response jaxrsResponse, HttpServerResponse response) {

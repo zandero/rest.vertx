@@ -144,20 +144,12 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>net.trajano.commons</groupId>
-            <artifactId>commons-testing</artifactId>
-            <version>${version.trajano}</version>
-            <scope>test</scope>
-        </dependency>
-
         <!-- Response and ResponseBuilder implementation -->
-        <dependency>
+      <!-- <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-common</artifactId>
             <version>${version.glassfish}</version>
-            <scope>test</scope>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>com.zandero</groupId>

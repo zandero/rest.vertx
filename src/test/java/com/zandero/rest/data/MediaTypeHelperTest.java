@@ -34,6 +34,10 @@ public class MediaTypeHelperTest {
 		assertNull(MediaTypeHelper.valueOf("  "));
 		assertNull(MediaTypeHelper.valueOf(" tralala "));
 
-		assertEquals(MediaType.APPLICATION_JSON_TYPE, MediaTypeHelper.valueOf("application/json"));
+		MediaType type = MediaTypeHelper.valueOf("application/json");
+		assertEquals(MediaTypeHelper.toString(MediaType.APPLICATION_JSON_TYPE), MediaTypeHelper.toString(type));
+
+		type = MediaTypeHelper.valueOf("application/json;charset=UTF-8");
+		assertEquals(MediaTypeHelper.toString(MediaType.APPLICATION_JSON_TYPE.withCharset("UTF-8")), MediaTypeHelper.toString(type));
 	}
 }

@@ -1,5 +1,6 @@
 package com.zandero.rest;
 
+import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.test.TestRest;
 import io.vertx.core.http.HttpMethod;
@@ -34,7 +35,7 @@ public class AnnotationProcessorTest {
 				assertEquals(HttpMethod.GET, definition.getMethod());
 				assertNotNull(definition.getProduces());
 				assertEquals(1, definition.getProduces().length);
-				assertEquals("text/html", definition.getProduces()[0].toString());
+				assertEquals("text/html", MediaTypeHelper.toString(definition.getProduces()[0]));
 
 				assertEquals("echo", method.getName());
 			}
@@ -46,7 +47,7 @@ public class AnnotationProcessorTest {
 				assertEquals(HttpMethod.GET, definition.getMethod());
 				assertNotNull(definition.getProduces());
 				assertEquals(1, definition.getProduces().length);
-				assertEquals("application/json", definition.getProduces()[0].toString());
+				assertEquals("application/json", MediaTypeHelper.toString(definition.getProduces()[0]));
 
 				assertEquals("jax", method.getName());
 			}

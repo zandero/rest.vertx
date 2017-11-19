@@ -24,8 +24,8 @@ import io.vertx.ext.web.handler.CookieHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -224,7 +224,7 @@ public class RestRouter {
 			if (allowed) {
 				context.next();
 			} else {
-				handleException(new NotAuthorizedException("Not authorized to access: " + definition), context, definition);
+				handleException(new ExecuteException(Response.Status.UNAUTHORIZED.getStatusCode(), "HTTP 401 Unauthorized"), context, definition);
 			}
 		};
 	}
@@ -302,7 +302,15 @@ public class RestRouter {
 		// get appropriate exception handler/writer ...
 		ExceptionHandler handler;
 		try {
-			handler = handlers.getExceptionHandler(definition.getExceptionHandlers(), ex.getCause().getClass());
+			Class<? extends Throwable> clazz;
+			if (ex.getCause() == null) {
+				clazz = ex.getClass();
+			}
+			else {
+				clazz = ex.getCause().getClass();
+			}
+
+			handler = handlers.getExceptionHandler(definition.getExceptionHandlers(), clazz);
 		}
 		catch (ClassFactoryException classException) {
 			// Can't provide exception handler ... rethrow
@@ -325,6 +333,11 @@ public class RestRouter {
 	}
 
 	private static ExecuteException getExecuteException(Throwable e) {
+
+		if (e instanceof ExecuteException) {
+			ExecuteException ex = (ExecuteException) e;
+			return new ExecuteException(ex.getStatusCode(), ex.getMessage(), ex);
+		}
 
 		// unwrap invoke exception ...
 		if (e instanceof IllegalAccessException || e instanceof InvocationTargetException) {

@@ -1,5 +1,6 @@
 package com.zandero.rest.writer;
 
+import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.rest.data.RouteDefinition;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
@@ -23,7 +24,7 @@ public interface HttpResponseWriter<T> {
 
 			if (definition.getProduces() != null) {
 				for (MediaType produces : definition.getProduces()) {
-					response.putHeader(HttpHeaders.CONTENT_TYPE, produces.toString());
+					response.putHeader(HttpHeaders.CONTENT_TYPE, MediaTypeHelper.toString(produces));
 				}
 			}
 			else {

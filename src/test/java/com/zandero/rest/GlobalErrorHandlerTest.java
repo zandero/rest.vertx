@@ -96,7 +96,7 @@ public class GlobalErrorHandlerTest extends VertxTest {
 			context.assertEquals(405, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("HTTP 405 Method Not Allowed", body.toString()); // ExceptionWriter kicked in
+				context.assertEquals("Exception: HTTP 405 Method Not Allowed", body.toString()); // ExceptionWriter kicked in
 				async.complete();
 			});
 		});
@@ -136,17 +136,25 @@ public class GlobalErrorHandlerTest extends VertxTest {
 				async.complete();
 			});
 		});
+	}
 
+	@Test
+	public void multipleGlobalErrorHandlersTest2(TestContext context) {
+		final Async async = context.async();
 		client.getNow("/throw/multi/one", response -> {
 
 			context.assertEquals(405, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("HTTP 405 Method Not Allowed", body.toString()); // ExceptionWriter kicked in
+				context.assertEquals("Exception: HTTP 405 Method Not Allowed", body.toString()); // ExceptionWriter kicked in
 				async.complete();
 			});
 		});
+	}
 
+	@Test
+	public void multipleGlobalErrorHandlersTest3(TestContext context) {
+		final Async async = context.async();
 		client.getNow("/throw/multi/three", response -> {
 
 			context.assertEquals(400, response.statusCode());

@@ -239,7 +239,7 @@ public class RouteDefinition {
 
 		List<MediaType> types = new ArrayList<>();
 		for (String item : value) {
-			MediaType type = MediaType.valueOf(item);
+			MediaType type = MediaTypeHelper.valueOf(item);
 			if (type != null) {
 				types.add(type);
 			}

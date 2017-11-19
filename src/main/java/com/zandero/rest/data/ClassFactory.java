@@ -108,7 +108,7 @@ public abstract class ClassFactory<T> {
 		Assert.notNull(mediaType, "Missing media type!");
 		Assert.notNull(clazz, "Missing media type class");
 
-		MediaType type = MediaType.valueOf(mediaType);
+		MediaType type = MediaTypeHelper.valueOf(mediaType);
 		Assert.notNull(type, "Unknown media type given: " + mediaType);
 
 		String key = MediaTypeHelper.getKey(type);
@@ -177,7 +177,7 @@ public abstract class ClassFactory<T> {
 
 	public T get(String mediaType) throws ClassFactoryException {
 
-		Class<? extends T> clazz = get(MediaType.valueOf(mediaType));
+		Class<? extends T> clazz = get(MediaTypeHelper.valueOf(mediaType));
 		return getClassInstance(clazz);
 	}
 
