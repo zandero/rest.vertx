@@ -38,6 +38,7 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 	 *
 	 * @param returnType type of result
 	 * @param definition method definition
+	 * @param accept     accept media type header
 	 * @return writer to be used to produce response, or {@link GenericResponseWriter} in case no suitable writer could be found
 	 */
 	public HttpResponseWriter getResponseWriter(Class<?> returnType, RouteDefinition definition, MediaType accept) {

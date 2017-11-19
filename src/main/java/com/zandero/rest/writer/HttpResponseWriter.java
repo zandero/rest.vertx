@@ -22,7 +22,8 @@ public interface HttpResponseWriter<T> {
 		if (!response.ended() &&
 			!response.headers().contains(HttpHeaders.CONTENT_TYPE)) {
 
-			if (definition.getProduces() != null) {
+			if (definition != null &&
+			    definition.getProduces() != null) {
 				for (MediaType produces : definition.getProduces()) {
 					response.putHeader(HttpHeaders.CONTENT_TYPE, MediaTypeHelper.toString(produces));
 				}

@@ -9,6 +9,7 @@ import com.zandero.utils.ArrayUtils;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.ext.web.RoutingContext;
 
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
@@ -63,7 +64,7 @@ public class RouteDefinition {
 
 	/**
 	 * vert.x blocking request
- 	 */
+	 */
 	private boolean blocking = false;
 
 	// security
@@ -105,6 +106,24 @@ public class RouteDefinition {
 
 		// complement / override with additional annotations
 		init(annotations);
+	}
+
+	public RouteDefinition(RoutingContext context) {
+
+		Assert.notNull(context, "Missing context!");
+		path(context.request().path());
+
+		method = context.request().method();
+
+		// take Accept and set as produces ...
+		MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
+		if (accept == null) {
+			accept = MediaTypeHelper.valueOf(context.request().getHeader("Accept"));
+		}
+
+		if (accept != null) {
+			produces = new MediaType[]{accept};
+		}
 	}
 
 	/**
@@ -346,7 +365,7 @@ public class RouteDefinition {
 				}
 
 				if (annotation instanceof RequestReader) {
-					valueReader = ((RequestReader)annotation).value();
+					valueReader = ((RequestReader) annotation).value();
 				}
 
 
@@ -371,13 +390,13 @@ public class RouteDefinition {
 
 					if (valueReader == null) {
 						valueReader = reader; // take reader from method / class definition
-					}
-					else {
+					} else {
 						reader = valueReader; // set body reader from field
 					}
 
-					Assert.isTrue(requestHasBody(), "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam, @Context) for: " +
-							                                parameterTypes[index].getName() + " " + parameters[index].getName());
+					Assert.isTrue(requestHasBody(),
+					              "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam, @Context) for: " +
+					              parameterTypes[index].getName() + " " + parameters[index].getName());
 
 					name = parameters[index].getName();
 					type = ParameterType.body;
@@ -398,13 +417,13 @@ public class RouteDefinition {
 
 	private void setUsedArguments(Map<String, MethodParameter> arguments) {
 
-		for (String key: params.keySet()) {
+		for (String key : params.keySet()) {
 			if (arguments.containsKey(key)) {
 				params.put(key, arguments.get(key)); // override existing
 			}
 		}
 
-		for (String key: arguments.keySet()) {
+		for (String key : arguments.keySet()) {
 			if (!params.containsKey(key)) {
 				params.put(key, arguments.get(key)); // add missing
 			}
@@ -444,7 +463,8 @@ public class RouteDefinition {
 	                                        Class<? extends ValueReader> valueReader,
 	                                        int index) {
 
-		Assert.notNull(type, "Argument: " + name + " (" + parameterType + ") can't be provided with Vert.x request, check and annotate method arguments!");
+		Assert.notNull(type,
+		               "Argument: " + name + " (" + parameterType + ") can't be provided with Vert.x request, check and annotate method arguments!");
 
 		switch (type) {
 			case path:
@@ -473,7 +493,9 @@ public class RouteDefinition {
 
 	public String getRoutePath() {
 
-		if (pathIsRegEx()) { return regExPathEscape(routePath); }
+		if (pathIsRegEx()) {
+			return regExPathEscape(routePath);
+		}
 
 		return routePath;
 	}

@@ -5,6 +5,7 @@ import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.rest.writer.HttpResponseWriter;
+import com.zandero.rest.writer.NotFoundResponseWriter;
 import com.zandero.utils.Assert;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.Router;
@@ -33,6 +34,11 @@ public class RestBuilder {
 
 	private Map<Class, ContextProvider> contextProviders = new LinkedHashMap<>();
 
+	/**
+	 * Map of path / not found handlers
+	 */
+	private Map<String, Class<? extends NotFoundResponseWriter>> notFound = new LinkedHashMap<>();
+
 	public RestBuilder(Router router) {
 
 		Assert.notNull(router, "Missing vertx router!");
@@ -56,6 +62,26 @@ public class RestBuilder {
 		apis.addAll(Arrays.asList(restApi));
 		return this;
 	}
+
+
+	public RestBuilder notFound(String path, Class<? extends NotFoundResponseWriter> writer) {
+
+		Assert.notNullOrEmptyTrimmed(path, "Missing path prefix!");
+		Assert.notNull(writer, "Missing not fount response writer!");
+
+		notFound.put(path, writer); // adds route path prefix
+		return this;
+	}
+
+	public RestBuilder notFound(Class<? extends NotFoundResponseWriter> writer) {
+
+		Assert.notNull(writer, "Missing not fount response writer!");
+
+		notFound.put(null, writer); // default ... handles all
+		return this;
+	}
+
+	//public RestBuilder sendFile()
 
 	@SafeVarargs
 	public final RestBuilder errorHandler(Class<? extends ExceptionHandler>... handlers) {
@@ -176,6 +202,13 @@ public class RestBuilder {
 		// register context providers
 		if (contextProviders.size() > 0) {
 			contextProviders.forEach((clazz, provider) -> RestRouter.getContextProviders().register(clazz, provider));
+		}
+
+		if (notFound != null && notFound.size() > 0) {
+
+			for (String path: notFound.keySet()) {
+				RestRouter.notFound(output, path, notFound.get(path));
+			}
 		}
 
 		return output;

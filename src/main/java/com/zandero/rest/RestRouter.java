@@ -7,8 +7,10 @@ import com.zandero.rest.exception.*;
 import com.zandero.rest.reader.ReaderFactory;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.rest.writer.HttpResponseWriter;
+import com.zandero.rest.writer.NotFoundResponseWriter;
 import com.zandero.rest.writer.WriterFactory;
 import com.zandero.utils.Assert;
+import com.zandero.utils.extra.ValidatingUtils;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -161,6 +163,50 @@ public class RestRouter {
 		return router;
 	}
 
+	/**
+	 * Handles not found route for all requests
+	 *
+	 * @param router   to add route to
+	 * @param notFound hander
+	 */
+	public static void notFound(Router router, Class<? extends NotFoundResponseWriter> notFound) {
+		notFound(router, null, notFound);
+	}
+
+	/**
+	 * Handles not found route in case request path mathes given path prefix
+	 *
+	 * @param router   to add route to
+	 * @param path     prefix
+	 * @param notFound hander
+	 */
+	public static void notFound(Router router, String path, Class<? extends NotFoundResponseWriter> notFound) {
+
+		Assert.notNull(router, "Missing router!");
+		Assert.notNull(notFound, "Missing not found handler!");
+
+		if (path == null) {
+			router.route().last().handler(getNotFoundHandler(notFound));
+		} else {
+
+			if (!ValidatingUtils.isRegEx(path)) {
+
+				if (!path.startsWith("/")) {
+					path = "/" + path;
+				}
+
+				if (!path.endsWith("/")) {
+					path = path + "/";
+				}
+
+				path = path.replaceAll("\\/", "\\\\/");  // escape path to be valid regEx
+				path = path + ".*";
+			}
+
+			router.routeWithRegex(path).last().handler(getNotFoundHandler(notFound));
+		}
+	}
+
 	private static void checkBodyReader(RouteDefinition definition) {
 
 		if (!definition.requestHasBody() || !definition.hasBodyParameter()) {
@@ -276,7 +322,6 @@ public class RestRouter {
 		return context -> {
 
 			try {
-
 				MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
 				HttpResponseWriter writer = getWriter(method, definition, accept);
 
@@ -285,11 +330,23 @@ public class RestRouter {
 				Object result = method.invoke(toInvoke, args);
 
 				produceResponse(result, context, definition, writer);
-
 			}
 			catch (Exception e) {
-
 				handleException(e, context, definition);
+			}
+		};
+	}
+
+	private static Handler<RoutingContext> getNotFoundHandler(Class<? extends NotFoundResponseWriter> notFoundWriter) {
+		return context -> {
+
+			try {
+				// fill up definition (response headers) from request
+				RouteDefinition definition = new RouteDefinition(context);
+				produceResponse(null, context, definition, notFoundWriter.newInstance());
+			}
+			catch (Exception e) {
+				handleException(e, context, null);
 			}
 		};
 	}
@@ -305,8 +362,7 @@ public class RestRouter {
 			Class<? extends Throwable> clazz;
 			if (ex.getCause() == null) {
 				clazz = ex.getClass();
-			}
-			else {
+			} else {
 				clazz = ex.getCause().getClass();
 			}
 
