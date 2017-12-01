@@ -890,7 +890,7 @@ public class MyExceptionHandler implements ExceptionHandler<Throwable> {
     public void write(Throwable result, HttpServerRequest request, HttpServerResponse response) {
 
         response.setStatusCode(406);
-        response.end("I got this ... : '" + cause.getMessage() + "'");
+        response.end("I got this ... : '" + result.getMessage() + "'");
     }
 }
 ```
