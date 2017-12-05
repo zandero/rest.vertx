@@ -15,6 +15,7 @@ import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.auth.User;
@@ -23,6 +24,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CookieHandler;
+import io.vertx.ext.web.handler.CorsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +36,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Builds up a vert.x route based on JAX-RS annotation provided in given class
@@ -205,6 +208,30 @@ public class RestRouter {
 
 			router.routeWithRegex(path).last().handler(getNotFoundHandler(notFound));
 		}
+	}
+
+	public void enableCors(Router router,
+	                       String allowedOriginPattern,
+	                       boolean allowCredentials,
+	                       int maxAge,
+	                       Set<String> allowedHeaders,
+	                       HttpMethod... methods) {
+
+		CorsHandler handler = CorsHandler.create(allowedOriginPattern)
+		                                 .allowCredentials(allowCredentials)
+		                                 .maxAgeSeconds(maxAge);
+
+		if (methods == null || methods.length == 0) { // if not given than all
+			methods = HttpMethod.values();
+		}
+
+		for (HttpMethod method : methods) {
+			handler.allowedMethod(method);
+		}
+
+		handler.allowedHeaders(allowedHeaders);
+
+		router.route().handler(handler);
 	}
 
 	private static void checkBodyReader(RouteDefinition definition) {

@@ -8,7 +8,9 @@ import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.rest.writer.NotFoundResponseWriter;
 import com.zandero.utils.Assert;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.CorsHandler;
 
 import javax.ws.rs.core.MediaType;
 import java.util.*;
@@ -39,6 +41,11 @@ public class RestBuilder {
 	 */
 	private Map<String, Class<? extends NotFoundResponseWriter>> notFound = new LinkedHashMap<>();
 
+	/**
+	 * CORS handler if desired
+	 */
+	private CorsHandler corsHandler = null;
+
 	public RestBuilder(Router router) {
 
 		Assert.notNull(router, "Missing vertx router!");
@@ -63,7 +70,6 @@ public class RestBuilder {
 		return this;
 	}
 
-
 	public RestBuilder notFound(String path, Class<? extends NotFoundResponseWriter> writer) {
 
 		Assert.notNullOrEmptyTrimmed(path, "Missing path prefix!");
@@ -81,7 +87,37 @@ public class RestBuilder {
 		return this;
 	}
 
-	//public RestBuilder sendFile()
+	/**
+	 * Enables CORS
+	 *
+	 * @param allowedOriginPattern allowed origin
+	 * @param allowCredentials     allow credentials (true/false)
+	 * @param maxAge               in seconds
+	 * @param allowedHeaders       set of allowed headers
+	 * @param methods              list of methods ... if empty all methods are allowed  @return self
+	 */
+	public RestBuilder enableCors(String allowedOriginPattern,
+	                              boolean allowCredentials,
+	                              int maxAge,
+	                              Set<String> allowedHeaders,
+	                              HttpMethod... methods) {
+
+		corsHandler = CorsHandler.create(allowedOriginPattern)
+		                         .allowCredentials(allowCredentials)
+		                         .maxAgeSeconds(maxAge);
+
+		if (methods == null || methods.length == 0) { // if not given than all
+			methods = HttpMethod.values();
+		}
+
+		for (HttpMethod method : methods) {
+			corsHandler.allowedMethod(method);
+		}
+
+		corsHandler.allowedHeaders(allowedHeaders);
+
+		return this;
+	}
 
 	@SafeVarargs
 	public final RestBuilder errorHandler(Class<? extends ExceptionHandler>... handlers) {
@@ -206,9 +242,13 @@ public class RestBuilder {
 
 		if (notFound != null && notFound.size() > 0) {
 
-			for (String path: notFound.keySet()) {
+			for (String path : notFound.keySet()) {
 				RestRouter.notFound(output, path, notFound.get(path));
 			}
+		}
+
+		if (corsHandler != null) {
+			output.route().handler(corsHandler);
 		}
 
 		return output;
