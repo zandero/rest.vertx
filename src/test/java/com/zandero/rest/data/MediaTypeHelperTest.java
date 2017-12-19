@@ -27,6 +27,12 @@ public class MediaTypeHelperTest {
 	}
 
 	@Test
+	public void getMediaTypeInvalidCharset() {
+		MediaType type = MediaTypeHelper.valueOf("application/json;UTF-8");
+		assertEquals(MediaTypeHelper.toString(MediaType.APPLICATION_JSON_TYPE), MediaTypeHelper.toString(type));
+	}
+
+	@Test
 	public void getMediaTypeTest() {
 
 		assertNull(MediaTypeHelper.valueOf(null));

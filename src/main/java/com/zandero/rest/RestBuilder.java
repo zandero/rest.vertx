@@ -95,6 +95,7 @@ public class RestBuilder {
 	 * @param maxAge               in seconds
 	 * @param allowedHeaders       set of allowed headers
 	 * @param methods              list of methods ... if empty all methods are allowed  @return self
+	 * @return self
 	 */
 	public RestBuilder enableCors(String allowedOriginPattern,
 	                              boolean allowCredentials,

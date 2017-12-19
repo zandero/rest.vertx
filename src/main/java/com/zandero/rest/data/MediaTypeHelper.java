@@ -3,6 +3,8 @@ package com.zandero.rest.data;
 import com.zandero.utils.Assert;
 import com.zandero.utils.Pair;
 import com.zandero.utils.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
@@ -12,6 +14,8 @@ import java.util.Map;
  *
  */
 public final class MediaTypeHelper {
+
+	private final static Logger log = LoggerFactory.getLogger(MediaTypeHelper.class);
 
 	private MediaTypeHelper() {
 		// hide constructor
@@ -71,8 +75,13 @@ public final class MediaTypeHelper {
 
 			} else {
 
-				Pair<String, String> pair = getNameValue(part);
-				params.put(pair.getKey(), pair.getValue());
+				try {
+					Pair<String, String> pair = getNameValue(part);
+					params.put(pair.getKey(), pair.getValue());
+				}
+				catch (IllegalArgumentException e) {
+					log.warn("Invalid media type option: ", e);
+				}
 			}
 		}
 
