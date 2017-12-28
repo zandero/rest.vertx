@@ -210,6 +210,15 @@ public class RestRouter {
 		}
 	}
 
+	/**
+	 *
+	 * @param router to add handler to
+	 * @param allowedOriginPattern origin pattern
+	 * @param allowCredentials allowed credentials
+	 * @param maxAge in seconds
+	 * @param allowedHeaders set of headers or null for none
+	 * @param methods list of methods or empty for all
+	 */
 	public void enableCors(Router router,
 	                       String allowedOriginPattern,
 	                       boolean allowCredentials,

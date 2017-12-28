@@ -20,12 +20,15 @@ public class NoMatchTest extends VertxTest {
 
 		super.before(context);
 
+
 		Router router = new RestBuilder(vertx)
 			                .register(TestEchoRest.class)
 			                .notFound(".*\\/other", OtherNotFoundHandler.class)
 			                .notFound("rest", RestNotFoundHandler.class)
 			                .notFound(NotFoundHandler.class)
 			                .build();
+
+		RestRouter.notFound(router, "rest", RestNotFoundHandler.class);
 
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)

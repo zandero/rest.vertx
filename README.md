@@ -859,6 +859,27 @@ public String second() {
 GET /test -> "first" 
 ```
 
+# Enabling CORS requests
+> version 0.7.4 (or later) 
+
+```java
+Router router = new RestBuilder(vertx)
+    .enableCors("*", true, 1728000, allowedHeaders, HttpMethod.OPTIONS, HttpMethod.GET)
+    .register(apiRest) // /api endpoint
+    .notFound(RestNotFoundHandler.class) // rest not found (last resort)
+    .build();
+```
+
+or
+```java
+RestRouter.enableCors(router,            // to bind handler to
+	                  allowedOriginPattern, // origin pattern
+	                  allowCredentials,     // alowed credentials (true/false)
+	                  maxAge,               // max age in seconds
+	                  allowedHeaders,       // set of allowed headers
+	                  methods)              // list of methods or empty for all
+```
+
 # Error handling
 Unhandled exceptions can be addressed via a designated _ExceptionHandler_:
 1. for a given method path
@@ -930,3 +951,37 @@ Handlers are considered in order given, first matching handler is used.
   RestRouter.getExceptionHandlers().register(MyExceptionHandler.class, GeneralExceptionHandler.class);  
 ```
 
+## Page not found helper
+> version 0.7.4 (or later)  
+
+To ease page/resource not found handling a special _notFound()_ handler can be be utilized.
+
+We can
+* handle a subpath / pattern where a handler was not found
+* handle all not matching requests 
+
+```java
+Router router = new RestBuilder(vertx)
+			                .register(MyRest.class)
+			                .notFound(".*\\/other", OtherNotFoundHandler.class) // handle all calls to a /other request
+			                .notFound("rest", RestNotFoundHandler.class) // handle all calls to /rest subpath
+			                .notFound(NotFoundHandler.class) // handle all other not found requests
+			                .build();
+```
+
+or
+```java
+RestRouter.notFound(router, "rest", RestNotFoundHandler.class);
+```
+
+The not found handler must extend _NotFoundResponseWriter_:
+```java
+public class NotFoundHandler extends NotFoundResponseWriter {
+                                  
+    @Override
+    public void write(HttpServerRequest request, HttpServerResponse response) {
+    
+        response.end("404 HTTP Resource: '" + request.path() + "' not found!");
+    }
+}
+ ```
