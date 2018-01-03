@@ -5,6 +5,7 @@ import com.zandero.rest.context.ContextProviders;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.rest.injection.InjectorFactory;
 import com.zandero.rest.reader.ReaderFactory;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.rest.writer.HttpResponseWriter;
@@ -216,13 +217,12 @@ public class RestRouter {
 	}
 
 	/**
-	 *
-	 * @param router to add handler to
+	 * @param router               to add handler to
 	 * @param allowedOriginPattern origin pattern
-	 * @param allowCredentials allowed credentials
-	 * @param maxAge in seconds
-	 * @param allowedHeaders set of headers or null for none
-	 * @param methods list of methods or empty for all
+	 * @param allowCredentials     allowed credentials
+	 * @param maxAge               in seconds
+	 * @param allowedHeaders       set of headers or null for none
+	 * @param methods              list of methods or empty for all
 	 */
 	public void enableCors(Router router,
 	                       String allowedOriginPattern,
@@ -254,7 +254,7 @@ public class RestRouter {
 			return;
 		}
 
-		ValueReader bodyReader = readers.get(definition.getBodyParameter(), definition.getReader(), definition.getConsumes());
+		ValueReader bodyReader = readers.get(injectionProvider, definition.getBodyParameter(), definition.getReader(), definition.getConsumes());
 
 		if (bodyReader != null) {
 
@@ -270,7 +270,7 @@ public class RestRouter {
 
 	private static HttpResponseWriter getWriter(Method method, RouteDefinition definition, MediaType acceptHeader) {
 
-		HttpResponseWriter writer = writers.getResponseWriter(method.getReturnType(), definition, acceptHeader);
+		HttpResponseWriter writer = writers.getResponseWriter(injectionProvider, method.getReturnType(), definition, acceptHeader);
 		if (writer == null) {
 			return null;
 		}
@@ -366,7 +366,7 @@ public class RestRouter {
 				MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
 				HttpResponseWriter writer = getWriter(method, definition, accept);
 
-				Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers);
+				Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider);
 
 				Object result = method.invoke(toInvoke, args);
 
@@ -508,8 +508,26 @@ public class RestRouter {
 		context.put(ArgumentProvider.getContextKey(object), object);
 	}
 
+	/**
+	 * Provide an injector to inject classes where needed
+	 * @param provider to inject classes
+	 */
 	public static void injectWith(InjectionProvider provider) {
 
 		injectionProvider = provider;
+	}
+
+	/**
+	 * Provide an injector to inject classes where needed
+	 * @param provider to create to inject classes
+	 */
+	public static void injectWith(Class<InjectionProvider> provider) {
+
+		try {
+			injectionProvider = (InjectionProvider) InjectorFactory.newInstanceOf(provider);
+		}
+		catch (ClassFactoryException e) {
+			throw new IllegalArgumentException(e);
+		}
 	}
 }

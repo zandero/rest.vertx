@@ -4,6 +4,7 @@ import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.context.ContextProviders;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.ContextException;
+import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.reader.ReaderFactory;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.utils.Assert;
@@ -30,7 +31,8 @@ public class ArgumentProvider {
 	                                    RouteDefinition definition,
 	                                    RoutingContext context,
 	                                    ReaderFactory readers,
-	                                    ContextProviders providers) {
+	                                    ContextProviders providers,
+	                                    InjectionProvider injectionProvider) {
 
 		Assert.notNull(method, "Missing method to provide arguments for!");
 		Assert.notNull(definition, "Missing route definition!");
@@ -82,7 +84,7 @@ public class ArgumentProvider {
 
 						default:
 
-							ValueReader valueReader = getValueReader(parameter, definition, readers);
+							ValueReader valueReader = getValueReader(injectionProvider, parameter, definition, readers);
 							args[parameter.getIndex()] = valueReader.read(value, dataType);
 							break;
 					}
@@ -176,15 +178,15 @@ public class ArgumentProvider {
 		}
 	}
 
-	private static ValueReader getValueReader(MethodParameter parameter, RouteDefinition definition, ReaderFactory readers)
+	private static ValueReader getValueReader(InjectionProvider provider, MethodParameter parameter, RouteDefinition definition, ReaderFactory readers)
 	throws ClassFactoryException {
 
 		// get associated reader set in parameter
 		if (parameter.isBody()) {
-			return readers.get(parameter, definition.getReader(), definition.getConsumes());
+			return readers.get(provider, parameter, definition.getReader(), definition.getConsumes());
 		}
 		else {
-			return readers.get(parameter, definition.getReader());
+			return readers.get(provider, parameter, definition.getReader());
 		}
 
 	}

@@ -89,6 +89,22 @@ public abstract class ClassFactory<T> {
 		}
 	}
 
+	protected T getClassInstance(InjectionProvider provider, Class<? extends T> clazz) throws ClassFactoryException {
+
+		if (clazz == null) {
+			return null;
+		}
+
+		T instance = getCached(clazz);
+		if (instance == null) {
+
+			instance = (T) newInstanceOf(provider, clazz);
+			cache(instance);
+		}
+
+		return instance;
+	}
+
 	public static Object newInstanceOf(Class<?> clazz) throws ClassFactoryException {
 
 		if (clazz == null) {
@@ -116,7 +132,8 @@ public abstract class ClassFactory<T> {
 
 		Object injected = provider.inject(clazz);
 		if (injected == null) {
-			throw new ClassFactoryException("Failed to inject class of type: " + clazz.getName() + ", with injector: " + provider.getClass().getName(), null);
+			throw new ClassFactoryException("Failed to inject class of type: " + clazz.getName() + ", with injector: " +
+			                                provider.getClass().getName(), null);
 		}
 
 		return injected;
@@ -154,7 +171,7 @@ public abstract class ClassFactory<T> {
 		classTypes.put(aClass, clazz);
 	}
 
-	protected T get(Class<?> type, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ClassFactoryException {
+	protected T get(InjectionProvider provider, Class<?> type, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ClassFactoryException {
 
 		Class<? extends T> clazz = byDefinition;
 
@@ -179,7 +196,7 @@ public abstract class ClassFactory<T> {
 		}
 
 		if (clazz != null) {
-			return getClassInstance(clazz);
+			return getClassInstance(provider, clazz);
 		}
 
 		return null;
@@ -424,10 +441,6 @@ public abstract class ClassFactory<T> {
 			}
 		}
 
-		return null;
-	}
-
-	private static <T> Object constructViaProvider(Class<T> type, String fromValue) {
 		return null;
 	}
 }

@@ -12,6 +12,7 @@ public class GuiceInjectionProvider extends AbstractModule implements InjectionP
 	private Injector injector;
 
 	public GuiceInjectionProvider() {
+
 		injector = Guice.createInjector(this);
 	}
 

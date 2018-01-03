@@ -67,23 +67,6 @@ public class RoutePathTest extends VertxTest {
 		});
 	}
 
-
-	@Test
-	public void echoVariableTest(TestContext context) {
-
-		final Async async = context.async();
-
-		client.getNow("/hello/World", response -> {
-
-			context.assertEquals(200, response.statusCode());
-
-			response.handler(body -> {
-				context.assertEquals("World", body.toString());
-				async.complete();
-			});
-		});
-	}
-
 	@Test
 	public void rootWithoutPathTest(TestContext context) throws IOException {
 

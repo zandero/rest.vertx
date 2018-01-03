@@ -3,6 +3,7 @@ package com.zandero.rest.writer;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.exception.ClassFactoryException;
+import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
 import io.vertx.core.http.HttpServerResponse;
 import org.slf4j.Logger;
@@ -41,16 +42,16 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 	 * @param accept     accept media type header
 	 * @return writer to be used to produce response, or {@link GenericResponseWriter} in case no suitable writer could be found
 	 */
-	public HttpResponseWriter getResponseWriter(Class<?> returnType, RouteDefinition definition, MediaType accept) {
+	public HttpResponseWriter getResponseWriter(InjectionProvider provider, Class<?> returnType, RouteDefinition definition, MediaType accept) {
 
 		try {
 			HttpResponseWriter writer = null;
 			if (accept != null) {
-				writer = get(returnType, definition.getWriter(), new MediaType[]{accept});
+				writer = get(provider, returnType, definition.getWriter(), new MediaType[]{accept});
 			}
 
 			if (writer == null) {
-				writer = get(returnType, definition.getWriter(), definition.getProduces());
+				writer = get(provider, returnType, definition.getWriter(), definition.getProduces());
 			}
 
 			return writer != null ? writer : new GenericResponseWriter();

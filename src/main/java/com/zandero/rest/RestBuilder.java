@@ -2,8 +2,10 @@ package com.zandero.rest;
 
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.data.MediaTypeHelper;
+import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.rest.injection.InjectorFactory;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.rest.writer.NotFoundResponseWriter;
@@ -208,6 +210,17 @@ public class RestBuilder {
 	 */
 	public RestBuilder injectWith(InjectionProvider provider) {
 		injectionProvider = provider;
+		return this;
+	}
+
+	public RestBuilder injectWith(Class<? extends InjectionProvider> provider) {
+		try {
+			injectionProvider = (InjectionProvider) InjectorFactory.newInstanceOf(provider);
+		}
+		catch (ClassFactoryException e) {
+			throw new IllegalArgumentException(e);
+		}
+
 		return this;
 	}
 

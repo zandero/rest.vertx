@@ -7,6 +7,14 @@ import javax.inject.Inject;
  */
 public class OtherServiceImpl implements OtherService {
 
+	protected OtherServiceImpl() {
+
+	}
+
+	public OtherServiceImpl(DummyService service) {
+		dummyService = service;
+	}
+
 	@Inject
 	DummyService dummyService;
 
