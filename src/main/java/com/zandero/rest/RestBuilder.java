@@ -3,6 +3,7 @@ package com.zandero.rest;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.rest.exception.ExceptionHandler;
+import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.rest.writer.NotFoundResponseWriter;
@@ -45,6 +46,8 @@ public class RestBuilder {
 	 * CORS handler if desired
 	 */
 	private CorsHandler corsHandler = null;
+
+	private InjectionProvider injectionProvider = null;
 
 	public RestBuilder(Router router) {
 
@@ -198,6 +201,17 @@ public class RestBuilder {
 		return this;
 	}
 
+	/**
+	 * Assosicate provider to inject members into REST classes, Reader, Writers ...
+	 * @param provider to do the injection
+	 * @return rest builder
+	 */
+	public RestBuilder injectWith(InjectionProvider provider) {
+		injectionProvider = provider;
+		return this;
+	}
+
+
 	private Router getRouter() {
 		if (vertx == null) {
 			return RestRouter.register(router, apis);
@@ -211,6 +225,8 @@ public class RestBuilder {
 		Assert.notNullOrEmpty(apis, "No REST API given, register at least one!");
 
 		Router output = getRouter();
+
+		RestRouter.injectWith(injectionProvider);
 
 		// register APIs
 		apis.forEach(api -> RestRouter.register(output, api));

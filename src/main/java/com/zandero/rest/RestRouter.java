@@ -4,6 +4,7 @@ import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.context.ContextProviders;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
+import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.reader.ReaderFactory;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.rest.writer.HttpResponseWriter;
@@ -53,6 +54,8 @@ public class RestRouter {
 
 	private static final ContextProviders providers = new ContextProviders();
 
+	private static InjectionProvider injectionProvider;
+
 	/**
 	 * Searches for annotations to register routes ...
 	 *
@@ -87,9 +90,11 @@ public class RestRouter {
 
 			// check if api is an instance of a class or a class type
 			if (api instanceof Class) {
+
 				Class inspectApi = (Class) api;
+
 				try {
-					api = ClassFactory.newInstanceOf(inspectApi);
+					api = ClassFactory.newInstanceOf(injectionProvider, inspectApi);
 				}
 				catch (ClassFactoryException e) {
 					throw new IllegalArgumentException(e.getMessage());
@@ -501,5 +506,10 @@ public class RestRouter {
 		Assert.notNull(object, "Can't push null into context!");
 
 		context.put(ArgumentProvider.getContextKey(object), object);
+	}
+
+	public static void injectWith(InjectionProvider provider) {
+
+		injectionProvider = provider;
 	}
 }

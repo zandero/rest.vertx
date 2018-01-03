@@ -1,6 +1,7 @@
 package com.zandero.rest.data;
 
 import com.zandero.rest.exception.ClassFactoryException;
+import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +102,24 @@ public abstract class ClassFactory<T> {
 			log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
 			throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
 		}
+	}
+
+	public static Object newInstanceOf(InjectionProvider provider, Class<?> clazz) throws ClassFactoryException {
+
+		if (clazz == null) {
+			return null;
+		}
+
+		if (provider == null || !InjectionProvider.hasInjection(clazz)) {
+			return newInstanceOf(clazz);
+		}
+
+		Object injected = provider.inject(clazz);
+		if (injected == null) {
+			throw new ClassFactoryException("Failed to inject class of type: " + clazz.getName() + ", with injector: " + provider.getClass().getName(), null);
+		}
+
+		return injected;
 	}
 
 	protected void register(String mediaType, Class<? extends T> clazz) {
