@@ -406,7 +406,12 @@ public class RestRouter {
 				clazz = ex.getCause().getClass();
 			}
 
-			handler = handlers.getExceptionHandler(definition.getExceptionHandlers(), clazz);
+			Class<? extends ExceptionHandler>[] exHandlers = null;
+			if (definition != null) {
+				exHandlers = definition.getExceptionHandlers();
+			}
+
+			handler = handlers.getExceptionHandler(exHandlers, clazz);
 		}
 		catch (ClassFactoryException classException) {
 			// Can't provide exception handler ... rethrow

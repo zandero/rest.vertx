@@ -109,7 +109,7 @@ public class RouteWithQueryTest extends VertxTest {
 			context.assertEquals(400, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("Invalid parameter type for: @QueryParam(\"one\") for: /query/add, expected: int, but got: String",
+				context.assertEquals("Invalid parameter type for: @QueryParam(\"one\") for: /query/add, expected: int, but got: String -> java.lang.NumberFormatException: For input string: \"A\"",
 				                     body.toString());
 				async.complete();
 			});

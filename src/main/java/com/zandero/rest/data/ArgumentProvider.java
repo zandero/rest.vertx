@@ -90,19 +90,29 @@ public class ArgumentProvider {
 					}
 				} catch (ContextException e) {
 					throw new IllegalArgumentException(e.getMessage());
-				} catch (Exception e) {
+				} catch (IllegalArgumentException e) {
 
 					MethodParameter paramDefinition = definition.findParameter(parameter.getIndex());
 					String providedType = value != null ? value.getClass().getSimpleName() : "null";
 					String expectedType = method.getParameterTypes()[parameter.getIndex()].getTypeName();
 
+					String error;
 					if (paramDefinition != null) {
-						throw new IllegalArgumentException("Invalid parameter type for: " + paramDefinition + " for: " + definition.getPath() +
-						                                   ", expected: " + expectedType + ", but got: " + providedType, e);
+						error = "Invalid parameter type for: " + paramDefinition + " for: " + definition.getPath() + ", expected: " + expectedType;
+					}
+					else {
+						error = "Invalid parameter type for " + (parameter.getIndex() + 1) + " argument for: " + method + " expected: " + expectedType;
 					}
 
-					throw new IllegalArgumentException("Invalid parameter type for " + (parameter.getIndex() + 1) + " argument for: " + method +
-					                                   " expected: " + expectedType + ", but got: " + providedType, e);
+					if (!StringUtils.equals(expectedType, providedType, false)) {
+						error = error + ", but got: " + providedType + " -> " + e;
+					}
+
+					throw new IllegalArgumentException(error, e);
+
+				} catch (Exception e) {
+
+					throw new IllegalArgumentException(e);
 				}
 			}
 		}
@@ -183,10 +193,10 @@ public class ArgumentProvider {
 
 		// get associated reader set in parameter
 		if (parameter.isBody()) {
-			return readers.get(provider, parameter, definition.getReader(), definition.getConsumes());
+			return readers.get(provider, parameter, parameter.getReader(), definition.getConsumes());
 		}
 		else {
-			return readers.get(provider, parameter, definition.getReader());
+			return readers.get(provider, parameter, parameter.getReader());
 		}
 
 	}
