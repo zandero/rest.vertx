@@ -5,7 +5,6 @@ import com.zandero.rest.context.ContextProviders;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
-import com.zandero.rest.injection.InjectorFactory;
 import com.zandero.rest.reader.ReaderFactory;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.rest.writer.HttpResponseWriter;
@@ -157,7 +156,7 @@ public class RestRouter {
 				checkBodyReader(definition);
 
 				// check writer compatibility beforehand
-				getWriter(method, definition, null); // no way to know the accept content at this point
+				getWriter(injectionProvider, method, definition, null); // no way to know the accept content at this point
 
 				// bind handler
 				Handler<RoutingContext> handler = getHandler(api, definition, method);
@@ -268,7 +267,7 @@ public class RestRouter {
 		}
 	}
 
-	private static HttpResponseWriter getWriter(Method method, RouteDefinition definition, MediaType acceptHeader) {
+	private static HttpResponseWriter getWriter(InjectionProvider injectionProvider, Method method, RouteDefinition definition, MediaType acceptHeader) {
 
 		HttpResponseWriter writer = writers.getResponseWriter(injectionProvider, method.getReturnType(), definition, acceptHeader);
 		if (writer == null) {
@@ -364,7 +363,7 @@ public class RestRouter {
 
 			try {
 				MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
-				HttpResponseWriter writer = getWriter(method, definition, accept);
+				HttpResponseWriter writer = getWriter(injectionProvider, method, definition, accept);
 
 				Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider);
 
@@ -384,7 +383,7 @@ public class RestRouter {
 			try {
 				// fill up definition (response headers) from request
 				RouteDefinition definition = new RouteDefinition(context);
-				produceResponse(null, context, definition, notFoundWriter.newInstance());
+				produceResponse(null, context, definition, (HttpResponseWriter) ClassFactory.newInstanceOf(injectionProvider, notFoundWriter));
 			}
 			catch (Exception e) {
 				handleException(e, context, null);
@@ -524,7 +523,7 @@ public class RestRouter {
 	public static void injectWith(Class<InjectionProvider> provider) {
 
 		try {
-			injectionProvider = (InjectionProvider) InjectorFactory.newInstanceOf(provider);
+			injectionProvider = (InjectionProvider) ClassFactory.newInstanceOf(provider);
 		}
 		catch (ClassFactoryException e) {
 			throw new IllegalArgumentException(e);

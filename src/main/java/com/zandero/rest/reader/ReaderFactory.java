@@ -48,7 +48,7 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 			Assert.notNull(parameter, "Missing parameter!");
 			Class<? extends ValueReader> reader = parameter.getReader();
 			if (reader != null) {
-				return getClassInstance(reader);
+				return getClassInstance(provider, reader);
 			}
 
 			// by value type, if body also by method/class definition or consumes media type  

@@ -98,11 +98,11 @@ public class ArgumentProvider {
 
 					if (paramDefinition != null) {
 						throw new IllegalArgumentException("Invalid parameter type for: " + paramDefinition + " for: " + definition.getPath() +
-						                                   ", expected: " + expectedType + ", but got: " + providedType);
+						                                   ", expected: " + expectedType + ", but got: " + providedType, e);
 					}
 
 					throw new IllegalArgumentException("Invalid parameter type for " + (parameter.getIndex() + 1) + " argument for: " + method +
-					                                   " expected: " + expectedType + ", but got: " + providedType);
+					                                   " expected: " + expectedType + ", but got: " + providedType, e);
 				}
 			}
 		}

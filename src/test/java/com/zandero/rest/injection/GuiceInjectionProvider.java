@@ -5,8 +5,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
 
-import java.util.Map;
-
 /**
  *
  */
@@ -29,11 +27,11 @@ public class GuiceInjectionProvider extends AbstractModule implements InjectionP
 	}
 
 	@Provides
-	public Map<String, String> getSettings() {
+	public Settings getSettings() {
 
 		// provider all needed settings for running backend
 		// simulate provided settings
-		if (settings == null ||settings.isEmpty()) {
+		if (settings == null || settings.isEmpty()) {
 			settings = new Settings();
 			settings.put("A", "1");
 			settings.put("B", "2");
