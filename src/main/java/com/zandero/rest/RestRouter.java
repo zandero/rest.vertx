@@ -509,8 +509,8 @@ public class RestRouter {
 	}
 
 	/**
-	 * Provide an injector to inject classes where needed
-	 * @param provider to inject classes
+	 * Provide an injector to getInstance classes where needed
+	 * @param provider to getInstance classes
 	 */
 	public static void injectWith(InjectionProvider provider) {
 
@@ -518,8 +518,8 @@ public class RestRouter {
 	}
 
 	/**
-	 * Provide an injector to inject classes where needed
-	 * @param provider to create to inject classes
+	 * Provide an injector to getInstance classes where needed
+	 * @param provider to create to getInstance classes
 	 */
 	public static void injectWith(Class<InjectionProvider> provider) {
 

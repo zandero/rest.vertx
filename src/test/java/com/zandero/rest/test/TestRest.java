@@ -90,4 +90,12 @@ public class TestRest {
 
 		return request.absoluteURI();
 	}
+
+	@GET
+	@Path("/context/null")
+	@Produces("text/plain")
+	public String getNull() {
+
+		return null;
+	}
 }

@@ -7,7 +7,7 @@ import javax.ws.rs.Path;
 /**
  *
  */
-@Path("inject")
+@Path("getInstance")
 public class InjectedServicesRest {
 
 	@Inject

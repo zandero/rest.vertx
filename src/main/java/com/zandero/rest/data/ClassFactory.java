@@ -130,9 +130,9 @@ public abstract class ClassFactory<T> {
 			return newInstanceOf(clazz);
 		}
 
-		Object injected = provider.inject(clazz);
+		Object injected = provider.getInstance(clazz);
 		if (injected == null) {
-			throw new ClassFactoryException("Failed to inject class of type: " + clazz.getName() + ", with injector: " +
+			throw new ClassFactoryException("Failed to getInstance class of type: " + clazz.getName() + ", with injector: " +
 			                                provider.getClass().getName(), null);
 		}
 

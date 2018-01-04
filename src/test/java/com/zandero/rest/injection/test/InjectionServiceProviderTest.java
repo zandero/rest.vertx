@@ -54,7 +54,7 @@ public class InjectionServiceProviderTest extends VertxTest {
 
 		final Async async = context.async();
 
-		client.getNow("/inject/dummy", response -> {
+		client.getNow("/getInstance/dummy", response -> {
 
 			context.assertEquals(200, response.statusCode());
 
@@ -72,7 +72,7 @@ public class InjectionServiceProviderTest extends VertxTest {
 
 		final Async async = context.async();
 
-		client.getNow("/inject/other", response -> {
+		client.getNow("/getInstance/other", response -> {
 
 			context.assertEquals(200, response.statusCode());
 
@@ -90,7 +90,7 @@ public class InjectionServiceProviderTest extends VertxTest {
 
 		final Async async = context.async();
 
-		client.getNow("/inject/dummy", response -> {
+		client.getNow("/getInstance/dummy", response -> {
 
 			context.assertEquals(200, response.statusCode());
 
@@ -108,7 +108,7 @@ public class InjectionServiceProviderTest extends VertxTest {
 
 		final Async async = context.async();
 
-		client.getNow("/inject/other", response -> {
+		client.getNow("/getInstance/other", response -> {
 
 			context.assertEquals(200, response.statusCode());
 

@@ -204,7 +204,7 @@ public class RestBuilder {
 	}
 
 	/**
-	 * Assosicate provider to inject members into REST classes, Reader, Writers ...
+	 * Assosicate provider to getInstance members into REST classes, Reader, Writers ...
 	 * @param provider to do the injection
 	 * @return rest builder
 	 */

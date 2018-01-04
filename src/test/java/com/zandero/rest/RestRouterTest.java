@@ -182,6 +182,21 @@ public class RestRouterTest extends VertxTest {
 	}
 
 	@Test
+	public void nullTest(TestContext context) {
+
+		final Async async = context.async();
+		client.getNow("/test/context/null", response -> {
+
+			context.assertEquals(200, response.statusCode());
+			response.bodyHandler(bodyHandler -> {
+				                     String body = bodyHandler.getString(0, bodyHandler.length());
+				                     context.assertEquals("", body);
+			                     });
+			async.complete();
+		});
+	}
+
+	@Test
 	public void invalidReaderRegistrationTest() {
 
 		try {

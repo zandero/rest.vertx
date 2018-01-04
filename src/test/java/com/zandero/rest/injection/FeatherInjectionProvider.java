@@ -14,7 +14,7 @@ public class FeatherInjectionProvider implements InjectionProvider {
 	}
 
 	@Override
-	public Object inject(Class clazz) {
+	public Object getInstance(Class clazz) {
 
 		Object instance = injector.instance(clazz);
 		injector.injectFields(instance);
