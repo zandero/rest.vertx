@@ -33,6 +33,7 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 
 	/**
 	 * Step over all possibilities to provide desired reader
+	 * @param provider injection provider if any
 	 * @param parameter check parameter if reader is set or we have a type reader present
 	 * @param byMethodDefinition check default definition
 	 * @param mediaType check by consumes annotation

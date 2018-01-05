@@ -1,6 +1,7 @@
 package com.zandero.rest.exception;
 
 import com.zandero.rest.data.ClassFactory;
+import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
 
 import javax.ws.rs.WebApplicationException;
@@ -32,7 +33,8 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 		classTypes.put(Throwable.class, GenericExceptionHandler.class);
 	}
 
-	public ExceptionHandler getExceptionHandler(Class<? extends ExceptionHandler>[] handlers,
+	public ExceptionHandler getExceptionHandler(InjectionProvider provider,
+												Class<? extends ExceptionHandler>[] handlers,
 	                                            Class<? extends Throwable> aClass) throws ClassFactoryException {
 
 		// trickle down ... from definition to default handler
@@ -72,7 +74,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 			found = GenericExceptionHandler.class;
 		}
 
-		return super.getClassInstance(found);
+		return super.getClassInstance(provider, found);
 	}
 
 	@SafeVarargs

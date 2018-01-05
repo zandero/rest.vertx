@@ -37,6 +37,7 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 	/**
 	 * Finds assigned response writer or tries to assign a writer according to produces annotation and result type
 	 *
+	 * @param provider injection provider if any
 	 * @param returnType type of result
 	 * @param definition method definition
 	 * @param accept     accept media type header

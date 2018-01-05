@@ -411,7 +411,7 @@ public class RestRouter {
 				exHandlers = definition.getExceptionHandlers();
 			}
 
-			handler = handlers.getExceptionHandler(exHandlers, clazz);
+			handler = handlers.getExceptionHandler(injectionProvider, exHandlers, clazz);
 		}
 		catch (ClassFactoryException classException) {
 			// Can't provide exception handler ... rethrow
