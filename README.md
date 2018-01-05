@@ -1022,6 +1022,7 @@ public class GuiceInjectionProvider extends AbstractModule implements InjectionP
 	@Override
 	protected void configure() {
 		bind(MyService.class).to(MyServiceImpl.class);
+		bind(OtherService.class).to(MyOtherServiceImpl.class);
 	}
 
 	@Override
@@ -1030,7 +1031,7 @@ public class GuiceInjectionProvider extends AbstractModule implements InjectionP
 	}
 }
 ```
-__
+
 ### Implement service (use @Inject if needed)
 ```java
 public MyServiceImpl implements MyService {
