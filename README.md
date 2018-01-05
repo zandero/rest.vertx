@@ -985,3 +985,88 @@ public class NotFoundHandler extends NotFoundResponseWriter {
     }
 }
  ```
+
+## Injection
+> version 8.0 (or later)
+
+Allows @Inject (JSR330) injection of RESTs, writers and readers. 
+
+To provide injection an _InjectionProvider_ interface needs to be implemented.
+
+### Binding injection provider
+```java
+Router router = new RestBuilder(vertx)
+		                .injectWith(GuiceInjectionProvider.class)
+		                .register(GuicedRest.class)
+		                .build();
+```
+
+or
+
+```java
+RestRouter.injectWith(GuiceInjectionProvider.class);
+```
+
+### Implement injection provider
+Following is a simple implementation of a Guice injection provider.
+
+```java
+public class GuiceInjectionProvider extends AbstractModule implements InjectionProvider  {
+
+	private Injector injector;
+
+	public GuiceInjectionProvider() {
+		injector = Guice.createInjector(this);
+	}
+
+	@Override
+	protected void configure() {
+		bind(MyService.class).to(MyServiceImpl.class);
+	}
+
+	@Override
+	public Object getInstance(Class clazz) {
+		return injector.getInstance(clazz);
+	}
+}
+```
+__
+### Implement service (use @Inject if needed)
+```java
+public MyServiceImpl implements MyService {
+	
+	private final OtherService other;
+	
+	@Inject
+	public MyServiceImpl(OtherService service) {
+		other = service;
+	}
+	
+	public String get() {
+		return "something";
+	}
+}
+```
+
+### Use @Inject in RESTs
+```java
+@Path("rest")
+public class GuicedRest {
+
+	private final MyService service;
+
+	@Inject
+	public GuicedRest(MyService someService) {
+
+		service = someService;
+	}
+
+	@GET
+	@Path("test")
+	public String get() {
+		return service.call();
+	}
+}
+```
+
+Injection can also be used od _RequestReader_ and _ResponseWriters_ if needed.
