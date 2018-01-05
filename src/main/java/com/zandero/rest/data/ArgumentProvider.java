@@ -105,8 +105,10 @@ public class ArgumentProvider {
 					}
 
 					if (!StringUtils.equals(expectedType, providedType, false)) {
-						error = error + ", but got: " + providedType + " -> " + e;
+						error = error + ", but got: " + providedType;
 					}
+
+					error = error + " -> " + e;
 
 					throw new IllegalArgumentException(error, e);
 
