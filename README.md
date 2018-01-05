@@ -1043,7 +1043,7 @@ public MyServiceImpl implements MyService {
 		other = service;
 	}
 	
-	public String get() {
+	public String call() {
 		return "something";
 	}
 }
