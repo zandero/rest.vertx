@@ -428,6 +428,7 @@ public class RestRouter {
 			}
 
 			handler = handlers.getExceptionHandler(injectionProvider, exHandlers, clazz);
+			ContextProvider.injectContext(handler, definition, context);
 		}
 		catch (ClassFactoryException classException) {
 			// Can't provide exception handler ... rethrow
@@ -435,6 +436,13 @@ public class RestRouter {
 			// fall back to generic ...
 			handler = new GenericExceptionHandler();
 			ex = new ExecuteException(500, classException);
+		}
+		catch (ContextException contextException) {
+			// Can't provide @Context for handler ... rethrow
+			log.error("Can't provide @Context!", contextException);
+			// fall back to generic ...
+			handler = new GenericExceptionHandler();
+			ex = new ExecuteException(500, contextException);
 		}
 
 		HttpServerResponse response = context.response();
