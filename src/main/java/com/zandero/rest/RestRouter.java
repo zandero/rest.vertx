@@ -156,7 +156,12 @@ public class RestRouter {
 				checkBodyReader(definition);
 
 				// check writer compatibility beforehand
-				getWriter(injectionProvider, method, definition, null); // no way to know the accept content at this point
+				try {
+					getWriter(injectionProvider, method, definition, null, null); // no way to know the accept content at this point
+				}
+				catch (ContextException e) {
+					// not relevant at this point
+				}
 
 				// bind handler
 				Handler<RoutingContext> handler = getHandler(api, definition, method);
@@ -267,7 +272,11 @@ public class RestRouter {
 		}
 	}
 
-	private static HttpResponseWriter getWriter(InjectionProvider injectionProvider, Method method, RouteDefinition definition, MediaType acceptHeader) {
+	private static HttpResponseWriter getWriter(InjectionProvider injectionProvider,
+	                                            Method method,
+	                                            RouteDefinition definition,
+	                                            MediaType acceptHeader,
+	                                            RoutingContext context) throws ContextException {
 
 		HttpResponseWriter writer = writers.getResponseWriter(injectionProvider, method.getReturnType(), definition, acceptHeader);
 		if (writer == null) {
@@ -275,10 +284,13 @@ public class RestRouter {
 		}
 
 		Type writerType = ClassFactory.getGenericType(writer.getClass());
-		ClassFactory.checkIfCompatibleTypes(method.getReturnType(), writerType, definition.toString().trim() + " - Response type: '" +
-		                                                                        method.getReturnType() + "' not matching writer type: '" +
-		                                                                        writerType + "' in: '" + writer.getClass() + "'");
+		ClassFactory.checkIfCompatibleTypes(method.getReturnType(),
+		                                    writerType,
+		                                    definition.toString().trim() + " - Response type: '" +
+		                                    method.getReturnType() + "' not matching writer type: '" +
+		                                    writerType + "' in: '" + writer.getClass() + "'");
 
+		ContextProvider.injectContext(writer, definition, context); // injects @Context if needed
 		return writer;
 	}
 
@@ -363,7 +375,7 @@ public class RestRouter {
 
 			try {
 				MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
-				HttpResponseWriter writer = getWriter(injectionProvider, method, definition, accept);
+				HttpResponseWriter writer = getWriter(injectionProvider, method, definition, accept, context);
 
 				Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider);
 
@@ -383,7 +395,11 @@ public class RestRouter {
 			try {
 				// fill up definition (response headers) from request
 				RouteDefinition definition = new RouteDefinition(context);
-				produceResponse(null, context, definition, (HttpResponseWriter) ClassFactory.newInstanceOf(injectionProvider, notFoundWriter));
+
+				HttpResponseWriter writer = (HttpResponseWriter) ClassFactory.newInstanceOf(injectionProvider, notFoundWriter);
+				ContextProvider.injectContext(writer, null, context);
+
+				produceResponse(null, context, definition, writer);
 			}
 			catch (Exception e) {
 				handleException(e, context, null);
@@ -509,11 +525,12 @@ public class RestRouter {
 		Assert.notNull(context, "Missing context!");
 		Assert.notNull(object, "Can't push null into context!");
 
-		context.put(ArgumentProvider.getContextKey(object), object);
+		context.put(ContextProvider.getContextKey(object), object);
 	}
 
 	/**
 	 * Provide an injector to getInstance classes where needed
+	 *
 	 * @param provider to getInstance classes
 	 */
 	public static void injectWith(InjectionProvider provider) {
@@ -523,6 +540,7 @@ public class RestRouter {
 
 	/**
 	 * Provide an injector to getInstance classes where needed
+	 *
 	 * @param provider to create to getInstance classes
 	 */
 	public static void injectWith(Class<InjectionProvider> provider) {

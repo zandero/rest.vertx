@@ -2,7 +2,6 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.context.ContextProviders;
-import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.ContextException;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.reader.ReaderFactory;
@@ -10,10 +9,7 @@ import com.zandero.rest.reader.ValueReader;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
 import com.zandero.utils.extra.UrlUtils;
-import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.HttpServerResponse;
-import io.vertx.ext.auth.User;
 import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.RoutingContext;
 
@@ -75,22 +71,29 @@ public class ArgumentProvider {
 							if (provider != null) {
 								Object result = provider.provide(context.request());
 								if (result != null) {
-									context.data().put(getContextKey(dataType), result);
+									context.data().put(ContextProvider.getContextKey(dataType), result);
 								}
 							}
 
-							args[parameter.getIndex()] = provideContext(definition, method.getParameterTypes()[parameter.getIndex()], parameter.getDefaultValue(), context);
+							args[parameter.getIndex()] = ContextProvider.provideContext(definition,
+							                                                            method.getParameterTypes()[parameter.getIndex()],
+							                                                            parameter.getDefaultValue(),
+							                                                            context);
 							break;
 
 						default:
 
 							ValueReader valueReader = getValueReader(injectionProvider, parameter, definition, readers);
+							ContextProvider.injectContext(valueReader, definition, context);
+
 							args[parameter.getIndex()] = valueReader.read(value, dataType);
 							break;
 					}
-				} catch (ContextException e) {
+				}
+				catch (ContextException e) {
 					throw new IllegalArgumentException(e.getMessage());
-				} catch (IllegalArgumentException e) {
+				}
+				catch (IllegalArgumentException e) {
 
 					MethodParameter paramDefinition = definition.findParameter(parameter.getIndex());
 					String providedType = value != null ? value.getClass().getSimpleName() : "null";
@@ -99,9 +102,9 @@ public class ArgumentProvider {
 					String error;
 					if (paramDefinition != null) {
 						error = "Invalid parameter type for: " + paramDefinition + " for: " + definition.getPath() + ", expected: " + expectedType;
-					}
-					else {
-						error = "Invalid parameter type for " + (parameter.getIndex() + 1) + " argument for: " + method + " expected: " + expectedType;
+					} else {
+						error =
+							"Invalid parameter type for " + (parameter.getIndex() + 1) + " argument for: " + method + " expected: " + expectedType;
 					}
 
 					if (!StringUtils.equals(expectedType, providedType, false)) {
@@ -112,7 +115,8 @@ public class ArgumentProvider {
 
 					throw new IllegalArgumentException(error, e);
 
-				} catch (Exception e) {
+				}
+				catch (Exception e) {
 
 					throw new IllegalArgumentException(e);
 				}
@@ -156,8 +160,7 @@ public class ArgumentProvider {
 				String path;
 				if (definition.pathIsRegEx()) { // RegEx is special, params values are given by index
 					path = getParam(context.mountPoint(), context.request(), param.getPathIndex());
-				}
-				else {
+				} else {
 					path = context.request().getParam(param.getName());
 				}
 
@@ -190,82 +193,17 @@ public class ArgumentProvider {
 		}
 	}
 
-	private static ValueReader getValueReader(InjectionProvider provider, MethodParameter parameter, RouteDefinition definition, ReaderFactory readers)
-	throws ClassFactoryException {
+	private static ValueReader getValueReader(InjectionProvider provider,
+	                                          MethodParameter parameter,
+	                                          RouteDefinition definition,
+	                                          ReaderFactory readers) {
 
 		// get associated reader set in parameter
 		if (parameter.isBody()) {
 			return readers.get(provider, parameter, parameter.getReader(), definition.getConsumes());
-		}
-		else {
+		} else {
 			return readers.get(provider, parameter, parameter.getReader());
 		}
-
-	}
-
-	/**
-	 * Provides vertx context of desired type if possible
-	 *
-	 * @param definition   route definition
-	 * @param type         context type
-	 * @param defaultValue default value if given
-	 * @param context      to extract value from
-	 * @return found context or null if not found
-	 */
-	private static Object provideContext(RouteDefinition definition, Class<?> type, String defaultValue, RoutingContext context)
-	throws ContextException {
-
-		if (type == null) {
-			return null;
-		}
-
-		// vert.x context
-		if (type.isAssignableFrom(HttpServerResponse.class)) {
-			return context.response();
-		}
-
-		if (type.isAssignableFrom(HttpServerRequest.class)) {
-			return context.request();
-		}
-
-		if (type.isAssignableFrom(RoutingContext.class)) {
-			return context;
-		}
-
-		if (type.isAssignableFrom(Vertx.class)) {
-			return context.vertx();
-		}
-
-		if (type.isAssignableFrom(User.class)) {
-			return context.user();
-		}
-
-		// internal context
-		if (type.isAssignableFrom(RouteDefinition.class)) {
-			return definition;
-		}
-
-		// browse through context storage
-		if (context.data() != null && context.data().size() > 0) {
-
-			Object item = context.data().get(getContextKey(type));
-			if (item != null) { // found in storage ... return
-				return item;
-			}
-		}
-
-		if (defaultValue != null) {
-			// check if type has constructor that can be used with defaultValue ...
-			// and create Context type on the fly constructed with defaultValue
-			try {
-				return ClassFactory.constructType(type, defaultValue);
-			} catch (ClassFactoryException e) {
-				throw new ContextException("Can't provide @Context of type: " + type + ". " + e.getMessage());
-			}
-		}
-
-		// Given Context can not be resolved ... throw exception
-		throw new ContextException("Can't provide @Context of type: " + type);
 	}
 
 	private static String getParam(String mountPoint, HttpServerRequest request, int index) {
@@ -328,7 +266,7 @@ public class ArgumentProvider {
 		return null;
 	}
 
-	public static String getContextKey(Object object) {
+	/*public static String getContextKey(Object object) {
 
 		Assert.notNull(object, "Expected object but got null!");
 		return getContextKey(object.getClass());
@@ -337,5 +275,5 @@ public class ArgumentProvider {
 	private static String getContextKey(Class clazz) {
 		Assert.notNull(clazz, "Missing class!");
 		return "RestRouter-" + clazz.getName();
-	}
+	}*/
 }

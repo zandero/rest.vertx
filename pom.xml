@@ -71,7 +71,6 @@
 
         <version.guice>4.0</version.guice>
         <version.feather>1.0</version.feather>
-        <version.dagger>2.14.1</version.dagger>
     </properties>
 
     <dependencies>
