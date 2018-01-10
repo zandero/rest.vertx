@@ -409,8 +409,7 @@ GET /user?username=Foo -> "User is: Foo
 ```
 
 
-
-## Request context
+## [](#RequestContext) Request context 
 Additional request bound variables can be provided as method arguments using the @Context annotation.
  
 Following types are by default supported:
@@ -1069,5 +1068,23 @@ public class GuicedRest {
 	}
 }
 ```
+Injection can also be used od _RequestReader_, _ResponseWriters_ or _ExceptionHandler_ if needed.
 
-Injection can also be used od _RequestReader_ and _ResponseWriters_ if needed.
+### @Context fields
+>since version 8.1 or later
+ 
+In case needed a RequestReader, ResponseWriter or ExceptionHandler and utilize a @Context annotated field.
+
+see [Request context](#RequestContext) for details.
+ 
+Use _@Context_ fields only when really necessary, as the readers, writers and handlers are not cached but initialized on the fly on every request when needed.  
+This is done in order to ensure thread safety, so one context does not jump into another thread.
+
+## Internal caching
+>since version 8.1 or later
+
+### Caching and singletons
+
+* All registered REST classes are singletons by default, no need to annotate them with _@Singleton_ annotation.  
+* By default all _HttpResponseWriter_, _ValueReader_ and _ExceptionHandler_ classes are singletons that are cached once initialized.
+* In case _HttpResponseWriter_, _ValueReader_ or _ExceptionHandler_ are utilizing a **@Context** field they are initialized on **every request** for thread safety 
