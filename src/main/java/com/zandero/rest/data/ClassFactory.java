@@ -61,32 +61,9 @@ public abstract class ClassFactory<T> {
 		cache.put(instance.getClass().getName(), instance);
 	}
 
-	private T getCached(Class<? extends T> reader) {
+	private T getCached(Class<? extends T> clazz) {
 
-		return cache.get(reader.getName());
-	}
-
-	protected T getClassInstance(Class<? extends T> clazz) throws ClassFactoryException {
-
-		if (clazz == null) {
-			return null;
-		}
-
-		try {
-
-			T instance = getCached(clazz);
-			if (instance == null) {
-
-				instance = clazz.newInstance();
-				cache(instance);
-			}
-
-			return instance;
-		}
-		catch (InstantiationException | IllegalAccessException e) {
-			log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
-			throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
-		}
+		return cache.get(clazz.getName());
 	}
 
 	protected T getClassInstance(InjectionProvider provider, Class<? extends T> clazz) throws ClassFactoryException {
@@ -112,12 +89,20 @@ public abstract class ClassFactory<T> {
 		}
 
 		try {
-			return clazz.newInstance();
+
+			for (Constructor<?> c : clazz.getDeclaredConstructors()) {
+				c.setAccessible(true);
+				if (c.getParameterCount() == 0) { // TODO: try to initialize class from context if arguments fit
+					return c.newInstance();
+				}
+			}
 		}
-		catch (InstantiationException | IllegalAccessException e) {
+		catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
 			log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
 			throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
 		}
+
+		throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", null);
 	}
 
 	public static Object newInstanceOf(InjectionProvider provider, Class<?> clazz) throws ClassFactoryException {
@@ -214,7 +199,7 @@ public abstract class ClassFactory<T> {
 	public T get(String mediaType) throws ClassFactoryException {
 
 		Class<? extends T> clazz = get(MediaTypeHelper.valueOf(mediaType));
-		return getClassInstance(clazz);
+		return getClassInstance(null, clazz);
 	}
 
 	public Class<? extends T> get(Class<?> type) {
