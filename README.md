@@ -961,11 +961,11 @@ We can
 
 ```java
 Router router = new RestBuilder(vertx)
-			                .register(MyRest.class)
-			                .notFound(".*\\/other", OtherNotFoundHandler.class) // handle all calls to a /other request
-			                .notFound("rest", RestNotFoundHandler.class) // handle all calls to /rest subpath
-			                .notFound(NotFoundHandler.class) // handle all other not found requests
-			                .build();
+    .register(MyRest.class)
+    .notFound(".*\\/other", OtherNotFoundHandler.class) // handle all calls to a /other request
+    .notFound("rest", RestNotFoundHandler.class) // handle all calls to /rest subpath
+    .notFound(NotFoundHandler.class) // handle all other not found requests
+    .build();
 ```
 
 or
