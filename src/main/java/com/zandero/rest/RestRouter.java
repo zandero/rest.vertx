@@ -7,6 +7,7 @@ import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.reader.ReaderFactory;
 import com.zandero.rest.reader.ValueReader;
+import com.zandero.rest.writer.GenericResponseWriter;
 import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.rest.writer.NotFoundResponseWriter;
 import com.zandero.rest.writer.WriterFactory;
@@ -180,8 +181,8 @@ public class RestRouter {
 	public static void provide(Router output, Class<? extends ContextProvider> provider) {
 
 		try {
-			Type clazz = ClassFactory.getGenericType(provider);
-			ContextProvider instance = getContextProviders().getContextProvider(injectionProvider, clazz.getClass(), provider);
+			Class clazz = (Class)ClassFactory.getGenericType(provider);
+			ContextProvider instance = getContextProviders().getContextProvider(injectionProvider, clazz, provider);
 			output.route().handler(getContextHandler(instance));
 		}
 		catch (ClassFactoryException e) {
@@ -387,7 +388,6 @@ public class RestRouter {
 
 		route.order(definition.getOrder()); // same order as following handler
 
-		// TODO: add security handler the same way as Context handlers are added
 		Handler<RoutingContext> securityHandler = getSecurityHandler(definition);
 		if (definition.isBlocking()) {
 			route.blockingHandler(securityHandler);
@@ -458,6 +458,10 @@ public class RestRouter {
 			try {
 				MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
 				HttpResponseWriter writer = getWriter(injectionProvider, method, definition, accept, context);
+				if (writer == null) {
+					log.error("No writer could be provided to produce response. Falling back to GenericResponseWriter instead!");
+					writer = new GenericResponseWriter();
+				}
 
 				Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider);
 

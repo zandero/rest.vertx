@@ -368,8 +368,6 @@ public class RouteDefinition {
 					valueReader = ((RequestReader) annotation).value();
 				}
 
-
-				// TODO> check if OK?
 				if (annotation instanceof Context) {
 					type = ParameterType.context;
 					name = parameters[index].getName();
