@@ -185,7 +185,7 @@ public class RestRouter {
 			output.route().handler(getContextHandler(instance));
 		}
 		catch (ClassFactoryException e) {
-			handleException(e, null, null);
+			throw new IllegalArgumentException(e.getMessage());
 		}
 	}
 
@@ -229,10 +229,6 @@ public class RestRouter {
 		}
 	}
 
-	/*public static void blockingHandler(Router output, Handler<RoutingContext> handler) {
-		output.route().blockingHandler(handler);
-	}*/
-
 	/**
 	 * Handles not found route for all requests
 	 *
@@ -241,6 +237,31 @@ public class RestRouter {
 	 */
 	public static void notFound(Router router, Class<? extends NotFoundResponseWriter> notFound) {
 		notFound(router, null, notFound);
+	}
+
+	/**
+	 * Handles not found route for all requests
+	 *
+	 * @param router   to add route to
+	 * @param notFound hander
+	 */
+	public static void notFound(Router router, NotFoundResponseWriter notFound) {
+		notFound(router, null, notFound);
+	}
+
+	/**
+	 * Handles not found route in case request path mathes given path prefix
+	 *
+	 * @param router   to add route to
+	 * @param path     prefix
+	 * @param notFound hander
+	 */
+	public static void notFound(Router router, String path, NotFoundResponseWriter notFound) {
+
+		Assert.notNull(router, "Missing router!");
+		Assert.notNull(notFound, "Missing not found handler!");
+
+		addLastHandler(router, path, getNotFoundHandler(notFound));
 	}
 
 	/**
@@ -255,8 +276,12 @@ public class RestRouter {
 		Assert.notNull(router, "Missing router!");
 		Assert.notNull(notFound, "Missing not found handler!");
 
+		addLastHandler(router, path, getNotFoundHandler(notFound));
+	}
+
+	private static void addLastHandler(Router router, String path, Handler<RoutingContext> notFoundHandler) {
 		if (path == null) {
-			router.route().last().handler(getNotFoundHandler(notFound));
+			router.route().last().handler(notFoundHandler);
 		} else {
 
 			if (!ValidatingUtils.isRegEx(path)) {
@@ -273,7 +298,7 @@ public class RestRouter {
 				path = path + ".*";
 			}
 
-			router.routeWithRegex(path).last().handler(getNotFoundHandler(notFound));
+			router.routeWithRegex(path).last().handler(notFoundHandler);
 		}
 	}
 
@@ -446,14 +471,21 @@ public class RestRouter {
 		};
 	}
 
-	private static Handler<RoutingContext> getNotFoundHandler(Class<? extends NotFoundResponseWriter> notFoundWriter) {
+	private static Handler<RoutingContext> getNotFoundHandler(Object notFoundWriter) {
 		return context -> {
 
 			try {
 				// fill up definition (response headers) from request
 				RouteDefinition definition = new RouteDefinition(context);
 
-				HttpResponseWriter writer = (HttpResponseWriter) ClassFactory.newInstanceOf(injectionProvider, notFoundWriter);
+				HttpResponseWriter writer;
+				if (notFoundWriter instanceof Class) {
+					writer = (HttpResponseWriter) ClassFactory.newInstanceOf(injectionProvider, (Class<?>) notFoundWriter);
+				}
+				else {
+					writer = (HttpResponseWriter) notFoundWriter;
+				}
+
 				ContextProviderFactory.injectContext(writer, null, context);
 
 				produceResponse(null, context, definition, writer);

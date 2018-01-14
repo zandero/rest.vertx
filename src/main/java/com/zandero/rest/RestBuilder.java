@@ -35,15 +35,15 @@ public class RestBuilder {
 	private List<Object> exceptionHandlers = new ArrayList<>();
 
 	private Map<MediaType, Object> mediaTypeResponseWriters = new LinkedHashMap<>();
-	private Map<Class<?>, Object> classResponseWriters = new LinkedHashMap<>();
+	private Map<Class, Object> classResponseWriters = new LinkedHashMap<>();
 
 	private Map<MediaType, Object> mediaTypeValueReaders = new LinkedHashMap<>();
-	private Map<Class<?>, Object> classValueReaders = new LinkedHashMap<>();
+	private Map<Class, Object> classValueReaders = new LinkedHashMap<>();
 
 	/**
 	 * Map of path / not found handlers
 	 */
-	private Map<String, Class<? extends NotFoundResponseWriter>> notFound = new LinkedHashMap<>();
+	private Map<String, Object> notFound = new LinkedHashMap<>();
 
 	/**
 	 * CORS handler if desired
@@ -352,7 +352,14 @@ public class RestBuilder {
 		if (notFound != null && notFound.size() > 0) {
 
 			for (String path : notFound.keySet()) {
-				RestRouter.notFound(output, path, notFound.get(path));
+
+				Object notFoundHandler = notFound.get(path);
+				if (notFoundHandler instanceof Class) {
+					RestRouter.notFound(output, path, (Class<? extends NotFoundResponseWriter>) notFoundHandler);
+				}
+				else {
+					RestRouter.notFound(output, path, (NotFoundResponseWriter) notFoundHandler);
+				}
 			}
 		}
 

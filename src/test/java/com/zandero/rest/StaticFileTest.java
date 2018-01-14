@@ -1,6 +1,7 @@
 package com.zandero.rest;
 
 import com.zandero.rest.test.StaticFileRest;
+import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -26,7 +27,12 @@ public class StaticFileTest extends VertxTest {
 
 		RestRouter.notFound(router, "rest", RestNotFoundHandler.class);
 
-		vertx.createHttpServer()
+		HttpServerOptions serverOptions = new HttpServerOptions();
+		serverOptions.setCompressionSupported(true);
+
+
+
+		vertx.createHttpServer(serverOptions)
 		     .requestHandler(router::accept)
 		     .listen(PORT);
 	}
