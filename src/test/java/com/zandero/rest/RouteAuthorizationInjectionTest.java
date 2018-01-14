@@ -3,7 +3,6 @@ package com.zandero.rest;
 import com.zandero.rest.handler.UserHandler;
 import com.zandero.rest.injection.GuiceInjectionProvider;
 import com.zandero.rest.test.TestAuthorizationRest;
-import io.vertx.ext.auth.User;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -26,7 +25,7 @@ public class RouteAuthorizationInjectionTest extends VertxTest {
 		// 2. REST with @RolesAllowed annotations
 		Router router = new RestBuilder(vertx)
 			                .injectWith(new GuiceInjectionProvider())
-			                .context(User.class, UserHandler.class)
+			                .provide(UserHandler.class)
 			                .register(TestAuthorizationRest.class)
 			                .build();
 

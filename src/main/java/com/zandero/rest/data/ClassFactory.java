@@ -155,6 +155,19 @@ public abstract class ClassFactory<T> {
 		mediaTypes.put(key, clazz);
 	}
 
+	protected void register(String mediaType, T clazz) {
+
+		Assert.notNull(mediaType, "Missing media type!");
+		Assert.notNull(clazz, "Missing media type class instance");
+
+		MediaType type = MediaTypeHelper.valueOf(mediaType);
+		Assert.notNull(type, "Unknown media type given: " + mediaType);
+
+		String key = MediaTypeHelper.getKey(type);
+		cache.put(key, clazz);
+	}
+
+
 	protected void register(MediaType mediaType, Class<? extends T> clazz) {
 
 		Assert.notNull(mediaType, "Missing media type!");
@@ -162,6 +175,15 @@ public abstract class ClassFactory<T> {
 
 		String key = MediaTypeHelper.getKey(mediaType);
 		mediaTypes.put(key, clazz);
+	}
+
+	protected void register(MediaType mediaType, T clazz) {
+
+		Assert.notNull(mediaType, "Missing media type!");
+		Assert.notNull(clazz, "Missing media type class instance");
+
+		String key = MediaTypeHelper.getKey(mediaType);
+		cache.put(key, clazz);
 	}
 
 	protected void register(Class<?> aClass, Class<? extends T> clazz) {
@@ -333,15 +355,6 @@ public abstract class ClassFactory<T> {
 
 		return null;
 	}
-
-	// TODO:
-	/*
-	Be a primitive type
-	Have a constructor that accepts a single String argument
-	Have a static method named valueOf or fromString that accepts a single String argument (see, for example, Integer.valueOf(String))
-	Have a registered implementation of ParamConverterProvider JAX-RS extension SPI that returns a ParamConverter instance capable of a "from string" conversion for the type.
-	Be List, Set or SortedSet, where T satisfies 2, 3 or 4 above. The resulting collection is read-only.
-	*/
 
 	/**
 	 * Aims to construct given type utilizing a constructor that takes String or other primitive type values

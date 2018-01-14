@@ -177,36 +177,44 @@ public class RestRouter {
 		return router;
 	}
 
+	public static void provide(Router output, Class<? extends ContextProvider> provider) {
 
-	public static void registerHandler(Router output, Class clazz, Class<? extends ContextProvider> provider) {
-
-		output.route().handler(getContextHandler(clazz, provider));
+		try {
+			Type clazz = ClassFactory.getGenericType(provider);
+			ContextProvider instance = getContextProviders().getContextProvider(injectionProvider, clazz.getClass(), provider);
+			output.route().handler(getContextHandler(instance));
+		}
+		catch (ClassFactoryException e) {
+			handleException(e, null, null);
+		}
 	}
 
-	private static Handler<RoutingContext> getContextHandler(Class clazz,
-	                                                         Class<? extends ContextProvider> provider) {
+	public static void provide(Router output, ContextProvider<?> provider) {
+
+		output.route().handler(getContextHandler(provider));
+	}
+
+	private static Handler<RoutingContext> getContextHandler(ContextProvider instance) {
 
 		return context -> {
 
-			try {
-				ContextProvider instance = getContextProviders().getContextProvider(injectionProvider, clazz, provider);
-				if (instance != null) {
-					Object provided = instance.provide(context.request());
+			if (instance != null) {
+				Object provided = instance.provide(context.request());
 
-					if (provided instanceof User) {
-						context.setUser((User) provided);
-					}
-
-					if (provided instanceof Session) {
-						context.setSession((Session)provided);
-					}
+				if (provided instanceof User) {
+					context.setUser((User) provided);
 				}
 
-				context.next();
+				if (provided instanceof Session) {
+					context.setSession((Session) provided);
+				}
+
+				if (provided != null) {
+					context.data().put(ContextProviderFactory.getContextKey(provided), provided);
+				}
 			}
-			catch (ClassFactoryException e) {
-				handleException(e, context, null);
-			}
+
+			context.next();
 		};
 	}
 
@@ -562,27 +570,34 @@ public class RestRouter {
 	}
 
 	/**
-	 * Registers a context provider for given type of class
-	 *
-	 * @param aClass   to register context provider for
-	 * @param provider clazz type to be registered
-	 * @param <T>      provider type
+	 * Use addContextProvider(Class<? extends ContextProvider<T>> provider) instead
 	 */
+	@Deprecated
 	public static <T> void addContextProvider(Class<T> aClass, Class<? extends ContextProvider<T>> provider) {
-
-		providers.register(aClass, provider);
+		addProvider(provider);
 	}
 
 	/**
 	 * Registers a context provider for given type of class
 	 *
-	 * @param aClass   to register context provider for
-	 * @param provider instance to be registered
-	 * @param <T>      provider type
+	 * @param provider clazz type to be registered
 	 */
-	public static <T> void addContextProvider(Class<T> aClass, ContextProvider<T> provider) {
+	public static void addProvider(Class<? extends ContextProvider> provider) {
 
-		providers.register(aClass, provider);
+		Class clazz = (Class) ClassFactory.getGenericType(provider);
+		providers.register(clazz, provider);
+	}
+
+	/**
+	 * Use addProvider(aClass<T>, ContextProvider<T> provider) instead
+	 */
+	@Deprecated
+	public static <T> void addContextProvider(Class<T> aClass, ContextProvider<T> provider) {
+		addProvider(aClass, provider);
+	}
+
+	public static <T> void addProvider(Class<T> clazz, ContextProvider<T> provider) {
+		providers.register(clazz, provider);
 	}
 
 	public static ContextProviderFactory getContextProviders() {

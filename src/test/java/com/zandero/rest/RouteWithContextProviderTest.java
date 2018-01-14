@@ -1,7 +1,7 @@
 package com.zandero.rest;
 
 import com.zandero.rest.test.TestContextRest;
-import com.zandero.rest.test.data.Token;
+import com.zandero.rest.test.data.TokenProvider;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -25,17 +25,10 @@ public class RouteWithContextProviderTest extends VertxTest {
 		TestContextRest testRest = new TestContextRest();
 
 		Router router = RestRouter.register(vertx, testRest);
+		//RestRouter.provide(router, TokenProvider.class);
 
-		RestRouter.addContextProvider(Dummy.class, request -> new Dummy("test", "name"));
-
-		RestRouter.addContextProvider(Token.class, request -> {
-			String token = request.getHeader("X-Token");
-			if (token != null) {
-				return new Token(token);
-			}
-
-			return null;
-		});
+		RestRouter.addProvider(Dummy.class, request -> new Dummy("test", "name"));
+		RestRouter.addProvider(TokenProvider.class);
 
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)

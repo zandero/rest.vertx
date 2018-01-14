@@ -29,16 +29,16 @@ public class RestBuilder {
 
 	private List<Object> apis = new ArrayList<>();
 
-	private List<Class<? extends ExceptionHandler>> exceptionHandlers = new ArrayList<>();
+	private List<Object> contextProviders = new ArrayList<>();
+	private Map<Class, Object> registeredProviders = new HashMap<>();
 
-	private Map<MediaType, Class<? extends HttpResponseWriter>> mediaTypeResponseWriters = new LinkedHashMap<>();
-	private Map<Class<?>, Class<? extends HttpResponseWriter>> classResponseWriters = new LinkedHashMap<>();
+	private List<Object> exceptionHandlers = new ArrayList<>();
 
-	private Map<MediaType, Class<? extends ValueReader>> mediaTypeValueReaders = new LinkedHashMap<>();
-	private Map<Class<?>, Class<? extends ValueReader>> classValueReaders = new LinkedHashMap<>();
+	private Map<MediaType, Object> mediaTypeResponseWriters = new LinkedHashMap<>();
+	private Map<Class<?>, Object> classResponseWriters = new LinkedHashMap<>();
 
-	private Map<Class, ContextProvider> contextProvidersInstances = new LinkedHashMap<>();
-	private Map<Class, Class<? extends ContextProvider>> contextProviders = new LinkedHashMap<>();
+	private Map<MediaType, Object> mediaTypeValueReaders = new LinkedHashMap<>();
+	private Map<Class<?>, Object> classValueReaders = new LinkedHashMap<>();
 
 	/**
 	 * Map of path / not found handlers
@@ -195,26 +195,43 @@ public class RestBuilder {
 		return this;
 	}
 
-	public <T> RestBuilder context(Class<T> clazz, ContextProvider<T> provider) {
+	public <T> RestBuilder provide(ContextProvider<T> provider) {
 
-		Assert.notNull(clazz, "Missing provider class type!");
 		Assert.notNull(provider, "Missing context provider!");
 
-		contextProvidersInstances.put(clazz, provider);
+		contextProviders.add(provider);
 		return this;
 	}
 
-	public <T> RestBuilder context(Class<T> clazz, Class<? extends ContextProvider<T>> provider) {
+	public <T> RestBuilder provide(Class<? extends ContextProvider<T>> provider) {
 
-		Assert.notNull(clazz, "Missing provider class type!");
 		Assert.notNull(provider, "Missing context provider!");
 
-		contextProviders.put(clazz, provider);
+		contextProviders.add(provider);
+		return this;
+	}
+
+	public <T> RestBuilder addProvider(Class<T> clazz, ContextProvider<T> provider) {
+
+		Assert.notNull(clazz, "Missing provided class type!");
+		Assert.notNull(provider, "Missing context provider!");
+
+		registeredProviders.put(clazz, provider);
+		return this;
+	}
+
+	public <T> RestBuilder addProvider(Class<? extends ContextProvider<T>> provider) {
+
+		Assert.notNull(provider, "Missing context provider!");
+
+		Class clazz = (Class) ClassFactory.getGenericType(provider);
+		registeredProviders.put(clazz, provider);
 		return this;
 	}
 
 	/**
 	 * Assosicate provider to getInstance members into REST classes, Reader, Writers ...
+	 *
 	 * @param provider to do the injection
 	 * @return rest builder
 	 */
@@ -251,7 +268,27 @@ public class RestBuilder {
 		RestRouter.injectWith(injectionProvider);
 
 		if (contextProviders.size() > 0) {
-			contextProviders.forEach((clazz, provider) -> RestRouter.registerHandler(output, clazz, provider));
+
+			contextProviders.forEach(provider -> {
+
+				if (provider instanceof Class) {
+					RestRouter.provide(output, (Class<? extends ContextProvider>) provider);
+				} else {
+					RestRouter.provide(output, (ContextProvider<?>) provider);
+				}
+			});
+		}
+
+		if (registeredProviders.size() > 0) {
+
+			registeredProviders.forEach((clazz, provider) -> {
+
+				if (provider instanceof Class) {
+					RestRouter.addProvider((Class<? extends ContextProvider>) provider);
+				} else {
+					RestRouter.addProvider(clazz, (ContextProvider) provider);
+				}
+			});
 		}
 
 		// register APIs
@@ -259,30 +296,58 @@ public class RestBuilder {
 
 		// register readers
 		if (classValueReaders.size() > 0) {
-			classValueReaders.forEach((clazz, reader) -> RestRouter.getReaders().register(clazz, reader));
+			classValueReaders.forEach((clazz, reader) -> {
+
+				if (reader instanceof Class) {
+					RestRouter.getReaders().register(clazz, (Class<? extends ValueReader>) reader);
+				} else {
+					RestRouter.getReaders().register(clazz, (ValueReader) reader);
+				}
+			});
 		}
 		if (mediaTypeValueReaders.size() > 0) {
-			mediaTypeValueReaders.forEach((type, reader) -> RestRouter.getReaders().register(type, reader));
+			mediaTypeValueReaders.forEach((type, reader) -> {
+				if (reader instanceof Class) {
+					RestRouter.getReaders().register(type, (Class<? extends ValueReader>) reader);
+				} else {
+					RestRouter.getReaders().register(type, (ValueReader) reader);
+				}
+			});
 		}
 
 		// register writers
 		if (classResponseWriters.size() > 0) {
-			classResponseWriters.forEach((clazz, reader) -> RestRouter.getWriters().register(clazz, reader));
+			classResponseWriters.forEach((clazz, writer) -> {
+				if (writer instanceof Class) {
+					RestRouter.getWriters().register(clazz, (Class<? extends HttpResponseWriter>) writer);
+				}
+				else {
+					RestRouter.getWriters().register(clazz, (HttpResponseWriter) writer);
+				}
+			});
 		}
 		if (mediaTypeResponseWriters.size() > 0) {
-			mediaTypeResponseWriters.forEach((type, reader) -> RestRouter.getWriters().register(type, reader));
+			mediaTypeResponseWriters.forEach((type, writer) -> {
+				if (writer instanceof Class) {
+					RestRouter.getWriters().register(type, (Class<? extends HttpResponseWriter>) writer);
+				}
+				else {
+					RestRouter.getWriters().register(type, (HttpResponseWriter<?>) writer);
+				}
+			});
 		}
 
 		// register exception handlers
 		if (exceptionHandlers.size() > 0) {
-			exceptionHandlers.forEach(handler -> RestRouter.getExceptionHandlers().register(handler));
+			exceptionHandlers.forEach(handler -> {
+
+				if (handler instanceof Class) {
+					RestRouter.getExceptionHandlers().register((Class<? extends ExceptionHandler>) handler);
+				} else {
+					RestRouter.getExceptionHandlers().register((ExceptionHandler) handler);
+				}
+			});
 		}
-
-		/*// register context providers
-		if (contextProvidersInstances.size() > 0) {
-			contextProvidersInstances.forEach((clazz, provider) -> RestRouter.getContextProviders().register(clazz, provider));
-		}*/
-
 
 		if (notFound != null && notFound.size() > 0) {
 

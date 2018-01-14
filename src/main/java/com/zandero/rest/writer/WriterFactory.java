@@ -72,12 +72,25 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 		super.register(aClass, clazz);
 	}
 
+	public void register(Class<?> aClass, HttpResponseWriter clazz) {
+
+		Assert.notNull(aClass, "Missing response class!");
+		Assert.notNull(clazz, "Missing response writer instance!");
+
+		super.register(aClass, clazz);
+	}
+
 	public void register(String mediaType, Class<? extends HttpResponseWriter> clazz) {
 
 		super.register(mediaType, clazz);
 	}
 
 	public void register(MediaType mediaType, Class<? extends HttpResponseWriter> clazz) {
+
+		super.register(mediaType, clazz);
+	}
+
+	public void register(MediaType mediaType, HttpResponseWriter clazz) {
 
 		super.register(mediaType, clazz);
 	}

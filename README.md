@@ -63,7 +63,7 @@ or alternatively use _RestBuilder_ helper to build up endpoints.
 ### Registering by class type
 > version 0.5 (or later)
 
-Alternatively RESTs can be registered by class type only (in case they have an empty constructor).  
+Alternatively RESTs can be registered by class type only.  
 
 ```java
 Router router = RestRouter.register(vertx, TestRest.class);

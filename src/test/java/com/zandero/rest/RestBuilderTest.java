@@ -3,6 +3,7 @@ package com.zandero.rest;
 import com.zandero.rest.reader.DummyBodyReader;
 import com.zandero.rest.test.TestRegExRest;
 import com.zandero.rest.test.TestRest;
+import com.zandero.rest.test.data.TokenProvider;
 import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
 import com.zandero.rest.test.handler.MyExceptionHandler;
 import com.zandero.rest.test.json.Dummy;
@@ -30,7 +31,8 @@ public class RestBuilderTest extends VertxTest {
 		                .writer(MediaType.APPLICATION_JSON, TestCustomWriter.class)
 		                .errorHandler(IllegalArgumentExceptionHandler.class)
 		                .errorHandler(MyExceptionHandler.class)
-		                .context(Dummy.class, request -> new Dummy("test", "name"))
+		                .provide(request -> new Dummy("test", "name"))
+		                .addProvider(TokenProvider.class)
 		                .build();
 	}
 

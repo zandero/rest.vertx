@@ -83,4 +83,8 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 		Assert.notNullOrEmpty(handlers, "Missing exception handler(s)!");
 		exceptionHandlers.addAll(Arrays.asList(handlers));
 	}
+
+	public final void register(ExceptionHandler... handlers) {
+
+	}
 }

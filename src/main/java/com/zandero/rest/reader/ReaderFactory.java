@@ -72,12 +72,25 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 		super.register(clazz, reader);
 	}
 
+	public void register(Class<?> clazz, ValueReader reader) {
+
+		Assert.notNull(clazz, "Missing read in class!");
+		Assert.notNull(reader, "Missing request reader type class!");
+
+		super.register(clazz, reader);
+	}
+
 	public void register(String mediaType, Class<? extends ValueReader> clazz) {
 
 		super.register(mediaType, clazz);
 	}
 
 	public void register(MediaType mediaType, Class<? extends ValueReader> clazz) {
+
+		super.register(mediaType, clazz);
+	}
+
+	public void register(MediaType mediaType, ValueReader clazz) {
 
 		super.register(mediaType, clazz);
 	}

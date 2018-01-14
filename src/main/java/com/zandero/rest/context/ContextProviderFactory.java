@@ -15,7 +15,6 @@ import io.vertx.ext.web.RoutingContext;
 import javax.ws.rs.core.Context;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 
 /**
  * Storage of context providers
@@ -149,8 +148,8 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 	public static String getContextKey(Object object) {
 
 		Assert.notNull(object, "Expected object but got null!");
-		if (object instanceof Type) {
-			return "RestRouter-" + ((Type) object).getTypeName();
+		if (object instanceof Class) {
+			return "RestRouter-" + ((Class)object).getName();
 		}
 
 		return "RestRouter-" + object.getClass().getName();
