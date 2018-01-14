@@ -23,7 +23,7 @@ public class GuiceInjectionProvider extends AbstractModule implements InjectionP
 	protected void configure() {
 		bind(DummyService.class).to(DummyServiceImpl.class);
 		bind(OtherService.class).to(OtherServiceImpl.class);
-
+		bind(UserService.class).to(UserServiceImpl.class);
 	}
 
 	@Provides

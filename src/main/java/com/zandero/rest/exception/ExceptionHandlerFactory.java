@@ -19,7 +19,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 	/**
 	 * standalone list of global handlers
  	 */
-	private List<Class<? extends ExceptionHandler>> exceptionHandlers = new ArrayList<>();
+	private List<Class<? extends ExceptionHandler>> exceptionHandlers;
 
 	@Override
 	protected void init() {

@@ -37,7 +37,6 @@ public class RouteWithContextProviderTest extends VertxTest {
 			return null;
 		});
 
-
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)
 		     .listen(PORT);

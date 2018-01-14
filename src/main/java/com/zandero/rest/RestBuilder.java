@@ -37,7 +37,8 @@ public class RestBuilder {
 	private Map<MediaType, Class<? extends ValueReader>> mediaTypeValueReaders = new LinkedHashMap<>();
 	private Map<Class<?>, Class<? extends ValueReader>> classValueReaders = new LinkedHashMap<>();
 
-	private Map<Class, ContextProvider> contextProviders = new LinkedHashMap<>();
+	private Map<Class, ContextProvider> contextProvidersInstances = new LinkedHashMap<>();
+	private Map<Class, Class<? extends ContextProvider>> contextProviders = new LinkedHashMap<>();
 
 	/**
 	 * Map of path / not found handlers
@@ -199,6 +200,15 @@ public class RestBuilder {
 		Assert.notNull(clazz, "Missing provider class type!");
 		Assert.notNull(provider, "Missing context provider!");
 
+		contextProvidersInstances.put(clazz, provider);
+		return this;
+	}
+
+	public <T> RestBuilder context(Class<T> clazz, Class<? extends ContextProvider<T>> provider) {
+
+		Assert.notNull(clazz, "Missing provider class type!");
+		Assert.notNull(provider, "Missing context provider!");
+
 		contextProviders.put(clazz, provider);
 		return this;
 	}
@@ -224,7 +234,6 @@ public class RestBuilder {
 		return this;
 	}
 
-
 	private Router getRouter() {
 		if (vertx == null) {
 			return RestRouter.register(router, apis);
@@ -240,6 +249,10 @@ public class RestBuilder {
 		Router output = getRouter();
 
 		RestRouter.injectWith(injectionProvider);
+
+		if (contextProviders.size() > 0) {
+			contextProviders.forEach((clazz, provider) -> RestRouter.registerHandler(output, clazz, provider));
+		}
 
 		// register APIs
 		apis.forEach(api -> RestRouter.register(output, api));
@@ -265,10 +278,11 @@ public class RestBuilder {
 			exceptionHandlers.forEach(handler -> RestRouter.getExceptionHandlers().register(handler));
 		}
 
-		// register context providers
-		if (contextProviders.size() > 0) {
-			contextProviders.forEach((clazz, provider) -> RestRouter.getContextProviders().register(clazz, provider));
-		}
+		/*// register context providers
+		if (contextProvidersInstances.size() > 0) {
+			contextProvidersInstances.forEach((clazz, provider) -> RestRouter.getContextProviders().register(clazz, provider));
+		}*/
+
 
 		if (notFound != null && notFound.size() > 0) {
 

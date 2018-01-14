@@ -1,7 +1,7 @@
 package com.zandero.rest.data;
 
 import com.zandero.rest.context.ContextProvider;
-import com.zandero.rest.context.ContextProviders;
+import com.zandero.rest.context.ContextProviderFactory;
 import com.zandero.rest.exception.ContextException;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.reader.ReaderFactory;
@@ -27,7 +27,7 @@ public class ArgumentProvider {
 	                                    RouteDefinition definition,
 	                                    RoutingContext context,
 	                                    ReaderFactory readers,
-	                                    ContextProviders providers,
+	                                    ContextProviderFactory providers,
 	                                    InjectionProvider injectionProvider) {
 
 		Assert.notNull(method, "Missing method to provide arguments for!");
@@ -67,24 +67,24 @@ public class ArgumentProvider {
 						case context:
 
 							// check if providers need to be called to assure context
-							ContextProvider provider = providers.get(dataType);
+							ContextProvider provider = providers.get(injectionProvider, dataType, null, null); // TODO:
 							if (provider != null) {
 								Object result = provider.provide(context.request());
 								if (result != null) {
-									context.data().put(ContextProvider.getContextKey(dataType), result);
+									context.data().put(ContextProviderFactory.getContextKey(dataType), result);
 								}
 							}
 
-							args[parameter.getIndex()] = ContextProvider.provideContext(definition,
-							                                                            method.getParameterTypes()[parameter.getIndex()],
-							                                                            parameter.getDefaultValue(),
-							                                                            context);
+							args[parameter.getIndex()] = ContextProviderFactory.provideContext(definition,
+							                                                                   method.getParameterTypes()[parameter.getIndex()],
+							                                                                   parameter.getDefaultValue(),
+							                                                                   context);
 							break;
 
 						default:
 
 							ValueReader valueReader = getValueReader(injectionProvider, parameter, definition, readers);
-							ContextProvider.injectContext(valueReader, definition, context);
+							ContextProviderFactory.injectContext(valueReader, definition, context);
 
 							args[parameter.getIndex()] = valueReader.read(value, dataType);
 							break;

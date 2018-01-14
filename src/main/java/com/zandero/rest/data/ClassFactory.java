@@ -1,5 +1,6 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.context.ContextProviderFactory;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
@@ -21,10 +22,19 @@ public abstract class ClassFactory<T> {
 
 	private final static Logger log = LoggerFactory.getLogger(ClassFactory.class);
 
+	/**
+	 * Cache of class instances
+	 */
 	private Map<String, T> cache = new HashMap<>();
 
+	/**
+	 * map of class associated with class type (to be instantiated)
+	 */
 	protected Map<Class, Class<? extends T>> classTypes = new LinkedHashMap<>();
 
+	/**
+	 * map of media type associated with class type (to be instantiated)
+	 */
 	protected Map<String, Class<? extends T>> mediaTypes = new LinkedHashMap<>();
 
 	private static Class[] SIMPLE_TYPE = new Class[]{
@@ -72,11 +82,20 @@ public abstract class ClassFactory<T> {
 			return null;
 		}
 
-		T instance = getCached(clazz);
+		// only use cache if no @Context is needed
+		boolean useCache = !ContextProviderFactory.hasContext(clazz);
+
+		T instance = null;
+		if (useCache) {
+			instance = getCached(clazz);
+		}
 		if (instance == null) {
 
 			instance = (T) newInstanceOf(provider, clazz);
-			cache(instance);
+
+			if (useCache) {
+				cache(instance);
+			}
 		}
 
 		return instance;
@@ -156,6 +175,17 @@ public abstract class ClassFactory<T> {
 		classTypes.put(aClass, clazz);
 	}
 
+	protected void register(Class<?> aClass, T instance) {
+
+		Assert.notNull(aClass, "Missing associated class!");
+		Assert.notNull(instance, "Missing instance of class!");
+
+		Type expected = getGenericType(instance.getClass());
+		checkIfCompatibleTypes(aClass, expected, "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + instance.getClass() + "'");
+
+		cache.put(aClass.getName(), instance);
+	}
+
 	protected T get(InjectionProvider provider, Class<?> type, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ClassFactoryException {
 
 		Class<? extends T> clazz = byDefinition;
@@ -184,7 +214,8 @@ public abstract class ClassFactory<T> {
 			return getClassInstance(provider, clazz);
 		}
 
-		return null;
+		// 3. find instance ... if any
+		return cache.get(type.getName());
 	}
 
 	private Class<? extends T> get(MediaType mediaType) {

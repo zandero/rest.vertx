@@ -1,7 +1,7 @@
 package com.zandero.rest;
 
 import com.zandero.rest.context.ContextProvider;
-import com.zandero.rest.context.ContextProviders;
+import com.zandero.rest.context.ContextProviderFactory;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
@@ -23,6 +23,7 @@ import io.vertx.ext.auth.User;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.Session;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CookieHandler;
 import io.vertx.ext.web.handler.CorsHandler;
@@ -52,7 +53,7 @@ public class RestRouter {
 
 	private static final ExceptionHandlerFactory handlers = new ExceptionHandlerFactory();
 
-	private static final ContextProviders providers = new ContextProviders();
+	private static final ContextProviderFactory providers = new ContextProviderFactory();
 
 	private static InjectionProvider injectionProvider;
 
@@ -123,7 +124,7 @@ public class RestRouter {
 				Method method = definitions.get(definition);
 				// add security check handler in front of regular route handler
 				if (definition.checkSecurity()) {
-					checkSecurity(router, definition, method);
+					checkSecurity(router, definition);
 				}
 
 				// bind method execution
@@ -175,6 +176,54 @@ public class RestRouter {
 
 		return router;
 	}
+
+
+	public static void registerHandler(Router output, Class clazz, Class<? extends ContextProvider> provider) {
+
+		output.route().handler(getContextHandler(clazz, provider));
+	}
+
+	private static Handler<RoutingContext> getContextHandler(Class clazz,
+	                                                         Class<? extends ContextProvider> provider) {
+
+		return context -> {
+
+			try {
+				ContextProvider instance = getContextProviders().getContextProvider(injectionProvider, clazz, provider);
+				if (instance != null) {
+					Object provided = instance.provide(context.request());
+
+					if (provided instanceof User) {
+						context.setUser((User) provided);
+					}
+
+					if (provided instanceof Session) {
+						context.setSession((Session)provided);
+					}
+				}
+
+				context.next();
+			}
+			catch (ClassFactoryException e) {
+				handleException(e, context, null);
+			}
+		};
+	}
+
+	public static void handler(Router output, Class<? extends Handler<RoutingContext>> handler) {
+
+		try {
+			Handler<RoutingContext> instance = (Handler<RoutingContext>) ClassFactory.newInstanceOf(injectionProvider, handler);
+			output.route().handler(instance);
+		}
+		catch (ClassFactoryException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
+	}
+
+	/*public static void blockingHandler(Router output, Handler<RoutingContext> handler) {
+		output.route().blockingHandler(handler);
+	}*/
 
 	/**
 	 * Handles not found route for all requests
@@ -290,11 +339,11 @@ public class RestRouter {
 		                                    method.getReturnType() + "' not matching writer type: '" +
 		                                    writerType + "' in: '" + writer.getClass() + "'");
 
-		ContextProvider.injectContext(writer, definition, context); // injects @Context if needed
+		ContextProviderFactory.injectContext(writer, definition, context); // injects @Context if needed
 		return writer;
 	}
 
-	private static void checkSecurity(Router router, final RouteDefinition definition, final Method method) {
+	private static void checkSecurity(Router router, final RouteDefinition definition) {
 
 		Route route;
 		if (definition.pathIsRegEx()) {
@@ -306,7 +355,7 @@ public class RestRouter {
 		route.order(definition.getOrder()); // same order as following handler
 
 		// TODO: add security handler the same way as Context handlers are added
-		Handler<RoutingContext> securityHandler = getSecurityHandler(definition, method);
+		Handler<RoutingContext> securityHandler = getSecurityHandler(definition);
 		if (definition.isBlocking()) {
 			route.blockingHandler(securityHandler);
 		} else {
@@ -314,7 +363,7 @@ public class RestRouter {
 		}
 	}
 
-	private static Handler<RoutingContext> getSecurityHandler(final RouteDefinition definition, final Method method) {
+	private static Handler<RoutingContext> getSecurityHandler(final RouteDefinition definition) {
 
 		return context -> {
 
@@ -344,7 +393,7 @@ public class RestRouter {
 		for (String role : definition.getRoles()) {
 
 			Future<Boolean> future = Future.future();
-			user.isAuthorised(role, future.completer());
+			user.isAuthorized(role, future.completer());
 
 			list.add(future);
 		}
@@ -397,7 +446,7 @@ public class RestRouter {
 				RouteDefinition definition = new RouteDefinition(context);
 
 				HttpResponseWriter writer = (HttpResponseWriter) ClassFactory.newInstanceOf(injectionProvider, notFoundWriter);
-				ContextProvider.injectContext(writer, null, context);
+				ContextProviderFactory.injectContext(writer, null, context);
 
 				produceResponse(null, context, definition, writer);
 			}
@@ -428,7 +477,7 @@ public class RestRouter {
 			}
 
 			handler = handlers.getExceptionHandler(injectionProvider, exHandlers, clazz);
-			ContextProvider.injectContext(handler, definition, context);
+			ContextProviderFactory.injectContext(handler, definition, context);
 		}
 		catch (ClassFactoryException classException) {
 			// Can't provide exception handler ... rethrow
@@ -516,7 +565,19 @@ public class RestRouter {
 	 * Registers a context provider for given type of class
 	 *
 	 * @param aClass   to register context provider for
-	 * @param provider to be registered
+	 * @param provider clazz type to be registered
+	 * @param <T>      provider type
+	 */
+	public static <T> void addContextProvider(Class<T> aClass, Class<? extends ContextProvider<T>> provider) {
+
+		providers.register(aClass, provider);
+	}
+
+	/**
+	 * Registers a context provider for given type of class
+	 *
+	 * @param aClass   to register context provider for
+	 * @param provider instance to be registered
 	 * @param <T>      provider type
 	 */
 	public static <T> void addContextProvider(Class<T> aClass, ContextProvider<T> provider) {
@@ -524,7 +585,7 @@ public class RestRouter {
 		providers.register(aClass, provider);
 	}
 
-	public static ContextProviders getContextProviders() {
+	public static ContextProviderFactory getContextProviders() {
 		return providers;
 	}
 
@@ -533,7 +594,7 @@ public class RestRouter {
 		Assert.notNull(context, "Missing context!");
 		Assert.notNull(object, "Can't push null into context!");
 
-		context.put(ContextProvider.getContextKey(object), object);
+		context.put(ContextProviderFactory.getContextKey(object), object);
 	}
 
 	/**
