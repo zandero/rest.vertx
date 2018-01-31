@@ -31,7 +31,7 @@ public class RouteWithXmlTest extends VertxTest {
 	}
 
 	@Test
-	public void testAdd(TestContext context) {
+	public void textXml(TestContext context) {
 
 		// call and check response
 		final Async async = context.async();
@@ -41,7 +41,7 @@ public class RouteWithXmlTest extends VertxTest {
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("3", body.toString());
+				context.assertEquals("<u name=\"test\" />", body.toString());
 				async.complete();
 			});
 		});
