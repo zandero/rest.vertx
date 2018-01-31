@@ -161,7 +161,11 @@ public class RouteDefinition {
 			    annotation instanceof PUT ||
 			    annotation instanceof DELETE ||
 			    annotation instanceof HEAD ||
-			    annotation instanceof OPTIONS) {
+			    annotation instanceof OPTIONS ||
+				annotation instanceof PATCH ||
+			    // TODO: TRACE, CONNECT) - #11 check these ones
+				annotation instanceof TRACE ||
+				annotation instanceof CONNECT) {
 
 				method(annotation.annotationType().getSimpleName());
 			}
