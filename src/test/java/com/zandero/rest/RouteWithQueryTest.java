@@ -165,4 +165,34 @@ public class RouteWithQueryTest extends VertxTest {
 			});
 		});
 	}
+
+	@Test
+	public void emptyQueryParamTest(TestContext context) {
+
+		final Async async = context.async();
+		client.getNow("/query/empty?empty", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("true", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void emptyQueryParamMissingTest(TestContext context) {
+
+		final Async async = context.async();
+		client.getNow("/query/empty", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.handler(body -> {
+				context.assertEquals("true", body.toString());
+				async.complete();
+			});
+		});
+	}
 }

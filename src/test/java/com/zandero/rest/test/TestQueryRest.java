@@ -38,4 +38,15 @@ public class TestQueryRest {
 
 		return dummy;
 	}
+
+	@GET
+	@Path("/empty")
+	public String echoGetDummy(@QueryParam("empty") @DefaultValue("true") Boolean empty) {
+
+		if (empty == null) {
+			return "null";
+		}
+
+		return empty ? "true" : "false";
+	}
 }

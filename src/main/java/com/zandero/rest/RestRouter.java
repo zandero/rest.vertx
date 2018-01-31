@@ -219,11 +219,23 @@ public class RestRouter {
 		};
 	}
 
+	// TODO: add injection of context via context providers
 	public static void handler(Router output, Class<? extends Handler<RoutingContext>> handler) {
 
 		try {
 			Handler<RoutingContext> instance = (Handler<RoutingContext>) ClassFactory.newInstanceOf(injectionProvider, handler);
 			output.route().handler(instance);
+		}
+		catch (ClassFactoryException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
+	}
+
+	public static void blocking(Router output, Class<? extends Handler<RoutingContext>> handler) {
+
+		try {
+			Handler<RoutingContext> instance = (Handler<RoutingContext>) ClassFactory.newInstanceOf(injectionProvider, handler);
+			output.route().blockingHandler(instance);
 		}
 		catch (ClassFactoryException e) {
 			throw new IllegalArgumentException(e.getMessage());

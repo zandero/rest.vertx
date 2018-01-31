@@ -644,7 +644,7 @@ public class RouteDefinition {
 		if (checkSecurity()) {
 
 			if (permitAll != null) {
-				security = permitAll ? "  @PermitAll" : "  @DenyAll";
+				security = permitAll ? " @PermitAll" : " @DenyAll";
 			} else {
 				security = "  [" + StringUtils.join(roles, ", ") + "]";
 			}
