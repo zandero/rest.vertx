@@ -1,5 +1,7 @@
 package com.zandero.rest;
 
+import com.zandero.rest.annotation.CONNECT;
+import com.zandero.rest.annotation.TRACE;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.utils.Assert;
 
@@ -69,10 +71,12 @@ public final class AnnotationProcessor {
 		                                                         HttpMethod.class,
 		                                                         GET.class,
 		                                                         POST.class,
-									                             PATCH.class,
 		                                                         PUT.class,
 		                                                         DELETE.class,
+									                             PATCH.class,
 		                                                         OPTIONS.class,
+		                                                         TRACE.class,
+		                                                         CONNECT.class,
 		                                                         HEAD.class);
 
 		for (Class<? extends Annotation> item: search) {
