@@ -67,6 +67,11 @@ public class RouteDefinition {
 	 */
 	private boolean blocking = false;
 
+	/**
+	 * Async response (don't close the writer)
+	 */
+	private boolean async = true;
+
 	// security
 	private Boolean permitAll = null; // true - permit all, false - deny all, null - check roles
 
@@ -636,6 +641,10 @@ public class RouteDefinition {
 	public boolean checkSecurity() {
 
 		return permitAll != null || (roles != null && roles.length > 0);
+	}
+
+	public boolean isAsync() {
+		return async;
 	}
 
 	@Override

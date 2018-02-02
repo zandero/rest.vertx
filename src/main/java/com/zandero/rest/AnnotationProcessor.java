@@ -69,7 +69,7 @@ public final class AnnotationProcessor {
 		                                                         HttpMethod.class,
 		                                                         GET.class,
 		                                                         POST.class,
-									 PATCH.class,
+									                             PATCH.class,
 		                                                         PUT.class,
 		                                                         DELETE.class,
 		                                                         OPTIONS.class,

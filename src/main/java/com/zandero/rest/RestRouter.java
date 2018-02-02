@@ -181,7 +181,7 @@ public class RestRouter {
 	public static void provide(Router output, Class<? extends ContextProvider> provider) {
 
 		try {
-			Class clazz = (Class)ClassFactory.getGenericType(provider);
+			Class clazz = (Class) ClassFactory.getGenericType(provider);
 			ContextProvider instance = getContextProviders().getContextProvider(injectionProvider, clazz, provider);
 			output.route().handler(getContextHandler(instance));
 		}
@@ -497,8 +497,7 @@ public class RestRouter {
 				HttpResponseWriter writer;
 				if (notFoundWriter instanceof Class) {
 					writer = (HttpResponseWriter) ClassFactory.newInstanceOf(injectionProvider, (Class<?>) notFoundWriter);
-				}
-				else {
+				} else {
 					writer = (HttpResponseWriter) notFoundWriter;
 				}
 
@@ -596,7 +595,7 @@ public class RestRouter {
 		// write response and override headers if necessary
 		writer.write(result, request, response);
 
-		// finish if not finished by writer
+		// finish if not finished by writer and is not an Async REST
 		if (!response.ended()) {
 			response.end();
 		}
