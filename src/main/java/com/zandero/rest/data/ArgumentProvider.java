@@ -27,7 +27,7 @@ public class ArgumentProvider {
 	                                    RouteDefinition definition,
 	                                    RoutingContext context,
 	                                    ReaderFactory readers,
-	                                    ContextProviderFactory providers,
+	                                    ContextProviderFactory contextProvider,
 	                                    InjectionProvider injectionProvider) {
 
 		Assert.notNull(method, "Missing method to provide arguments for!");
@@ -50,11 +50,12 @@ public class ArgumentProvider {
 			if (!parameter.isUsedAsArgument()) {
 				continue;
 			}
-			// get value
-			String value = getValue(definition, parameter, context, parameter.getDefaultValue());
 
 			// set if we have a place to set it ... otherwise ignore
 			if (parameter.getIndex() < args.length) {
+
+				// get value
+				String value = getValue(definition, parameter, context, parameter.getDefaultValue());
 
 				Class<?> dataType = parameter.getDataType();
 				if (dataType == null) {
@@ -67,7 +68,7 @@ public class ArgumentProvider {
 						case context:
 
 							// check if providers need to be called to assure context
-							ContextProvider provider = providers.get(injectionProvider, dataType, null, null);
+							ContextProvider provider = contextProvider.get(injectionProvider, dataType, null, null);
 							if (provider != null) {
 								Object result = provider.provide(context.request());
 								if (result != null) {
@@ -265,15 +266,4 @@ public class ArgumentProvider {
 
 		return null;
 	}
-
-	/*public static String getContextKey(Object object) {
-
-		Assert.notNull(object, "Expected object but got null!");
-		return getContextKey(object.getClass());
-	}
-
-	private static String getContextKey(Class clazz) {
-		Assert.notNull(clazz, "Missing class!");
-		return "RestRouter-" + clazz.getName();
-	}*/
 }
