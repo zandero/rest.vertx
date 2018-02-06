@@ -209,7 +209,7 @@ public class ArgumentProvider {
 
 	private static String getParam(String mountPoint, HttpServerRequest request, int index) {
 
-		String param = request.getParam("param" + index);
+		String param = request.getParam("param" + index); // default mount of params without name param0, param1 ...
 		if (param == null) { // failed to get directly ... try from request path
 
 			String path = removeMountPoint(mountPoint, request.path());
@@ -252,6 +252,13 @@ public class ArgumentProvider {
 		return path;
 	}
 
+
+	/**
+	 * @param request to extract matrix parameter from (URL)
+	 * @param name of desired matrix paramater
+	 * @return found parameter value or null if none found
+	 */
+	// TODO: this might be slow at times ... pre-parse matrix into hash map ... and store
 	private static String getMatrixParam(HttpServerRequest request, String name) {
 
 		// get URL ... and find ;name=value pair

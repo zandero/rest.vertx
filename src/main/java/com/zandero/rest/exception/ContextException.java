@@ -1,7 +1,7 @@
 package com.zandero.rest.exception;
 
 /**
- * Exception when @Context can not be provided
+ * Exception when Context can not be provided
  */
 public class ContextException extends Exception {
 

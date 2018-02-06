@@ -809,12 +809,14 @@ public class WriteMyObject {
 ```
 
 ## Blocking handler
-In case the request handler should be a blocking handler the **@Blocking** annotation has to be used.
+> Deprecated since 0.8.1 - by default all handlers are blocking for Async operations see: [insert link] 
+
+~~In case the request handler should be a blocking handler the **@Blocking** annotation has to be used.~~
   
 ```java
 @GET
 @Path("/blocking")
-@Blocking
+@Blocking~~
 public String waitForMe() {
   
   return "done";
@@ -1073,7 +1075,7 @@ Injection can also be used od _RequestReader_, _ResponseWriters_ or _ExceptionHa
 ### @Context fields
 >since version 8.1 or later
  
-In case needed a RequestReader, ResponseWriter or ExceptionHandler and utilize a @Context annotated field.
+In case needed a RequestReader, ResponseWriter or ExceptionHandler can use a @Context annotated field.
 
 see [Request context](#RequestContext) for details.
  

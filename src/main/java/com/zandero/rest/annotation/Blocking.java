@@ -9,6 +9,7 @@ import java.lang.annotation.*;
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Deprecated // all handlers are by default blocking to ... additional async logic will handle non blocking requests
 public @interface Blocking {
 
 	boolean value() default true;

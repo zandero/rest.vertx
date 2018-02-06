@@ -16,7 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Simple class instance cache
+ * Simple class instance cache and class factory utility
  */
 public abstract class ClassFactory<T> {
 
@@ -58,7 +58,7 @@ public abstract class ClassFactory<T> {
 
 	public void clear() {
 
-		// clears any additionally registered writers and initializes defaults
+		// clears caches
 		classTypes.clear();
 		mediaTypes.clear();
 		cache.clear();
@@ -101,29 +101,6 @@ public abstract class ClassFactory<T> {
 		return instance;
 	}
 
-	public static Object newInstanceOf(Class<?> clazz) throws ClassFactoryException {
-
-		if (clazz == null) {
-			return null;
-		}
-
-		try {
-
-			for (Constructor<?> c : clazz.getDeclaredConstructors()) {
-				c.setAccessible(true);
-				if (c.getParameterCount() == 0) { // TODO: try to initialize class from context if arguments fit
-					return c.newInstance();
-				}
-			}
-		}
-		catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-			log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
-			throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
-		}
-
-		throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", null);
-	}
-
 	public static Object newInstanceOf(InjectionProvider provider, Class<?> clazz) throws ClassFactoryException {
 
 		if (clazz == null) {
@@ -141,6 +118,30 @@ public abstract class ClassFactory<T> {
 		}
 
 		return injected;
+	}
+
+	public static Object newInstanceOf(Class<?> clazz) throws ClassFactoryException {
+
+		if (clazz == null) {
+			return null;
+		}
+
+		try {
+
+			for (Constructor<?> c : clazz.getDeclaredConstructors()) {
+				c.setAccessible(true);
+				// intialize with empty constructor
+				if (c.getParameterCount() == 0) { // TODO: try to initialize class from context if arguments fit
+					return c.newInstance();
+				}
+			}
+		}
+		catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+			log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
+			throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
+		}
+
+		throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", null);
 	}
 
 	protected void register(String mediaType, Class<? extends T> clazz) {
@@ -208,26 +209,24 @@ public abstract class ClassFactory<T> {
 		cache.put(aClass.getName(), instance);
 	}
 
+	// TODO : move media type specific into a new class that Reader, Writer factory derives from
 	protected T get(InjectionProvider provider, Class<?> type, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ClassFactoryException {
 
 		Class<? extends T> clazz = byDefinition;
 
-		// 2. if no writer is specified ... try to find appropriate writer by response type
+		// No class defined ... try by type
 		if (clazz == null) {
 			clazz = get(type);
 		}
 
-		// try by consumes annotation
-		if (clazz == null) {
+		// try with media type ...
+		if (clazz == null && mediaTypes != null && mediaTypes.length > 0) {
 
-			if (mediaTypes != null && mediaTypes.length > 0) {
+			for (MediaType mediaType : mediaTypes) {
+				clazz = get(mediaType);
 
-				for (MediaType mediaType : mediaTypes) {
-					clazz = get(mediaType);
-
-					if (clazz != null) {
-						break;
-					}
+				if (clazz != null) {
+					break;
 				}
 			}
 		}
@@ -236,7 +235,7 @@ public abstract class ClassFactory<T> {
 			return getClassInstance(provider, clazz);
 		}
 
-		// 3. find instance ... if any
+		// 3. find cached instance ... if any
 		return cache.get(type.getName());
 	}
 

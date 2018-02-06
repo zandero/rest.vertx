@@ -167,9 +167,11 @@ public class RestRouter {
 
 				// bind handler
 				Handler<RoutingContext> handler = getHandler(api, definition, method);
-				if (definition.isBlocking()) {
-					route.blockingHandler(handler);
-				} else {
+
+				if (definition.isAsync()) {
+
+				}
+				else {
 					route.handler(handler);
 				}
 			}
@@ -183,7 +185,7 @@ public class RestRouter {
 		try {
 			Class clazz = (Class) ClassFactory.getGenericType(provider);
 			ContextProvider instance = getContextProviders().getContextProvider(injectionProvider, clazz, provider);
-			output.route().handler(getContextHandler(instance));
+			output.route().blockingHandler(getContextHandler(instance));
 		}
 		catch (ClassFactoryException e) {
 			throw new IllegalArgumentException(e.getMessage());
@@ -192,7 +194,7 @@ public class RestRouter {
 
 	public static void provide(Router output, ContextProvider<?> provider) {
 
-		output.route().handler(getContextHandler(provider));
+		output.route().blockingHandler(getContextHandler(provider));
 	}
 
 	private static Handler<RoutingContext> getContextHandler(ContextProvider instance) {
@@ -225,17 +227,6 @@ public class RestRouter {
 		try {
 			Handler<RoutingContext> instance = (Handler<RoutingContext>) ClassFactory.newInstanceOf(injectionProvider, handler);
 			output.route().handler(instance);
-		}
-		catch (ClassFactoryException e) {
-			throw new IllegalArgumentException(e.getMessage());
-		}
-	}
-
-	public static void blocking(Router output, Class<? extends Handler<RoutingContext>> handler) {
-
-		try {
-			Handler<RoutingContext> instance = (Handler<RoutingContext>) ClassFactory.newInstanceOf(injectionProvider, handler);
-			output.route().blockingHandler(instance);
 		}
 		catch (ClassFactoryException e) {
 			throw new IllegalArgumentException(e.getMessage());
@@ -401,11 +392,7 @@ public class RestRouter {
 		route.order(definition.getOrder()); // same order as following handler
 
 		Handler<RoutingContext> securityHandler = getSecurityHandler(definition);
-		if (definition.isBlocking()) {
-			route.blockingHandler(securityHandler);
-		} else {
-			route.handler(securityHandler);
-		}
+		route.blockingHandler(securityHandler);
 	}
 
 	private static Handler<RoutingContext> getSecurityHandler(final RouteDefinition definition) {
@@ -467,23 +454,55 @@ public class RestRouter {
 
 		return context -> {
 
-			try {
-				MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
-				HttpResponseWriter writer = getWriter(injectionProvider, method, definition, accept, context);
-				if (writer == null) {
-					log.error("No writer could be provided to produce response. Falling back to GenericResponseWriter instead!");
-					writer = new GenericResponseWriter();
+			context.vertx().executeBlocking(
+				fut -> {
+					try {
+						Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider);
+
+						fut.complete(method.invoke(toInvoke, args));
+
+						/*if (result instanceof Handler) {
+							//Future fut2 = (Future)result;
+							Handler handler = ((Handler) result);
+
+
+							//fut.complete(handler);
+							System.out.println("... completed?");
+							fut.complete();
+						}
+						else {
+
+							fut.complete(result);
+						}*/
+					}
+					catch (Exception e) {
+						handleException(e, context, definition);
+					}
+				},
+				false,
+				res -> {
+
+					if (res.succeeded()) {
+						try {
+
+							MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
+							HttpResponseWriter writer = getWriter(injectionProvider, method, definition, accept, context);
+							if (writer == null) {
+								log.error("No writer could be provided to produce response. Falling back to GenericResponseWriter instead!");
+								writer = new GenericResponseWriter();
+							}
+
+							produceResponse(res.result(), context, definition, writer);
+						}
+						catch (Exception e) {
+							handleException(e, context, definition);
+						}
+					}
+					else {
+						handleException(res.cause(), context, definition);
+					}
 				}
-
-				Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider);
-
-				Object result = method.invoke(toInvoke, args);
-
-				produceResponse(result, context, definition, writer);
-			}
-			catch (Exception e) {
-				handleException(e, context, definition);
-			}
+			);
 		};
 	}
 
@@ -512,7 +531,7 @@ public class RestRouter {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void handleException(Exception e, RoutingContext context, final RouteDefinition definition) {
+	private static void handleException(Throwable e, RoutingContext context, final RouteDefinition definition) {
 
 		ExecuteException ex = getExecuteException(e);
 
@@ -617,7 +636,7 @@ public class RestRouter {
 	}
 
 	/**
-	 * Use addContextProvider(Class<? extends ContextProvider<T>> provider) instead
+	 * Use addContextProvider(Class ? extends ContextProvider T provider) instead
 	 */
 	@Deprecated
 	public static <T> void addContextProvider(Class<T> aClass, Class<? extends ContextProvider<T>> provider) {
@@ -636,7 +655,7 @@ public class RestRouter {
 	}
 
 	/**
-	 * Use addProvider(aClass<T>, ContextProvider<T> provider) instead
+	 * Use addProvider(aClass T , ContextProvider T provider) instead
 	 */
 	@Deprecated
 	public static <T> void addContextProvider(Class<T> aClass, ContextProvider<T> provider) {

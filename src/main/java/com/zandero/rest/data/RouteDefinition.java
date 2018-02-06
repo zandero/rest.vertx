@@ -65,12 +65,12 @@ public class RouteDefinition {
 	/**
 	 * vert.x blocking request
 	 */
-	private boolean blocking = false;
+	//private boolean blocking = false;
 
 	/**
 	 * Async response (don't close the writer)
 	 */
-	private boolean async = true;
+	private boolean async;
 
 	// security
 	private Boolean permitAll = null; // true - permit all, false - deny all, null - check roles
@@ -184,9 +184,9 @@ public class RouteDefinition {
 				reader = ((RequestReader) annotation).value();
 			}
 
-			if (annotation instanceof Blocking) {
+			/*if (annotation instanceof Blocking) {
 				blocking = ((Blocking) annotation).value();
-			}
+			}*/
 
 			if (annotation instanceof RolesAllowed) {
 				permitAll = null; // override any previous definition
@@ -614,10 +614,10 @@ public class RouteDefinition {
 		return false;
 	}
 
-	public boolean isBlocking() {
+	/*public boolean isBlocking() {
 
 		return blocking;
-	}
+	}*/
 
 	/**
 	 * @return true - permit all, false - deny all, null - check roles
