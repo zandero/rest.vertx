@@ -7,7 +7,7 @@
 
     <artifactId>rest.vertx</artifactId>
     <groupId>com.zandero</groupId>
-    <version>0.8.1-BETA</version>
+    <version>0.8.1-RC.1</version>
     <packaging>jar</packaging>
 
     <name>Zandero REST Vert.X</name>
@@ -201,17 +201,17 @@
 
     <distributionManagement>
         <!-- Repository for snapshots -->
-        <!--<snapshotRepository>
-            <id>ossrh</id>
+        <snapshotRepository>
+            <id>nexus-snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
--->
+
         <!-- Repository for releases -->
-        <repository>
+<!--        <repository>
             <id>nexus-releases</id>
             <name>Nexus Release Repository</name>
             <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
+        </repository>-->
     </distributionManagement>
 
     <build>
