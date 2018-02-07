@@ -38,14 +38,14 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 	 * Finds assigned response writer or tries to assign a writer according to produces annotation and result type
 	 *
 	 * @param provider injection provider if any
-	 * @param returnType type of result
 	 * @param definition method definition
 	 * @param accept     accept media type header
 	 * @return writer to be used to produce response, or {@link GenericResponseWriter} in case no suitable writer could be found
 	 */
-	public HttpResponseWriter getResponseWriter(InjectionProvider provider, Class<?> returnType, RouteDefinition definition, MediaType accept) {
+	public HttpResponseWriter getResponseWriter(InjectionProvider provider, Class returnType, RouteDefinition definition, MediaType accept) {
 
 		try {
+
 			HttpResponseWriter writer = null;
 			if (accept != null) {
 				writer = get(provider, returnType, definition.getWriter(), new MediaType[]{accept});

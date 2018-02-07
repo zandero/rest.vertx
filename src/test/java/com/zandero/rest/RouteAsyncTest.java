@@ -22,8 +22,8 @@ public class RouteAsyncTest extends VertxTest {
 
 		Router router = RestRouter.register(vertx, TestAsyncRest.class);
 		vertx.createHttpServer()
-			.requestHandler(router::accept)
-			.listen(PORT);
+		     .requestHandler(router::accept)
+		     .listen(PORT);
 	}
 
 	@Test
@@ -36,7 +36,46 @@ public class RouteAsyncTest extends VertxTest {
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
-				context.assertEquals("{\"name\": \"async++\", \"value\": \"called++\"}", body.toString());
+				context.assertEquals("{\"name\": \"async\", \"value\": \"called\"}", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void testAsyncCallInsideRestNullFutureResult(TestContext context) {
+
+		final Async async = context.async();
+
+		client.getNow("/async/empty", response -> {
+
+			context.assertEquals(204, response.statusCode());
+			async.complete();
+		});
+	}
+
+	@Test
+	public void testAsyncCallInsideRestNullNoWriterFutureResult(TestContext context) {
+
+		final Async async = context.async();
+
+		client.getNow("/async/null", response -> {
+
+			context.assertEquals(200, response.statusCode());
+			async.complete();
+		});
+	}
+
+	@Test
+	public void testAsyncHandler(TestContext context) {
+
+		final Async async = context.async();
+
+		client.getNow("/async/handler", response -> {
+
+			context.assertEquals(200, response.statusCode());
+			response.handler(body -> {
+				context.assertEquals("{\"name\": \"async\", \"value\": \"called\"}", body.toString());
 				async.complete();
 			});
 		});

@@ -8,6 +8,7 @@ import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.utils.ArrayUtils;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
+import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 
@@ -63,14 +64,11 @@ public class RouteDefinition {
 	private int order;
 
 	/**
-	 * vert.x blocking request
-	 */
-	//private boolean blocking = false;
-
-	/**
 	 * Async response (don't close the writer)
 	 */
 	private boolean async;
+
+	private Class<?> returnType;
 
 	// security
 	private Boolean permitAll = null; // true - permit all, false - deny all, null - check roles
@@ -325,6 +323,9 @@ public class RouteDefinition {
 		Class<?>[] parameterTypes = method.getParameterTypes();
 		Annotation[][] annotations = method.getParameterAnnotations();
 
+		async = isAsync(method.getReturnType());
+		returnType = method.getReturnType();
+
 		int index = 0;
 		Map<String, MethodParameter> arguments = new HashMap<>();
 
@@ -420,6 +421,15 @@ public class RouteDefinition {
 		}
 
 		setUsedArguments(arguments);
+	}
+
+	/**
+	 * @param returnType of REST method
+	 * @return true if async operation, false otherwise (blocking operation)
+	 */
+	public static boolean isAsync(Class<?> returnType) {
+
+		return (returnType != null && returnType.isAssignableFrom(Future.class));
 	}
 
 	private void setUsedArguments(Map<String, MethodParameter> arguments) {
@@ -551,6 +561,11 @@ public class RouteDefinition {
 		return exceptionHandlers;
 	}
 
+	public Class<?> getReturnType() {
+
+		return returnType;
+	}
+
 	public List<MethodParameter> getParameters() {
 
 		if (params == null) {
@@ -564,6 +579,7 @@ public class RouteDefinition {
 
 	public boolean requestHasBody() {
 
+		// TODO: fix ... DELETE also has no body
 		return !(HttpMethod.GET.equals(method) || HttpMethod.HEAD.equals(method));
 	}
 

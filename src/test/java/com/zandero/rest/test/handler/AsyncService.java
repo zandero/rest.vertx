@@ -1,38 +1,69 @@
 package com.zandero.rest.test.handler;
 
 import com.zandero.rest.test.json.Dummy;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 
 /**
  *
  */
 public class AsyncService {
 
-	/*public void handle(Dummy dummy, Handler<AsyncResult<Dummy>> handler) throws InterruptedException {
+	public void asyncCall(Vertx vertx, Future<Dummy> value) throws InterruptedException {
 
-		Thread.sleep(1000L);
-		handler.handle(Future.succeededFuture(dummy));
-		System.out.println(Thread.currentThread().getName() + " async service called ");
-	}*/
+		vertx.executeBlocking(
+				fut -> {
+					System.out.println("Process started!");
+					try {
+						Thread.sleep(1000);
+					}
+					catch (InterruptedException e) {
+						value.fail("Fail");
+					}
+					value.complete(new Dummy("async", "called"));
+					System.out.println("Process finished!");
+					fut.complete();
+				},
+				false,
+				fut -> {}
+			);
 
-	public void handle(Dummy dummy, Handler<AsyncResult<Dummy>> handler) {
+		System.out.println("I'm finished!");
+	}
+
+	public void asyncCallReturnNUll(Vertx vertx, Future<Dummy> value) throws InterruptedException {
+
+		vertx.executeBlocking(
+			fut -> {
+				System.out.println("Process started!");
+				try {
+					Thread.sleep(1000);
+				}
+				catch (InterruptedException e) {
+					value.fail("Fail");
+				}
+				value.complete(null);
+				System.out.println("Process finished!");
+				fut.complete();
+			},
+			false,
+			fut -> {}
+		);
+
+		System.out.println("I'm finished!");
+	}
+
+	public void asyncHandler(Vertx vertx, Handler<Dummy> handler) throws InterruptedException {
 
 		(new Thread(() -> {
 			try {
 				Thread.sleep(1000L);
-				dummy.name = dummy.name + " .. ";
-				dummy.value = dummy.value + " .. ";
-
-				System.out.println(Thread.currentThread().getName() + " async service completed ");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-
-			handler.handle(Future.succeededFuture(dummy));
+			handler.handle(new Dummy("call", "finished"));
 		})).start();
-
-		System.out.println(Thread.currentThread().getName() + " async service called ");
+		System.out.println("I'm finished!");
 	}
 }

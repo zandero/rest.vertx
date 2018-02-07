@@ -8,14 +8,20 @@ import io.vertx.core.http.HttpServerResponse;
 /**
  *
  */
-public class AsyncWriter implements HttpResponseWriter<Dummy> {
+public class DummyWriter implements HttpResponseWriter<Dummy> {
 
 	@Override
 	public void write(Dummy result, HttpServerRequest request, HttpServerResponse response) {
 		System.out.println("produce result");
-		response.setStatusCode(200)
-		        .putHeader("content-type", "application/json")
-		        .end("{\"name\": \"" + result.name + "\", \"value\": \"" + result.value + "\"}");
+
+		if (result != null){
+			response.setStatusCode(200)
+			        .putHeader("content-type", "application/json")
+			        .end("{\"name\": \"" + result.name + "\", \"value\": \"" + result.value + "\"}");
+		}
+		else {
+			response.setStatusCode(204).end();
+		}
 
 
 	}
