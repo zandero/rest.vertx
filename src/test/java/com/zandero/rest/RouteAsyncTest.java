@@ -66,7 +66,7 @@ public class RouteAsyncTest extends VertxTest {
 		});
 	}
 
-	@Test
+	/*@Test
 	public void testAsyncHandler(TestContext context) {
 
 		final Async async = context.async();
@@ -79,5 +79,5 @@ public class RouteAsyncTest extends VertxTest {
 				async.complete();
 			});
 		});
-	}
+	}*/
 }

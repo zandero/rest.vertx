@@ -520,9 +520,10 @@ public class RestRouter {
 								MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
 
 								HttpResponseWriter writer;
-								if (result != null) {
+								Object futureResult = fut.result();
+								if (futureResult != null) {
 									// get writer from result type
-									writer = getWriter(injectionProvider, result.getClass(), definition, accept, context);
+									writer = getWriter(injectionProvider, futureResult.getClass(), definition, accept, context);
 								} else {
 									writer = (HttpResponseWriter) WriterFactory.newInstanceOf(definition.getWriter());
 								}
@@ -532,7 +533,7 @@ public class RestRouter {
 									writer = new GenericResponseWriter();
 								}
 
-								produceResponse(result, context, definition, writer);
+								produceResponse(futureResult, context, definition, writer);
 							}
 							catch (Exception e) {
 								handleException(e, context, definition);

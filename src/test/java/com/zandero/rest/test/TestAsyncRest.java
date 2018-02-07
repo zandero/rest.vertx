@@ -5,7 +5,6 @@ import com.zandero.rest.test.handler.AsyncService;
 import com.zandero.rest.test.handler.DummyWriter;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 
 import javax.ws.rs.GET;
@@ -63,7 +62,7 @@ public class TestAsyncRest {
 		return res;
 	}
 
-	@GET
+	/*@GET
 	@Path("handler")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Handler<Dummy> nullHandler(@Context Vertx vertx) throws InterruptedException {
@@ -78,5 +77,5 @@ public class TestAsyncRest {
 		spaceService.asyncHandler(vertx, output);
 		System.out.println("Rest finished");
 		return output;
-	}
+	}*/
 }
