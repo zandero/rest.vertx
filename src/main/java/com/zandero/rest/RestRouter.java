@@ -164,11 +164,13 @@ public class RestRouter {
 					route.handler(handler);
 				} else {
 					// check writer compatibility beforehand
-					try {
-						getWriter(injectionProvider, null, definition, null, null); // no way to know the accept content at this point
-					}
-					catch (ContextException e) {
-						// not relevant at this point
+					if (!definition.suppressCheck) {
+						try { // no way to know the accept content at this point
+							getWriter(injectionProvider, null, definition, null, null, GenericResponseWriter.class);
+						}
+						catch (ContextException | ClassFactoryException e) {
+							// not relevant at this point
+						}
 					}
 
 					Handler<RoutingContext> handler = getHandler(api, definition, method);
@@ -346,7 +348,7 @@ public class RestRouter {
 
 		ValueReader bodyReader = readers.get(injectionProvider, definition.getBodyParameter(), definition.getReader(), definition.getConsumes());
 
-		if (bodyReader != null) {
+		if (bodyReader != null && !definition.suppressCheck) {
 
 			Type readerType = ClassFactory.getGenericType(bodyReader.getClass());
 			MethodParameter bodyParameter = definition.getBodyParameter();
@@ -362,7 +364,9 @@ public class RestRouter {
 	                                            Class returnType,
 	                                            RouteDefinition definition,
 	                                            MediaType acceptHeader,
-	                                            RoutingContext context) throws ContextException {
+	                                            RoutingContext context,
+	                                            Class<? extends HttpResponseWriter> defaultTo) throws ContextException,
+	                                                                                                  ClassFactoryException {
 
 		if (returnType == null) {
 			returnType = definition.getReturnType();
@@ -371,16 +375,18 @@ public class RestRouter {
 		HttpResponseWriter writer = writers.getResponseWriter(injectionProvider, returnType, definition, acceptHeader);
 
 		if (writer == null) {
-			return null;
+			log.error("No writer could be provided. Falling back to " + defaultTo.getSimpleName() + " instead!");
+			return (HttpResponseWriter) ClassFactory.newInstanceOf(defaultTo);
 		}
 
-
-		Type writerType = ClassFactory.getGenericType(writer.getClass());
-		ClassFactory.checkIfCompatibleTypes(returnType,
-		                                    writerType,
-		                                    definition.toString().trim() + " - Response type: '" +
-		                                    returnType + "' not matching writer type: '" +
-		                                    writerType + "' in: '" + writer.getClass() + "'");
+		if (!definition.suppressCheck) {
+			Type writerType = ClassFactory.getGenericType(writer.getClass());
+			ClassFactory.checkIfCompatibleTypes(returnType,
+			                                    writerType,
+			                                    definition.toString().trim() + " - Response type: '" +
+			                                    returnType + "' not matching writer type: '" +
+			                                    writerType + "' in: '" + writer.getClass() + "'");
+		}
 
 		ContextProviderFactory.injectContext(writer, definition, context); // injects @Context if needed
 		return writer;
@@ -480,11 +486,13 @@ public class RestRouter {
 							Class returnType = result != null ? result.getClass() : definition.getReturnType();
 
 							MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
-							HttpResponseWriter writer = getWriter(injectionProvider, returnType, definition, accept, context);
-							if (writer == null) {
-								log.error("No writer could be provided to produce response. Falling back to GenericResponseWriter instead!");
-								writer = new GenericResponseWriter();
-							}
+							HttpResponseWriter writer = getWriter(injectionProvider,
+							                                      returnType,
+							                                      definition,
+							                                      accept,
+							                                      context,
+							                                      GenericResponseWriter.class);
+
 
 							produceResponse(res.result(), context, definition, writer);
 						}
@@ -508,7 +516,7 @@ public class RestRouter {
 				Object result = method.invoke(toInvoke, args);
 
 				if (result instanceof Future) {
-					Future fut = (Future) result;
+					Future<?> fut = (Future) result;
 
 					// wait for future to complete ... don't block vertx event bus in the mean time
 					fut.setHandler(handler -> {
@@ -516,21 +524,19 @@ public class RestRouter {
 						if (fut.succeeded()) {
 
 							try {
-
+								Object futureResult = fut.result();
 								MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
 
 								HttpResponseWriter writer;
-								Object futureResult = fut.result();
-								if (futureResult != null) {
-									// get writer from result type
-									writer = getWriter(injectionProvider, futureResult.getClass(), definition, accept, context);
-								} else {
+								if (futureResult != null) { // get writer from result type otherwise we don't know
+									writer = getWriter(injectionProvider,
+									                   futureResult.getClass(),
+									                   definition,
+									                   accept,
+									                   context,
+									                   GenericResponseWriter.class);
+								} else { // due to limitations of Java generics we can't tell the type if response is null
 									writer = (HttpResponseWriter) WriterFactory.newInstanceOf(definition.getWriter());
-								}
-
-								if (writer == null) {
-									log.error("No writer could be provided to produce response. Falling back to GenericResponseWriter instead!");
-									writer = new GenericResponseWriter();
 								}
 
 								produceResponse(futureResult, context, definition, writer);
@@ -547,37 +553,7 @@ public class RestRouter {
 			catch (Exception e) {
 				handleException(e, context, definition);
 			}
-
-
 		};
-
-			/*
-				},
-				false,
-				res -> {
-
-					if (res.succeeded()) {
-						try {
-
-							MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
-							HttpResponseWriter writer = getWriter(injectionProvider, method, definition, accept, context);
-							if (writer == null) {
-								log.error("No writer could be provided to produce response. Falling back to GenericResponseWriter instead!");
-								writer = new GenericResponseWriter();
-							}
-
-							produceResponse(res.result(), context, definition, writer);
-						}
-						catch (Exception e) {
-							handleException(e, context, definition);
-						}
-					}
-					else {
-						handleException(res.cause(), context, definition);
-					}
-				}
-			);
-		};*/
 	}
 
 	private static Handler<RoutingContext> getNotFoundHandler(Object notFoundWriter) {

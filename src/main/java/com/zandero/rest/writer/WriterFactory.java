@@ -45,7 +45,6 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 	public HttpResponseWriter getResponseWriter(InjectionProvider provider, Class returnType, RouteDefinition definition, MediaType accept) {
 
 		try {
-
 			HttpResponseWriter writer = null;
 			if (accept != null) {
 				writer = get(provider, returnType, definition.getWriter(), new MediaType[]{accept});

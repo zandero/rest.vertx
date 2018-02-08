@@ -8,6 +8,7 @@ import com.zandero.rest.test.data.IntegerHolder;
 import com.zandero.rest.test.data.SimulatedUser;
 import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
 import com.zandero.rest.test.json.Dummy;
+import io.vertx.ext.auth.AbstractUser;
 import org.junit.Test;
 
 import javax.ws.rs.NotAllowedException;
@@ -141,5 +142,11 @@ public class ClassFactoryTest {
 
 		IntegerHolder holder = (IntegerHolder) constructViaMethod(IntegerHolder.class, "10");
 		assertNull(holder);
+	}
+
+	@Test
+	public void checkIfCompatibleTypes() {
+
+		assertTrue(ClassFactory.checkIfCompatibleTypes(SimulatedUser.class, AbstractUser.class));
 	}
 }

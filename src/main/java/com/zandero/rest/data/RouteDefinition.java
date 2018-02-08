@@ -4,6 +4,7 @@ import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.*;
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.reader.ValueReader;
+import com.zandero.rest.writer.GenericResponseWriter;
 import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.utils.ArrayUtils;
 import com.zandero.utils.Assert;
@@ -74,6 +75,11 @@ public class RouteDefinition {
 	private Boolean permitAll = null; // true - permit all, false - deny all, null - check roles
 
 	private String[] roles = null;
+
+	/**
+	 * Suppress preventive failure checks - it might be that the check is to strong
+	 */
+	public boolean suppressCheck;
 
 	public RouteDefinition(Class clazz) {
 
@@ -203,6 +209,10 @@ public class RouteDefinition {
 
 			if (annotation instanceof CatchWith) {
 				exceptionHandlers = ArrayUtils.join(((CatchWith) annotation).value(), exceptionHandlers);
+			}
+
+			if (annotation instanceof SuppressWarnings) {
+				suppressCheck = true;
 			}
 		}
 	}
@@ -547,6 +557,10 @@ public class RouteDefinition {
 	}
 
 	public Class<? extends HttpResponseWriter> getWriter() {
+
+		if (writer == null) { // default to generic if none given ...
+			return GenericResponseWriter.class;
+		}
 
 		return writer;
 	}
