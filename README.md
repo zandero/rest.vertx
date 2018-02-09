@@ -337,6 +337,26 @@ If no specific ValueReader is assigned to a given class type, **rest.vertx** tri
 * using a single primitive type constructor if given String can be converted to the specific type  
 * using static method _fromString(String value)_ or _valueOf(String value)_
 
+
+## @SuppressCheck annotation
+Rest.vertx tries to be smart and checks all readers and writers type compatibility.   
+Meaning if a REST method returns a _String_ then a _String_ compatible writer is expected.
+ 
+In case the check is to strong (preventing some fancy Java generics or inheritance) the @SuppressCheck annotation can be applied to skip the check.
+
+>NOTE: **This will not prevent a writer/reader runtime exception in case of type incompatibility!** 
+
+```java
+@SuppressCheck
+public class TestSuppressedWriter implements HttpResponseWriter<Dummy> {
+
+	@Override
+	public void write(Dummy result, HttpServerRequest request, HttpServerResponse response) {
+		response.end(result.name);
+	}
+}
+```
+
 ### Cookies, forms and headers ...
 Cookies, HTTP form and headers can also be read via **@CookieParam**, **@HeaderParam** and **@FormParam** annotations.  
 
