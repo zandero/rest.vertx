@@ -96,7 +96,7 @@ public class RestRouter {
 				Class inspectApi = (Class) api;
 
 				try {
-					api = ClassFactory.newInstanceOf(injectionProvider, null, null, inspectApi);
+					api = ClassFactory.newInstanceOf(injectionProvider, null, inspectApi);
 				}
 				catch (ClassFactoryException | ContextException e) {
 					throw new IllegalArgumentException(e.getMessage());
@@ -187,7 +187,6 @@ public class RestRouter {
 			ContextProvider instance = getContextProviders().getContextProvider(injectionProvider,
 			                                                                    clazz,
 			                                                                    provider,
-			                                                                    null,
 			                                                                    null);
 			output.route().blockingHandler(getContextHandler(instance));
 		}
@@ -229,7 +228,7 @@ public class RestRouter {
 	public static void handler(Router output, Class<? extends Handler<RoutingContext>> handler) {
 
 		try {
-			Handler<RoutingContext> instance = (Handler<RoutingContext>) ClassFactory.newInstanceOf(injectionProvider, null, null, handler);
+			Handler<RoutingContext> instance = (Handler<RoutingContext>) ClassFactory.newInstanceOf(injectionProvider, null, handler);
 			output.route().handler(instance);
 		}
 		catch (ClassFactoryException | ContextException e) {
@@ -351,7 +350,6 @@ public class RestRouter {
 		ValueReader bodyReader = readers.get(injectionProvider,
 		                                     definition.getBodyParameter(),
 		                                     definition.getReader(),
-		                                     definition,
 		                                     null,
 		                                     definition.getConsumes());
 
@@ -575,7 +573,7 @@ public class RestRouter {
 
 				HttpResponseWriter writer;
 				if (notFoundWriter instanceof Class) {
-					writer = (HttpResponseWriter) ClassFactory.newInstanceOf(injectionProvider, definition, context, (Class<?>) notFoundWriter);
+					writer = (HttpResponseWriter) ClassFactory.newInstanceOf(injectionProvider, context, (Class<?>) notFoundWriter);
 				} else {
 					writer = (HttpResponseWriter) notFoundWriter;
 				}
@@ -612,7 +610,7 @@ public class RestRouter {
 				exHandlers = definition.getExceptionHandlers();
 			}
 
-			handler = handlers.getExceptionHandler(injectionProvider, exHandlers, clazz, definition, context);
+			handler = handlers.getExceptionHandler(injectionProvider, exHandlers, clazz, context);
 			//ContextProviderFactory.injectContext(handler, definition, context);
 		}
 		catch (ClassFactoryException classException) {

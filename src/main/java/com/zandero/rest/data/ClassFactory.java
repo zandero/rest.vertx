@@ -81,9 +81,8 @@ public abstract class ClassFactory<T> {
 
 	protected T getClassInstance(InjectionProvider provider,
 	                             Class<? extends T> clazz,
-	                             RouteDefinition definition,
 	                             RoutingContext context) throws ClassFactoryException,
-	                                                                 ContextException {
+	                                                            ContextException {
 
 		if (clazz == null) {
 			return null;
@@ -98,7 +97,7 @@ public abstract class ClassFactory<T> {
 		}
 		if (instance == null) {
 
-			instance = (T) newInstanceOf(provider, definition, context, clazz);
+			instance = (T) newInstanceOf(provider, context, clazz);
 
 			if (!hasContext) { // no context .. we can cache this instance
 				cache(instance);
@@ -109,7 +108,6 @@ public abstract class ClassFactory<T> {
 	}
 
 	public static Object newInstanceOf(InjectionProvider provider,
-	                                   RouteDefinition definition,
 	                                   RoutingContext context,
 	                                   Class<?> clazz) throws ClassFactoryException, ContextException {
 
@@ -120,8 +118,7 @@ public abstract class ClassFactory<T> {
 		Object intstance = null;
 		if (provider == null || !InjectionProvider.hasInjection(clazz)) {
 			intstance = newInstanceOf(clazz);
-		}
-		else {
+		} else {
 
 			intstance = provider.getInstance(clazz);
 			if (intstance == null) {
@@ -131,7 +128,7 @@ public abstract class ClassFactory<T> {
 		}
 
 		if (ContextProviderFactory.hasContext(clazz)) {
-			ContextProviderFactory.injectContext(intstance, definition, context);
+			ContextProviderFactory.injectContext(intstance, context);
 		}
 
 		return intstance;
@@ -244,7 +241,6 @@ public abstract class ClassFactory<T> {
 	                Class<?> type,
 	                Class<? extends T> byDefinition,
 	                MediaType[] mediaTypes,
-	                RouteDefinition definition,
 	                RoutingContext routeContext) throws ClassFactoryException,
 	                                                    ContextException {
 
@@ -268,7 +264,7 @@ public abstract class ClassFactory<T> {
 		}
 
 		if (clazz != null) {
-			return getClassInstance(provider, clazz, definition, routeContext);
+			return getClassInstance(provider, clazz, routeContext);
 		}
 
 		// 3. find cached instance ... if any
@@ -284,11 +280,11 @@ public abstract class ClassFactory<T> {
 		return mediaTypes.get(MediaTypeHelper.getKey(mediaType));
 	}
 
-	public T get(String mediaType, RouteDefinition definition, RoutingContext routeContext) throws ClassFactoryException,
-	                                                                                               ContextException {
+	public T get(String mediaType, RoutingContext routeContext) throws ClassFactoryException,
+	                                                                   ContextException {
 
 		Class<? extends T> clazz = get(MediaTypeHelper.valueOf(mediaType));
-		return getClassInstance(null, clazz, definition, routeContext);
+		return getClassInstance(null, clazz, routeContext);
 	}
 
 	public Class<? extends T> get(Class<?> type) {

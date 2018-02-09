@@ -68,7 +68,7 @@ public class ArgumentProvider {
 						case context:
 
 							// check if providers need to be called to assure context
-							ContextProvider provider = contextProvider.get(injectionProvider, dataType, null, null, definition, context);
+							ContextProvider provider = contextProvider.get(injectionProvider, dataType, null, null, context);
 							if (provider != null) {
 								Object result = provider.provide(context.request());
 								if (result != null) {
@@ -76,8 +76,7 @@ public class ArgumentProvider {
 								}
 							}
 
-							args[parameter.getIndex()] = ContextProviderFactory.provideContext(definition,
-							                                                                   method.getParameterTypes()[parameter.getIndex()],
+							args[parameter.getIndex()] = ContextProviderFactory.provideContext(method.getParameterTypes()[parameter.getIndex()],
 							                                                                   parameter.getDefaultValue(),
 							                                                                   context);
 							break;
@@ -200,9 +199,9 @@ public class ArgumentProvider {
 
 		// get associated reader set in parameter
 		if (parameter.isBody()) {
-			return readers.get(provider, parameter, parameter.getReader(), definition, context, definition.getConsumes());
+			return readers.get(provider, parameter, parameter.getReader(), context, definition.getConsumes());
 		} else {
-			return readers.get(provider, parameter, parameter.getReader(), definition, context);
+			return readers.get(provider, parameter, parameter.getReader(), context);
 		}
 	}
 

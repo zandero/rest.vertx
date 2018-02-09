@@ -1,7 +1,6 @@
 package com.zandero.rest.writer;
 
 import com.zandero.rest.RestRouter;
-import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.ContextException;
 import io.vertx.core.http.HttpHeaders;
@@ -25,9 +24,6 @@ public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
 	@Context
 	RoutingContext context;
 
-	@Context
-	RouteDefinition definition;
-
 	@Override
 	public void write(T result, HttpServerRequest request, HttpServerResponse response) {
 
@@ -35,7 +31,7 @@ public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
 
 		HttpResponseWriter writer;
 		try {
-			writer = RestRouter.getWriters().get(mediaType, definition, context);
+			writer = RestRouter.getWriters().get(mediaType, context);
 		}
 		catch (ClassFactoryException | ContextException e) {
 			// writer = RestRouter.getWriters().get(result);

@@ -53,11 +53,11 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 		try {
 			HttpResponseWriter writer = null;
 			if (accept != null) {
-				writer = get(provider, returnType, definition.getWriter(), new MediaType[]{accept}, definition, routeContext);
+				writer = get(provider, returnType, definition.getWriter(), new MediaType[]{accept}, routeContext);
 			}
 
 			if (writer == null) {
-				writer = get(provider, returnType, definition.getWriter(), definition.getProduces(), definition, routeContext);
+				writer = get(provider, returnType, definition.getWriter(), definition.getProduces(), routeContext);
 			}
 
 			return writer != null ? writer : new GenericResponseWriter();

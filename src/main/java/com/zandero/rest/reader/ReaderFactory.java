@@ -2,7 +2,6 @@ package com.zandero.rest.reader;
 
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.data.MethodParameter;
-import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.ContextException;
 import com.zandero.rest.injection.InjectionProvider;
@@ -40,15 +39,14 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 	 * @param provider           injection provider if any
 	 * @param parameter          check parameter if reader is set or we have a type reader present
 	 * @param byMethodDefinition check default definition
-	 * @param mediaType          check by consumes annotation
+	 * @param mediaTypes          check by consumes annotation
 	 * @return found reader or GenericBodyReader
 	 */
 	public ValueReader get(InjectionProvider provider,
 	                       MethodParameter parameter,
 	                       Class<? extends ValueReader> byMethodDefinition,
-	                       RouteDefinition definition,
 	                       RoutingContext context,
-	                       MediaType... mediaType) {
+	                       MediaType... mediaTypes) {
 
 		// by type
 		Class<?> readerType = null;
@@ -58,13 +56,13 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 			Assert.notNull(parameter, "Missing parameter!");
 			Class<? extends ValueReader> reader = parameter.getReader();
 			if (reader != null) {
-				return getClassInstance(provider, reader, definition, context);
+				return getClassInstance(provider, reader, context);
 			}
 
 			// by value type, if body also by method/class definition or consumes media type  
 			readerType = parameter.getDataType();
 
-			ValueReader valueReader = get(provider, readerType, byMethodDefinition, mediaType, definition, context);
+			ValueReader valueReader = get(provider, readerType, byMethodDefinition, mediaTypes, context);
 			return valueReader != null ? valueReader : new GenericValueReader();
 		}
 		catch (ClassFactoryException e) {

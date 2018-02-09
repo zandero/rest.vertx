@@ -1,7 +1,6 @@
 package com.zandero.rest.writer;
 
 import com.zandero.rest.RestRouter;
-import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.ContextException;
 import com.zandero.utils.Assert;
@@ -22,9 +21,6 @@ import java.util.List;
 public class JaxResponseWriter implements HttpResponseWriter<Response> {
 
 	@Context
-	RouteDefinition definition;
-
-	@Context
 	RoutingContext context;
 
 	@Override
@@ -42,7 +38,7 @@ public class JaxResponseWriter implements HttpResponseWriter<Response> {
 
 			HttpResponseWriter writer;
 			try {
-				writer = RestRouter.getWriters().get(mediaType, definition, context);
+				writer = RestRouter.getWriters().get(mediaType, context);
 			}
 			catch (ClassFactoryException | ContextException e) {
 				writer = null;

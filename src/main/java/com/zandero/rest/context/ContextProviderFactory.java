@@ -39,12 +39,11 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 	public ContextProvider getContextProvider(InjectionProvider provider,
 	                                          Class clazzType,
 	                                          Class<? extends ContextProvider> aClass,
-	                                          RouteDefinition definition,
 	                                          RoutingContext context) throws ClassFactoryException,
 	                                                                         ContextException {
 
 
-		return get(provider, clazzType, aClass, null, definition, context);
+		return get(provider, clazzType, aClass, null, context);
 	}
 
 	public void register(Class<?> aClass, Class<? extends ContextProvider> clazz) {
@@ -89,14 +88,12 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 	/**
 	 * Provides vertx context of desired type if possible
 	 *
-	 * @param definition   route definition
 	 * @param type         context type
 	 * @param defaultValue default value if given
-	 * @param context      to extract value from
+	 * @param context      to provider / extract values from
 	 * @return found context or null if not found
 	 */
-	public static Object provideContext(RouteDefinition definition,
-	                                    Class<?> type,
+	public static Object provideContext(Class<?> type,
 	                                    String defaultValue,
 	                                    RoutingContext context) throws ContextException {
 
@@ -123,7 +120,7 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 
 		// internal context
 		if (type.isAssignableFrom(RouteDefinition.class)) {
-			return definition;
+			return new RouteDefinition(context);
 		}
 
 		// browse through context storage
@@ -149,7 +146,7 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 		throw new ContextException("Can't provide @Context of type: " + type);
 	}
 
-	public static void injectContext(Object instance, RouteDefinition definition, RoutingContext routeContext) throws ContextException {
+	public static void injectContext(Object instance, RoutingContext routeContext) throws ContextException {
 
 		if (instance == null) {
 			return;
@@ -161,7 +158,7 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 			Annotation found = field.getAnnotation(Context.class);
 			if (found != null) {
 
-				Object context = provideContext(definition, field.getType(), null, routeContext);
+				Object context = provideContext(field.getType(), null, routeContext);
 				try {
 					field.setAccessible(true);
 					field.set(instance, context);
