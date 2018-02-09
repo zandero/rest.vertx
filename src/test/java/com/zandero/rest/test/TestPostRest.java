@@ -1,6 +1,5 @@
 package com.zandero.rest.test;
 
-import com.zandero.rest.annotation.Blocking;
 import com.zandero.rest.annotation.RequestReader;
 import com.zandero.rest.annotation.ResponseWriter;
 import com.zandero.rest.annotation.RouteOrder;
@@ -35,7 +34,6 @@ public class TestPostRest {
 	@RequestReader(DummyBodyReader.class)
 	@ResponseWriter(TestDummyWriter.class)
 	@RouteOrder(20)
-	@Blocking
 	public Dummy echoJsonPut(Dummy postParam, @HeaderParam("X-Test") String testHeader) {
 
 		postParam.name = "Received-" + postParam.name;

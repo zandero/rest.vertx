@@ -163,19 +163,17 @@ public class RestRouter {
 					Handler<RoutingContext> handler = getAsyncHandler(api, definition, method);
 					route.handler(handler);
 				} else {
-					// check writer compatibility beforehand
-					if (!definition.suppressCheck) {
-						try { // no way to know the accept content at this point
-							getWriter(injectionProvider, null, definition, null, null, GenericResponseWriter.class);
-						}
-						catch (ContextException | ClassFactoryException e) {
-							// not relevant at this point
-						}
-					}
 
-					Handler<RoutingContext> handler = getHandler(api, definition, method);
-					route.handler(handler);
+					try { // no way to know the accept content at this point
+						getWriter(injectionProvider, definition.getReturnType(), definition, null, null, GenericResponseWriter.class);
+					}
+					catch (ContextException | ClassFactoryException e) {
+						// not relevant at this point
+					}
 				}
+
+				Handler<RoutingContext> handler = getHandler(api, definition, method);
+				route.handler(handler);
 			}
 		}
 
@@ -348,7 +346,7 @@ public class RestRouter {
 
 		ValueReader bodyReader = readers.get(injectionProvider, definition.getBodyParameter(), definition.getReader(), definition.getConsumes());
 
-		if (bodyReader != null && !definition.suppressCheck) {
+		if (bodyReader != null && definition.checkCompatibility()) {
 
 			Type readerType = ClassFactory.getGenericType(bodyReader.getClass());
 			MethodParameter bodyParameter = definition.getBodyParameter();
@@ -379,7 +377,9 @@ public class RestRouter {
 			return (HttpResponseWriter) ClassFactory.newInstanceOf(defaultTo);
 		}
 
-		if (!definition.suppressCheck) {
+		if (definition.checkCompatibility() &&
+		    ClassFactory.checkCompatibility(writer.getClass())) {
+
 			Type writerType = ClassFactory.getGenericType(writer.getClass());
 			ClassFactory.checkIfCompatibleTypes(returnType,
 			                                    writerType,
@@ -536,7 +536,8 @@ public class RestRouter {
 									                   context,
 									                   GenericResponseWriter.class);
 								} else { // due to limitations of Java generics we can't tell the type if response is null
-									writer = (HttpResponseWriter) WriterFactory.newInstanceOf(definition.getWriter());
+									Class<?> writerClass = definition.getWriter() == null ? GenericResponseWriter.class : definition.getWriter();
+									writer = (HttpResponseWriter) WriterFactory.newInstanceOf(writerClass);
 								}
 
 								produceResponse(futureResult, context, definition, writer);
@@ -583,6 +584,7 @@ public class RestRouter {
 	@SuppressWarnings("unchecked")
 	private static void handleException(Throwable e, RoutingContext context, final RouteDefinition definition) {
 
+		log.error("Handling exception: ", e);
 		ExecuteException ex = getExecuteException(e);
 
 		// get appropriate exception handler/writer ...
@@ -664,8 +666,10 @@ public class RestRouter {
 		// write response and override headers if necessary
 		writer.write(result, request, response);
 
-		// finish if not finished by writer and is not an Async REST
-		if (!response.ended()) {
+		// finish if not finished by writer
+		// and is not an Async REST (Async RESTs must finish responses on their own)
+		if (!definition.isAsync() &&
+		    !response.ended()) {
 			response.end();
 		}
 	}

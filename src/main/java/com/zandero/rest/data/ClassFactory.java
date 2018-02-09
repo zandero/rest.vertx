@@ -1,5 +1,6 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.annotation.SuppressCheck;
 import com.zandero.rest.context.ContextProviderFactory;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.injection.InjectionProvider;
@@ -192,10 +193,19 @@ public abstract class ClassFactory<T> {
 		Assert.notNull(aClass, "Missing associated class!");
 		Assert.notNull(clazz, "Missing response type class");
 
-		Type expected = getGenericType(clazz);
-		checkIfCompatibleTypes(aClass, expected, "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + clazz + "'");
+		if (checkCompatibility(clazz)) {
+			Type expected = getGenericType(clazz);
+			checkIfCompatibleTypes(aClass, expected, "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + clazz + "'");
+		}
 
 		classTypes.put(aClass, clazz);
+	}
+
+	/**
+	 * checks if @SuppressCheck annotation is given
+ 	 */
+	public static boolean checkCompatibility(Class<?> clazz) {
+		return clazz.getAnnotation(SuppressCheck.class) == null;
 	}
 
 	protected void register(Class<?> aClass, T instance) {
@@ -203,8 +213,12 @@ public abstract class ClassFactory<T> {
 		Assert.notNull(aClass, "Missing associated class!");
 		Assert.notNull(instance, "Missing instance of class!");
 
-		Type expected = getGenericType(instance.getClass());
-		checkIfCompatibleTypes(aClass, expected, "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + instance.getClass() + "'");
+		if (checkCompatibility(instance.getClass())) {
+			Type expected = getGenericType(instance.getClass());
+			checkIfCompatibleTypes(aClass,
+			                       expected,
+			                       "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + instance.getClass() + "'");
+		}
 
 		cache.put(aClass.getName(), instance);
 	}

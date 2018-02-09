@@ -6,7 +6,7 @@ import io.vertx.core.http.HttpServerResponse;
 import javax.ws.rs.core.Response;
 
 /**
- * Not found response writer for last() route
+ * Generic not found response writer for last() route
  */
 public abstract class NotFoundResponseWriter implements HttpResponseWriter<Void> {
 
