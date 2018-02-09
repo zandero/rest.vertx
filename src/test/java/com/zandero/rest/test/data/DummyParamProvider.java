@@ -11,6 +11,7 @@ import java.lang.reflect.Type;
 /**
  * see: https://github.com/javaee-samples/javaee7-samples/tree/master/jaxrs/paramconverter/src/main/java/org/javaee7/jaxrs/paramconverter
  */
+@Deprecated
 @Provider
 public class DummyParamProvider implements ParamConverterProvider {
 

@@ -18,6 +18,18 @@ import java.util.Map;
  */
 public final class AnnotationProcessor {
 
+	private static final List<Class<? extends Annotation>> REST_ANNOTATIONS = Arrays.asList(Path.class,
+	                                                                                        HttpMethod.class,
+	                                                                                        GET.class,
+	                                                                                        POST.class,
+	                                                                                        PUT.class,
+	                                                                                        DELETE.class,
+	                                                                                        PATCH.class,
+	                                                                                        OPTIONS.class,
+	                                                                                        TRACE.class,
+	                                                                                        CONNECT.class,
+	                                                                                        HEAD.class);
+
 	private AnnotationProcessor() {
 		// hide constructor
 	}
@@ -50,7 +62,8 @@ public final class AnnotationProcessor {
 
 					output.put(definition, method);
 
-				} catch (IllegalArgumentException e) {
+				}
+				catch (IllegalArgumentException e) {
 
 					throw new IllegalArgumentException(clazz + "." + method.getName() + "() - " + e.getMessage());
 				}
@@ -62,24 +75,13 @@ public final class AnnotationProcessor {
 
 	/**
 	 * A Rest method can have a Path and must have GET, POST ...
+	 *
 	 * @param method to examine
 	 * @return true if REST method, false otherwise
 	 */
 	private static boolean isRestMethod(Method method) {
 
-		List<Class<? extends Annotation>> search = Arrays.asList(Path.class,
-		                                                         HttpMethod.class,
-		                                                         GET.class,
-		                                                         POST.class,
-		                                                         PUT.class,
-		                                                         DELETE.class,
-									                             PATCH.class,
-		                                                         OPTIONS.class,
-		                                                         TRACE.class,
-		                                                         CONNECT.class,
-		                                                         HEAD.class);
-
-		for (Class<? extends Annotation> item: search) {
+		for (Class<? extends Annotation> item : REST_ANNOTATIONS) {
 			if (method.getAnnotation(item) != null) {
 				return true;
 			}

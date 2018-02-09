@@ -8,7 +8,7 @@ import io.vertx.ext.auth.AbstractUser;
 import io.vertx.ext.auth.AuthProvider;
 
 /**
- * Simplistic user where role is his role ...
+ * Simplistic user where name is his role ...
  */
 public class SimulatedUser extends AbstractUser {
 
