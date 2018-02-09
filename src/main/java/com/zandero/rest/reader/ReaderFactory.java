@@ -36,15 +36,15 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 	/**
 	 * Step over all possibilities to provide desired reader
 	 *
-	 * @param provider           injection provider if any
 	 * @param parameter          check parameter if reader is set or we have a type reader present
 	 * @param byMethodDefinition check default definition
+	 * @param provider           injection provider if any
 	 * @param mediaTypes          check by consumes annotation
 	 * @return found reader or GenericBodyReader
 	 */
-	public ValueReader get(InjectionProvider provider,
-	                       MethodParameter parameter,
+	public ValueReader get(MethodParameter parameter,
 	                       Class<? extends ValueReader> byMethodDefinition,
+	                       InjectionProvider provider,
 	                       RoutingContext context,
 	                       MediaType... mediaTypes) {
 
@@ -62,7 +62,7 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 			// by value type, if body also by method/class definition or consumes media type  
 			readerType = parameter.getDataType();
 
-			ValueReader valueReader = get(provider, readerType, byMethodDefinition, mediaTypes, context);
+			ValueReader valueReader = get(readerType, byMethodDefinition, provider, context, mediaTypes);
 			return valueReader != null ? valueReader : new GenericValueReader();
 		}
 		catch (ClassFactoryException e) {

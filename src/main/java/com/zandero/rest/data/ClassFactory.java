@@ -237,12 +237,12 @@ public abstract class ClassFactory<T> {
 	}
 
 	// TODO : move media type specific into a new class that Reader, Writer factory derives from
-	protected T get(InjectionProvider provider,
-	                Class<?> type,
+	protected T get(Class<?> type,
 	                Class<? extends T> byDefinition,
-	                MediaType[] mediaTypes,
-	                RoutingContext routeContext) throws ClassFactoryException,
-	                                                    ContextException {
+	                InjectionProvider provider,
+	                RoutingContext routeContext,
+	                MediaType[] mediaTypes) throws ClassFactoryException,
+	                                               ContextException {
 
 		Class<? extends T> clazz = byDefinition;
 

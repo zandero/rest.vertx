@@ -34,9 +34,9 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 		classTypes.put(Throwable.class, GenericExceptionHandler.class);
 	}
 
-	public ExceptionHandler getExceptionHandler(InjectionProvider provider,
+	public ExceptionHandler getExceptionHandler(Class<? extends Throwable> aClass,
 	                                            Class<? extends ExceptionHandler>[] handlers,
-	                                            Class<? extends Throwable> aClass,
+	                                            InjectionProvider provider,
 	                                            RoutingContext context) throws ClassFactoryException, ContextException {
 
 		// trickle down ... from definition to default handler

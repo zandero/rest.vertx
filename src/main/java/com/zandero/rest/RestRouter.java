@@ -347,9 +347,7 @@ public class RestRouter {
 			return;
 		}
 
-		ValueReader bodyReader = readers.get(injectionProvider,
-		                                     definition.getBodyParameter(),
-		                                     definition.getReader(),
+		ValueReader bodyReader = readers.get(definition.getBodyParameter(), definition.getReader(), injectionProvider,
 		                                     null,
 		                                     definition.getConsumes());
 
@@ -377,7 +375,7 @@ public class RestRouter {
 			returnType = definition.getReturnType();
 		}
 
-		HttpResponseWriter writer = writers.getResponseWriter(injectionProvider, returnType, definition, acceptHeader, context);
+		HttpResponseWriter writer = writers.getResponseWriter(returnType, definition, injectionProvider, context, acceptHeader);
 
 		if (writer == null) {
 			log.error("No writer could be provided. Falling back to " + defaultTo.getSimpleName() + " instead!");
@@ -610,8 +608,7 @@ public class RestRouter {
 				exHandlers = definition.getExceptionHandlers();
 			}
 
-			handler = handlers.getExceptionHandler(injectionProvider, exHandlers, clazz, context);
-			//ContextProviderFactory.injectContext(handler, definition, context);
+			handler = handlers.getExceptionHandler(clazz, exHandlers, injectionProvider, context);
 		}
 		catch (ClassFactoryException classException) {
 			// Can't provide exception handler ... rethrow

@@ -43,7 +43,7 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 	                                                                         ContextException {
 
 
-		return get(provider, clazzType, aClass, null, context);
+		return get(clazzType, aClass, provider, context, null);
 	}
 
 	public void register(Class<?> aClass, Class<? extends ContextProvider> clazz) {
