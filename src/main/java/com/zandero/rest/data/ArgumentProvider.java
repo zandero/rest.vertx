@@ -68,7 +68,7 @@ public class ArgumentProvider {
 						case context:
 
 							// check if providers need to be called to assure context
-							ContextProvider provider = contextProvider.get(injectionProvider, dataType, null, null);
+							ContextProvider provider = contextProvider.get(injectionProvider, dataType, null, null, definition, context);
 							if (provider != null) {
 								Object result = provider.provide(context.request());
 								if (result != null) {
@@ -84,9 +84,7 @@ public class ArgumentProvider {
 
 						default:
 
-							ValueReader valueReader = getValueReader(injectionProvider, parameter, definition, readers);
-							ContextProviderFactory.injectContext(valueReader, definition, context);
-
+							ValueReader valueReader = getValueReader(injectionProvider, parameter, definition, context, readers);
 							args[parameter.getIndex()] = valueReader.read(value, dataType);
 							break;
 					}
@@ -197,13 +195,14 @@ public class ArgumentProvider {
 	private static ValueReader getValueReader(InjectionProvider provider,
 	                                          MethodParameter parameter,
 	                                          RouteDefinition definition,
+	                                          RoutingContext context,
 	                                          ReaderFactory readers) {
 
 		// get associated reader set in parameter
 		if (parameter.isBody()) {
-			return readers.get(provider, parameter, parameter.getReader(), definition.getConsumes());
+			return readers.get(provider, parameter, parameter.getReader(), definition, context, definition.getConsumes());
 		} else {
-			return readers.get(provider, parameter, parameter.getReader());
+			return readers.get(provider, parameter, parameter.getReader(), definition, context);
 		}
 	}
 

@@ -3,8 +3,10 @@ package com.zandero.rest.data;
 import com.zandero.rest.annotation.SuppressCheck;
 import com.zandero.rest.context.ContextProviderFactory;
 import com.zandero.rest.exception.ClassFactoryException;
+import com.zandero.rest.exception.ContextException;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
+import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
@@ -77,24 +79,28 @@ public abstract class ClassFactory<T> {
 		return cache.get(clazz.getName());
 	}
 
-	protected T getClassInstance(InjectionProvider provider, Class<? extends T> clazz) throws ClassFactoryException {
+	protected T getClassInstance(InjectionProvider provider,
+	                             Class<? extends T> clazz,
+	                             RouteDefinition definition,
+	                             RoutingContext context) throws ClassFactoryException,
+	                                                                 ContextException {
 
 		if (clazz == null) {
 			return null;
 		}
 
 		// only use cache if no @Context is needed
-		boolean useCache = !ContextProviderFactory.hasContext(clazz);
+		boolean hasContext = ContextProviderFactory.hasContext(clazz);
 
 		T instance = null;
-		if (useCache) {
+		if (!hasContext) { // no Context ... we can get it from cache
 			instance = getCached(clazz);
 		}
 		if (instance == null) {
 
-			instance = (T) newInstanceOf(provider, clazz);
+			instance = (T) newInstanceOf(provider, definition, context, clazz);
 
-			if (useCache) {
+			if (!hasContext) { // no context .. we can cache this instance
 				cache(instance);
 			}
 		}
@@ -102,23 +108,33 @@ public abstract class ClassFactory<T> {
 		return instance;
 	}
 
-	public static Object newInstanceOf(InjectionProvider provider, Class<?> clazz) throws ClassFactoryException {
+	public static Object newInstanceOf(InjectionProvider provider,
+	                                   RouteDefinition definition,
+	                                   RoutingContext context,
+	                                   Class<?> clazz) throws ClassFactoryException, ContextException {
 
 		if (clazz == null) {
 			return null;
 		}
 
+		Object intstance = null;
 		if (provider == null || !InjectionProvider.hasInjection(clazz)) {
-			return newInstanceOf(clazz);
+			intstance = newInstanceOf(clazz);
+		}
+		else {
+
+			intstance = provider.getInstance(clazz);
+			if (intstance == null) {
+				throw new ClassFactoryException("Failed to getInstance class of type: " + clazz.getName() + ", with injector: " +
+				                                provider.getClass().getName(), null);
+			}
 		}
 
-		Object injected = provider.getInstance(clazz);
-		if (injected == null) {
-			throw new ClassFactoryException("Failed to getInstance class of type: " + clazz.getName() + ", with injector: " +
-			                                provider.getClass().getName(), null);
+		if (ContextProviderFactory.hasContext(clazz)) {
+			ContextProviderFactory.injectContext(intstance, definition, context);
 		}
 
-		return injected;
+		return intstance;
 	}
 
 	public static Object newInstanceOf(Class<?> clazz) throws ClassFactoryException {
@@ -131,7 +147,7 @@ public abstract class ClassFactory<T> {
 
 			for (Constructor<?> c : clazz.getDeclaredConstructors()) {
 				c.setAccessible(true);
-				// intialize with empty constructor
+				// initialize with empty constructor
 				if (c.getParameterCount() == 0) { // TODO: try to initialize class from context if arguments fit
 					return c.newInstance();
 				}
@@ -203,7 +219,7 @@ public abstract class ClassFactory<T> {
 
 	/**
 	 * checks if @SuppressCheck annotation is given
- 	 */
+	 */
 	public static boolean checkCompatibility(Class<?> clazz) {
 		return clazz.getAnnotation(SuppressCheck.class) == null;
 	}
@@ -224,7 +240,13 @@ public abstract class ClassFactory<T> {
 	}
 
 	// TODO : move media type specific into a new class that Reader, Writer factory derives from
-	protected T get(InjectionProvider provider, Class<?> type, Class<? extends T> byDefinition, MediaType[] mediaTypes) throws ClassFactoryException {
+	protected T get(InjectionProvider provider,
+	                Class<?> type,
+	                Class<? extends T> byDefinition,
+	                MediaType[] mediaTypes,
+	                RouteDefinition definition,
+	                RoutingContext routeContext) throws ClassFactoryException,
+	                                                    ContextException {
 
 		Class<? extends T> clazz = byDefinition;
 
@@ -246,7 +268,7 @@ public abstract class ClassFactory<T> {
 		}
 
 		if (clazz != null) {
-			return getClassInstance(provider, clazz);
+			return getClassInstance(provider, clazz, definition, routeContext);
 		}
 
 		// 3. find cached instance ... if any
@@ -262,10 +284,11 @@ public abstract class ClassFactory<T> {
 		return mediaTypes.get(MediaTypeHelper.getKey(mediaType));
 	}
 
-	public T get(String mediaType) throws ClassFactoryException {
+	public T get(String mediaType, RouteDefinition definition, RoutingContext routeContext) throws ClassFactoryException,
+	                                                                                               ContextException {
 
 		Class<? extends T> clazz = get(MediaTypeHelper.valueOf(mediaType));
-		return getClassInstance(null, clazz);
+		return getClassInstance(null, clazz, definition, routeContext);
 	}
 
 	public Class<? extends T> get(Class<?> type) {

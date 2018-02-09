@@ -1,12 +1,16 @@
 package com.zandero.rest.writer;
 
 import com.zandero.rest.RestRouter;
+import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.exception.ClassFactoryException;
+import com.zandero.rest.exception.ContextException;
 import com.zandero.utils.Assert;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.ext.web.RoutingContext;
 
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.Iterator;
@@ -16,6 +20,12 @@ import java.util.List;
  * Produces vert.x response based on JAX-RS response builder output
  */
 public class JaxResponseWriter implements HttpResponseWriter<Response> {
+
+	@Context
+	RouteDefinition definition;
+
+	@Context
+	RoutingContext context;
 
 	@Override
 	public void write(Response result, HttpServerRequest request, HttpServerResponse response) {
@@ -32,9 +42,9 @@ public class JaxResponseWriter implements HttpResponseWriter<Response> {
 
 			HttpResponseWriter writer;
 			try {
-				writer = RestRouter.getWriters().get(mediaType);
+				writer = RestRouter.getWriters().get(mediaType, definition, context);
 			}
-			catch (ClassFactoryException e) {
+			catch (ClassFactoryException | ContextException e) {
 				writer = null;
 			}
 

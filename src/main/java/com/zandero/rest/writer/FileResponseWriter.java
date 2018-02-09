@@ -25,7 +25,6 @@ public class FileResponseWriter implements HttpResponseWriter<String> {
 		else {
 			response.setStatusCode(Response.Status.NOT_FOUND.getStatusCode());
 		}
-
 	}
 
 	protected boolean fileExists(RoutingContext context, String file) {

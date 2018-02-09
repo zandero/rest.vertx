@@ -1,8 +1,10 @@
 package com.zandero.rest.exception;
 
 import com.zandero.rest.data.ClassFactory;
+import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
+import io.vertx.ext.web.RoutingContext;
 
 import javax.ws.rs.WebApplicationException;
 import java.lang.reflect.Type;
@@ -34,8 +36,10 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 	}
 
 	public ExceptionHandler getExceptionHandler(InjectionProvider provider,
-												Class<? extends ExceptionHandler>[] handlers,
-	                                            Class<? extends Throwable> aClass) throws ClassFactoryException {
+	                                            Class<? extends ExceptionHandler>[] handlers,
+	                                            Class<? extends Throwable> aClass,
+	                                            RouteDefinition definition,
+	                                            RoutingContext context) throws ClassFactoryException, ContextException {
 
 		// trickle down ... from definition to default handler
 		Class<? extends ExceptionHandler> found = null;
@@ -74,7 +78,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 			found = GenericExceptionHandler.class;
 		}
 
-		return super.getClassInstance(provider, found);
+		return super.getClassInstance(provider, found, definition, context);
 	}
 
 	@SafeVarargs

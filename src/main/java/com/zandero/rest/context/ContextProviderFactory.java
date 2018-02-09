@@ -15,24 +15,36 @@ import io.vertx.ext.web.RoutingContext;
 import javax.ws.rs.core.Context;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Storage of context providers
  */
 public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 
+	/**
+	 * Cache of classes that need or don't need context injection
+	 * If class needs context injection .. a list of Fields to inject is provided
+	 * If class doesn't need context injection the list of fields in empty (not null)
+	 */
+	private static HashMap<String, List<Field>> contextCache = new HashMap<>();
+
 	@Override
 	protected void init() {
-
 		// nothing to
 	}
 
 	public ContextProvider getContextProvider(InjectionProvider provider,
 	                                          Class clazzType,
-	                                          Class<? extends ContextProvider> aClass) throws ClassFactoryException {
+	                                          Class<? extends ContextProvider> aClass,
+	                                          RouteDefinition definition,
+	                                          RoutingContext context) throws ClassFactoryException,
+	                                                                         ContextException {
 
 
-		return get(provider, clazzType, aClass, null);
+		return get(provider, clazzType, aClass, null, definition, context);
 	}
 
 	public void register(Class<?> aClass, Class<? extends ContextProvider> clazz) {
@@ -43,18 +55,35 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 		super.register(aClass, instance);
 	}
 
-	public static boolean hasContext(Class<?> clazz) {
+	public static List<Field> checkForContext(Class<?> clazz) {
 
 		// check if any class members are injected
 		Field[] fields = clazz.getDeclaredFields();
+		List<Field> contextFields = new ArrayList<>();
 		for (Field field : fields) {
 			Annotation found = field.getAnnotation(Context.class);
 			if (found != null) {
-				return true;
+				contextFields.add(field);
 			}
 		}
 
-		return false;
+		return contextFields;
+	}
+
+	private static List<Field> getContextFields(Class<?> clazz) {
+
+		List<Field> contextFields = contextCache.get(clazz.getName());
+		if (contextFields == null) {
+			contextFields = checkForContext(clazz);
+			contextCache.put(clazz.getName(), contextFields);
+		}
+
+		return contextFields;
+	}
+
+	public static <T> boolean hasContext(Class<? extends T> clazz) {
+
+		return getContextFields(clazz).size() > 0;
 	}
 
 	/**
@@ -126,20 +155,19 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 			return;
 		}
 
-		if (hasContext(instance.getClass())) {
-			Field[] fields = instance.getClass().getDeclaredFields();
-			for (Field field : fields) {
-				Annotation found = field.getAnnotation(Context.class);
-				if (found != null) {
+		List<Field> contextFields = getContextFields(instance.getClass());
 
-					Object context = provideContext(definition, field.getType(), null, routeContext);
-					try {
-						field.setAccessible(true);
-						field.set(instance, context);
-					}
-					catch (IllegalAccessException e) {
-						throw new ContextException("Can't provide @Context for: " + field.getType() + " - " + e.getMessage());
-					}
+		for (Field field : contextFields) {
+			Annotation found = field.getAnnotation(Context.class);
+			if (found != null) {
+
+				Object context = provideContext(definition, field.getType(), null, routeContext);
+				try {
+					field.setAccessible(true);
+					field.set(instance, context);
+				}
+				catch (IllegalAccessException e) {
+					throw new ContextException("Can't provide @Context for: " + field.getType() + " - " + e.getMessage());
 				}
 			}
 		}
@@ -149,7 +177,7 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 
 		Assert.notNull(object, "Expected object but got null!");
 		if (object instanceof Class) {
-			return "RestRouter-" + ((Class)object).getName();
+			return "RestRouter-" + ((Class) object).getName();
 		}
 
 		return "RestRouter-" + object.getClass().getName();

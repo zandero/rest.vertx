@@ -3,9 +3,11 @@ package com.zandero.rest.writer;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.exception.ClassFactoryException;
+import com.zandero.rest.exception.ContextException;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,16 +44,20 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 	 * @param accept     accept media type header
 	 * @return writer to be used to produce response, or {@link GenericResponseWriter} in case no suitable writer could be found
 	 */
-	public HttpResponseWriter getResponseWriter(InjectionProvider provider, Class returnType, RouteDefinition definition, MediaType accept) {
+	public HttpResponseWriter getResponseWriter(InjectionProvider provider,
+	                                            Class returnType,
+	                                            RouteDefinition definition,
+	                                            MediaType accept,
+	                                            RoutingContext routeContext) {
 
 		try {
 			HttpResponseWriter writer = null;
 			if (accept != null) {
-				writer = get(provider, returnType, definition.getWriter(), new MediaType[]{accept});
+				writer = get(provider, returnType, definition.getWriter(), new MediaType[]{accept}, definition, routeContext);
 			}
 
 			if (writer == null) {
-				writer = get(provider, returnType, definition.getWriter(), definition.getProduces());
+				writer = get(provider, returnType, definition.getWriter(), definition.getProduces(), definition, routeContext);
 			}
 
 			return writer != null ? writer : new GenericResponseWriter();
@@ -59,6 +65,10 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 		catch (ClassFactoryException e) {
 			log.error(
 				"Failed to provide response writer: " + returnType + ", for: " + definition + ", falling back to GenericResponseWriter() instead!");
+			return new GenericResponseWriter();
+		}
+		catch (ContextException e) {
+			log.error("Could not inject context to provide response writer: " + returnType + ", for: " + definition + ", falling back to GenericResponseWriter() instead!");
 			return new GenericResponseWriter();
 		}
 	}
