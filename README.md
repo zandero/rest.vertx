@@ -6,7 +6,7 @@ Lightweight JAX-RS (RestEasy) like annotation processor for vert.x verticals
 <dependency>      
      <groupId>com.zandero</groupId>      
      <artifactId>rest.vertx</artifactId>      
-     <version>0.8</version>      
+     <version>0.8.1</version>      
 </dependency>
 ```
 See also: [older versions](https://github.com/zandero/rest.vertx/releases)
@@ -808,21 +808,6 @@ public class WriteMyObject {
 }
 ```
 
-## Blocking handler
-> Deprecated since 0.8.1 - by default all handlers are blocking for Async operations see: [insert link] 
-
-~~In case the request handler should be a blocking handler the **@Blocking** annotation has to be used.~~
-  
-```java
-@GET
-@Path("/blocking")
-@Blocking~~
-public String waitForMe() {
-  
-  return "done";
-}
-```
-
 ## Ordering routes
 By default routes area added to the Router in the order they are listed as methods in the class when registered.
 One can manually change the route REST order with the **@RouteOrder** annotation.
@@ -986,6 +971,54 @@ public class NotFoundHandler extends NotFoundResponseWriter {
     }
 }
  ```
+ 
+## Blocking and Async RESTs
+> Version 0.8.1 or later
+
+By default all REST utilize _vertx().executeBlocking()_ call. Therefore the vertx event loop is not blocked. 
+Responses are always terminated (ended).
+
+If desired a REST endpoint can return _Future_ and will be executed asynchronously waiting for the future object to finish.
+If used with non default (provided) _HttpResponseWriter_ the response must be terminated manually.
+
+The output writer is determined upon the Future<Object> type returned. If returned future object is _null_ then 
+due to Java generics limitations the object type **can not** be determinied.
+Therefore the response will be produced by the best matching response writer instead.  
+
+> Suggestion: wrap null responses to object instances 
+
+#### Simple async example
+```java
+@GET
+@Path("async")
+public Future<Dummy> create(@Context Vertx vertx) throws InterruptedException {
+
+    Future<Dummy> res = Future.future();
+    asyncCall(vertx, res);
+    return res;
+}
+```
+
+```java
+public void asyncCall(Vertx vertx, Future<Dummy> value) throws InterruptedException {
+
+    vertx.executeBlocking(
+            fut -> {
+                try {
+                    Thread.sleep(1000);
+                }
+                catch (InterruptedException e) {
+                    value.fail("Fail");
+                }
+                value.complete(new Dummy("async", "called"));
+                fut.complete();
+            },
+            false,
+            fut -> {}
+        );
+}
+```
+
 
 ## Injection
 > version 8.0 (or later)
@@ -1074,6 +1107,8 @@ Injection can also be used od _RequestReader_, _ResponseWriters_ or _ExceptionHa
 
 ### @Context fields
 >since version 8.1 or later
+
+Rest api classes **can not** use @Context fields, @Context is provided via method parameters instead. 
  
 In case needed a RequestReader, ResponseWriter or ExceptionHandler can use a @Context annotated field.
 
