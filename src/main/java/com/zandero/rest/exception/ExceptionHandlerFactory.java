@@ -76,7 +76,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 			found = GenericExceptionHandler.class;
 		}
 
-		return super.getClassInstance(provider, found, context);
+		return super.getClassInstance(found, provider, context);
 	}
 
 	@SafeVarargs

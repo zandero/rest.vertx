@@ -54,7 +54,7 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 		super.register(aClass, instance);
 	}
 
-	public static List<Field> checkForContext(Class<?> clazz) {
+	private static List<Field> checkForContext(Class<?> clazz) {
 
 		// check if any class members are injected
 		Field[] fields = clazz.getDeclaredFields();

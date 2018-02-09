@@ -79,10 +79,10 @@ public abstract class ClassFactory<T> {
 		return cache.get(clazz.getName());
 	}
 
-	protected T getClassInstance(InjectionProvider provider,
-	                             Class<? extends T> clazz,
-	                             RoutingContext context) throws ClassFactoryException,
-	                                                            ContextException {
+	public T getClassInstance(Class<? extends T> clazz,
+	                          InjectionProvider provider,
+	                          RoutingContext context) throws ClassFactoryException,
+	                                                         ContextException {
 
 		if (clazz == null) {
 			return null;
@@ -97,7 +97,7 @@ public abstract class ClassFactory<T> {
 		}
 		if (instance == null) {
 
-			instance = (T) newInstanceOf(provider, context, clazz);
+			instance = (T) newInstanceOf(clazz, provider, context);
 
 			if (!hasContext) { // no context .. we can cache this instance
 				cache(instance);
@@ -107,9 +107,9 @@ public abstract class ClassFactory<T> {
 		return instance;
 	}
 
-	public static Object newInstanceOf(InjectionProvider provider,
-	                                   RoutingContext context,
-	                                   Class<?> clazz) throws ClassFactoryException, ContextException {
+	public static Object newInstanceOf(Class<?> clazz,
+	                                   InjectionProvider provider,
+	                                   RoutingContext context) throws ClassFactoryException, ContextException {
 
 		if (clazz == null) {
 			return null;
@@ -264,7 +264,7 @@ public abstract class ClassFactory<T> {
 		}
 
 		if (clazz != null) {
-			return getClassInstance(provider, clazz, routeContext);
+			return getClassInstance(clazz, provider, routeContext);
 		}
 
 		// 3. find cached instance ... if any
@@ -284,7 +284,7 @@ public abstract class ClassFactory<T> {
 	                                                                   ContextException {
 
 		Class<? extends T> clazz = get(MediaTypeHelper.valueOf(mediaType));
-		return getClassInstance(null, clazz, routeContext);
+		return getClassInstance(clazz, null, routeContext);
 	}
 
 	public Class<? extends T> get(Class<?> type) {
