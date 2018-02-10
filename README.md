@@ -61,7 +61,7 @@ vertx.createHttpServer()
 or alternatively use _RestBuilder_ helper to build up endpoints.
 
 ### Registering by class type
-> version 0.5 (or later)
+> version 0.5 or later
 
 Alternatively RESTs can be registered by class type only.  
 
@@ -866,7 +866,7 @@ GET /test -> "first"
 ```
 
 # Enabling CORS requests
-> version 0.7.4 (or later) 
+> version 0.7.4 or later 
 
 ```java
 Router router = new RestBuilder(vertx)
@@ -958,7 +958,7 @@ Handlers are considered in order given, first matching handler is used.
 ```
 
 ## Page not found helper
-> version 0.7.4 (or later)  
+> version 0.7.4 or later  
 
 To ease page/resource not found handling a special _notFound()_ handler can be be utilized.
 
@@ -1014,7 +1014,7 @@ public class StaticFileRest {
 }
 ```
 
-will load any resource file in _html/{path}_ folder and returned it's content.
+will load resource file in _html/{path}_ and return it's content.
 
 
 ```
@@ -1071,7 +1071,7 @@ public void asyncCall(Vertx vertx, Future<Dummy> value) throws InterruptedExcept
 
 
 ## Injection
-> version 8.0 (or later)
+> version 8.0 or later
 
 Allows @Inject (JSR330) injection of RESTs, writers and readers. 
 
