@@ -1,4 +1,4 @@
-# rest.vertx
+# Rest.Vertx
 Lightweight JAX-RS (RestEasy) like annotation processor for vert.x verticals
  
 ## Setup
@@ -11,7 +11,7 @@ Lightweight JAX-RS (RestEasy) like annotation processor for vert.x verticals
 ```
 See also: [older versions](https://github.com/zandero/rest.vertx/releases)
 
-**Rest.Verx** is still in beta, so please report any [issues](https://github.com/zandero/rest.vertx/issues) discovered.  
+**Rest.Vertx** is still in beta, so please report any [issues](https://github.com/zandero/rest.vertx/issues) discovered.  
 You are highly encouraged to participate and improve upon the existing code.
 
 ## Acknowledgments
