@@ -992,8 +992,38 @@ public class NotFoundHandler extends NotFoundResponseWriter {
 }
  ```
  
+## Serving static/resource files
+> version 0.8 or later
+
+Rest.vertx simplifies serving of static resource files. 
+All you need to do is to create a REST endpoint that returns the relative path of the desired resource file,
+bound with _FileResponseWriter_ writer.
+
+For example:
+```java
+@Path("docs")
+public class StaticFileRest {
+
+	@GET
+	@Path("/{path:.*}")
+	@ResponseWriter(FileResponseWriter.class)
+	public String serveDocFile(@PathParam("path") String path) {
+
+		return "html/" + path;
+	}
+}
+```
+
+will load any resource file in _html/{path}_ folder and returned it's content.
+
+
+```
+> GET docs/page.html -> returns page.html content via FileResponseWriter
+```
+ 
+ 
 ## Blocking and Async RESTs
-> Version 0.8.1 or later
+> version 0.8.1 or later
 
 By default all REST utilize _vertx().executeBlocking()_ call. Therefore the vertx event loop is not blocked. 
 Responses are always terminated (ended).
@@ -1005,7 +1035,7 @@ The output writer is determined upon the Future<Object> type returned. If return
 due to Java generics limitations the object type **can not** be determinied.
 Therefore the response will be produced by the best matching response writer instead.  
 
-> Suggestion: wrap null responses to object instances 
+> **suggestion:** wrap null responses to object instances 
 
 #### Simple async example
 ```java
@@ -1130,11 +1160,10 @@ Injection can also be used od _RequestReader_, _ResponseWriters_ or _ExceptionHa
 
 Rest api classes **can not** use @Context fields, @Context is provided via method parameters instead. 
  
-In case needed a RequestReader, ResponseWriter or ExceptionHandler can use a @Context annotated field.
-
-see [Request context](#RequestContext) for details.
+In case needed a RequestReader, ResponseWriter or ExceptionHandler can use a @Context annotated field, see [Request context](#RequestContext) for details.
  
 Use _@Context_ fields only when really necessary, as the readers, writers and handlers are not cached but initialized on the fly on every request when needed.  
+  
 This is done in order to ensure thread safety, so one context does not jump into another thread.
 
 ## Internal caching
