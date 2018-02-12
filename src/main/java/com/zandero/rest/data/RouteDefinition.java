@@ -68,11 +68,19 @@ public class RouteDefinition {
 	 */
 	private boolean async;
 
+	/**
+	 * Type of return value ...
+	 */
 	private Class<?> returnType;
 
-	// security
+	/**
+	 * Security
+ 	 */
 	private Boolean permitAll = null; // true - permit all, false - deny all, null - check roles
 
+	/**
+	 * List of allowed roles or null if none
+	 */
 	private String[] roles = null;
 
 	/**
@@ -141,6 +149,8 @@ public class RouteDefinition {
 	 */
 	private void init(Annotation[] annotations) {
 
+		boolean hasPath = hasPath(annotations);
+
 		for (Annotation annotation : annotations) {
 			//log.info(annotation.toString());
 
@@ -160,10 +170,6 @@ public class RouteDefinition {
 				consumes(((Consumes) annotation).value());
 			}
 
-			if (annotation instanceof javax.ws.rs.HttpMethod) {
-				method(((javax.ws.rs.HttpMethod) annotation).value());
-			}
-
 			if (annotation instanceof GET ||
 			    annotation instanceof POST ||
 			    annotation instanceof PUT ||
@@ -171,11 +177,23 @@ public class RouteDefinition {
 			    annotation instanceof HEAD ||
 			    annotation instanceof OPTIONS ||
 				annotation instanceof PATCH ||
-			    // TODO: TRACE, CONNECT) - #11 check these ones
 				annotation instanceof TRACE ||
-				annotation instanceof CONNECT) {
+				annotation instanceof CONNECT) { // TODO: what about OTHER ?
 
 				method(annotation.annotationType().getSimpleName());
+			}
+
+			// TODO: experiment to replace @Path with method value
+			if (!hasPath && annotation instanceof TRACE) {
+				path(((TRACE)annotation).value());
+			}
+
+			if (!hasPath && annotation instanceof CONNECT) {
+				path(((CONNECT)annotation).value());
+			}
+
+			if (annotation instanceof javax.ws.rs.HttpMethod) {
+				method(((javax.ws.rs.HttpMethod) annotation).value());
 			}
 
 			// response writer ...
@@ -186,10 +204,6 @@ public class RouteDefinition {
 			if (annotation instanceof RequestReader) {
 				reader = ((RequestReader) annotation).value();
 			}
-
-			/*if (annotation instanceof Blocking) {
-				blocking = ((Blocking) annotation).value();
-			}*/
 
 			if (annotation instanceof RolesAllowed) {
 				permitAll = null; // override any previous definition
@@ -214,6 +228,15 @@ public class RouteDefinition {
 				suppressCheck = true;
 			}
 		}
+	}
+
+	private boolean hasPath(Annotation[] annotations) {
+		for (Annotation annotation: annotations) {
+			if (annotation instanceof Path) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private RouteDefinition order(int value) {
@@ -647,11 +670,6 @@ public class RouteDefinition {
 	public boolean checkCompatibility() {
 		return !suppressCheck;
 	}
-
-	/*public boolean isBlocking() {
-
-		return blocking;
-	}*/
 
 	/**
 	 * @return true - permit all, false - deny all, null - check roles

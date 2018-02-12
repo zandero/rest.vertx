@@ -12,4 +12,5 @@ import java.lang.annotation.*;
 @Documented
 public @interface TRACE {
 
+	String value() default ""; // @Path to trace if not given in @Path
 }

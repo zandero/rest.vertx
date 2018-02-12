@@ -11,4 +11,6 @@ import java.lang.annotation.*;
 @HttpMethod("CONNECT")
 @Documented
 public @interface CONNECT {
+
+	String value() default ""; // @Path to connect if not given in @Path
 }

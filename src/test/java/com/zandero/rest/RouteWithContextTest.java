@@ -24,12 +24,10 @@ public class RouteWithContextTest extends VertxTest {
 
 		super.before(context);
 
-		TestContextRest testRest = new TestContextRest();
-
 		Router router = Router.router(vertx);
 		router.route().handler(pushContextHandler());
 
-		router = RestRouter.register(router, testRest);
+		router = RestRouter.register(router, TestContextRest.class);
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)
 		     .listen(PORT);
