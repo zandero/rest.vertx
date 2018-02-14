@@ -166,5 +166,4 @@ public final class PathConverter {
 		path = StringUtils.trimToNull(path);
 		return path != null && path.startsWith("{") && path.endsWith("}");
 	}
-
 }

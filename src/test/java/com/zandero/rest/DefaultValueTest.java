@@ -52,7 +52,7 @@ public class DefaultValueTest extends VertxTest {
 
 		client.getNow("/default/echo?name=baby", response -> {
 
-			context.assertEquals(200, response.statusCode());
+//			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
 				context.assertEquals("Hello baby", body.toString());

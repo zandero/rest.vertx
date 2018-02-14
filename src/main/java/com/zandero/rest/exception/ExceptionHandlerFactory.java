@@ -87,6 +87,6 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 	}
 
 	public final void register(ExceptionHandler... handlers) {
-
+		// TODO: FIX THIS
 	}
 }

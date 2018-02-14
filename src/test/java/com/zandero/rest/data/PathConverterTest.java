@@ -168,5 +168,4 @@ public class PathConverterTest {
 		assertEquals(1, param.getPathIndex());
 		assertEquals(ParameterType.path, param.getType());
 	}
-
 }

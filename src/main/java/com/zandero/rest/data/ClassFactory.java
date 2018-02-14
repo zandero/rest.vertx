@@ -79,6 +79,7 @@ public abstract class ClassFactory<T> {
 		return cache.get(clazz.getName());
 	}
 
+	@SuppressWarnings("unchecked")
 	public T getClassInstance(Class<? extends T> clazz,
 	                          InjectionProvider provider,
 	                          RoutingContext context) throws ClassFactoryException,
@@ -287,6 +288,7 @@ public abstract class ClassFactory<T> {
 		return getClassInstance(clazz, null, routeContext);
 	}
 
+	@SuppressWarnings("unchecked")
 	public Class<? extends T> get(Class<?> type) {
 
 		if (type == null) {
@@ -333,11 +335,13 @@ public abstract class ClassFactory<T> {
 
 		if (actual instanceof ParameterizedType) {
 			return expected.isAssignableFrom(((ParameterizedTypeImpl) actual).getRawType());
-		} else if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
-			return true;
-		} else {
-			return expected.equals(actual) || expected.isInstance(actual) || ((Class) actual).isAssignableFrom(expected);
 		}
+
+		if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
+			return true;
+		}
+
+		return expected.equals(actual) || expected.isInstance(actual) || ((Class) actual).isAssignableFrom(expected);
 	}
 
 	public static Object stringToPrimitiveType(String value, Class<?> dataType) {
