@@ -224,7 +224,7 @@ public class RestRouter {
 		};
 	}
 
-	// TODO: add injection of context via context providers
+	@SuppressWarnings("unchecked")
 	public static void handler(Router output, Class<? extends Handler<RoutingContext>> handler) {
 
 		try {
@@ -562,6 +562,7 @@ public class RestRouter {
 		};
 	}
 
+	@SuppressWarnings("unchecked")
 	private static Handler<RoutingContext> getNotFoundHandler(Object notFoundWriter) {
 		return context -> {
 
@@ -695,14 +696,6 @@ public class RestRouter {
 	}
 
 	/**
-	 * Use addContextProvider(Class ? extends ContextProvider T provider) instead
-	 */
-	@Deprecated
-	public static <T> void addContextProvider(Class<T> aClass, Class<? extends ContextProvider<T>> provider) {
-		addProvider(provider);
-	}
-
-	/**
 	 * Registers a context provider for given type of class
 	 *
 	 * @param provider clazz type to be registered
@@ -711,14 +704,6 @@ public class RestRouter {
 
 		Class clazz = (Class) ClassFactory.getGenericType(provider);
 		providers.register(clazz, provider);
-	}
-
-	/**
-	 * Use addProvider(aClass T , ContextProvider T provider) instead
-	 */
-	@Deprecated
-	public static <T> void addContextProvider(Class<T> aClass, ContextProvider<T> provider) {
-		addProvider(aClass, provider);
 	}
 
 	public static <T> void addProvider(Class<T> clazz, ContextProvider<T> provider) {

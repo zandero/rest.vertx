@@ -39,9 +39,11 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 	/**
 	 * Finds assigned response writer or tries to assign a writer according to produces annotation and result type
 	 *
-	 * @param definition method definition
-	 * @param provider injection provider if any
-	 * @param accept     accept media type header
+	 * @param returnType   type of response
+	 * @param definition   method definition
+	 * @param provider     injection provider if any
+	 * @param routeContext routing context
+	 * @param accept       accept media type header
 	 * @return writer to be used to produce response, or {@link GenericResponseWriter} in case no suitable writer could be found
 	 */
 	public HttpResponseWriter getResponseWriter(Class returnType,
@@ -68,7 +70,8 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 			return new GenericResponseWriter();
 		}
 		catch (ContextException e) {
-			log.error("Could not inject context to provide response writer: " + returnType + ", for: " + definition + ", falling back to GenericResponseWriter() instead!");
+			log.error("Could not inject context to provide response writer: " + returnType + ", for: " + definition +
+			          ", falling back to GenericResponseWriter() instead!");
 			return new GenericResponseWriter();
 		}
 	}

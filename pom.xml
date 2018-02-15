@@ -61,6 +61,7 @@
 
         <!-- logging -->
         <version.logback>[1.1.7,)</version.logback>
+        <version.slf4j-api>1.7.25</version.slf4j-api>
 
         <!-- testing -->
         <version.junit>[4.12,)</version.junit>
@@ -125,15 +126,9 @@
 
         <!-- LOGGER -->
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${version.logback}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.25</version>
+            <version>${version.slf4j-api}</version>
         </dependency>
         <!-- END OF LOGGER -->
 
@@ -149,6 +144,13 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-unit</artifactId>
             <version>${version.vertx}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${version.logback}</version>
             <scope>test</scope>
         </dependency>
 

@@ -39,7 +39,8 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 	 * @param parameter          check parameter if reader is set or we have a type reader present
 	 * @param byMethodDefinition check default definition
 	 * @param provider           injection provider if any
-	 * @param mediaTypes          check by consumes annotation
+	 * @param context            routing context
+	 * @param mediaTypes         check by consumes annotation
 	 * @return found reader or GenericBodyReader
 	 */
 	public ValueReader get(MethodParameter parameter,
@@ -72,7 +73,8 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 		}
 		catch (ContextException e) {
 
-			log.error("Failed inject context into value reader: " + readerType + ", for: " + parameter + ", falling back to GenericBodyReader() instead!");
+			log.error(
+				"Failed inject context into value reader: " + readerType + ", for: " + parameter + ", falling back to GenericBodyReader() instead!");
 			return new GenericValueReader();
 		}
 	}

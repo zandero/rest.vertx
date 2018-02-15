@@ -92,6 +92,7 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 	 * @param defaultValue default value if given
 	 * @param context      to provider / extract values from
 	 * @return found context or null if not found
+	 * @throws ContextException in case context could not be provided
 	 */
 	public static Object provideContext(Class<?> type,
 	                                    String defaultValue,

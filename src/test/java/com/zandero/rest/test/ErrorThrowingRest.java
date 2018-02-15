@@ -59,5 +59,4 @@ public class ErrorThrowingRest {
 				throw new AbstractMethodError("ADIOS!");
 		}
 	}
-
 }

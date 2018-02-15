@@ -28,7 +28,7 @@ public abstract class ClassFactory<T> {
 	/**
 	 * Cache of class instances
 	 */
-	private Map<String, T> cache = new HashMap<>();
+	protected Map<String, T> cache = new HashMap<>();
 
 	/**
 	 * map of class associated with class type (to be instantiated)
@@ -116,23 +116,24 @@ public abstract class ClassFactory<T> {
 			return null;
 		}
 
-		Object intstance = null;
+		Object instance;
+
 		if (provider == null || !InjectionProvider.hasInjection(clazz)) {
-			intstance = newInstanceOf(clazz);
+			instance = newInstanceOf(clazz);
 		} else {
 
-			intstance = provider.getInstance(clazz);
-			if (intstance == null) {
+			instance = provider.getInstance(clazz);
+			if (instance == null) {
 				throw new ClassFactoryException("Failed to getInstance class of type: " + clazz.getName() + ", with injector: " +
 				                                provider.getClass().getName(), null);
 			}
 		}
 
 		if (ContextProviderFactory.hasContext(clazz)) {
-			ContextProviderFactory.injectContext(intstance, context);
+			ContextProviderFactory.injectContext(instance, context);
 		}
 
-		return intstance;
+		return instance;
 	}
 
 	public static Object newInstanceOf(Class<?> clazz) throws ClassFactoryException {
@@ -217,9 +218,13 @@ public abstract class ClassFactory<T> {
 
 	/**
 	 * checks if @SuppressCheck annotation is given
+	 *
+	 * @param clazz to inspect
+	 * @return true if compatible, false otherwise
 	 */
 	public static boolean checkCompatibility(Class<?> clazz) {
-		return clazz.getAnnotation(SuppressCheck.class) == null;
+
+		return clazz != null && clazz.getAnnotation(SuppressCheck.class) == null;
 	}
 
 	protected void register(Class<?> aClass, T instance) {

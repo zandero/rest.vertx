@@ -126,9 +126,26 @@ public class RestBuilder {
 		return this;
 	}
 
+	/**
+	 * Registeres one or more exception handler classes
+	 * @param handlers to be registered
+	 * @return builder
+	 */
 	@SafeVarargs
 	public final RestBuilder errorHandler(Class<? extends ExceptionHandler>... handlers) {
 
+		Assert.notNullOrEmpty(handlers, "Missing exception handler(s)!");
+
+		exceptionHandlers.addAll(Arrays.asList(handlers));
+		return this;
+	}
+
+	/**
+	 * Registeres one or more exception handler instances
+	 * @param handlers to be registered
+	 * @return builder
+	 */
+	public RestBuilder errorHandler(ExceptionHandler<?>... handlers) {
 		Assert.notNullOrEmpty(handlers, "Missing exception handler(s)!");
 
 		exceptionHandlers.addAll(Arrays.asList(handlers));
@@ -259,9 +276,10 @@ public class RestBuilder {
 		return RestRouter.register(vertx, apis);
 	}
 
+	@SuppressWarnings("unchecked")
 	public Router build() {
 
-		Assert.notNullOrEmpty(apis, "No REST API given, register at least one!");
+		Assert.notNullOrEmpty(apis, "No REST API given, register at least one! Use: .register(api) call!");
 
 		Router output = getRouter();
 
@@ -305,6 +323,7 @@ public class RestBuilder {
 				}
 			});
 		}
+
 		if (mediaTypeValueReaders.size() > 0) {
 			mediaTypeValueReaders.forEach((type, reader) -> {
 				if (reader instanceof Class) {
@@ -326,6 +345,7 @@ public class RestBuilder {
 				}
 			});
 		}
+
 		if (mediaTypeResponseWriters.size() > 0) {
 			mediaTypeResponseWriters.forEach((type, writer) -> {
 				if (writer instanceof Class) {

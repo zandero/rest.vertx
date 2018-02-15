@@ -1,5 +1,6 @@
 package com.zandero.rest.exception;
 
+import com.zandero.rest.context.ContextProviderFactory;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
@@ -21,11 +22,13 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 	 * standalone list of global handlers
  	 */
 	private List<Class<? extends ExceptionHandler>> exceptionHandlers;
+	private List<ExceptionHandler> exceptionHandlerInstances;
 
 	@Override
 	protected void init() {
 
 		exceptionHandlers = new ArrayList<>();
+		exceptionHandlerInstances = new ArrayList<>();
 
 		// register handlers from specific to general ...
 		// when searching we go over handlers ... first match is returned
@@ -42,21 +45,34 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 		// trickle down ... from definition to default handler
 		Class<? extends ExceptionHandler> found = null;
 
-		List<Class<? extends ExceptionHandler>> joined = new ArrayList<>();
 		// add as given in REST (class or method annotation)
 		if (handlers != null && handlers.length > 0) {
-			joined.addAll(Arrays.asList(handlers));
+
+			for (Class<? extends ExceptionHandler> handler: handlers) {
+
+				Type type = getGenericType(handler);
+				if (checkIfCompatibleTypes(aClass, type)) {
+					found = handler;
+					break;
+				}
+			}
+		}
+
+		// search for handler instances ... if any
+		if (found == null && exceptionHandlerInstances != null && exceptionHandlerInstances.size() > 0) {
+
+			for (ExceptionHandler handler: exceptionHandlerInstances) {
+
+				if (checkIfCompatibleTypes(aClass, handler.getClass())) {
+					return handler;
+				}
+			}
 		}
 
 		// add globally registered
-		if (exceptionHandlers != null && exceptionHandlers.size() > 0) {
-			joined.addAll(exceptionHandlers);
-		}
+		if (found == null && exceptionHandlers != null && exceptionHandlers.size() > 0) {
 
-		// go over list and try to find matching handler
-		if (joined.size() > 0) {
-
-			for (Class<? extends ExceptionHandler> handler: joined) {
+			for (Class<? extends ExceptionHandler> handler: exceptionHandlers) {
 
 				Type type = getGenericType(handler);
 				if (checkIfCompatibleTypes(aClass, type)) {
@@ -87,6 +103,16 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 	}
 
 	public final void register(ExceptionHandler... handlers) {
-		// TODO: FIX THIS
+
+		Assert.notNullOrEmpty(handlers, "Missing exception handler(s)!");
+		for (ExceptionHandler handler: handlers) {
+
+			Assert.isFalse(ContextProviderFactory.hasContext(handler.getClass()),
+			               "Exception handler utilizing @Context must be registered as class type not as instance!");
+
+			Type generic = getGenericType(handler.getClass());
+			Assert.notNull(generic, "Can't extract generic class type for exception handler: " + handler.getClass().getName());
+			super.register((Class)generic, handler);
+		}
 	}
 }

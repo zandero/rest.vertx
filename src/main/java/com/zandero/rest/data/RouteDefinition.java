@@ -183,7 +183,7 @@ public class RouteDefinition {
 				method(annotation.annotationType().getSimpleName());
 			}
 
-			// TODO: experiment to replace @Path with method value
+			// TODO: this is an experiment to replace @Path with method value
 			if (!hasPath && annotation instanceof TRACE) {
 				path(((TRACE)annotation).value());
 			}
