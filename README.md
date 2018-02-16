@@ -1,7 +1,8 @@
 # Rest.Vertx
 Lightweight JAX-RS (RestEasy) like annotation processor for vert.x verticals
 
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](R6SBEEJNP97MC)
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=R6SBEEJNP97MC&lc=SI&item_name=Zandero%20Rest%2eVertX&item_number=rest%2evertx&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted
+)
  
 ## Setup
 ```xml
