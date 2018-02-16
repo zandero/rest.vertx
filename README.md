@@ -1,5 +1,7 @@
 # Rest.Vertx
 Lightweight JAX-RS (RestEasy) like annotation processor for vert.x verticals
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](R6SBEEJNP97MC)
  
 ## Setup
 ```xml
