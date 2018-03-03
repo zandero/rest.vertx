@@ -270,10 +270,10 @@ public class RestBuilder {
 
 	private Router getRouter() {
 		if (vertx == null) {
-			return RestRouter.register(router, apis);
+			return RestRouter.register(router, apis.toArray());
 		}
 
-		return RestRouter.register(vertx, apis);
+		return RestRouter.register(vertx, apis.toArray());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -281,22 +281,7 @@ public class RestBuilder {
 
 		Assert.notNullOrEmpty(apis, "No REST API given, register at least one! Use: .register(api) call!");
 
-		Router output = getRouter();
-
 		RestRouter.injectWith(injectionProvider);
-
-		if (contextProviders.size() > 0) {
-
-			contextProviders.forEach(provider -> {
-
-				if (provider instanceof Class) {
-					RestRouter.provide(output, (Class<? extends ContextProvider>) provider);
-				} else {
-					RestRouter.provide(output, (ContextProvider<?>) provider);
-				}
-			});
-		}
-
 		if (registeredProviders.size() > 0) {
 
 			registeredProviders.forEach((clazz, provider) -> {
@@ -310,7 +295,19 @@ public class RestBuilder {
 		}
 
 		// register APIs
-		apis.forEach(api -> RestRouter.register(output, api));
+		Router output = getRouter();
+
+		if (contextProviders.size() > 0) {
+
+			contextProviders.forEach(provider -> {
+
+				if (provider instanceof Class) {
+					RestRouter.provide(output, (Class<? extends ContextProvider>) provider);
+				} else {
+					RestRouter.provide(output, (ContextProvider<?>) provider);
+				}
+			});
+		}
 
 		// register readers
 		if (classValueReaders.size() > 0) {

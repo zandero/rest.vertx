@@ -188,7 +188,8 @@ public class RestRouter {
 			                                                                    clazz,
 			                                                                    provider,
 			                                                                    null);
-			output.route().blockingHandler(getContextHandler(instance));
+			// set before other routes ...
+			output.route().order(Integer.MIN_VALUE).blockingHandler(getContextHandler(instance));
 		}
 		catch (ClassFactoryException | ContextException e) {
 			throw new IllegalArgumentException(e.getMessage());
