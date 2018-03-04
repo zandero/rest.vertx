@@ -132,7 +132,7 @@ public class SomeApi {
 ```
 
 ```
-GET /api/execute/ 
+> GET /api/execute/ 
 ``` 
  
 
@@ -152,7 +152,7 @@ public String execute(@PathParam("param") String parameter) {
 ```
 
 ```
-GET /execute/that -> that
+> GET /execute/that -> that
 ```
 
 ```java
@@ -165,7 +165,7 @@ public String execute(@PathParam("param") String parameter) {
 ```
 
 ```
-GET /execute/this -> this
+> GET /execute/this -> this
 ```
 
 ### Path regular expressions
@@ -179,7 +179,7 @@ public String oneTwoThree(@PathParam("one") String one, @PathParam("two") int tw
 ```
 
 ```
-GET /test/4/you -> test4you
+> GET /test/4/you -> test4you
 ```
 
 **Not recommended** but possible are vert.x style paths with regular expressions.  
@@ -193,7 +193,7 @@ public Response test(int one, int two) {
 ```
 
 ```
-GET /12/minus/3 -> 9
+> GET /12/minus/3 -> 9
 ```
 
 ### Query variables
@@ -214,7 +214,7 @@ public class CalculateRest {
 ```
 
 ```
-GET /calculate/add?two=2&one=1 -> 3
+> GET /calculate/add?two=2&one=1 -> 3
 ```
 
 ### Matrix parameters
@@ -239,7 +239,7 @@ public int calculate(@PathParam("operation") String operation, @MatrixParam("one
 ```
 
 ```
-GET /add;one=1;two=2 -> 3
+> GET /add;one=1;two=2 -> 3
 ```
 
 
@@ -428,9 +428,9 @@ public class TestRest {
 ```
 
 ```
-GET /user -> "User is: unknown
+> GET /user -> "User is: unknown
    
-GET /user?username=Foo -> "User is: Foo
+> GET /user?username=Foo -> "User is: Foo
 ```
 
 
@@ -867,7 +867,7 @@ public String second() {
 ```
 
 ```java
-GET /test -> "first" 
+> GET /test -> "first" 
 ```
 
 # Enabling CORS requests
@@ -902,6 +902,54 @@ Unhandled exceptions can be addressed via a designated _ExceptionHandler_:
 If no designated exception handler is provided, a default exception handler kicks
 in trying to match the exception type with a build in exception handler.
 
+## Bind exception handler to specific exception 
+Exception handlers are bound to a exception type. First matching exception / exception handler pair is used.
+
+### Example
+```java
+public class MyExceptionClass extends Throwable {
+
+	private final String error;
+	private final int status;
+
+	public MyExceptionClass(String message, int code) {
+		error = message;
+		status = code;
+	}
+
+	public String getError() {
+		return error;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+}
+
+// bind exception handler to exception type
+public class MyExceptionHandler implements ExceptionHandler<MyExceptionClass> {
+	@Override
+        public void write(MyExceptionClass result, HttpServerRequest request, HttpServerResponse response) {
+    
+            response.setStatusCode(result.getCode());
+            response.end(result.getError());
+        }
+}
+
+// throw your exception
+@GET
+@Path("/throw")
+@CatchWith(MyExceptionHandler.class)
+public String fail() {
+
+  throw new MyExceptionClass("Not implemented.", 404); 
+}
+```
+
+```
+> GET /throw -> 404 Not implemented
+```
+
 ## Path / Method error handler
 Both class and methods support **@CatchWith** annotation.  
 
@@ -916,6 +964,7 @@ public String fail() {
   throw new IllegalArgumentExcetion("Bang!"); 
 }
 ```
+
 ```java
 public class MyExceptionHandler implements ExceptionHandler<Throwable> {
     @Override
@@ -934,10 +983,34 @@ Handlers are considered in order given, first matching handler is used.
 ```java
 @GET
 @Path("/test")
-@CatchWith({HandleRestException.class, WebApplicationExceptionHandler.class})
+@CatchWith({IllegalArgumentExceptionHandler.class, MyExceptionHandler.class})
 public String fail() {
 
     throw new IllegalArgumentExcetion("Bang!"); 
+}
+```
+
+```java
+public class IllegalArgumentExceptionHandler implements ExceptionHandler<IllegalArgumentException> {
+
+	@Override
+	public void write(IllegalArgumentException result, HttpServerRequest request, HttpServerResponse response) {
+
+		response.setStatusCode(400);
+		response.end("Invalid parameters '" + result.getMessage() + "'");
+	}
+}
+```
+
+```java
+public class MyExceptionHandler implements ExceptionHandler<MyRestException> {
+
+	@Override
+	public void write(MyRestException result, HttpServerRequest request, HttpServerResponse response) {
+
+		response.setStatusCode(result.getCode());
+		response.end(result.getError());
+	}
 }
 ```
 

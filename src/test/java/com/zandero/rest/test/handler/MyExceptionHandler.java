@@ -7,10 +7,10 @@ import io.vertx.core.http.HttpServerResponse;
 /**
  *
  */
-public class MyExceptionHandler implements ExceptionHandler<Throwable> {
+public class MyExceptionHandler implements ExceptionHandler<MyExceptionClass> {
 
 	@Override
-	public void write(Throwable result, HttpServerRequest request, HttpServerResponse response) {
+	public void write(MyExceptionClass result, HttpServerRequest request, HttpServerResponse response) {
 
 		response.end("Exception: " + result.getMessage());
 	}
