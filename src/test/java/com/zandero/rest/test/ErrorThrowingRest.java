@@ -4,9 +4,7 @@ import com.zandero.rest.annotation.CatchWith;
 import com.zandero.rest.exception.ExecuteException;
 import com.zandero.rest.exception.GenericExceptionHandler;
 import com.zandero.rest.exception.WebApplicationExceptionHandler;
-import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
-import com.zandero.rest.test.handler.JsonExceptionHandler;
-import com.zandero.rest.test.handler.MyExceptionHandler;
+import com.zandero.rest.test.handler.*;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -41,8 +39,8 @@ public class ErrorThrowingRest {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("multi/{bang}")
-	@CatchWith({IllegalArgumentExceptionHandler.class, WebApplicationExceptionHandler.class, MyExceptionHandler.class})
-	public String returnMultiBang(@PathParam("bang") String bang) throws ExecuteException {
+	@CatchWith({IllegalArgumentExceptionHandler.class, WebApplicationExceptionHandler.class, MyExceptionHandler.class, MyOtherExceptionHandler.class})
+	public String returnMultiBang(@PathParam("bang") String bang) throws ExecuteException, MyExceptionClass {
 
 		switch (bang) {
 			case "one":
@@ -56,7 +54,7 @@ public class ErrorThrowingRest {
 				throw new NumberFormatException("WHAT!");
 
 			case "four":
-				throw new AbstractMethodError("ADIOS!");
+				throw new MyExceptionClass("ADIOS!", 500);
 		}
 	}
 }

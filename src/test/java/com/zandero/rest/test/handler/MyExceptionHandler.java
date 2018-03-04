@@ -12,6 +12,6 @@ public class MyExceptionHandler implements ExceptionHandler<MyExceptionClass> {
 	@Override
 	public void write(MyExceptionClass result, HttpServerRequest request, HttpServerResponse response) {
 
-		response.end("Exception: " + result.getMessage());
+		response.end("Exception: " + result.getError());
 	}
 }
