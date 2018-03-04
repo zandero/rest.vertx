@@ -903,7 +903,7 @@ If no designated exception handler is provided, a default exception handler kick
 in trying to match the exception type with a build in exception handler.
 
 ## Bind exception handler to specific exception 
-Exception handlers are bound to a exception type. First matching exception / exception handler pair is used.
+Exception handlers are bound to an exception type - first matching exception / handler pair is used.
 
 ### Example
 ```java
@@ -986,7 +986,7 @@ Handlers are considered in order given, first matching handler is used.
 @CatchWith({IllegalArgumentExceptionHandler.class, MyExceptionHandler.class})
 public String fail() {
 
-    throw new IllegalArgumentExcetion("Bang!"); 
+    throw new IllegalArgumentException("Bang!"); 
 }
 ```
 
@@ -1003,12 +1003,12 @@ public class IllegalArgumentExceptionHandler implements ExceptionHandler<Illegal
 ```
 
 ```java
-public class MyExceptionHandler implements ExceptionHandler<MyRestException> {
+public class MyExceptionHandler implements ExceptionHandler<MyExceptionClass> {
 
 	@Override
-	public void write(MyRestException result, HttpServerRequest request, HttpServerResponse response) {
+	public void write(MyExceptionClass result, HttpServerRequest request, HttpServerResponse response) {
 
-		response.setStatusCode(result.getCode());
+		response.setStatusCode(result.getStatus());
 		response.end(result.getError());
 	}
 }
