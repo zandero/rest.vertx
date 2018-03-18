@@ -1,6 +1,9 @@
 package com.zandero.rest;
 
 import com.zandero.rest.test.TestEchoRest;
+import com.zandero.rest.test.handler.NotFoundHandler;
+import com.zandero.rest.test.handler.OtherNotFoundHandler;
+import com.zandero.rest.test.handler.RestNotFoundHandler;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -19,7 +22,6 @@ public class NoMatchTest extends VertxTest {
 	public void start(TestContext context) {
 
 		super.before(context);
-
 
 		Router router = new RestBuilder(vertx)
 			                .register(TestEchoRest.class)

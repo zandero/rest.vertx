@@ -65,19 +65,4 @@ public class RouteAsyncTest extends VertxTest {
 			async.complete();
 		});
 	}
-
-	/*@Test
-	public void testAsyncHandler(TestContext context) {
-
-		final Async async = context.async();
-
-		client.getNow("/async/handler", response -> {
-
-			context.assertEquals(200, response.statusCode());
-			response.handler(body -> {
-				context.assertEquals("{\"name\": \"async\", \"value\": \"called\"}", body.toString());
-				async.complete();
-			});
-		});
-	}*/
 }

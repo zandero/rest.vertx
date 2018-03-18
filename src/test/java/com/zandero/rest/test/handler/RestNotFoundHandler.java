@@ -1,4 +1,4 @@
-package com.zandero.rest;
+package com.zandero.rest.test.handler;
 
 import com.zandero.rest.writer.NotFoundResponseWriter;
 import io.vertx.core.http.HttpServerRequest;

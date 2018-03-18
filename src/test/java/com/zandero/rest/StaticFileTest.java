@@ -1,6 +1,7 @@
 package com.zandero.rest;
 
 import com.zandero.rest.test.StaticFileRest;
+import com.zandero.rest.test.handler.RestNotFoundHandler;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;

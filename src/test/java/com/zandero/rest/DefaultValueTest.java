@@ -1,6 +1,10 @@
 package com.zandero.rest;
 
+import ch.qos.logback.core.pattern.util.RestrictedEscapeUtil;
 import com.zandero.rest.test.TestDefaultValueRest;
+import com.zandero.rest.test.TestHtmlRest;
+import com.zandero.rest.test.TestPostRest;
+import com.zandero.rest.test.TestRest;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.Handler;
 import io.vertx.ext.unit.Async;
@@ -8,6 +12,7 @@ import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -17,13 +22,22 @@ import org.junit.runner.RunWith;
 @RunWith(VertxUnitRunner.class)
 public class DefaultValueTest extends VertxTest {
 
-	@Test
-	public void callMissingQueryParam(TestContext context) {
+	private Router router;
 
-		Router router = RestRouter.register(vertx, TestDefaultValueRest.class);
+	@Before
+	public void setUp(TestContext context) {
+
+		super.before(context);
+
+		router = RestRouter.register(vertx,
+		                                    TestDefaultValueRest.class);
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)
 		     .listen(PORT);
+	}
+
+	@Test
+	public void callMissingQueryParam(TestContext context) {
 
 		// call and check response
 		final Async async = context.async();
@@ -42,11 +56,6 @@ public class DefaultValueTest extends VertxTest {
 	@Test
 	public void callPresentQueryParam(TestContext context) {
 
-		Router router = RestRouter.register(vertx, TestDefaultValueRest.class);
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);
-
 		// call and check response
 		final Async async = context.async();
 
@@ -63,11 +72,6 @@ public class DefaultValueTest extends VertxTest {
 
 	@Test
 	public void callMissingContext(TestContext context) {
-
-		Router router = RestRouter.register(vertx, TestDefaultValueRest.class);
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);
 
 		// call and check response
 		final Async async = context.async();
@@ -86,17 +90,10 @@ public class DefaultValueTest extends VertxTest {
 	@Test
 	public void callPresentContext(TestContext context) {
 
-		Router router = Router.router(vertx);
-		router.route().handler(pushContextHandler());
-		RestRouter.register(router, TestDefaultValueRest.class);
-
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);
+		router.route().order(-10).handler(pushContextHandler());
 
 		// call and check response
 		final Async async = context.async();
-
 
 		client.getNow("/default/context", response -> {
 

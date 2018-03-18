@@ -122,7 +122,6 @@ public class RestRouter {
 					cookieHandlerRegistered = true;
 				}
 
-				Method method = definitions.get(definition);
 				// add security check handler in front of regular route handler
 				if (definition.checkSecurity()) {
 					checkSecurity(router, definition);
@@ -157,6 +156,7 @@ public class RestRouter {
 				// check body and reader compatibility beforehand
 				checkBodyReader(definition);
 
+				Method method = definitions.get(definition);
 
 				// bind handler // blocking or async
 				if (definition.isAsync()) {
@@ -479,7 +479,7 @@ public class RestRouter {
 						fut.complete(method.invoke(toInvoke, args));
 					}
 					catch (Exception e) {
-						handleException(e, context, definition);
+						fut.fail(e);
 					}
 				},
 				false,

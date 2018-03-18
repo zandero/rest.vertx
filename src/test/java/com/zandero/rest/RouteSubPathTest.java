@@ -47,13 +47,14 @@ public class RouteSubPathTest extends VertxTest {
 			});
 		});
 
+		final Async async2 = context.async();
 		client.getNow("/sub/query/echo/this", response -> {
 
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
 				context.assertEquals("querythis", body.toString());
-				async.complete();
+				async2.complete();
 			});
 		});
 	}
@@ -73,13 +74,14 @@ public class RouteSubPathTest extends VertxTest {
 			});
 		});
 
+		final Async async2 = context.async();
 		client.getNow("/sub/this/echo/query", response -> {
 
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
 				context.assertEquals("thisquery", body.toString());
-				async.complete();
+				async2.complete();
 			});
 		});
 	}
@@ -99,13 +101,14 @@ public class RouteSubPathTest extends VertxTest {
 			});
 		});
 
+		final Async async2 = context.async();
 		client.getNow("/sub/this", response -> {
 
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
 				context.assertEquals("this", body.toString());
-				async.complete();
+				async2.complete();
 			});
 		});
 	}

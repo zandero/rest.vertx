@@ -11,6 +11,7 @@ import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -22,15 +23,24 @@ import javax.ws.rs.core.MediaType;
 @RunWith(VertxUnitRunner.class)
 public class CustomWriterTest extends VertxTest {
 
+	@Before
+	public void setUp(TestContext context) {
+
+		super.before(context);
+
+		Router router = RestRouter.register(vertx,
+		                                    TestRest.class,
+		                                    TestHtmlRest.class,
+		                                    TestPostRest.class);
+		vertx.createHttpServer()
+		     .requestHandler(router::accept)
+		     .listen(PORT);
+	}
+
 	@Test
 	public void testCustomOutput(TestContext context) {
 
-		TestRest testRest = new TestRest();
 
-		Router router = RestRouter.register(vertx, testRest);
-		vertx.createHttpServer()
-			.requestHandler(router::accept)
-			.listen(PORT);
 
 		// call and check response
 		final Async async = context.async();
@@ -51,11 +61,6 @@ public class CustomWriterTest extends VertxTest {
 
 		RestRouter.getWriters().register(MediaType.TEXT_HTML, TestCustomWriter.class); // bind media type to this writer
 
-		Router router = RestRouter.register(vertx, TestHtmlRest.class);
-		vertx.createHttpServer()
-			.requestHandler(router::accept)
-			.listen(PORT);
-
 		final Async async = context.async();
 
 		client.getNow("/html/body", response -> {
@@ -74,12 +79,6 @@ public class CustomWriterTest extends VertxTest {
 	public void testRegisteredClassTypeWriterOutput(TestContext context) {
 
 		RestRouter.getWriters().register(Dummy.class, TestDummyWriter.class); // bind media type to this writer
-
-		Router router = RestRouter.register(vertx, TestPostRest.class);
-		vertx.createHttpServer()
-			.requestHandler(router::accept)
-			.listen(PORT);
-
 
 		final Async async = context.async();
 
@@ -100,11 +99,6 @@ public class CustomWriterTest extends VertxTest {
 
 	@Test
 	public void testRegisteredClassTypeReaderOutput(TestContext context) {
-
-		Router router = RestRouter.register(vertx, TestPostRest.class);
-		vertx.createHttpServer()
-			.requestHandler(router::accept)
-			.listen(PORT);
 
 		final Async async = context.async();
 

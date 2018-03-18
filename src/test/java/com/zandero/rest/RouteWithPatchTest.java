@@ -1,6 +1,7 @@
 package com.zandero.rest;
 
 import com.zandero.rest.test.TestPatchRest;
+import com.zandero.rest.test.TestPathRest;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.core.http.HttpMethod;
@@ -8,6 +9,7 @@ import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -17,14 +19,20 @@ import org.junit.runner.RunWith;
 @RunWith(VertxUnitRunner.class)
 public class RouteWithPatchTest extends VertxTest {
 
-	@Test
-	public void testCustomInput(TestContext context) {
+	@Before
+	public void start(TestContext context) {
+
+		super.before(context);
 
 		Router router = RestRouter.register(vertx, TestPatchRest.class);
 
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)
 		     .listen(PORT);
+	}
+
+	@Test
+	public void testCustomInput(TestContext context) {
 
 		// call and check response
 		final Async async = context.async();

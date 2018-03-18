@@ -14,6 +14,7 @@ import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -28,14 +29,22 @@ import static org.junit.Assert.fail;
 @RunWith(VertxUnitRunner.class)
 public class CustomReaderTest extends VertxTest {
 
-	@Test
-	public void testCustomInput(TestContext context) {
+	@Before
+	public void startUp(TestContext context) {
+
+		super.before(context);
 
 		Router router = RestRouter.register(vertx, TestReaderRest.class);
 
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)
 		     .listen(PORT);
+	}
+
+	@Test
+	public void testCustomInput(TestContext context) {
+
+
 
 		// call and check response
 		final Async async = context.async();
@@ -54,13 +63,13 @@ public class CustomReaderTest extends VertxTest {
 	@Test
 	public void testCustomInput_WithBuilder(TestContext context) {
 
-		Router router = new RestBuilder(vertx)
+	/*	Router router = new RestBuilder(vertx)
 			                .register(TestReaderRest.class)
 			                .build();
 
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)
-		     .listen(PORT);
+		     .listen(PORT);*/
 
 		// call and check response
 		final Async async = context.async();
@@ -83,10 +92,10 @@ public class CustomReaderTest extends VertxTest {
 		          .register(List.class,
 		                    CustomWordListReader.class); // all arguments that are List<> go through this reader ... (reader returns List<String> as output)
 
-		Router router = RestRouter.register(vertx, TestReaderRest.class);
+		/*Router router = RestRouter.register(vertx, TestReaderRest.class);
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)
-		     .listen(PORT);
+		     .listen(PORT);*/
 
 
 		// call and check response
@@ -110,16 +119,17 @@ public class CustomReaderTest extends VertxTest {
 		RestRouter.getReaders().register(Dummy.class, DummyBodyReader.class);
 		RestRouter.getReaders().register(ExtendedDummy.class, ExtendedDummyBodyReader.class);
 
-		TestReaderRest testRest = new TestReaderRest();
+		/*TestReaderRest testRest = new TestReaderRest();
 
 		Router router = RestRouter.register(vertx, testRest);
 
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)
 		     .listen(PORT);
+		*/
 
 		// check if correct reader is used
-		final Async async = context.async();
+		Async async = context.async();
 		client.post("/read/normal/dummy", response -> {
 
 			context.assertEquals(200, response.statusCode());
@@ -132,37 +142,40 @@ public class CustomReaderTest extends VertxTest {
 		      .end(JsonUtils.toJson(new Dummy("one", "dummy")));
 
 		// 2nd send extended dummy to same REST
+		Async async2 = context.async();
 		client.post("/read/normal/dummy", response -> {
 
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
 				context.assertEquals("one=dummy", body.toString()); // returns sorted list of unique words
-				async.complete();
+				async2.complete();
 			});
 		}).putHeader("Content-Type", "application/json")
 		      .end(JsonUtils.toJson(new ExtendedDummy("one", "dummy", "extra")));
 
 		// 3rd send extended dummy to extended REST
+		Async async3 = context.async();
 		client.post("/read/extended/dummy", response -> {
 
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
 				context.assertEquals("one=dummy (extra)", body.toString()); // returns sorted list of unique words
-				async.complete();
+				async3.complete();
 			});
 		}).putHeader("Content-Type", "application/json")
 		      .end(JsonUtils.toJson(new ExtendedDummy("one", "dummy", "extra")));
 
 		// 4th send normal dummy to extended REST
+		Async async4 = context.async();
 		client.post("/read/extended/dummy", response -> {
 
 			context.assertEquals(200, response.statusCode());
 
 			response.handler(body -> {
 				context.assertEquals("one=dummy (null)", body.toString()); // returns sorted list of unique words
-				async.complete();
+				async4.complete();
 			});
 		}).putHeader("Content-Type", "application/json")
 		      .end(JsonUtils.toJson(new Dummy("one", "dummy")));
@@ -173,13 +186,13 @@ public class CustomReaderTest extends VertxTest {
 
 		RestRouter.getReaders().register(Dummy.class, DummyBodyReader.class);
 
-		TestReaderRest testRest = new TestReaderRest();
+		/*TestReaderRest testRest = new TestReaderRest();
 
 		Router router = RestRouter.register(vertx, testRest);
 
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)
-		     .listen(PORT);
+		     .listen(PORT);*/
 
 		final Async async = context.async();
 		client.post("/read/normal/dummy", response -> {
@@ -197,13 +210,13 @@ public class CustomReaderTest extends VertxTest {
 	@Test
 	public void extendedContentTypeByMediaType(TestContext context) {
 
-		TestReaderRest testRest = new TestReaderRest();
+		/*TestReaderRest testRest = new TestReaderRest();
 
 		Router router = RestRouter.register(vertx, testRest);
 
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)
-		     .listen(PORT);
+		     .listen(PORT);*/
 
 		// register reader afterwards - should still work
 		RestRouter.getReaders().register("application/json", DummyBodyReader.class);
