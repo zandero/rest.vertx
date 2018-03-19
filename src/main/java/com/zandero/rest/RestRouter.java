@@ -122,6 +122,7 @@ public class RestRouter {
 					cookieHandlerRegistered = true;
 				}
 
+				Method method = definitions.get(definition);
 				// add security check handler in front of regular route handler
 				if (definition.checkSecurity()) {
 					checkSecurity(router, definition);
@@ -470,20 +471,18 @@ public class RestRouter {
 
 	private static Handler<RoutingContext> getHandler(final Object toInvoke, final RouteDefinition definition, final Method method) {
 
-		return context -> {
-
-			context.vertx().executeBlocking(
-				fut -> {
-					try {
-						Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider);
-						fut.complete(method.invoke(toInvoke, args));
-					}
-					catch (Exception e) {
-						fut.fail(e);
-					}
-				},
-				false,
-				res -> {
+		return context -> context.vertx().executeBlocking(
+			fut -> {
+				try {
+					Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider);
+					fut.complete(method.invoke(toInvoke, args));
+				}
+				catch (Exception e) {
+					fut.fail(e);
+				}
+			},
+			false,
+			res -> {
 
 					if (res.succeeded()) {
 						try {
@@ -510,7 +509,6 @@ public class RestRouter {
 					}
 				}
 			);
-		};
 	}
 
 	private static Handler<RoutingContext> getAsyncHandler(final Object toInvoke, final RouteDefinition definition, final Method method) {
