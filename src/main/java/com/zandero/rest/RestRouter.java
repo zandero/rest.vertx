@@ -103,7 +103,7 @@ public class RestRouter {
 				}
 			}
 
-			Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(api.getClass());
+			Map<RouteDefinition, Method> definitions = AnnotationProcessor.collect(api.getClass());
 
 			boolean bodyHandlerRegistered = false;
 			boolean cookieHandlerRegistered = false;

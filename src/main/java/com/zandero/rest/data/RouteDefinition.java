@@ -142,6 +142,76 @@ public class RouteDefinition {
 		}
 	}
 
+	public RouteDefinition join(RouteDefinition additional) {
+
+		if (additional == null) {
+			return this;
+		}
+
+		if (method == null) {
+			method = additional.method;
+		}
+
+		if (writer == null) {
+			writer = additional.writer;
+		}
+
+		if (reader == null) {
+			reader = additional.reader;
+		}
+
+		if (!suppressCheck) {
+			suppressCheck = additional.suppressCheck;
+		}
+
+		if (roles == null) {
+			roles = additional.roles;
+		}
+
+		if (permitAll == null) {
+			permitAll = additional.permitAll;
+			roles = null;
+		}
+
+		if (!async) {
+			async = additional.async;
+		}
+
+		exceptionHandlers = join(exceptionHandlers, additional.exceptionHandlers);
+		consumes = join(consumes, additional.consumes);
+		produces = join(produces, additional.produces);
+
+	//	params = join(params, additional.params);
+
+		return this;
+	}
+
+	private <T> Class<? extends T>[] join(Class<? extends T>[] base, Class<? extends T>[] additional) {
+
+		if (additional == null || additional.length == 0) {
+			return base;
+		}
+
+		if (base == null) {
+			return additional;
+		}
+
+		return ArrayUtils.join(base, additional);
+	}
+
+	private <T> T[] join(T[] base, T[] additional) {
+
+		if (additional == null || additional.length == 0) {
+			return base;
+		}
+
+		if (base == null) {
+			return additional;
+		}
+
+		return ArrayUtils.join(base, additional);
+	}
+
 	/**
 	 * Sets path specifics
 	 *
@@ -434,9 +504,9 @@ public class RouteDefinition {
 						reader = valueReader; // set body reader from field
 					}
 
-					Assert.isTrue(requestHasBody(),
+				/*TODO:XXX	Assert.isTrue(requestHasBody(),
 					              "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam, @Context) for: " +
-					              parameterTypes[index].getName() + " " + parameters[index].getName());
+					              parameterTypes[index].getName() + " " + parameters[index].getName());*/
 
 					name = parameters[index].getName();
 					type = ParameterType.body;
@@ -703,7 +773,7 @@ public class RouteDefinition {
 	public String toString() {
 
 		String prefix = "        "; // to improve formatting ...
-		prefix = prefix.substring(0, prefix.length() - method.toString().length());
+		prefix = prefix.substring(0, prefix.length() - (method == null ? 0 : method.toString().length()));
 
 		String security = "";
 		if (checkSecurity()) {
@@ -715,6 +785,6 @@ public class RouteDefinition {
 			}
 		}
 
-		return prefix + method + " " + routePath + security;
+		return prefix + (method == null ? ">undefined<" : method) + " " + routePath + security;
 	}
 }

@@ -139,7 +139,7 @@ public class RouteDefinitionTest {
 	public void missingArgumentAnnotationTest() {
 
 		try {
-			AnnotationProcessor.get(MissingAnnotationsRest.class);
+			AnnotationProcessor.collect(MissingAnnotationsRest.class);
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertEquals("class com.zandero.rest.test.MissingAnnotationsRest.returnOuch() - " +
