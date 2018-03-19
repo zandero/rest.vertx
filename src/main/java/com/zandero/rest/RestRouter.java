@@ -122,7 +122,6 @@ public class RestRouter {
 					cookieHandlerRegistered = true;
 				}
 
-				Method method = definitions.get(definition);
 				// add security check handler in front of regular route handler
 				if (definition.checkSecurity()) {
 					checkSecurity(router, definition);
