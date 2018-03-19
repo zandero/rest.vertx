@@ -1,6 +1,5 @@
 package com.zandero.rest.data;
 
-import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.*;
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.reader.ValueReader;
@@ -15,6 +14,7 @@ import io.vertx.ext.web.RoutingContext;
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
+import javax.print.attribute.standard.Media;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -29,6 +29,10 @@ import java.util.*;
 public class RouteDefinition {
 
 	private final String DELIMITER = "/";
+
+	private String classPath = null;
+
+	private String methodPath = null;
 
 	/**
 	 * Original path as given in annotation
@@ -56,7 +60,7 @@ public class RouteDefinition {
 	/**
 	 * Parameters extracted from request path, query, headers, cookies ...
 	 */
-	private Map<String, MethodParameter> params = new HashMap<>();
+	private Map<String, MethodParameter> params = new LinkedHashMap<>();
 
 	/**
 	 * Route order lower is earlier or 0 for default
@@ -90,12 +94,7 @@ public class RouteDefinition {
 
 	public RouteDefinition(Class clazz) {
 
-		Class annotatedClass = AnnotationProcessor.getClassWithAnnotation(clazz, Path.class);
-		if (annotatedClass == null) {
-			annotatedClass = clazz;
-		}
-
-		init(annotatedClass.getAnnotations());
+		init(clazz.getAnnotations());
 	}
 
 	public RouteDefinition(RouteDefinition base, Annotation[] annotations) {
@@ -181,9 +180,46 @@ public class RouteDefinition {
 		consumes = join(consumes, additional.consumes);
 		produces = join(produces, additional.produces);
 
-	//	params = join(params, additional.params);
+		// path change
+		boolean pathChange = false;
+		if (classPath == null && additional.classPath != null) {
+			pathChange = true;
+			classPath = additional.classPath;
+		}
 
+		if (methodPath == null && additional.methodPath != null) {
+			pathChange = true;
+			methodPath = additional.methodPath;
+		}
+
+		if (pathChange) {
+			path = DELIMITER;
+			routePath = null;
+
+			path(classPath);
+			path(methodPath);
+		}
+
+		params = join(params, additional.params);
 		return this;
+	}
+
+	private Map<String, MethodParameter> join(Map<String, MethodParameter> base, Map<String, MethodParameter> additional) {
+
+		Map<String, MethodParameter> out = new LinkedHashMap<>();
+
+		Iterator<String> baseIterator = base.keySet().iterator();
+		Iterator<String> additionalIterator = additional.keySet().iterator();
+		while (baseIterator.hasNext()) {
+
+			MethodParameter paramBase = base.get(baseIterator.next());
+			MethodParameter paramAdditional = additional.get(additionalIterator.next());
+
+			paramBase.join(paramAdditional);
+			out.put(paramBase.getName(), paramBase);
+		}
+
+		return out;
 	}
 
 	private <T> Class<? extends T>[] join(Class<? extends T>[] base, Class<? extends T>[] additional) {
@@ -199,7 +235,7 @@ public class RouteDefinition {
 		return ArrayUtils.join(base, additional);
 	}
 
-	private <T> T[] join(T[] base, T[] additional) {
+	private MediaType[] join(MediaType[] base, MediaType[] additional) {
 
 		if (additional == null || additional.length == 0) {
 			return base;
@@ -209,7 +245,13 @@ public class RouteDefinition {
 			return additional;
 		}
 
-		return ArrayUtils.join(base, additional);
+		Set<MediaType> baseSet = new LinkedHashSet<>(Arrays.asList(base));
+		Set<MediaType> addSet = new LinkedHashSet<>(Arrays.asList(additional));
+		baseSet.addAll(addSet);
+
+		return baseSet.toArray(new MediaType[]{});
+
+		//return ArrayUtils.join(base, additional);
 	}
 
 	/**
@@ -334,8 +376,10 @@ public class RouteDefinition {
 
 		if (DELIMITER.equals(path)) { // default
 			path = subPath;
+			classPath = subPath;
 		} else {
 			path = path + subPath;
+			methodPath = subPath;
 		}
 
 		// extract parameters from path if any (

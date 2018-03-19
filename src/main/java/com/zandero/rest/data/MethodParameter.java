@@ -13,12 +13,12 @@ public class MethodParameter {
 	/**
 	 * Query or Path type
 	 */
-	private final ParameterType type;
+	private ParameterType type;
 
 	/**
 	 * parameter to search for in method annotations {@code @PathParam} {@code @QueryParam}
 	 */
-	private final String name;
+	private String name;
 
 	/**
 	 * index matching method argument index 0..N-1
@@ -84,9 +84,47 @@ public class MethodParameter {
 		return this;
 	}
 
-	public ParameterType getType() {
+	public MethodParameter join(MethodParameter joining) {
 
+		if (ParameterType.body.equals(type) &&
+		    !ParameterType.body.equals(joining.type)) {
+			setType(joining.getType());
+			setName(joining.name);
+		}
+
+		if (reader == null) {
+			reader = joining.reader;
+		}
+
+		if (index == -1) {
+			index = joining.index;
+		}
+
+		if (pathIndex == -1) {
+			pathIndex = joining.pathIndex;
+		}
+
+		if (regExIndex == -1) {
+			regExIndex = joining.regExIndex;
+		}
+
+		if (regularExpression == null) {
+			regularExpression = joining.regularExpression;
+		}
+
+		if (defaultValue == null) {
+			defaultValue = joining.defaultValue;
+		}
+
+		return this;
+	}
+
+	public ParameterType getType() {
 		return type;
+	}
+
+	public void setType(ParameterType value) {
+		type = value;
 	}
 
 	public String getName() {
@@ -94,38 +132,35 @@ public class MethodParameter {
 		return name;
 	}
 
-	public int getIndex() {
+	public void setName(String value) {
+		name = value;
+	}
 
+	public int getIndex() {
 		return index;
 	}
 
 	public int getRegExIndex() {
-
 		return regExIndex;
 	}
 
 	public Class<?> getDataType() {
-
 		return dataType;
 	}
 
 	public String getDefaultValue() {
-
 		return defaultValue;
 	}
 
 	public void setDefaultValue(String value) {
-
 		defaultValue = StringUtils.trimToNull(value);
 	}
 
 	public String getRegEx() {
-
 		return regularExpression;
 	}
 
 	public void setRegEx(String value, int index) {
-
 		value = StringUtils.trimToNull(value);
 
 		if (value != null) {
@@ -139,27 +174,22 @@ public class MethodParameter {
 	}
 
 	public boolean isRegEx() {
-
 		return regularExpression != null;
 	}
 
 	public void setPathIndex(int value) {
-
 		pathIndex = value;
 	}
 
 	public int getPathIndex() {
-
 		return pathIndex;
 	}
 
 	public void setValueReader(Class<? extends ValueReader> valueReader) {
-
 		reader = valueReader;
 	}
 
 	public Class<? extends ValueReader> getReader() {
-
 		return reader;
 	}
 
@@ -173,7 +203,6 @@ public class MethodParameter {
 
 	@Override
 	public String toString() {
-
 		if (ParameterType.body.equals(type)) {
 			return type.getDescription();
 		}

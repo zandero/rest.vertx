@@ -111,6 +111,7 @@ public class AnnotationProcessorTest {
 				assertEquals("arg0", param.getName());
 				assertEquals(ParameterType.body, param.getType());
 				assertEquals(0, param.getIndex());
+				assertEquals(-1, param.getPathIndex());
 				assertEquals(List.class, param.getDataType());
 
 				count++;
@@ -148,6 +149,8 @@ public class AnnotationProcessorTest {
 				MethodParameter param = definition.getParameters().get(0);
 				assertEquals("name", param.getName());
 				assertEquals(0, param.getIndex());
+				assertEquals(-1, param.getPathIndex());
+				assertEquals(-1, param.getRegExIndex());
 				assertEquals(ParameterType.query, param.getType());
 
 				count++;
@@ -169,8 +172,11 @@ public class AnnotationProcessorTest {
 				assertEquals(1, definition.getParameters().size());
 				MethodParameter param = definition.getParameters().get(0);
 				assertEquals("id", param.getName());
-				assertEquals(0, param.getIndex());
+
 				assertEquals(ParameterType.path, param.getType());
+				assertEquals(3, param.getPathIndex());
+				assertEquals(0, param.getIndex());
+				assertEquals(-1, param.getRegExIndex());
 
 				count++;
 			}
