@@ -51,7 +51,7 @@ public class RouteWithContextTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("GET /context/route", body.toString());
 				async.complete();
 			});
@@ -68,7 +68,7 @@ public class RouteWithContextTest extends VertxTest {
 
 			context.assertEquals(201, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("/context/context", body.toString());
 				async.complete();
 			});
@@ -85,7 +85,7 @@ public class RouteWithContextTest extends VertxTest {
 
 			context.assertEquals(400, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("Can't provide @Context of type: interface javax.ws.rs.core.Request", body.toString());
 				async.complete();
 			});
@@ -102,7 +102,7 @@ public class RouteWithContextTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("{\"name\":\"test\",\"value\":\"user\"}", body.toString());
 				async.complete();
 			});
@@ -120,7 +120,7 @@ public class RouteWithContextTest extends VertxTest {
 			context.assertEquals(201, response.statusCode());
 			context.assertEquals("session", response.getHeader("X-SessionId"));
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("Hello world!", body.toString());
 				async.complete();
 			});

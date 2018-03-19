@@ -39,7 +39,7 @@ public class RouteWithRegExTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("123", body.toString());
 				async.complete();
 			});
@@ -57,7 +57,7 @@ public class RouteWithRegExTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("231", body.toString());
 				async.complete();
 			});
@@ -74,7 +74,7 @@ public class RouteWithRegExTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("-1", body.toString());
 				async.complete();
 			});
@@ -91,7 +91,7 @@ public class RouteWithRegExTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("1", body.toString());
 				async.complete();
 			});
@@ -108,7 +108,7 @@ public class RouteWithRegExTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("{one=ena, two=2, three=tri}", body.toString());
 				async.complete();
 			});
@@ -125,7 +125,7 @@ public class RouteWithRegExTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("{one=ena, two=2, three=tri}", body.toString());
 				async.complete();
 			});

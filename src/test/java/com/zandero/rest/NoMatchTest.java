@@ -47,7 +47,7 @@ public class NoMatchTest extends VertxTest {
 
 			context.assertEquals(404, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("404 HTTP Resource: '/bla' not found!", body.toString());
 				async.complete();
 			});
@@ -64,7 +64,7 @@ public class NoMatchTest extends VertxTest {
 
 			context.assertEquals(404, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("REST endpoint: '/rest/bla' not found!", body.toString());
 				async.complete();
 			});
@@ -81,7 +81,7 @@ public class NoMatchTest extends VertxTest {
 
 			context.assertEquals(404, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("'/rest/other' not found!", body.toString());
 				async.complete();
 			});

@@ -43,7 +43,7 @@ public class RouteWithPatchTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("<custom>Received-test=Received-me</custom>", body.toString()); // returns sorted list of unique words
 				async.complete();
 			});

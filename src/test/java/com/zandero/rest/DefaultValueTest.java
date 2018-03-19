@@ -46,7 +46,7 @@ public class DefaultValueTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("Hello unknown", body.toString());
 				async.complete();
 			});
@@ -63,7 +63,7 @@ public class DefaultValueTest extends VertxTest {
 
 //			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("Hello baby", body.toString());
 				async.complete();
 			});
@@ -80,7 +80,7 @@ public class DefaultValueTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("Context is unknown user", body.toString());
 				async.complete();
 			});
@@ -99,7 +99,7 @@ public class DefaultValueTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("Context is test user", body.toString());
 				async.complete();
 			});

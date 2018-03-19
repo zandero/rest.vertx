@@ -39,7 +39,7 @@ public class RouteWithHeaderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("one=dude", body.toString());
 				async.complete();
 			});
@@ -58,7 +58,7 @@ public class RouteWithHeaderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("one=dude, doing things", body.toString());
 				async.complete();
 			});
@@ -74,7 +74,7 @@ public class RouteWithHeaderTest extends VertxTest {
 
 			context.assertEquals(400, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("java.lang.NullPointerException: OH SHIT!", body.toString());
 				async.complete();
 			});

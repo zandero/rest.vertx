@@ -45,7 +45,7 @@ public class RouteWithContextProviderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("{\"name\":\"test\",\"value\":\"name\"}", body.toString());
 				async.complete();
 			});
@@ -62,7 +62,7 @@ public class RouteWithContextProviderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("mySession", body.toString());
 				async.complete();
 			});
@@ -79,7 +79,7 @@ public class RouteWithContextProviderTest extends VertxTest {
 
 			context.assertEquals(400, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("Can't provide @Context of type: class com.zandero.rest.test.data.Token", body.toString());
 				async.complete();
 			});

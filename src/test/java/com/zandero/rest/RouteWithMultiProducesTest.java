@@ -44,7 +44,7 @@ public class RouteWithMultiProducesTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("<xml>HELLO!</xml>", body.toString());
 				async.complete();
 			});
@@ -59,7 +59,7 @@ public class RouteWithMultiProducesTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("{\"text\": \"HELLO!\"}", body.toString());
 				async.complete();
 			});

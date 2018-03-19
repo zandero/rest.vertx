@@ -40,7 +40,7 @@ public class RouteWithXmlTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("<u name=\"test\" />", body.toString());
 				async.complete();
 			});

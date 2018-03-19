@@ -38,7 +38,7 @@ public class RouteWithMissingContextTest extends VertxTest {
 
 			context.assertEquals(400, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("Can't provide @Context of type: class com.zandero.rest.test.json.Dummy", body.toString());
 				async.complete();
 			});

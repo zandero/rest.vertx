@@ -44,7 +44,7 @@ public class InjectionProviderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("I'm so dummy!", body.toString());
 				async.complete();
 			});
@@ -62,7 +62,7 @@ public class InjectionProviderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("Oh yes I'm so dummy!", body.toString());
 				async.complete();
 			});
@@ -80,7 +80,7 @@ public class InjectionProviderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("I'm so dummy!", body.toString());
 				async.complete();
 			});
@@ -98,7 +98,7 @@ public class InjectionProviderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("Oh yes I'm so dummy!", body.toString());
 				async.complete();
 			});

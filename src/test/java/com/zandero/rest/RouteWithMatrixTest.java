@@ -35,7 +35,7 @@ public class RouteWithMatrixTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("result=3", body.toString());
 				async.complete();
 			});
@@ -51,7 +51,7 @@ public class RouteWithMatrixTest extends VertxTest {
 
 			//context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("3", body.toString());
 				async.complete();
 			});

@@ -49,7 +49,7 @@ public class CustomWriterTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("<custom>CUSTOM</custom>", body.toString());
 				async.complete();
 			});
@@ -68,7 +68,7 @@ public class CustomWriterTest extends VertxTest {
 			context.assertEquals(200, response.statusCode());
 			context.assertEquals(MediaType.TEXT_HTML, response.getHeader("Content-Type"));
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("<custom>body</custom>", body.toString());
 				async.complete();
 			});
@@ -90,7 +90,7 @@ public class CustomWriterTest extends VertxTest {
 			context.assertEquals(200, response.statusCode());
 			context.assertEquals("application/json;charset=utf-8", response.getHeader("Content-Type"));
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("<custom>Received-hello=Received-world</custom>", body.toString());
 				async.complete();
 			});
@@ -110,7 +110,7 @@ public class CustomWriterTest extends VertxTest {
 			context.assertEquals(200, response.statusCode());
 			context.assertEquals(MediaType.APPLICATION_JSON, response.getHeader("Content-Type"));
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("<custom>Received-hello=Received-world</custom>", body.toString());
 				async.complete();
 			});

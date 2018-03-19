@@ -50,7 +50,7 @@ public class RestRouterTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("Hello world!", body.toString());
 				async.complete();
 			});
@@ -67,7 +67,7 @@ public class RestRouterTest extends VertxTest {
 			context.assertEquals(202, response.statusCode());
 			context.assertEquals("Test", response.getHeader("X-Test"));
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("\"Hello\"", body.toString()); // produces JSON ... so quotes are correct
 				async.complete();
 			});
@@ -83,7 +83,7 @@ public class RestRouterTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("\"hello/world\"", body.toString());
 				async.complete();
 			});
@@ -99,7 +99,7 @@ public class RestRouterTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("\"hello/world\"", body.toString());
 				async.complete();
 			});
@@ -115,7 +115,7 @@ public class RestRouterTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("\"2/true\"", body.toString());
 				async.complete();
 			});
@@ -131,7 +131,7 @@ public class RestRouterTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("\"2/a\"", body.toString());
 				async.complete();
 			});
@@ -157,7 +157,7 @@ public class RestRouterTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("{\"name\":\"Received-hello\",\"value\":\"Received-world\"}", body.toString());
 				async.complete();
 			});
@@ -174,7 +174,7 @@ public class RestRouterTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("http://localhost:4444/test/context/path", body.toString());
 				async.complete();
 			});

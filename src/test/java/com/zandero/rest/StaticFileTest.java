@@ -48,7 +48,7 @@ public class StaticFileTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("<html>\n" +
 				                     "    <body>\n" +
 				                     "        <p>Hello</p>\n" +

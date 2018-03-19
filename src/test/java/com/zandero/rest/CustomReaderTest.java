@@ -53,7 +53,7 @@ public class CustomReaderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("brown,dog,fox,jumps,over,quick,red,the", body.toString()); // returns sorted list of unique words
 				async.complete();
 			});
@@ -78,7 +78,7 @@ public class CustomReaderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("brown,dog,fox,jumps,over,quick,red,the", body.toString()); // returns sorted list of unique words
 				async.complete();
 			});
@@ -105,7 +105,7 @@ public class CustomReaderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("brown,dog,fox,jumps,over,quick,red,the", body.toString()); // returns sorted list of unique words
 				async.complete();
 			});
@@ -134,7 +134,7 @@ public class CustomReaderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("one=dummy", body.toString()); // returns sorted list of unique words
 				async.complete();
 			});
@@ -147,7 +147,7 @@ public class CustomReaderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("one=dummy", body.toString()); // returns sorted list of unique words
 				async2.complete();
 			});
@@ -160,7 +160,7 @@ public class CustomReaderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("one=dummy (extra)", body.toString()); // returns sorted list of unique words
 				async3.complete();
 			});
@@ -173,7 +173,7 @@ public class CustomReaderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("one=dummy (null)", body.toString()); // returns sorted list of unique words
 				async4.complete();
 			});
@@ -199,7 +199,7 @@ public class CustomReaderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("one=dummy", body.toString()); // returns sorted list of unique words
 				async.complete();
 			});
@@ -226,7 +226,7 @@ public class CustomReaderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("one=dummy", body.toString()); // returns sorted list of unique words
 				async.complete();
 			});

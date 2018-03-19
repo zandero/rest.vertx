@@ -39,7 +39,7 @@ public class RouteOrderTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("first", body.toString());
 				async.complete();
 			});

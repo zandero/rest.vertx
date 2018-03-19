@@ -63,7 +63,7 @@ public class RouteAuthorizationTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("all", body.toString());
 				async.complete();
 			});
@@ -106,7 +106,7 @@ public class RouteAuthorizationTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("user", body.toString());
 				async.complete();
 			});
@@ -123,7 +123,7 @@ public class RouteAuthorizationTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("admin", body.toString());
 				async.complete();
 			});
@@ -140,7 +140,7 @@ public class RouteAuthorizationTest extends VertxTest {
 
 			context.assertEquals(401, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("HTTP 401 Unauthorized", body.toString());
 				async.complete();
 			});
@@ -157,7 +157,7 @@ public class RouteAuthorizationTest extends VertxTest {
 
 			context.assertEquals(401, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("HTTP 401 Unauthorized", body.toString());
 				async.complete();
 			});
@@ -174,7 +174,7 @@ public class RouteAuthorizationTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("{\"role\":\"one\"}", body.toString());
 				async.complete();
 			});
@@ -191,7 +191,7 @@ public class RouteAuthorizationTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("{\"role\":\"two\"}", body.toString());
 				async.complete();
 			});

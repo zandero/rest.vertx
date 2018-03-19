@@ -41,7 +41,7 @@ public class RouteWithQueryTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("3", body.toString());
 				async.complete();
 			});
@@ -58,7 +58,7 @@ public class RouteWithQueryTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("3", body.toString());
 				async.complete();
 			});
@@ -75,7 +75,7 @@ public class RouteWithQueryTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("8", body.toString());
 				async.complete();
 			});
@@ -92,7 +92,7 @@ public class RouteWithQueryTest extends VertxTest {
 
 			context.assertEquals(400, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("Missing @QueryParam(\"one\") for: /query/add", body.toString());
 				async.complete();
 			});
@@ -108,7 +108,7 @@ public class RouteWithQueryTest extends VertxTest {
 
 			context.assertEquals(400, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("Invalid parameter type for: @QueryParam(\"one\") for: /query/add, expected: int, but got: String -> java.lang.NumberFormatException: For input string: \"A\"",
 				                     body.toString());
 				async.complete();
@@ -125,7 +125,7 @@ public class RouteWithQueryTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("-2.4", body.toString());
 				async.complete();
 			});
@@ -141,7 +141,7 @@ public class RouteWithQueryTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("2.4", body.toString());
 				async.complete();
 			});
@@ -159,7 +159,7 @@ public class RouteWithQueryTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals(json, body.toString());
 				async.complete();
 			});
@@ -174,7 +174,7 @@ public class RouteWithQueryTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("true", body.toString());
 				async.complete();
 			});
@@ -189,7 +189,7 @@ public class RouteWithQueryTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("true", body.toString());
 				async.complete();
 			});

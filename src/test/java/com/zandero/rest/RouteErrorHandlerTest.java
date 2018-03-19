@@ -44,7 +44,7 @@ public class RouteErrorHandlerTest extends VertxTest {
 
 			context.assertEquals(400, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("Huh this produced an error: 'KABUM!'", body.toString());
 				async.complete();
 			});

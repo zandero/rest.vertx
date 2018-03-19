@@ -43,7 +43,7 @@ public class RouteWithSessionTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertNotNull(body.toString());
 				async.complete();
 			});

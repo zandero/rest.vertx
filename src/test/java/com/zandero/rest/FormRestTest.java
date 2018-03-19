@@ -41,7 +41,7 @@ public class FormRestTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("value:another", body.toString());
 				async.complete();
 			});
@@ -61,7 +61,7 @@ public class FormRestTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("value:another", body.toString());
 				async.complete();
 			});
@@ -79,7 +79,7 @@ public class FormRestTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("blabla", body.toString());
 				async.complete();
 			});

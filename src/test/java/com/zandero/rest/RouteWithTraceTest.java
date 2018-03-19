@@ -31,7 +31,7 @@ public class RouteWithTraceTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("trace", body.toString()); // returns sorted list of unique words
 				async.complete();
 			});

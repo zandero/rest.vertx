@@ -41,7 +41,7 @@ public class RouteSubPathTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("querythis", body.toString());
 				async.complete();
 			});
@@ -52,7 +52,7 @@ public class RouteSubPathTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("querythis", body.toString());
 				async2.complete();
 			});
@@ -68,7 +68,7 @@ public class RouteSubPathTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("thisquery", body.toString());
 				async.complete();
 			});
@@ -79,7 +79,7 @@ public class RouteSubPathTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("thisquery", body.toString());
 				async2.complete();
 			});
@@ -95,7 +95,7 @@ public class RouteSubPathTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("this", body.toString());
 				async.complete();
 			});
@@ -106,7 +106,7 @@ public class RouteSubPathTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
-			response.handler(body -> {
+			response.bodyHandler(body -> {
 				context.assertEquals("this", body.toString());
 				async2.complete();
 			});
