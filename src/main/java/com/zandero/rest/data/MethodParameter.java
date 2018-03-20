@@ -116,6 +116,10 @@ public class MethodParameter {
 			defaultValue = joining.defaultValue;
 		}
 
+		if (dataType == null) {
+			dataType = joining.dataType;
+		}
+
 		return this;
 	}
 
