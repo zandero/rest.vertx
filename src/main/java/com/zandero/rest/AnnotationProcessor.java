@@ -1,47 +1,36 @@
 package com.zandero.rest;
 
-import com.zandero.rest.annotation.CONNECT;
-import com.zandero.rest.annotation.TRACE;
 import com.zandero.rest.data.MethodParameter;
 import com.zandero.rest.data.ParameterType;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.utils.Assert;
-import com.zandero.utils.StringUtils;
 
-import javax.ws.rs.*;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Collects all JAX-RS annotations to be transformed into routes
  */
 public final class AnnotationProcessor {
 
-	private static final List<Class<? extends Annotation>> REST_ANNOTATIONS = Arrays.asList(Path.class,
-	                                                                                        HttpMethod.class,
-	                                                                                        GET.class,
-	                                                                                        POST.class,
-	                                                                                        PUT.class,
-	                                                                                        DELETE.class,
-	                                                                                        PATCH.class,
-	                                                                                        OPTIONS.class,
-	                                                                                        TRACE.class,
-	                                                                                        CONNECT.class,
-	                                                                                        HEAD.class);
-
 	private AnnotationProcessor() {
 		// hide constructor
 	}
 
+	/**
+	 * Extracts all JAX-RS annotated methods from class and all its subclasses and interfaces
+	 * @param clazz to extract from
+	 * @return map of routeDefinition and class method to execute
+	 */
 	public static Map<RouteDefinition, Method> get(Class clazz) {
 
 		Map<RouteDefinition, Method> out = collect(clazz);
 
 		// Final check if definitions are OK
-		for (RouteDefinition definition: out.keySet()) {
+		for (RouteDefinition definition : out.keySet()) {
 
 			Method method = out.get(definition);
 			Assert.notNull(definition.getMethod(), "Missing @GET, @POST, @PUT, @DELETE, @PATCH, @OPTIONS, @TRACE, @CONNECT or @HEAD annotation on: " +
@@ -50,7 +39,7 @@ public final class AnnotationProcessor {
 			Assert.notNull(definition.getRoutePath(), getClassMethod(clazz, method) + " - Missing route @Path!");
 
 			int bodyParamCount = 0;
-			for (MethodParameter param: definition.getParameters()) {
+			for (MethodParameter param : definition.getParameters()) {
 				if (bodyParamCount > 0 && (ParameterType.body.equals(param.getType()) || ParameterType.unknown.equals(param.getType()))) {
 					// OK we have to body params ...
 					throw new IllegalArgumentException(getClassMethod(clazz, method) + " - to many body arguments given. " +
@@ -61,7 +50,8 @@ public final class AnnotationProcessor {
 				if (ParameterType.unknown.equals(param.getType())) { // proclaim as body param
 					// check if method allows for a body param
 					Assert.isTrue(definition.requestHasBody(), getClassMethod(clazz, method) + " - " +
-					                                           "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: " + param.getName() + "!");
+					                                           "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: " +
+					                                           param.getName() + "!");
 
 					param.setType(ParameterType.body);
 				}
@@ -77,6 +67,7 @@ public final class AnnotationProcessor {
 
 	/**
 	 * Gets all route definitions for base class / interfaces and inherited / abstract classes
+	 *
 	 * @param clazz to inspect
 	 * @return collection of all definitions
 	 */
@@ -97,18 +88,20 @@ public final class AnnotationProcessor {
 
 		return out;
 	}
+
 	/**
 	 * Joins additional data provided in subclass/ interfaces with base definition
+	 *
 	 * @param base base definition
-	 * @param add additional definition
+	 * @param add  additional definition
 	 * @return joined definition
 	 */
 	private static Map<RouteDefinition, Method> join(Map<RouteDefinition, Method> base, Map<RouteDefinition, Method> add) {
 
-		for (RouteDefinition definition: base.keySet()) {
+		for (RouteDefinition definition : base.keySet()) {
 			Method method = base.get(definition);
 
-			RouteDefinition additional = find(add, definition, method);
+			RouteDefinition additional = find(add, method);
 			definition.join(additional);
 		}
 
@@ -117,18 +110,18 @@ public final class AnnotationProcessor {
 
 	/**
 	 * Find mathing definition for same method ...
-	 * @param add to search
-	 * @param definition base
-	 * @param method base
+	 *
+	 * @param add        to search
+	 * @param method     base
 	 * @return found definition or null if no match found
 	 */
-	private static RouteDefinition find(Map<RouteDefinition, Method> add, RouteDefinition definition, Method method) {
+	private static RouteDefinition find(Map<RouteDefinition, Method> add, Method method) {
 
 		if (add == null || add.size() == 0) {
 			return null;
 		}
 
-		for (RouteDefinition additional: add.keySet()) {
+		for (RouteDefinition additional : add.keySet()) {
 			Method match = add.get(additional);
 
 			if (isMatching(method, match)) {
@@ -139,10 +132,17 @@ public final class AnnotationProcessor {
 		return null;
 	}
 
+	/**
+	 * Checks if methods in base and inherited/abstract class are the same method
+	 * @param base method
+	 * @param compare to compare
+	 * @return true if the same, false otherwise
+	 */
 	private static boolean isMatching(Method base, Method compare) {
 
+		// if names and argument types match ... then this are the same method
 		if (base.getName().equals(compare.getName()) &&
-			base.getParameterCount() == compare.getParameterCount()) {
+		    base.getParameterCount() == compare.getParameterCount()) {
 
 			Class<?>[] typeBase = base.getParameterTypes();
 			Class<?>[] typeCompare = compare.getParameterTypes();
@@ -195,6 +195,10 @@ public final class AnnotationProcessor {
 		return output;
 	}
 
+	/**
+	 * @param method to check if REST compatible
+	 * @return true if REST method, false otherwise
+	 */
 	private static boolean isRestCompatible(Method method) {
 
 		return (!method.getDeclaringClass().isInstance(Object.class) &&
@@ -222,6 +226,12 @@ public final class AnnotationProcessor {
 		return ((method.getModifiers() & Modifier.ABSTRACT) != 0);
 	}
 
+	/**
+	 * Helper to convert class/method to String for reporting purposes
+	 * @param clazz holding method
+	 * @param method method in class
+	 * @return class.method(type arg0, type arg1 .. type argN)
+	 */
 	private static String getClassMethod(Class clazz, Method method) {
 		StringBuilder builder = new StringBuilder();
 		builder.append(clazz.getName()).append(".").append(method.getName());

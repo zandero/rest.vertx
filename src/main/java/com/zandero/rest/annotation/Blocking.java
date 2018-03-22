@@ -5,6 +5,8 @@ import java.lang.annotation.*;
 /**
  * The REST call block async execution
  * same as calling vertx.executeBlocking()
+ *
+ * DEPRECATED will be removed in later versions
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

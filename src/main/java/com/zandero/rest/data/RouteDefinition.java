@@ -29,8 +29,14 @@ public class RouteDefinition {
 
 	private final String DELIMITER = "/";
 
+	/**
+	 * Path part given on class
+	 */
 	private String classPath = null;
 
+	/**
+	 * Path part given on method
+	 */
 	private String methodPath = null;
 
 	/**
@@ -180,7 +186,7 @@ public class RouteDefinition {
 			async = additional.async;
 		}
 
-		exceptionHandlers = join(exceptionHandlers, additional.exceptionHandlers);
+		exceptionHandlers = ArrayUtils.join(exceptionHandlers, additional.exceptionHandlers);
 		consumes = join(consumes, additional.consumes);
 		produces = join(produces, additional.produces);
 
@@ -196,7 +202,7 @@ public class RouteDefinition {
 			methodPath = additional.methodPath;
 		}
 
-		if (pathChange) {
+		if (pathChange) { // reset and re-evaluate path
 			path = DELIMITER;
 			routePath = null;
 
@@ -214,7 +220,12 @@ public class RouteDefinition {
 	}
 
 
-	private Map<String, MethodParameter> join(Map<String, MethodParameter> base, Collection<MethodParameter> additional) {
+	private static Map<String, MethodParameter> join(Map<String, MethodParameter> base, Map<String, MethodParameter> additional) {
+
+		return join(base, additional.values());
+	}
+
+	private static Map<String, MethodParameter> join(Map<String, MethodParameter> base, Collection<MethodParameter> additional) {
 
 		if (additional == null || additional.size() == 0) {
 			return base;
@@ -264,25 +275,7 @@ public class RouteDefinition {
 		return out;
 	}
 
-	private Map<String, MethodParameter> join(Map<String, MethodParameter> base, Map<String, MethodParameter> additional) {
-
-		return join(base, additional.values());
-	}
-
-	private <T> Class<? extends T>[] join(Class<? extends T>[] base, Class<? extends T>[] additional) {
-
-		if (additional == null || additional.length == 0) {
-			return base;
-		}
-
-		if (base == null) {
-			return additional;
-		}
-
-		return ArrayUtils.join(base, additional);
-	}
-
-	private MediaType[] join(MediaType[] base, MediaType[] additional) {
+	private static MediaType[] join(MediaType[] base, MediaType[] additional) {
 
 		if (additional == null || additional.length == 0) {
 			return base;
@@ -297,8 +290,6 @@ public class RouteDefinition {
 		baseSet.addAll(addSet);
 
 		return baseSet.toArray(new MediaType[]{});
-
-		//return ArrayUtils.join(base, additional);
 	}
 
 	/**
@@ -380,7 +371,7 @@ public class RouteDefinition {
 			}
 
 			if (annotation instanceof CatchWith) {
-				exceptionHandlers = ArrayUtils.join(((CatchWith) annotation).value(), exceptionHandlers);
+				exceptionHandlers = ArrayUtils.join(exceptionHandlers, ((CatchWith) annotation).value());
 			}
 
 			if (annotation instanceof SuppressCheck) {
@@ -482,14 +473,6 @@ public class RouteDefinition {
 
 		return this;
 	}
-
-	private RouteDefinition params(List<MethodParameter> pathParams) {
-
-		params = join(params, pathParams);
-		return this;
-	}
-
-
 
 	/**
 	 * Extracts method arguments and links them with annotated route parameters

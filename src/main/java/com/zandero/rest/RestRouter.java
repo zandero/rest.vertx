@@ -392,7 +392,6 @@ public class RestRouter {
 			                                    writerType + "' in: '" + writer.getClass() + "'");
 		}
 
-		//ContextProviderFactory.injectContext(writer, definition, context); // injects @Context if needed
 		return writer;
 	}
 
