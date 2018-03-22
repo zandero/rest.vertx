@@ -104,7 +104,7 @@ public class RoutePathTest extends VertxTest {
 			fail();
 		}
 		catch (Exception e) {
-			assertEquals("com.zandero.rest.test.TestDoubleBodyParamRest.echo(String arg0, String arg1) - two or more body arguments given. " +
+			assertEquals("com.zandero.rest.test.TestDoubleBodyParamRest.echo(String arg0, String arg1) - to many body arguments given. " +
 			             "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: unknown arg1!",
 			             e.getMessage());
 		}

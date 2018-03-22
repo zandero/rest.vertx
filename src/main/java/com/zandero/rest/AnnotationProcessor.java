@@ -53,7 +53,7 @@ public final class AnnotationProcessor {
 			for (MethodParameter param: definition.getParameters()) {
 				if (bodyParamCount > 0 && (ParameterType.body.equals(param.getType()) || ParameterType.unknown.equals(param.getType()))) {
 					// OK we have to body params ...
-					throw new IllegalArgumentException(getClassMethod(clazz, method) + " - two or more body arguments given. " +
+					throw new IllegalArgumentException(getClassMethod(clazz, method) + " - to many body arguments given. " +
 					                                   "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: " +
 					                                   param.getType() + " " + param.getName() + "!");
 				}
