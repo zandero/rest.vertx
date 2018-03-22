@@ -2,13 +2,17 @@ package com.zandero.rest;
 
 import com.zandero.rest.annotation.CONNECT;
 import com.zandero.rest.annotation.TRACE;
+import com.zandero.rest.data.MethodParameter;
+import com.zandero.rest.data.ParameterType;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.utils.Assert;
+import com.zandero.utils.StringUtils;
 
 import javax.ws.rs.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.*;
 
 /**
@@ -32,14 +36,70 @@ public final class AnnotationProcessor {
 		// hide constructor
 	}
 
+	public static Map<RouteDefinition, Method> get(Class clazz) {
+
+		Map<RouteDefinition, Method> out = collect(clazz);
+
+		// Final check if definitions are OK
+		for (RouteDefinition definition: out.keySet()) {
+
+			Method method = out.get(definition);
+			Assert.notNull(definition.getMethod(), "Missing @GET, @POST, @PUT, @DELETE, @PATCH, @OPTIONS, @TRACE, @CONNECT or @HEAD annotation on: " +
+			                                       getClassMethod(clazz, method) + "!");
+
+			Assert.notNull(definition.getRoutePath(), getClassMethod(clazz, method) + " - Missing route @Path!");
+
+			int count = 0;
+			for (MethodParameter param: definition.getParameters()) {
+				if (count > 0 && (ParameterType.body.equals(param.getType()) || ParameterType.unknown.equals(param.getType()))) {
+					// OK we have to body params ...
+					throw new IllegalArgumentException(getClassMethod(clazz, method) + " - two or more body arguments given. " +
+					                                   "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: " +
+					                                   param.getType() + " " + param.getName() + "!");
+				}
+
+				if (ParameterType.unknown.equals(param.getType())) { // proclaim as body param
+					// check if method allows for a body param
+					Assert.isTrue(definition.requestHasBody(), getClassMethod(clazz, method) + " - " +
+					                                           "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: " + param.getName() + "!");
+
+					param.setType(ParameterType.body);
+				}
+
+				if (ParameterType.body.equals(param.getType())) {
+					count++;
+				}
+			}
+		}
+
+		return out;
+	}
+
+	private static String getClassMethod(Class clazz, Method method) {
+		StringBuilder builder = new StringBuilder();
+		builder.append(clazz.getName()).append(".").append(method.getName());
+		builder.append("(");
+		if (method.getParameterCount() > 0) {
+			for (int i = 0; i < method.getParameterCount(); i++) {
+				Parameter param = method.getParameters()[i];
+				builder.append(param.getType().getSimpleName()).append(" ").append(param.getName());
+
+				if (i + 1 < method.getParameterCount()) {
+					builder.append(", ");
+				}
+			}
+		}
+		builder.append(")");
+		return builder.toString();
+	}
 	/**
 	 * Gets all route definitions for base class / interfaces and inherited / abstract classes
 	 * @param clazz to inspect
 	 * @return collection of all definitions
 	 */
-	public static Map<RouteDefinition, Method> collect(Class clazz) {
+	private static Map<RouteDefinition, Method> collect(Class clazz) {
 
-		Map<RouteDefinition, Method> out = get(clazz);
+		Map<RouteDefinition, Method> out = getDefinitions(clazz);
 		for (Class inter : clazz.getInterfaces()) {
 
 			Map<RouteDefinition, Method> found = collect(inter);
@@ -126,7 +186,7 @@ public final class AnnotationProcessor {
 	 * @param clazz to be checked
 	 * @return list of definitions or empty list if none present
 	 */
-	private static Map<RouteDefinition, Method> get(Class clazz) {
+	private static Map<RouteDefinition, Method> getDefinitions(Class clazz) {
 
 		Assert.notNull(clazz, "Missing class with JAX-RS annotations!");
 
@@ -140,18 +200,13 @@ public final class AnnotationProcessor {
 			if (isRestCompatible(method)) { // Path must be present
 
 				try {
-					RouteDefinition definition = new RouteDefinition(root, method.getAnnotations());
-					definition.setArguments(method);
-
-					// check route path is not null
-				//TODO:XXX	Assert.notNullOrEmptyTrimmed(definition.getRoutePath(), "Missing route @Path!");
-
+					RouteDefinition definition = new RouteDefinition(root, method);
 					output.put(definition, method);
 
 				}
 				catch (IllegalArgumentException e) {
 
-					throw new IllegalArgumentException(clazz + "." + method.getName() + "() - " + e.getMessage());
+					throw new IllegalArgumentException(getClassMethod(clazz, method) + " - " + e.getMessage());
 				}
 			}
 		}

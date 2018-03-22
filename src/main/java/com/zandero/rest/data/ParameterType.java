@@ -5,6 +5,8 @@ package com.zandero.rest.data;
  */
 public enum ParameterType {
 
+	unknown(""),
+
 	/**
 	 * REST path parameter
 	 */

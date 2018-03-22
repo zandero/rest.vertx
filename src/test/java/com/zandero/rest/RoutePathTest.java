@@ -91,7 +91,7 @@ public class RoutePathTest extends VertxTest {
 			fail();
 		}
 		catch (Exception e) {
-			assertEquals("class com.zandero.rest.test.TestInvalidMethodRest.echo() - Method already set to: POST!", e.getMessage());
+			assertEquals("com.zandero.rest.test.TestInvalidMethodRest.echo() - Method already set to: POST!", e.getMessage());
 		}
 	}
 
@@ -103,7 +103,7 @@ public class RoutePathTest extends VertxTest {
 			fail();
 		}
 		catch (Exception e) {
-			assertEquals("class com.zandero.rest.test.TestMissingPathRest.echo() - Missing route @Path!", e.getMessage());
+			assertEquals("com.zandero.rest.test.TestMissingPathRest.echo() - Missing route @Path!", e.getMessage());
 		}
 	}
 }

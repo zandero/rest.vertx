@@ -36,7 +36,7 @@ public class RouteDefinitionTest {
 
 		// 2.
 		Method method = TestRest.class.getMethod("echo");
-		RouteDefinition def = new RouteDefinition(base, method.getAnnotations());
+		RouteDefinition def = new RouteDefinition(base, method);
 
 		assertEquals("/test/echo", def.getPath());
 
@@ -62,9 +62,9 @@ public class RouteDefinitionTest {
 
 		// 1.
 		Method method = methods[0];
-		RouteDefinition def = new RouteDefinition(base, method.getAnnotations());
+		RouteDefinition def = new RouteDefinition(base, method);
 
-		def.setArguments(method);
+		//def.setArguments(method);
 
 		assertEquals("/post/json", def.getPath());
 		assertEquals(HttpMethod.POST, def.getMethod());
@@ -73,7 +73,7 @@ public class RouteDefinitionTest {
 
 		MethodParameter param = def.getParameters().get(0);
 		assertEquals("arg0", param.getName());
-		assertEquals(ParameterType.body, param.getType());
+		assertEquals(ParameterType.unknown, param.getType()); // to be proclaimed as body by annotation processor
 		assertEquals(Dummy.class, param.getDataType());
 		assertNull(param.getDefaultValue());
 
@@ -91,59 +91,36 @@ public class RouteDefinitionTest {
 
 		// 1.
 		Method method = TestRegExRest.class.getMethods()[0];
-		RouteDefinition def = new RouteDefinition(base, method.getAnnotations());
+		RouteDefinition def = new RouteDefinition(base, method);
+		assertTrue(def.pathIsRegEx());
 		assertEquals("/regEx/\\d+/minus/\\d+", def.getPath());
 		assertEquals("\\/regEx\\/\\d+\\/minus\\/\\d+", def.getRoutePath());
-		assertTrue(def.pathIsRegEx());
 
 		// 2.
 		method = TestRegExRest.class.getMethods()[1];
-		def = new RouteDefinition(base, method.getAnnotations());
+		def = new RouteDefinition(base, method);
 		assertEquals("/regEx/\\d+", def.getPath());
 		assertEquals("\\/regEx\\/\\d+", def.getRoutePath());
 		assertTrue(def.pathIsRegEx());
 
 		// 3.
 		method = TestRegExRest.class.getMethods()[2];
-		def = new RouteDefinition(base, method.getAnnotations());
+		def = new RouteDefinition(base, method);
 		assertEquals("/regEx/{one:\\w+}/{two:\\d+}/{three:\\w+}", def.getPath());
 		assertEquals("\\/regEx\\/\\w+\\/\\d+\\/\\w+", def.getRoutePath());
 		assertTrue(def.pathIsRegEx());
 	}
 
-	/*@Test
-	public void incompatibleReaderTypeTest() {
-
-		try {
-			AnnotationProcessor.get(IncompatibleReaderRest.class);
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("class com.zandero.rest.test.IncompatibleReaderRest.returnOuch() - Parameter type: 'class java.lang.String' " +
-					             "not matching reader type: 'class java.lang.Integer' in: 'class com.zandero.rest.reader.IntegerBodyReader'", e.getMessage());
-		}
-	}*/
-
-	/*@Test
-	public void incompatibleWriterTypeTest() {
-
-		try {
-			AnnotationProcessor.get(IncompatibleWriterRest.class);
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertEquals("class com.zandero.rest.test.IncompatibleWriterRest.returnOuch() - Response type: 'class java.lang.String' " +
-					             "not matching writer type: 'class com.zandero.rest.test.json.Dummy' in: 'class com.zandero.rest.test.writer.TestDummyWriter'", e.getMessage());
-		}
-	}*/
-
 	@Test
 	public void missingArgumentAnnotationTest() {
 
 		try {
-			AnnotationProcessor.collect(MissingAnnotationsRest.class);
+			AnnotationProcessor.get(MissingAnnotationsRest.class);
 			fail();
 		} catch (IllegalArgumentException e) {
-			assertEquals("class com.zandero.rest.test.MissingAnnotationsRest.returnOuch() - " +
-					             "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam, @Context) for: java.lang.String arg0", e.getMessage());
+			assertEquals("com.zandero.rest.test.MissingAnnotationsRest.returnOuch(String arg0) - " +
+			             "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: arg0!",
+			             e.getMessage());
 		}
 	}
 }

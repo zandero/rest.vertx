@@ -86,8 +86,8 @@ public class MethodParameter {
 
 	public MethodParameter join(MethodParameter joining) {
 
-		if (ParameterType.body.equals(type) &&
-		    !ParameterType.body.equals(joining.type)) {
+		if (ParameterType.unknown.equals(type) &&
+		    !ParameterType.unknown.equals(joining.type)) {
 			setType(joining.getType());
 			setName(joining.name);
 		}
@@ -203,6 +203,12 @@ public class MethodParameter {
 
 	public boolean isUsedAsArgument() {
 		return index >= 0;
+	}
+
+	public boolean sameAs(MethodParameter additionalParam) {
+
+		return (index >= 0 && additionalParam.index == index ||
+				StringUtils.equals(name, additionalParam.name));
 	}
 
 	@Override

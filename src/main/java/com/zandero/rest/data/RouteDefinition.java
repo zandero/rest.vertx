@@ -14,7 +14,6 @@ import io.vertx.ext.web.RoutingContext;
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.print.attribute.standard.Media;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -79,7 +78,7 @@ public class RouteDefinition {
 
 	/**
 	 * Security
- 	 */
+	 */
 	private Boolean permitAll = null; // true - permit all, false - deny all, null - check roles
 
 	/**
@@ -97,7 +96,7 @@ public class RouteDefinition {
 		init(clazz.getAnnotations());
 	}
 
-	public RouteDefinition(RouteDefinition base, Annotation[] annotations) {
+	public RouteDefinition(RouteDefinition base, Method classMethod) {
 
 		// copy base route
 		path(base.getPath());
@@ -120,7 +119,12 @@ public class RouteDefinition {
 		exceptionHandlers = base.getExceptionHandlers();
 
 		// complement / override with additional annotations
-		init(annotations);
+		init(classMethod.getAnnotations());
+
+		List<MethodParameter> pathParams = PathConverter.extract(path);
+		params = join(params, pathParams);
+
+		setArguments(classMethod);
 	}
 
 	public RouteDefinition(RoutingContext context) {
@@ -198,28 +202,71 @@ public class RouteDefinition {
 
 			path(classPath);
 			path(methodPath);
+
+			// join data from path with already known additional params
+			List<MethodParameter> pathParams = PathConverter.extract(path);
+			additional.params = join(additional.params, pathParams);
 		}
 
+		// join collected params to base params
 		params = join(params, additional.params);
 		return this;
 	}
 
-	private Map<String, MethodParameter> join(Map<String, MethodParameter> base, Map<String, MethodParameter> additional) {
+
+	private Map<String, MethodParameter> join(Map<String, MethodParameter> base, Collection<MethodParameter> additional) {
+
+		if (additional == null || additional.size() == 0) {
+			return base;
+		}
 
 		Map<String, MethodParameter> out = new LinkedHashMap<>();
 
-		Iterator<String> baseIterator = base.keySet().iterator();
-		Iterator<String> additionalIterator = additional.keySet().iterator();
-		while (baseIterator.hasNext()) {
+		Set<MethodParameter> found = new HashSet<>();
+		for (String name: base.keySet()) {
 
-			MethodParameter paramBase = base.get(baseIterator.next());
-			MethodParameter paramAdditional = additional.get(additionalIterator.next());
+			MethodParameter baseParam = base.get(name);
 
-			paramBase.join(paramAdditional);
-			out.put(paramBase.getName(), paramBase);
+			boolean joined = false;
+			for (MethodParameter additionalParam: additional) {
+
+				if (baseParam.sameAs(additionalParam)) {
+					baseParam.join(additionalParam);
+					out.put(baseParam.getName(), baseParam);
+
+					found.add(baseParam);
+					joined = true;
+				}
+			}
+
+			if (!joined) {
+				out.put(name, baseParam);
+			}
+		}
+
+		// add missing
+		for (MethodParameter additionalParam: additional) {
+
+			boolean newParam = true;
+			for (MethodParameter present: found) {
+				if (present.sameAs(additionalParam)) {
+					newParam = false;
+					break;
+				}
+			}
+
+			if (newParam) {
+				out.put(additionalParam.getName(), additionalParam);
+				found.add(additionalParam);
+			}
 		}
 
 		return out;
+	}
+
+	private Map<String, MethodParameter> join(Map<String, MethodParameter> base, Map<String, MethodParameter> additional) {
+
+		return join(base, additional.values());
 	}
 
 	private <T> Class<? extends T>[] join(Class<? extends T>[] base, Class<? extends T>[] additional) {
@@ -288,20 +335,20 @@ public class RouteDefinition {
 			    annotation instanceof DELETE ||
 			    annotation instanceof HEAD ||
 			    annotation instanceof OPTIONS ||
-				annotation instanceof PATCH ||
-				annotation instanceof TRACE ||
-				annotation instanceof CONNECT) { // TODO: what about OTHER ?
+			    annotation instanceof PATCH ||
+			    annotation instanceof TRACE ||
+			    annotation instanceof CONNECT) { // TODO: what about OTHER ?
 
 				method(annotation.annotationType().getSimpleName());
 			}
 
 			// TODO: this is an experiment to replace @Path with method value
 			if (!hasPath && annotation instanceof TRACE) {
-				path(((TRACE)annotation).value());
+				path(((TRACE) annotation).value());
 			}
 
 			if (!hasPath && annotation instanceof CONNECT) {
-				path(((CONNECT)annotation).value());
+				path(((CONNECT) annotation).value());
 			}
 
 			if (annotation instanceof javax.ws.rs.HttpMethod) {
@@ -343,7 +390,7 @@ public class RouteDefinition {
 	}
 
 	private boolean hasPath(Annotation[] annotations) {
-		for (Annotation annotation: annotations) {
+		for (Annotation annotation : annotations) {
 			if (annotation instanceof Path) {
 				return true;
 			}
@@ -382,13 +429,12 @@ public class RouteDefinition {
 			methodPath = subPath;
 		}
 
-		// extract parameters from path if any (
+		/*// extract parameters from path if any (
 		List<MethodParameter> params = PathConverter.extract(path);
-		params(params);
+		params(params);*/
 
 		// read path to Vert.X format
 		routePath = PathConverter.convert(path);
-
 		return this;
 	}
 
@@ -439,24 +485,11 @@ public class RouteDefinition {
 
 	private RouteDefinition params(List<MethodParameter> pathParams) {
 
-		if (pathParams == null || pathParams.size() == 0) {
-			return this;
-		}
-
-		params.clear();
-
-		// check if param is already present
-		for (MethodParameter parameter : pathParams) {
-
-			if (params.get(parameter.getName()) != null) {
-				throw new IllegalArgumentException("Duplicate parameter name given: " + parameter.getName() + "! ");
-			}
-
-			params.put(parameter.getName(), parameter);
-		}
-
+		params = join(params, pathParams);
 		return this;
 	}
+
+
 
 	/**
 	 * Extracts method arguments and links them with annotated route parameters
@@ -530,7 +563,7 @@ public class RouteDefinition {
 				}
 			}
 
-			// if no name provided than parameter is considered the request body
+			// if no name provided than parameter is considered unknown (it might be request body, but we don't know)
 			if (name == null) {
 
 				// try to find out what parameter type it is ... POST, PUT have a body ...
@@ -548,12 +581,8 @@ public class RouteDefinition {
 						reader = valueReader; // set body reader from field
 					}
 
-				/*TODO:XXX	Assert.isTrue(requestHasBody(),
-					              "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam, @Context) for: " +
-					              parameterTypes[index].getName() + " " + parameters[index].getName());*/
-
 					name = parameters[index].getName();
-					type = ParameterType.body;
+					type = ParameterType.unknown;
 				}
 			}
 
@@ -626,27 +655,28 @@ public class RouteDefinition {
 	                                        Class<? extends ValueReader> valueReader,
 	                                        int index) {
 
+
 		Assert.notNull(type,
 		               "Argument: " + name + " (" + parameterType + ") can't be provided with Vert.x request, check and annotate method arguments!");
 
-		switch (type) {
-			case path:
-				MethodParameter found = params.get(name); // parameter should exist
-				Assert.notNull(found, "Missing @PathParam: " + name + "(" + parameterType + ") as method argument!");
+		if (ParameterType.path.equals(type)) {
+			MethodParameter found = params.get(name); // parameter should exist
+			//Assert.notNull(found, "Missing @PathParam: " + name + "(" + parameterType + ") as method argument!");
 
+			if (found != null) {
 				found.argument(parameterType, index);
 				found.setDefaultValue(defaultValue);
 				return found;
-
-			default:
-				MethodParameter existing = params.get(name);
-				Assert.isNull(existing, "Duplicate argument: " + name + ", already provided!"); // param should not exist!
-
-				MethodParameter newParam = new MethodParameter(type, name, parameterType, index);
-				newParam.setDefaultValue(defaultValue);
-				newParam.setValueReader(valueReader);
-				return newParam;
+			}
 		}
+
+		MethodParameter existing = params.get(name);
+		Assert.isNull(existing, "Duplicate argument: " + name + ", already provided!"); // param should not exist!
+
+		MethodParameter newParam = new MethodParameter(type, name, parameterType, index);
+		newParam.setDefaultValue(defaultValue);
+		newParam.setValueReader(valueReader);
+		return newParam;
 	}
 
 	public String getPath() {
@@ -730,8 +760,8 @@ public class RouteDefinition {
 		// https://www.owasp.org/index.php/Test_HTTP_Methods_(OTG-CONFIG-006)
 		return HttpMethod.POST.equals(method) ||
 		       HttpMethod.PUT.equals(method) ||
-			   HttpMethod.PATCH.equals(method) ||
-			   HttpMethod.TRACE.equals(method);
+		       HttpMethod.PATCH.equals(method) ||
+		       HttpMethod.TRACE.equals(method);
 	}
 
 	public boolean hasBodyParameter() {

@@ -49,10 +49,10 @@ public class InheritedRouteTest extends VertxTest {
 		// call and check response
 		final Async async = context.async();
 
-		client.getNow("/implementation/get/test", response -> {
+		client.getNow("/implementation/get/test?additional=it", response -> {
 
 			response.bodyHandler(body -> {
-				context.assertEquals("\"test\"", body.toString()); // JsonExceptionWriter
+				context.assertEquals("\"testit\"", body.toString()); // JsonExceptionWriter
 				context.assertEquals(200, response.statusCode());
 				async.complete();
 			});

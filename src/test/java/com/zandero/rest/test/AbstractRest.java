@@ -18,5 +18,5 @@ public abstract class AbstractRest implements InterfaceRest {
 	@Consumes("application/json")
 	@Produces("application/json")
 	@Path("get/{id}")
-	public abstract String get(@PathParam("id") String id);
+	public abstract String get(@PathParam("id") String id, String add);
 }

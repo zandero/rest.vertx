@@ -23,11 +23,10 @@ import static org.junit.Assert.assertNotNull;
  */
 public class AnnotationProcessorTest {
 
-
 	@Test
 	public void getDefinitions() {
 
-		Map<RouteDefinition, Method> definitions = AnnotationProcessor.collect(TestRest.class);
+		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(TestRest.class);
 
 		assertEquals(10, definitions.size());
 
@@ -94,7 +93,7 @@ public class AnnotationProcessorTest {
 	@Test
 	public void getReaderDefinitions() {
 
-		Map<RouteDefinition, Method> definitions = AnnotationProcessor.collect(TestReaderRest.class);
+		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(TestReaderRest.class);
 		assertEquals(4, definitions.size());
 
 		int count = 0;
@@ -124,10 +123,9 @@ public class AnnotationProcessorTest {
 	@Test
 	public void getInheritedDefinition() {
 
-		Map<RouteDefinition, Method> definitions = AnnotationProcessor.collect(ImplementationRest.class);
+		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(ImplementationRest.class);
 
 		assertEquals(2, definitions.size());
-
 
 		int count = 0;
 		for (RouteDefinition definition : definitions.keySet()) {
@@ -169,13 +167,21 @@ public class AnnotationProcessorTest {
 				assertEquals(1, definition.getProduces().length);
 				assertEquals("application/json", MediaTypeHelper.toString(definition.getProduces()[0]));
 
-				assertEquals(1, definition.getParameters().size());
+				assertEquals(2, definition.getParameters().size());
 				MethodParameter param = definition.getParameters().get(0);
 				assertEquals("id", param.getName());
 
 				assertEquals(ParameterType.path, param.getType());
 				assertEquals(3, param.getPathIndex());
 				assertEquals(0, param.getIndex());
+				assertEquals(-1, param.getRegExIndex());
+
+				param = definition.getParameters().get(1);
+				assertEquals("additional", param.getName());
+
+				assertEquals(ParameterType.query, param.getType());
+				assertEquals(-1, param.getPathIndex());
+				assertEquals(1, param.getIndex());
 				assertEquals(-1, param.getRegExIndex());
 
 				count++;
