@@ -1,6 +1,5 @@
 package com.zandero.rest.data;
 
-import com.zandero.rest.annotation.SuppressCheck;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.context.ContextProviderFactory;
 import com.zandero.rest.exception.ContextException;
@@ -255,7 +254,7 @@ public class ArgumentProvider {
 
 	/**
 	 * @param request to extract matrix parameter from (URL)
-	 * @param name of desired matrix paramater
+	 * @param name    of desired matrix paramater
 	 * @return found parameter value or null if none found
 	 */
 	// TODO: this might be slow at times ... pre-parse matrix into hash map ... and store

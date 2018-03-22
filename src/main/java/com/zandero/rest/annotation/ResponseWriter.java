@@ -1,6 +1,5 @@
 package com.zandero.rest.annotation;
 
-
 import com.zandero.rest.writer.HttpResponseWriter;
 
 import java.lang.annotation.*;

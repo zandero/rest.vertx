@@ -23,6 +23,7 @@ public class JaxResponseWriter implements HttpResponseWriter<Response> {
 	@Context
 	RoutingContext context;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void write(Response result, HttpServerRequest request, HttpServerResponse response) {
 
