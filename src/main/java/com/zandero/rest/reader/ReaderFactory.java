@@ -29,6 +29,7 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 
 		classTypes.put(String.class, GenericValueReader.class);
 
+		// pre fill with most generic implementation
 		mediaTypes.put(MediaType.APPLICATION_JSON, JsonValueReader.class);
 		mediaTypes.put(MediaType.TEXT_PLAIN, GenericValueReader.class);
 	}

@@ -164,6 +164,6 @@ public final class PathConverter {
 	private static boolean isRestEasyPath(String path) {
 
 		path = StringUtils.trimToNull(path);
-		return path != null && path.startsWith("{") && path.endsWith("}");
+		return path != null && path.startsWith("{") && path.endsWith("}") && path.length() > 2;
 	}
 }

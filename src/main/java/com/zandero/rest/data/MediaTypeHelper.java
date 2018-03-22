@@ -46,7 +46,7 @@ public final class MediaTypeHelper {
 	 * @param mediaType to be parsed
 	 * @return media type of throw IllegalArgumentException if parsing fails
 	 */
-	static MediaType parse(String mediaType) {
+	private static MediaType parse(String mediaType) {
 
 		Assert.notNullOrEmptyTrimmed(mediaType, "Missing media type!");
 

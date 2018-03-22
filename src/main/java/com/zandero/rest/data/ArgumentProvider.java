@@ -1,5 +1,6 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.annotation.SuppressCheck;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.context.ContextProviderFactory;
 import com.zandero.rest.exception.ContextException;
@@ -23,6 +24,7 @@ import java.util.Map;
  */
 public class ArgumentProvider {
 
+	@SuppressWarnings("unchecked")
 	public static Object[] getArguments(Method method,
 	                                    RouteDefinition definition,
 	                                    RoutingContext context,

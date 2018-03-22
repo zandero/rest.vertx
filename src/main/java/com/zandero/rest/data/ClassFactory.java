@@ -28,7 +28,7 @@ public abstract class ClassFactory<T> {
 	/**
 	 * Cache of class instances
 	 */
-	protected Map<String, T> cache = new HashMap<>();
+	private Map<String, T> cache = new HashMap<>();
 
 	/**
 	 * map of class associated with class type (to be instantiated)

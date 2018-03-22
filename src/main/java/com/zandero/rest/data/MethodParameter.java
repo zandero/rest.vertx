@@ -73,7 +73,7 @@ public class MethodParameter {
 		argument(argumentType, argumentIndex);
 	}
 
-	public MethodParameter argument(Class<?> argumentType, int argumentIndex) {
+	public void argument(Class<?> argumentType, int argumentIndex) {
 
 		Assert.isTrue(argumentIndex >= 0, "Can't set negative argument index!");
 		Assert.notNull(argumentType, "Missing argument type!");
@@ -81,10 +81,9 @@ public class MethodParameter {
 		dataType = argumentType;
 		index = argumentIndex;
 
-		return this;
 	}
 
-	public MethodParameter join(MethodParameter joining) {
+	public void join(MethodParameter joining) {
 
 		if (ParameterType.unknown.equals(type) &&
 		    !ParameterType.unknown.equals(joining.type)) {
@@ -119,8 +118,6 @@ public class MethodParameter {
 		if (dataType == null) {
 			dataType = joining.dataType;
 		}
-
-		return this;
 	}
 
 	public ParameterType getType() {

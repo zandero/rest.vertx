@@ -420,11 +420,7 @@ public class RouteDefinition {
 			methodPath = subPath;
 		}
 
-		/*// extract parameters from path if any (
-		List<MethodParameter> params = PathConverter.extract(path);
-		params(params);*/
-
-		// read path to Vert.X format
+		// convert path to Vert.X format
 		routePath = PathConverter.convert(path);
 		return this;
 	}

@@ -5,6 +5,9 @@ package com.zandero.rest.data;
  */
 public enum ParameterType {
 
+	/**
+	 * Placeholder until we know ... otherwise error is thrown
+	 */
 	unknown(""),
 
 	/**
