@@ -82,8 +82,6 @@ public class RestRouter {
 	 */
 	public static Router register(Router router, Object... restApi) {
 
-		// TODO: split into smaller chucks
-
 		Assert.notNull(router, "Missing vertx router!");
 		Assert.isTrue(restApi != null && restApi.length > 0, "Missing REST API class object!");
 		assert restApi != null;
@@ -168,7 +166,7 @@ public class RestRouter {
 					try { // no way to know the accept content at this point
 						getWriter(injectionProvider, definition.getReturnType(), definition, null, null, GenericResponseWriter.class);
 					}
-					catch (ContextException | ClassFactoryException e) {
+					catch (ClassFactoryException e) {
 						// not relevant at this point
 					}
 				}
@@ -370,8 +368,7 @@ public class RestRouter {
 	                                            RouteDefinition definition,
 	                                            MediaType acceptHeader,
 	                                            RoutingContext context,
-	                                            Class<? extends HttpResponseWriter> defaultTo) throws ContextException,
-	                                                                                                  ClassFactoryException {
+	                                            Class<? extends HttpResponseWriter> defaultTo) throws ClassFactoryException {
 
 		if (returnType == null) {
 			returnType = definition.getReturnType();
@@ -575,9 +572,6 @@ public class RestRouter {
 				} else {
 					writer = (HttpResponseWriter) notFoundWriter;
 				}
-
-				// TODO: XXX
-				//ContextProviderFactory.injectContext(writer, null, context);
 
 				produceResponse(null, context, definition, writer);
 			}

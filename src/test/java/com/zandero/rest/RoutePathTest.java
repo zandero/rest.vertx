@@ -1,5 +1,6 @@
 package com.zandero.rest;
 
+import com.zandero.rest.test.TestDoubleBodyParamRest;
 import com.zandero.rest.test.TestInvalidMethodRest;
 import com.zandero.rest.test.TestMissingPathRest;
 import com.zandero.rest.test.TestPathRest;
@@ -92,6 +93,20 @@ public class RoutePathTest extends VertxTest {
 		}
 		catch (Exception e) {
 			assertEquals("com.zandero.rest.test.TestInvalidMethodRest.echo() - Method already set to: POST!", e.getMessage());
+		}
+	}
+
+	@Test
+	public void invalidDoubleBodyRestTest() {
+
+		try {
+			RestRouter.register(vertx, TestDoubleBodyParamRest.class);
+			fail();
+		}
+		catch (Exception e) {
+			assertEquals("com.zandero.rest.test.TestDoubleBodyParamRest.echo(String arg0, String arg1) - two or more body arguments given. " +
+			             "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: unknown arg1!",
+			             e.getMessage());
 		}
 	}
 

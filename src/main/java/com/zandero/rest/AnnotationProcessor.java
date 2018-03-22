@@ -49,9 +49,9 @@ public final class AnnotationProcessor {
 
 			Assert.notNull(definition.getRoutePath(), getClassMethod(clazz, method) + " - Missing route @Path!");
 
-			int count = 0;
+			int bodyParamCount = 0;
 			for (MethodParameter param: definition.getParameters()) {
-				if (count > 0 && (ParameterType.body.equals(param.getType()) || ParameterType.unknown.equals(param.getType()))) {
+				if (bodyParamCount > 0 && (ParameterType.body.equals(param.getType()) || ParameterType.unknown.equals(param.getType()))) {
 					// OK we have to body params ...
 					throw new IllegalArgumentException(getClassMethod(clazz, method) + " - two or more body arguments given. " +
 					                                   "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: " +
@@ -67,7 +67,7 @@ public final class AnnotationProcessor {
 				}
 
 				if (ParameterType.body.equals(param.getType())) {
-					count++;
+					bodyParamCount++;
 				}
 			}
 		}
@@ -75,23 +75,6 @@ public final class AnnotationProcessor {
 		return out;
 	}
 
-	private static String getClassMethod(Class clazz, Method method) {
-		StringBuilder builder = new StringBuilder();
-		builder.append(clazz.getName()).append(".").append(method.getName());
-		builder.append("(");
-		if (method.getParameterCount() > 0) {
-			for (int i = 0; i < method.getParameterCount(); i++) {
-				Parameter param = method.getParameters()[i];
-				builder.append(param.getType().getSimpleName()).append(" ").append(param.getName());
-
-				if (i + 1 < method.getParameterCount()) {
-					builder.append(", ");
-				}
-			}
-		}
-		builder.append(")");
-		return builder.toString();
-	}
 	/**
 	 * Gets all route definitions for base class / interfaces and inherited / abstract classes
 	 * @param clazz to inspect
@@ -114,7 +97,6 @@ public final class AnnotationProcessor {
 
 		return out;
 	}
-
 	/**
 	 * Joins additional data provided in subclass/ interfaces with base definition
 	 * @param base base definition
@@ -202,7 +184,6 @@ public final class AnnotationProcessor {
 				try {
 					RouteDefinition definition = new RouteDefinition(root, method);
 					output.put(definition, method);
-
 				}
 				catch (IllegalArgumentException e) {
 
@@ -241,46 +222,21 @@ public final class AnnotationProcessor {
 		return ((method.getModifiers() & Modifier.ABSTRACT) != 0);
 	}
 
-	/**
-	 * A Rest method can have a Path and must have GET, POST ...
-	 *
-	 * @param method to examine
-	 * @return true if REST method, false otherwise
-	 */
-	private static boolean isRestMethod(Method method) {
+	private static String getClassMethod(Class clazz, Method method) {
+		StringBuilder builder = new StringBuilder();
+		builder.append(clazz.getName()).append(".").append(method.getName());
+		builder.append("(");
+		if (method.getParameterCount() > 0) {
+			for (int i = 0; i < method.getParameterCount(); i++) {
+				Parameter param = method.getParameters()[i];
+				builder.append(param.getType().getSimpleName()).append(" ").append(param.getName());
 
-		for (Class<? extends Annotation> item : REST_ANNOTATIONS) {
-			if (method.getAnnotation(item) != null) {
-				return true;
+				if (i + 1 < method.getParameterCount()) {
+					builder.append(", ");
+				}
 			}
 		}
-
-		return false;
-	}
-
-	/**
-	 * Tries to find class with given annotation ... class it's interface or parent class
-	 *
-	 * @param clazz      to search
-	 * @param annotation to search for
-	 * @return found class with annotation or null if no class with given annotation could be found
-	 */
-	public static Class getClassWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotation) {
-		if (clazz.isAnnotationPresent(annotation)) {
-			return clazz;
-		}
-
-		for (Class inter : clazz.getInterfaces()) {
-			if (inter.isAnnotationPresent(annotation)) {
-				return inter;
-			}
-		}
-
-		Class superClass = clazz.getSuperclass();
-		if (superClass != Object.class && superClass != null) {
-			return getClassWithAnnotation(superClass, annotation);
-		}
-
-		return null;
+		builder.append(")");
+		return builder.toString();
 	}
 }

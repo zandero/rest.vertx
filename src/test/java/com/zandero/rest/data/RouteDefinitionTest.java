@@ -49,7 +49,7 @@ public class RouteDefinitionTest {
 	}
 
 	@Test
-	public void getBodyParamTest() throws NoSuchMethodException {
+	public void getBodyParamTest() {
 
 		RouteDefinition base = new RouteDefinition(TestPostRest.class);
 
