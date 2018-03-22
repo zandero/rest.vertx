@@ -122,7 +122,7 @@ public class RouteDefinition {
 			permitAll = null;
 		}
 
-		exceptionHandlers = base.getExceptionHandlers();
+		exceptionHandlers = ArrayUtils.join(exceptionHandlers, base.exceptionHandlers);
 
 		// complement / override with additional annotations
 		init(classMethod.getAnnotations());
@@ -371,7 +371,8 @@ public class RouteDefinition {
 			}
 
 			if (annotation instanceof CatchWith) {
-				exceptionHandlers = ArrayUtils.join(exceptionHandlers, ((CatchWith) annotation).value());
+				// method handler is applied before class handler
+				exceptionHandlers = ArrayUtils.join(((CatchWith) annotation).value(), exceptionHandlers);
 			}
 
 			if (annotation instanceof SuppressCheck) {

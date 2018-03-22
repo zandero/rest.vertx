@@ -41,10 +41,9 @@ public class GlobalErrorHandlerTest extends VertxTest {
 
 		client.getNow("/throw/ouch", response -> {
 
-			context.assertEquals(406, response.statusCode());
-
 			response.bodyHandler(body -> {
 				context.assertEquals("{\"message\":\"Ouch!\",\"code\":406}", body.toString()); // JsonExceptionWriter
+				context.assertEquals(406, response.statusCode());
 				async.complete();
 			});
 		});
@@ -58,10 +57,9 @@ public class GlobalErrorHandlerTest extends VertxTest {
 
 		client.getNow("/throw/bang", response -> {
 
-			context.assertEquals(400, response.statusCode());
-
 			response.bodyHandler(body -> {
 				context.assertEquals("Bang!", body.toString()); // Generic exception writer
+				context.assertEquals(400, response.statusCode());
 				async.complete();
 			});
 		});
@@ -76,10 +74,9 @@ public class GlobalErrorHandlerTest extends VertxTest {
 
 		client.getNow("/throw/unhandled", response -> {
 
-			context.assertEquals(400, response.statusCode());
-
 			response.bodyHandler(body -> {
 				context.assertEquals("Huh this produced an error: 'KABUM!'", body.toString());
+				context.assertEquals(400, response.statusCode());
 				async.complete();
 			});
 		});
@@ -93,10 +90,9 @@ public class GlobalErrorHandlerTest extends VertxTest {
 
 		client.getNow("/throw/multi/one", response -> { // throws NotAllowedException
 
-			context.assertEquals(405, response.statusCode());
-
 			response.bodyHandler(body -> {
 				context.assertEquals("Exception: HTTP 405 Method Not Allowed", body.toString()); // ExceptionWriter kicked in
+				context.assertEquals(405, response.statusCode());
 				async.complete();
 			});
 		});
@@ -110,10 +106,9 @@ public class GlobalErrorHandlerTest extends VertxTest {
 
 		client.getNow("/throw/multi/two", response -> {
 
-			context.assertEquals(400, response.statusCode());
-
 			response.bodyHandler(body -> {
 				context.assertEquals("Huh this produced an error: 'Bang!'", body.toString()); // IllegalArgumentExceptionWriter kicked in
+				context.assertEquals(400, response.statusCode());
 				async.complete();
 			});
 		});
@@ -129,10 +124,9 @@ public class GlobalErrorHandlerTest extends VertxTest {
 
 		client.getNow("/throw/multi/four", response -> {
 
-			context.assertEquals(500, response.statusCode()); //
-
 			response.bodyHandler(body -> {
 				context.assertEquals("Exception: ADIOS!", body.toString()); // ExceptionWriter kicked in
+				context.assertEquals(500, response.statusCode()); //
 				async.complete();
 			});
 		});
@@ -143,10 +137,9 @@ public class GlobalErrorHandlerTest extends VertxTest {
 		final Async async = context.async();
 		client.getNow("/throw/multi/one", response -> {
 
-			context.assertEquals(405, response.statusCode());
-
 			response.bodyHandler(body -> {
 				context.assertEquals("Exception: HTTP 405 Method Not Allowed", body.toString()); // ExceptionWriter kicked in
+				context.assertEquals(405, response.statusCode());
 				async.complete();
 			});
 		});
@@ -157,10 +150,9 @@ public class GlobalErrorHandlerTest extends VertxTest {
 		final Async async = context.async();
 		client.getNow("/throw/multi/three", response -> {
 
-			context.assertEquals(400, response.statusCode());
-
 			response.bodyHandler(body -> {
 				context.assertEquals("Huh this produced an error: 'WHAT!'", body.toString()); // ExceptionWriter kicked in
+				context.assertEquals(400, response.statusCode());
 				async.complete();
 			});
 		});

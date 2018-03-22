@@ -29,20 +29,16 @@ public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
 
 		String mediaType = response.headers().get(HttpHeaders.CONTENT_TYPE);
 
-		HttpResponseWriter writer;
 		try {
-			writer = RestRouter.getWriters().get(mediaType, context);
+			HttpResponseWriter writer = RestRouter.getWriters().get(mediaType, context);
+
+			if (writer != null && !(writer instanceof GenericResponseWriter)) {
+				writer.write(result, request, response);
+			}
 		}
 		catch (ClassFactoryException | ContextException e) {
 			// writer = RestRouter.getWriters().get(result);
 			log.warn("Failed to provide GenericResponseWriter: ", e);
-			writer = null;
-		}
-
-		if (writer != null && !(writer instanceof GenericResponseWriter)) {
-			writer.write(result, request, response);
-		}
-		else {
 
 			log.warn("No writer associated with: '" + mediaType + "', defaulting to toString() as output!");
 			if (result != null) {
