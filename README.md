@@ -11,7 +11,7 @@ If this project help you reduce time to develop? Keep it running and donate for 
 <dependency>      
      <groupId>com.zandero</groupId>      
      <artifactId>rest.vertx</artifactId>      
-     <version>0.8.1</version>      
+     <version>0.8.2</version>      
 </dependency>
 ```
 See also: [older versions](https://github.com/zandero/rest.vertx/releases)
