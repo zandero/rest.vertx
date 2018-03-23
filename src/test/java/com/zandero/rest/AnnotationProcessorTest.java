@@ -8,6 +8,7 @@ import com.zandero.rest.reader.CustomWordListReader;
 import com.zandero.rest.test.ImplementationRest;
 import com.zandero.rest.test.TestReaderRest;
 import com.zandero.rest.test.TestRest;
+import com.zandero.rest.test.TestRestWithNonRestMethod;
 import io.vertx.core.http.HttpMethod;
 import org.junit.Test;
 
@@ -189,5 +190,21 @@ public class AnnotationProcessorTest {
 		}
 
 		assertEquals(2, count);
+	}
+
+	@Test
+	public void skipNonRestMethodsTest() {
+
+		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(TestRestWithNonRestMethod.class);
+		assertEquals(1, definitions.size());
+
+		int count = 0;
+		for (RouteDefinition definition : definitions.keySet()) {
+			if (definition.getPath().equals("/mixed/echo")) {
+				count++;
+			}
+		}
+
+		assertEquals(1, count);
 	}
 }

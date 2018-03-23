@@ -11,7 +11,7 @@ import javax.ws.rs.PathParam;
  *
  */
 @Path("docs")
-public class StaticFileRest {
+public class TestStaticFileRest {
 
 	@GET
 	@Path("/{path:.*}")

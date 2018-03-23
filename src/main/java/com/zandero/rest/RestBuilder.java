@@ -299,7 +299,6 @@ public class RestBuilder {
 		// register APIs
 		Router output = getRouter();
 
-
 		contextProviders.forEach(provider -> {
 			if (provider instanceof Class) {
 				RestRouter.provide(output, (Class<? extends ContextProvider>) provider);
@@ -307,7 +306,6 @@ public class RestBuilder {
 				RestRouter.provide(output, (ContextProvider<?>) provider);
 			}
 		});
-
 
 		// register readers
 		classValueReaders.forEach((clazz, reader) -> {
@@ -318,7 +316,6 @@ public class RestBuilder {
 			}
 		});
 
-
 		mediaTypeValueReaders.forEach((type, reader) -> {
 			if (reader instanceof Class) {
 				RestRouter.getReaders().register(type, (Class<? extends ValueReader>) reader);
@@ -326,7 +323,6 @@ public class RestBuilder {
 				RestRouter.getReaders().register(type, (ValueReader) reader);
 			}
 		});
-
 
 		// register writers
 		classResponseWriters.forEach((clazz, writer) -> {

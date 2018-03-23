@@ -7,7 +7,7 @@ import javax.ws.rs.Path;
  *
  */
 @Path("/incompatible")
-public class MissingAnnotationsRest {
+public class TestMissingAnnotationsRest {
 
 	@GET
 	@Path("ouch")

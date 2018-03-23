@@ -8,6 +8,7 @@ import com.zandero.utils.Assert;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -30,12 +31,16 @@ public final class AnnotationProcessor {
 		Map<RouteDefinition, Method> out = collect(clazz);
 
 		// Final check if definitions are OK
-		for (RouteDefinition definition : out.keySet()) {
+		Iterator<RouteDefinition> iterator = out.keySet().iterator();
+		while (iterator.hasNext()) {
+
+			RouteDefinition definition = iterator.next();
+			if (definition.getMethod() == null) { // skip non REST methods
+				out.remove(definition);
+				continue;
+			}
 
 			Method method = out.get(definition);
-			Assert.notNull(definition.getMethod(), "Missing @GET, @POST, @PUT, @DELETE, @PATCH, @OPTIONS, @TRACE, @CONNECT or @HEAD annotation on: " +
-			                                       getClassMethod(clazz, method) + "!");
-
 			Assert.notNull(definition.getRoutePath(), getClassMethod(clazz, method) + " - Missing route @Path!");
 
 			int bodyParamCount = 0;

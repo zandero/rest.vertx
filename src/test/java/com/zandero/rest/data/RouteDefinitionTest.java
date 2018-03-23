@@ -2,7 +2,7 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.RouteOrder;
-import com.zandero.rest.test.MissingAnnotationsRest;
+import com.zandero.rest.test.TestMissingAnnotationsRest;
 import com.zandero.rest.test.TestPostRest;
 import com.zandero.rest.test.TestRegExRest;
 import com.zandero.rest.test.TestRest;
@@ -115,10 +115,10 @@ public class RouteDefinitionTest {
 	public void missingArgumentAnnotationTest() {
 
 		try {
-			AnnotationProcessor.get(MissingAnnotationsRest.class);
+			AnnotationProcessor.get(TestMissingAnnotationsRest.class);
 			fail();
 		} catch (IllegalArgumentException e) {
-			assertEquals("com.zandero.rest.test.MissingAnnotationsRest.returnOuch(String arg0) - " +
+			assertEquals("com.zandero.rest.test.TestMissingAnnotationsRest.returnOuch(String arg0) - " +
 			             "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: arg0!",
 			             e.getMessage());
 		}

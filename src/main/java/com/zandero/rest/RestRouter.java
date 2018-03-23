@@ -103,7 +103,6 @@ public class RestRouter {
 
 			Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(api.getClass());
 
-
 			boolean bodyHandlerRegistered = false;
 			boolean cookieHandlerRegistered = false;
 
@@ -163,7 +162,6 @@ public class RestRouter {
 				if (definition.isAsync()) {
 					handler = getAsyncHandler(api, definition, method);
 				} else {
-
 					checkWriterCompatibility(definition);
 					handler = getHandler(api, definition, method);
 				}

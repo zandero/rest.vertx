@@ -10,7 +10,7 @@ import javax.ws.rs.Path;
  *
  */
 @Path("/incompatible")
-public class IncompatibleReaderRest {
+public class TestIncompatibleReaderRest {
 
 	@POST
 	@Path("ouch")

@@ -10,7 +10,7 @@ import javax.ws.rs.Path;
  *
  */
 @Path("/incompatible")
-public class IncompatibleWriterRest {
+public class TestIncompatibleWriterRest {
 
 	@GET
 	@Path("ouch")
