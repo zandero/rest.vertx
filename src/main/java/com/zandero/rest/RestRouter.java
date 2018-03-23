@@ -158,25 +158,31 @@ public class RestRouter {
 				Method method = definitions.get(definition);
 
 				// bind handler // blocking or async
+				Handler<RoutingContext> handler;
+
 				if (definition.isAsync()) {
-					Handler<RoutingContext> handler = getAsyncHandler(api, definition, method);
-					route.handler(handler);
+					handler = getAsyncHandler(api, definition, method);
 				} else {
 
-					try { // no way to know the accept content at this point
-						getWriter(injectionProvider, definition.getReturnType(), definition, null, null, GenericResponseWriter.class);
-					}
-					catch (ClassFactoryException e) {
-						// not relevant at this point
-					}
+					checkWriterCompatibility(definition);
+					handler = getHandler(api, definition, method);
 				}
 
-				Handler<RoutingContext> handler = getHandler(api, definition, method);
 				route.handler(handler);
 			}
 		}
 
 		return router;
+	}
+
+	// Check writer compatibility if possible
+	private static void checkWriterCompatibility(RouteDefinition definition) {
+		try { // no way to know the accept content at this point
+			getWriter(injectionProvider, definition.getReturnType(), definition, null, null, GenericResponseWriter.class);
+		}
+		catch (ClassFactoryException e) {
+			// not relevant at this point
+		}
 	}
 
 	public static void provide(Router output, Class<? extends ContextProvider> provider) {

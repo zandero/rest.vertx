@@ -128,6 +128,7 @@ public class RestBuilder {
 
 	/**
 	 * Registeres one or more exception handler classes
+	 *
 	 * @param handlers to be registered
 	 * @return builder
 	 */
@@ -142,6 +143,7 @@ public class RestBuilder {
 
 	/**
 	 * Registeres one or more exception handler instances
+	 *
 	 * @param handlers to be registered
 	 * @return builder
 	 */
@@ -297,86 +299,67 @@ public class RestBuilder {
 		// register APIs
 		Router output = getRouter();
 
-		if (contextProviders.size() > 0) {
 
-			contextProviders.forEach(provider -> {
+		contextProviders.forEach(provider -> {
+			if (provider instanceof Class) {
+				RestRouter.provide(output, (Class<? extends ContextProvider>) provider);
+			} else {
+				RestRouter.provide(output, (ContextProvider<?>) provider);
+			}
+		});
 
-				if (provider instanceof Class) {
-					RestRouter.provide(output, (Class<? extends ContextProvider>) provider);
-				} else {
-					RestRouter.provide(output, (ContextProvider<?>) provider);
-				}
-			});
-		}
 
 		// register readers
-		if (classValueReaders.size() > 0) {
-			classValueReaders.forEach((clazz, reader) -> {
+		classValueReaders.forEach((clazz, reader) -> {
+			if (reader instanceof Class) {
+				RestRouter.getReaders().register(clazz, (Class<? extends ValueReader>) reader);
+			} else {
+				RestRouter.getReaders().register(clazz, (ValueReader) reader);
+			}
+		});
 
-				if (reader instanceof Class) {
-					RestRouter.getReaders().register(clazz, (Class<? extends ValueReader>) reader);
-				} else {
-					RestRouter.getReaders().register(clazz, (ValueReader) reader);
-				}
-			});
-		}
 
-		if (mediaTypeValueReaders.size() > 0) {
-			mediaTypeValueReaders.forEach((type, reader) -> {
-				if (reader instanceof Class) {
-					RestRouter.getReaders().register(type, (Class<? extends ValueReader>) reader);
-				} else {
-					RestRouter.getReaders().register(type, (ValueReader) reader);
-				}
-			});
-		}
+		mediaTypeValueReaders.forEach((type, reader) -> {
+			if (reader instanceof Class) {
+				RestRouter.getReaders().register(type, (Class<? extends ValueReader>) reader);
+			} else {
+				RestRouter.getReaders().register(type, (ValueReader) reader);
+			}
+		});
+
 
 		// register writers
-		if (classResponseWriters.size() > 0) {
-			classResponseWriters.forEach((clazz, writer) -> {
-				if (writer instanceof Class) {
-					RestRouter.getWriters().register(clazz, (Class<? extends HttpResponseWriter>) writer);
-				}
-				else {
-					RestRouter.getWriters().register(clazz, (HttpResponseWriter) writer);
-				}
-			});
-		}
+		classResponseWriters.forEach((clazz, writer) -> {
+			if (writer instanceof Class) {
+				RestRouter.getWriters().register(clazz, (Class<? extends HttpResponseWriter>) writer);
+			} else {
+				RestRouter.getWriters().register(clazz, (HttpResponseWriter) writer);
+			}
+		});
 
-		if (mediaTypeResponseWriters.size() > 0) {
-			mediaTypeResponseWriters.forEach((type, writer) -> {
-				if (writer instanceof Class) {
-					RestRouter.getWriters().register(type, (Class<? extends HttpResponseWriter>) writer);
-				}
-				else {
-					RestRouter.getWriters().register(type, (HttpResponseWriter<?>) writer);
-				}
-			});
-		}
+		mediaTypeResponseWriters.forEach((type, writer) -> {
+			if (writer instanceof Class) {
+				RestRouter.getWriters().register(type, (Class<? extends HttpResponseWriter>) writer);
+			} else {
+				RestRouter.getWriters().register(type, (HttpResponseWriter<?>) writer);
+			}
+		});
 
 		// register exception handlers
-		if (exceptionHandlers.size() > 0) {
-			exceptionHandlers.forEach(handler -> {
+		exceptionHandlers.forEach(handler -> {
+			if (handler instanceof Class) {
+				RestRouter.getExceptionHandlers().register((Class<? extends ExceptionHandler>) handler);
+			} else {
+				RestRouter.getExceptionHandlers().register((ExceptionHandler) handler);
+			}
+		});
 
-				if (handler instanceof Class) {
-					RestRouter.getExceptionHandlers().register((Class<? extends ExceptionHandler>) handler);
-				} else {
-					RestRouter.getExceptionHandlers().register((ExceptionHandler) handler);
-				}
-			});
-		}
-
-		if (notFound != null && notFound.size() > 0) {
-
-			for (String path : notFound.keySet()) {
-
-				Object notFoundHandler = notFound.get(path);
-				if (notFoundHandler instanceof Class) {
-					RestRouter.notFound(output, path, (Class<? extends NotFoundResponseWriter>) notFoundHandler);
-				}
-				else {
-					RestRouter.notFound(output, path, (NotFoundResponseWriter) notFoundHandler);
-				}
+		for (String path : notFound.keySet()) {
+			Object notFoundHandler = notFound.get(path);
+			if (notFoundHandler instanceof Class) {
+				RestRouter.notFound(output, path, (Class<? extends NotFoundResponseWriter>) notFoundHandler);
+			} else {
+				RestRouter.notFound(output, path, (NotFoundResponseWriter) notFoundHandler);
 			}
 		}
 
