@@ -8,7 +8,7 @@ import com.zandero.utils.Assert;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -28,19 +28,17 @@ public final class AnnotationProcessor {
 	 */
 	public static Map<RouteDefinition, Method> get(Class clazz) {
 
-		Map<RouteDefinition, Method> out = collect(clazz);
+		Map<RouteDefinition, Method> out = new HashMap<>();
 
+		Map<RouteDefinition, Method> candidates = collect(clazz);
 		// Final check if definitions are OK
-		Iterator<RouteDefinition> iterator = out.keySet().iterator();
-		while (iterator.hasNext()) {
+		for (RouteDefinition definition : candidates.keySet()) {
 
-			RouteDefinition definition = iterator.next();
 			if (definition.getMethod() == null) { // skip non REST methods
-				out.remove(definition);
 				continue;
 			}
 
-			Method method = out.get(definition);
+			Method method = candidates.get(definition);
 			Assert.notNull(definition.getRoutePath(), getClassMethod(clazz, method) + " - Missing route @Path!");
 
 			int bodyParamCount = 0;
@@ -65,6 +63,8 @@ public final class AnnotationProcessor {
 					bodyParamCount++;
 				}
 			}
+
+			out.put(definition, method);
 		}
 
 		return out;
