@@ -61,7 +61,7 @@
 
         <!-- logging -->
         <version.logback>[1.1.7,)</version.logback>
-        <version.slf4j-api>1.7.25</version.slf4j-api>
+        <version.slf4j-api>[1.8.0-beta2,)</version.slf4j-api>
 
         <!-- testing -->
         <version.junit>[4.12,)</version.junit>

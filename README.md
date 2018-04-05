@@ -1250,3 +1250,13 @@ This is done in order to ensure thread safety, so one context does not jump into
 * All registered REST classes are singletons by default, no need to annotate them with _@Singleton_ annotation.  
 * By default all _HttpResponseWriter_, _ValueReader_ and _ExceptionHandler_ classes are singletons that are cached once initialized.
 * In case _HttpResponseWriter_, _ValueReader_ or _ExceptionHandler_ are utilizing a **@Context** field they are initialized on **every request** for thread safety 
+
+# Logging
+Rest.vertx uses [Slf4j](https://www.slf4j.org/) logging API.
+In order to see all messages produced by Rest.vertx use a Slf4j compatible logging implementation.
+
+## Logback logging settings example
+```xml
+<logger name="com.zandero.rest" level="DEBUG" />
+```
+
