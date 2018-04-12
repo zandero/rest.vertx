@@ -1,6 +1,6 @@
 package com.zandero.rest.test;
 
-import com.zandero.rest.annotation.TRACE;
+import com.zandero.rest.annotation.Trace;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -17,7 +17,7 @@ public class TestEchoRest {
 		return "echo";
 	}
 
-	@TRACE("echo") // experimenting ... with path is value of method
+	@Trace("echo") // experimenting ... with path is value of method
 	public String trace() {
 		return "trace";
 	}

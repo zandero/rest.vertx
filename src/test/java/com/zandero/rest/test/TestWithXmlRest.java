@@ -19,4 +19,10 @@ public class TestWithXmlRest {
 	public User h1() {
 		return new User("test");
 	}
+
+	@GET
+	@Path("/test2")
+	public User h2() {
+		return new User("test");
+	}
 }

@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @HttpMethod("CONNECT")
 @Documented
-public @interface CONNECT {
+public @interface Connect {
 
 	String value() default ""; // @Path to connect if not given in @Path
 }

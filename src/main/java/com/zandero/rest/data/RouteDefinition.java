@@ -327,19 +327,19 @@ public class RouteDefinition {
 			    annotation instanceof HEAD ||
 			    annotation instanceof OPTIONS ||
 			    annotation instanceof PATCH ||
-			    annotation instanceof TRACE ||
-			    annotation instanceof CONNECT) { // TODO: what about OTHER ?
+			    annotation instanceof Trace ||
+			    annotation instanceof Connect) { // TODO: what about OTHER ?
 
 				method(annotation.annotationType().getSimpleName());
 			}
 
 			// TODO: this is an experiment to replace @Path with method value
-			if (!hasPath && annotation instanceof TRACE) {
-				path(((TRACE) annotation).value());
+			if (!hasPath && annotation instanceof Trace) {
+				path(((Trace) annotation).value());
 			}
 
-			if (!hasPath && annotation instanceof CONNECT) {
-				path(((CONNECT) annotation).value());
+			if (!hasPath && annotation instanceof Connect) {
+				path(((Connect) annotation).value());
 			}
 
 			if (annotation instanceof javax.ws.rs.HttpMethod) {

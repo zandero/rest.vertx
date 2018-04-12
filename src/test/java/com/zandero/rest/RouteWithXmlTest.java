@@ -40,6 +40,29 @@ public class RouteWithXmlTest extends VertxTest {
 
 			context.assertEquals(200, response.statusCode());
 
+			String header = response.getHeader("Content-Type");
+			context.assertEquals("application/xml", header);
+
+			response.bodyHandler(body -> {
+				context.assertEquals("<u name=\"test\" />", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void textXmlWriterAddsHeader(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/xml/test2", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			String header = response.getHeader("Content-Type");
+			context.assertEquals("text/xml", header);
+
 			response.bodyHandler(body -> {
 				context.assertEquals("<u name=\"test\" />", body.toString());
 				async.complete();

@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @HttpMethod("TRACE")
 @Documented
-public @interface TRACE {
+public @interface Trace {
 
 	String value() default ""; // @Path to trace if not given in @Path
 }

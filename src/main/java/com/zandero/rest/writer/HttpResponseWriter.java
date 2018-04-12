@@ -6,6 +6,7 @@ import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -19,17 +20,25 @@ public interface HttpResponseWriter<T> {
 
 	default void addResponseHeaders(RouteDefinition definition, HttpServerResponse response) {
 
+
 		if (!response.ended() &&
-			!response.headers().contains(HttpHeaders.CONTENT_TYPE)) {
+		    !response.headers().contains(HttpHeaders.CONTENT_TYPE)) {
 
 			if (definition != null &&
 			    definition.getProduces() != null) {
 				for (MediaType produces : definition.getProduces()) {
 					response.putHeader(HttpHeaders.CONTENT_TYPE, MediaTypeHelper.toString(produces));
 				}
-			}
-			else {
-				response.putHeader(HttpHeaders.CONTENT_TYPE, MediaType.WILDCARD);
+			} else {
+				Produces writerProduces = this.getClass().getAnnotation(Produces.class);
+				if (writerProduces != null && writerProduces.value().length > 0) {
+					for (String produces : writerProduces.value()) {
+						response.putHeader(HttpHeaders.CONTENT_TYPE, produces);
+					}
+				}
+				else {
+					response.putHeader(HttpHeaders.CONTENT_TYPE, MediaType.WILDCARD);
+				}
 			}
 		}
 	}
