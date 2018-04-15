@@ -1,6 +1,7 @@
 package com.zandero.rest.reader;
 
 import com.zandero.rest.data.ClassFactory;
+import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.rest.data.MethodParameter;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.ContextException;
@@ -10,6 +11,7 @@ import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -77,6 +79,23 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 			log.error(
 				"Failed inject context into value reader: " + readerType + ", for: " + parameter + ", falling back to GenericBodyReader() instead!");
 			return new GenericValueReader();
+		}
+	}
+
+	/**
+	 * Takes media type from @Consumes annotation if specified,
+	 * @param reader
+	 */
+	public void register(Class<? extends ValueReader> reader) {
+
+		Consumes found = reader.getAnnotation(Consumes.class);
+		Assert.notNull(found, "Annotate reader with @Consumes to provide media type information!");
+
+		MediaType[] consumes = MediaTypeHelper.getMediaTypes(found.value());
+		if (consumes != null && consumes.length > 0) {
+			for (MediaType type : consumes) {
+				super.register(type, reader);
+			}
 		}
 	}
 

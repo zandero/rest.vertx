@@ -214,6 +214,14 @@ public class RestBuilder {
 		return this;
 	}
 
+	public RestBuilder reader(Class<? extends ValueReader> reader) {
+
+		Assert.notNull(reader, "Missing value reader class!");
+
+		mediaTypeValueReaders.put(null, reader);
+		return this;
+	}
+
 	public <T> RestBuilder provide(ContextProvider<T> provider) {
 
 		Assert.notNull(provider, "Missing context provider!");
@@ -309,6 +317,7 @@ public class RestBuilder {
 
 		// register readers
 		classValueReaders.forEach((clazz, reader) -> {
+
 			if (reader instanceof Class) {
 				RestRouter.getReaders().register(clazz, (Class<? extends ValueReader>) reader);
 			} else {
@@ -317,6 +326,11 @@ public class RestBuilder {
 		});
 
 		mediaTypeValueReaders.forEach((type, reader) -> {
+
+			if (type == null) {
+				RestRouter.getReaders().register((Class<? extends ValueReader>) reader);
+			}
+
 			if (reader instanceof Class) {
 				RestRouter.getReaders().register(type, (Class<? extends ValueReader>) reader);
 			} else {

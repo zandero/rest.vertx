@@ -430,32 +430,15 @@ public class RouteDefinition {
 	public RouteDefinition consumes(String[] value) {
 
 		Assert.notNullOrEmpty(value, "Missing '@Consumes' definition!");
-		consumes = getMediaTypes(value);
+		consumes = MediaTypeHelper.getMediaTypes(value);
 		return this;
 	}
 
 	public RouteDefinition produces(String[] value) {
 
 		Assert.notNullOrEmpty(value, "Missing '@Produces' definition!");
-		produces = getMediaTypes(value);
+		produces = MediaTypeHelper.getMediaTypes(value);
 		return this;
-	}
-
-	private MediaType[] getMediaTypes(String[] value) {
-
-		List<MediaType> types = new ArrayList<>();
-		for (String item : value) {
-			MediaType type = MediaTypeHelper.valueOf(item);
-			if (type != null) {
-				types.add(type);
-			}
-		}
-
-		if (types.size() == 0) {
-			return null;
-		}
-
-		return types.toArray(new MediaType[]{});
 	}
 
 	private RouteDefinition method(String value) {

@@ -7,7 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,6 +40,23 @@ public final class MediaTypeHelper {
 		catch (IllegalArgumentException e) {
 			return null;
 		}
+	}
+
+	public static MediaType[] getMediaTypes(String[] value) {
+
+		List<MediaType> types = new ArrayList<>();
+		for (String item : value) {
+			MediaType type = MediaTypeHelper.valueOf(item);
+			if (type != null) {
+				types.add(type);
+			}
+		}
+
+		if (types.size() == 0) {
+			return null;
+		}
+
+		return types.toArray(new MediaType[]{});
 	}
 
 	/**
