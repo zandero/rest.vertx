@@ -20,7 +20,6 @@ public interface HttpResponseWriter<T> {
 
 	default void addResponseHeaders(RouteDefinition definition, HttpServerResponse response) {
 
-
 		if (!response.ended() &&
 		    !response.headers().contains(HttpHeaders.CONTENT_TYPE)) {
 
