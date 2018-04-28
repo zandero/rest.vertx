@@ -23,19 +23,18 @@ public interface HttpResponseWriter<T> {
 		if (!response.ended() &&
 		    !response.headers().contains(HttpHeaders.CONTENT_TYPE)) {
 
-			if (definition != null &&
-			    definition.getProduces() != null) {
-				for (MediaType produces : definition.getProduces()) {
-					response.putHeader(HttpHeaders.CONTENT_TYPE, MediaTypeHelper.toString(produces));
+			Produces writerProduces = this.getClass().getAnnotation(Produces.class);
+			if (writerProduces != null && writerProduces.value().length > 0) {
+				for (String produces : writerProduces.value()) {
+					response.putHeader(HttpHeaders.CONTENT_TYPE, produces);
 				}
 			} else {
-				Produces writerProduces = this.getClass().getAnnotation(Produces.class);
-				if (writerProduces != null && writerProduces.value().length > 0) {
-					for (String produces : writerProduces.value()) {
-						response.putHeader(HttpHeaders.CONTENT_TYPE, produces);
+				if (definition != null &&
+				    definition.getProduces() != null) {
+					for (MediaType produces : definition.getProduces()) {
+						response.putHeader(HttpHeaders.CONTENT_TYPE, MediaTypeHelper.toString(produces));
 					}
-				}
-				else {
+				} else {
 					response.putHeader(HttpHeaders.CONTENT_TYPE, MediaType.WILDCARD);
 				}
 			}

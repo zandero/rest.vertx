@@ -43,6 +43,9 @@ public class RouteWithXmlTest extends VertxTest {
 			String header = response.getHeader("Content-Type");
 			context.assertEquals("application/xml", header);
 
+			header = response.getHeader("Cache-Control");
+			context.assertEquals("private,no-cache,no-store", header);
+
 			response.bodyHandler(body -> {
 				context.assertEquals("<u name=\"test\" />", body.toString());
 				async.complete();

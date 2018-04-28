@@ -210,16 +210,27 @@ public class CustomReaderTest extends VertxTest {
 	@Test
 	public void extendedContentTypeByMediaType(TestContext context) {
 
-		/*TestReaderRest testRest = new TestReaderRest();
-
-		Router router = RestRouter.register(vertx, testRest);
-
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);*/
-
 		// register reader afterwards - should still work
 		RestRouter.getReaders().register("application/json", DummyBodyReader.class);
+
+		final Async async = context.async();
+		client.post("/read/normal/dummy", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.bodyHandler(body -> {
+				context.assertEquals("one=dummy", body.toString()); // returns sorted list of unique words
+				async.complete();
+			});
+		}).putHeader("Content-Type", "application/json;charset=UTF-8")
+		      .end(JsonUtils.toJson(new Dummy("one", "dummy")));
+	}
+
+	@Test
+	public void extendedContentTypeByAnnotatedMediaType(TestContext context) {
+
+		// register reader afterwards - should still work
+		RestRouter.getReaders().register(DummyBodyReader.class);
 
 		final Async async = context.async();
 		client.post("/read/normal/dummy", response -> {

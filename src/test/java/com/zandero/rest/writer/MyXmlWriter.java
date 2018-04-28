@@ -15,6 +15,8 @@ public class MyXmlWriter implements HttpResponseWriter<User> {
 	@Override
 	public void write(User result, HttpServerRequest request, HttpServerResponse response) {
 
+		// response.headers().set("Content-Type", "text/xml");
+		response.putHeader("Cache-Control", "private,no-cache,no-store");
 		response.end("<u name=\"" + result.name  + "\" />");
 	}
 }
