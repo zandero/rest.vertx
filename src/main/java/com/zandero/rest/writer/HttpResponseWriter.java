@@ -16,7 +16,7 @@ import javax.ws.rs.core.MediaType;
  */
 public interface HttpResponseWriter<T> {
 
-	void write(T result, HttpServerRequest request, HttpServerResponse response);
+	void write(T result, HttpServerRequest request, HttpServerResponse response) throws Throwable;
 
 	default void addResponseHeaders(RouteDefinition definition, HttpServerResponse response) {
 

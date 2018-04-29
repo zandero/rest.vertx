@@ -25,7 +25,7 @@ public class JaxResponseWriter implements HttpResponseWriter<Response> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void write(Response result, HttpServerRequest request, HttpServerResponse response) {
+	public void write(Response result, HttpServerRequest request, HttpServerResponse response) throws Throwable {
 
 		Assert.notNull(result, "Expected result but got null!");
 

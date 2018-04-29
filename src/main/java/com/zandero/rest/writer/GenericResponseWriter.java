@@ -25,7 +25,7 @@ public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
 	RoutingContext context;
 
 	@Override
-	public void write(T result, HttpServerRequest request, HttpServerResponse response) {
+	public void write(T result, HttpServerRequest request, HttpServerResponse response) throws Throwable {
 
 		String mediaType = response.headers().get(HttpHeaders.CONTENT_TYPE);
 

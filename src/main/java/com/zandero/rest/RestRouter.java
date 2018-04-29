@@ -501,7 +501,7 @@ public class RestRouter {
 
 							produceResponse(res.result(), context, definition, writer);
 						}
-						catch (Exception e) {
+						catch (Throwable e) {
 							handleException(e, context, definition);
 						}
 					} else {
@@ -546,7 +546,7 @@ public class RestRouter {
 
 								produceResponse(futureResult, context, definition, writer);
 							}
-							catch (Exception e) {
+							catch (Throwable e) {
 								handleException(e, context, definition);
 							}
 						} else {
@@ -578,7 +578,7 @@ public class RestRouter {
 
 				produceResponse(null, context, definition, writer);
 			}
-			catch (Exception e) {
+			catch (Throwable e) {
 				handleException(e, context, null);
 			}
 		};
@@ -626,7 +626,13 @@ public class RestRouter {
 		response.setStatusCode(ex.getStatusCode());
 		handler.addResponseHeaders(definition, response);
 
-		handler.write(ex.getCause(), context.request(), context.response());
+		try {
+			handler.write(ex.getCause(), context.request(), context.response());
+		}
+		catch (Throwable handlerException) {
+			// this should not happen
+			log.error("Failed to write out handled exception: " + e.getMessage(), e);
+		}
 
 		// end response ...
 		if (!response.ended()) {
@@ -657,7 +663,8 @@ public class RestRouter {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void produceResponse(Object result, RoutingContext context, RouteDefinition definition, HttpResponseWriter writer) {
+	private static void produceResponse(Object result, RoutingContext context, RouteDefinition definition, HttpResponseWriter writer) throws
+	                                                                                                                                  Throwable {
 
 		HttpServerResponse response = context.response();
 		HttpServerRequest request = context.request();
