@@ -141,7 +141,9 @@ public class RestBuilder {
 			corsHandler.allowedMethod(method);
 		}
 
-		corsHandler.allowedHeaders(allowedHeaders);
+		if (allowedHeaders.size() > 0) {
+			corsHandler.allowedHeaders(allowedHeaders);
+		}
 
 		return this;
 	}

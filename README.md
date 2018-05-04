@@ -831,6 +831,12 @@ public class WriteMyObject {
 }
 ```
 
+### Consuming/producing JSONs
+By default **Rest.Vertx** binds _application/json_ mime type to internal _JsonValueReader_ and _JsonResponseWriter_ 
+to read and write JSONs.
+This reader/writer utilizes Jackson with Vert.x internal _io.vertx.core.json.Json.mapper_ ObjectMapper.  
+ In order to change serialization/deserialization of JSON via Jackson the internal _io.vertx.core.json.Json.mapper_ should be altered.
+
 ## Ordering routes
 By default routes area added to the Router in the order they are listed as methods in the class when registered.
 One can manually change the route REST order with the **@RouteOrder** annotation.
