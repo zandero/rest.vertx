@@ -7,7 +7,7 @@
 
     <artifactId>rest.vertx</artifactId>
     <groupId>com.zandero</groupId>
-    <version>0.8.3</version>
+    <version>0.8.4</version>
     <packaging>jar</packaging>
 
     <name>Zandero REST Vert.X</name>
@@ -56,14 +56,14 @@
         <version.zandero.http>[1.2,)</version.zandero.http>
         <version.zandero.utils.junit>[1.0.1,)</version.zandero.utils.junit>
 
-        <version.vertx>3.5.0</version.vertx>
-        <version.servlet-api>[3.1.0,)</version.servlet-api>
+        <version.vertx>3.5.1</version.vertx>
+        <version.servlet-api>3.1.0</version.servlet-api>
 
         <!-- logging -->
-        <version.slf4j-api>[1.8.0-beta2,)</version.slf4j-api>
-        <version.logback>[1.1.7,)</version.logback>
+        <version.slf4j-api>1.8.0-beta2</version.slf4j-api>
 
         <!-- testing -->
+        <version.logback>[1.1.7,)</version.logback>
         <version.junit>[4.12,)</version.junit>
         <version.mockito-all>[1.10.19,)</version.mockito-all>
         <version.jetty>[9.3.7.v20160115,)</version.jetty>
