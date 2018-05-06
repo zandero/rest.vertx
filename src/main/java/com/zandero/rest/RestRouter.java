@@ -88,6 +88,17 @@ public class RestRouter {
 
 		for (Object api : restApi) {
 
+			if (api == null) {
+				continue;
+			}
+
+			if (api instanceof Handler) {
+
+				Handler handler = (Handler)api;
+				router.route().handler(handler);
+				continue;
+			}
+
 			// check if api is an instance of a class or a class type
 			if (api instanceof Class) {
 
@@ -484,31 +495,31 @@ public class RestRouter {
 			false,
 			res -> {
 
-					if (res.succeeded()) {
-						try {
+				if (res.succeeded()) {
+					try {
 
-							Object result = res.result();
-							Class returnType = result != null ? result.getClass() : definition.getReturnType();
+						Object result = res.result();
+						Class returnType = result != null ? result.getClass() : definition.getReturnType();
 
-							MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
-							HttpResponseWriter writer = getWriter(injectionProvider,
-							                                      returnType,
-							                                      definition,
-							                                      accept,
-							                                      context,
-							                                      GenericResponseWriter.class);
+						MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
+						HttpResponseWriter writer = getWriter(injectionProvider,
+						                                      returnType,
+						                                      definition,
+						                                      accept,
+						                                      context,
+						                                      GenericResponseWriter.class);
 
 
-							produceResponse(res.result(), context, definition, writer);
-						}
-						catch (Throwable e) {
-							handleException(e, context, definition);
-						}
-					} else {
-						handleException(res.cause(), context, definition);
+						produceResponse(res.result(), context, definition, writer);
 					}
+					catch (Throwable e) {
+						handleException(e, context, definition);
+					}
+				} else {
+					handleException(res.cause(), context, definition);
 				}
-			);
+			}
+		);
 	}
 
 	private static Handler<RoutingContext> getAsyncHandler(final Object toInvoke, final RouteDefinition definition, final Method method) {

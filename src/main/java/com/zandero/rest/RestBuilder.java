@@ -9,7 +9,9 @@ import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.rest.writer.NotFoundResponseWriter;
+import com.zandero.utils.ArrayUtils;
 import com.zandero.utils.Assert;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
@@ -300,12 +302,15 @@ public class RestBuilder {
 		return this;
 	}
 
-	private Router getRouter() {
+	private Router getRouter(Handler... handlers) {
+
+		Object[] joined = ArrayUtils.join(handlers, apis.toArray());
+
 		if (vertx == null) {
-			return RestRouter.register(router, apis.toArray());
+			return RestRouter.register(router, joined);
 		}
 
-		return RestRouter.register(vertx, apis.toArray());
+		return RestRouter.register(vertx, joined);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -326,8 +331,16 @@ public class RestBuilder {
 			});
 		}
 
+		Router output;
+
 		// register APIs
-		Router output = getRouter();
+		if (corsHandler != null) {
+			// Additional handlers to be registered before RESTs
+			output = getRouter(corsHandler);
+		}
+		else {
+			output = getRouter();
+		}
 
 		contextProviders.forEach(provider -> {
 			if (provider instanceof Class) {
@@ -393,10 +406,6 @@ public class RestBuilder {
 			} else {
 				RestRouter.notFound(output, path, (NotFoundResponseWriter) notFoundHandler);
 			}
-		}
-
-		if (corsHandler != null) {
-			output.route().handler(corsHandler);
 		}
 
 		return output;

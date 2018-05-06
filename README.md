@@ -831,7 +831,7 @@ public class WriteMyObject {
 }
 ```
 
-### Consuming/producing JSONs
+### Consuming / Producing JSONs
 By default **Rest.Vertx** binds _application/json_ mime type to internal _JsonValueReader_ and _JsonResponseWriter_ 
 to read and write JSONs.
 This reader/writer utilizes Jackson with Vert.x internal _io.vertx.core.json.Json.mapper_ ObjectMapper.  
