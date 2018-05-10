@@ -77,6 +77,16 @@ public class RestBuilder {
 		return this;
 	}
 
+	public RestBuilder register(String... namespace) {
+
+		Assert.notNullOrEmpty(namespace, "Missing REST API namespaces!");
+
+		// TODO
+		// finds REST APIs on given class namespaces ...
+
+		return this;
+	}
+
 	public RestBuilder notFound(String path, Class<? extends NotFoundResponseWriter> writer) {
 
 		Assert.notNullOrEmptyTrimmed(path, "Missing path prefix!");

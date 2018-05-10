@@ -8,14 +8,23 @@ import com.zandero.utils.Assert;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Collects all JAX-RS annotations to be transformed into routes
  */
 public final class AnnotationProcessor {
+
+	/**
+	 * Methods names of Object that will be ignored when binding RESTs
+	 */
+	private static final Set<String> OBJECT_METHODS;
+	static {
+		OBJECT_METHODS = new HashSet<>();
+		OBJECT_METHODS.add("equals");
+		OBJECT_METHODS.add("toString");
+		OBJECT_METHODS.add("wait");
+	}
 
 	private AnnotationProcessor() {
 		// hide constructor
@@ -207,17 +216,18 @@ public final class AnnotationProcessor {
 	private static boolean isRestCompatible(Method method) {
 
 		return (!method.getDeclaringClass().isInstance(Object.class) &&
-		        !isNative(method) && !isFinal(method) &&
+		        !isNative(method) && !isObjectMethod(method) &&
 		        (isPublic(method) || isInterface(method) || isAbstract(method)));
+	}
+
+	private static boolean isObjectMethod(Method method) {
+		return OBJECT_METHODS.contains(method.getName());
 	}
 
 	private static boolean isNative(Method method) {
 		return ((method.getModifiers() & Modifier.NATIVE) != 0);
 	}
 
-	private static boolean isFinal(Method method) {
-		return ((method.getModifiers() & Modifier.FINAL) != 0);
-	}
 
 	private static boolean isPublic(Method method) {
 		return ((method.getModifiers() & Modifier.PUBLIC) != 0);

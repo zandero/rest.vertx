@@ -1238,7 +1238,7 @@ public class GuicedRest {
 Injection can also be used od _RequestReader_, _ResponseWriters_ or _ExceptionHandler_ if needed.
 
 ### @Context fields
->since version 8.1 or later
+>since version 0.8.1 or later
 
 Rest api classes **can not** use @Context fields, @Context is provided via method parameters instead. 
  
@@ -1249,7 +1249,7 @@ Use _@Context_ fields only when really necessary, as the readers, writers and ha
 This is done in order to ensure thread safety, so one context does not jump into another thread.
 
 ## Internal caching
->since version 8.1 or later
+>since version 0.8.1 or later
 
 ### Caching and singletons
 
