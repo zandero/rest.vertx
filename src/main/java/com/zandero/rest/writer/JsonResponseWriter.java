@@ -9,6 +9,8 @@ import io.vertx.core.http.HttpServerResponse;
  */
 public class JsonResponseWriter<T> implements HttpResponseWriter<T> {
 
+	// TODO: add custom mapper ... to override vertx.mapper if desired
+
 	@Override
 	public void write(T result, HttpServerRequest request, HttpServerResponse response) {
 

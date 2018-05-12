@@ -29,6 +29,7 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 	@Override
 	protected void init() {
 
+		// default writers
 		classTypes.put(Response.class, JaxResponseWriter.class);
 		classTypes.put(HttpServerResponse.class, VertxResponseWriter.class);
 
