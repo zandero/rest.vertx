@@ -22,13 +22,11 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 	 * standalone list of global handlers
  	 */
 	private List<Class<? extends ExceptionHandler>> exceptionHandlers;
-	private List<ExceptionHandler> exceptionHandlerInstances;
 
 	@Override
 	protected void init() {
 
 		exceptionHandlers = new ArrayList<>();
-		exceptionHandlerInstances = new ArrayList<>();
 
 		// register handlers from specific to general ...
 		// when searching we go over handlers ... first match is returned
@@ -58,14 +56,10 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 			}
 		}
 
-		// search for handler instances ... if any
-		if (found == null && exceptionHandlerInstances != null && exceptionHandlerInstances.size() > 0) {
-
-			for (ExceptionHandler handler: exceptionHandlerInstances) {
-
-				if (checkIfCompatibleTypes(aClass, handler.getClass())) {
-					return handler;
-				}
+		if (found == null) {
+			ExceptionHandler handler = getCached(aClass.getName());
+			if (handler != null) {
+				return handler;
 			}
 		}
 

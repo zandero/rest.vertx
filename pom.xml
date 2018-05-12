@@ -140,12 +140,33 @@
             <scope>test</scope>
         </dependency>
 
+        <!--<dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${version.junit}</version>
+            <scope>test</scope>
+        </dependency>-->
+
+        <!--<dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-all</artifactId>
+            <version>${version.junit}</version>
+            <scope>test</scope>
+        </dependency>-->
+
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-unit</artifactId>
             <version>${version.vertx}</version>
             <scope>test</scope>
         </dependency>
+
+        <!--<dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-junit5</artifactId>
+            <version>${version.vertx}</version>
+            <scope>test</scope>
+        </dependency>-->
 
         <!-- logger for testing only -->
         <dependency>

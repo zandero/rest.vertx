@@ -38,7 +38,6 @@ public class RouteErrorHandlerTest extends VertxTest {
 
 		// call and check response
 		final Async async = context.async();
-		RestRouter.getExceptionHandlers().register(IllegalArgumentExceptionHandler.class);
 
 		client.getNow("/throw/unhandled", response -> {
 

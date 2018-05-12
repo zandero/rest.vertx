@@ -79,6 +79,11 @@ public abstract class ClassFactory<T> {
 		return cache.get(clazz.getName());
 	}
 
+	protected T getCached(String key) {
+
+		return cache.get(key);
+	}
+
 	@SuppressWarnings("unchecked")
 	public T getClassInstance(Class<? extends T> clazz,
 	                          InjectionProvider provider,
