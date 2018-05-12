@@ -56,6 +56,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 			}
 		}
 
+		// get handler instance by exception type
 		if (found == null) {
 			ExceptionHandler handler = getCached(aClass.getName());
 			if (handler != null) {
@@ -63,7 +64,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 			}
 		}
 
-		// add globally registered
+		// add globally registered class type
 		if (found == null && exceptionHandlers != null && exceptionHandlers.size() > 0) {
 
 			for (Class<? extends ExceptionHandler> handler: exceptionHandlers) {
@@ -86,6 +87,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 			found = GenericExceptionHandler.class;
 		}
 
+		// create class instance
 		return super.getClassInstance(found, provider, context);
 	}
 
