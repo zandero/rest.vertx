@@ -57,4 +57,24 @@ public class ErrorThrowingRest {
 				throw new MyExceptionClass("ADIOS!", 500);
 		}
 	}
+
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("big/{bang}")
+	public String returnBigBang(@PathParam("bang") String bang) throws ExecuteException, MyExceptionClass {
+
+		switch (bang) {
+			case "one":
+				throw new ExecuteException(405, "HTTP 405 Method Not Allowed");
+			case "two":
+			default:
+				throw new IllegalArgumentException("Bang!");
+
+			case "three":
+				throw new NumberFormatException("WHAT!");
+
+			case "four":
+				throw new MyExceptionClass("ADIOS!", 500);
+		}
+	}
 }

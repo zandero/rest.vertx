@@ -5,6 +5,8 @@ import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
 import io.vertx.ext.web.RoutingContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.WebApplicationException;
 import java.lang.reflect.Type;
@@ -17,6 +19,8 @@ import java.util.List;
  *
  */
 public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
+
+	private final static Logger log = LoggerFactory.getLogger(ExceptionHandlerFactory.class);
 
 	/**
 	 * standalone list of global handlers
@@ -51,6 +55,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 				Type type = getGenericType(handler);
 				if (checkIfCompatibleTypes(aClass, type)) {
 					found = handler;
+					log.info("Found matching exception handler: " + found.getName());
 					break;
 				}
 			}
@@ -60,6 +65,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 		if (found == null) {
 			ExceptionHandler handler = getCached(aClass.getName());
 			if (handler != null) {
+				log.info("Found matching exception handler: " + handler.getClass().getName());
 				return handler;
 			}
 		}
@@ -72,6 +78,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 				Type type = getGenericType(handler);
 				if (checkIfCompatibleTypes(aClass, type)) {
 					found = handler;
+					log.info("Found matching exception handler: " + handler.getClass().getName());
 					break;
 				}
 			}
@@ -80,11 +87,16 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 		// get by exception type from classTypes list
 		if (found == null) {
 			found = super.get(aClass);
+
+			if (found != null) {
+				log.info("Found matching class type exception handler: " + found.getClass().getName());
+			}
 		}
 
 		// nothing found provide generic
 		if (found == null) {
 			found = GenericExceptionHandler.class;
+			log.info("Resolving to generic exception handler: " + found.getClass().getName());
 		}
 
 		// create class instance
