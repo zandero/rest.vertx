@@ -101,6 +101,10 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 		for (Class<? extends ExceptionHandler> handler: handlers) {
 
 			Type type = getGenericType(handler);
+			Assert.notNull(type, "Can't extract generic class type for exception handler: " + handler.getClass().getName());
+
+			checkIfAlreadyRegistered((Class)type);
+
 			classTypes.put((Class)type, handler);
 		}
 	}
@@ -116,11 +120,23 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 			Type generic = getGenericType(handler.getClass());
 			Assert.notNull(generic, "Can't extract generic class type for exception handler: " + handler.getClass().getName());
 
+			// check if already registered
+			checkIfAlreadyRegistered((Class)generic);
+
 			// register
 			classTypes.put((Class)generic, handler.getClass());
 
 			// cache instance
 			super.register((Class)generic, handler);
+		}
+	}
+
+	private void checkIfAlreadyRegistered(Class clazz) {
+
+		// check if already registered
+		Class<? extends ExceptionHandler> found = classTypes.get(clazz);
+		if (found != null) {
+			throw new IllegalArgumentException("Exception handler for: " + clazz.getName() + " already registered with: " + found.getName());
 		}
 	}
 }

@@ -9,8 +9,7 @@ import org.junit.Test;
 
 import javax.ws.rs.WebApplicationException;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -139,4 +138,55 @@ public class ExceptionHandlerFactoryTest {
 		assertTrue(found instanceof WebApplicationExceptionHandler);
 	}
 
+	@Test public void doubleHandlerRegistration() {
+
+		factory.register(MyExceptionHandler.class);
+		try {
+			factory.register(new MyExceptionHandler());
+			fail();
+		}
+		catch (IllegalArgumentException e) {
+			assertEquals("Exception handler for: com.zandero.rest.test.handler.MyExceptionClass " +
+			             "already registered with: com.zandero.rest.test.handler.MyExceptionHandler", e.getMessage());
+		}
+	}
+
+	@Test public void doubleHandlerRegistrationReversed() {
+
+		factory.register(new MyExceptionHandler());
+		try {
+			factory.register(MyExceptionHandler.class);
+			fail();
+		}
+		catch (IllegalArgumentException e) {
+			assertEquals("Exception handler for: com.zandero.rest.test.handler.MyExceptionClass " +
+			             "already registered with: com.zandero.rest.test.handler.MyExceptionHandler", e.getMessage());
+		}
+	}
+
+	@Test public void doubleHandlerRegistrationSameException() {
+
+		factory.register(new IllegalArgumentExceptionHandler());
+		try {
+			factory.register(ContextExceptionHandler.class);
+			fail();
+		}
+		catch (IllegalArgumentException e) {
+			assertEquals("Exception handler for: java.lang.IllegalArgumentException " +
+			             "already registered with: com.zandero.rest.test.handler.IllegalArgumentExceptionHandler", e.getMessage());
+		}
+	}
+
+	@Test public void doubleHandlerRegistrationSameExceptionReversed() {
+
+		factory.register(ContextExceptionHandler.class);
+		try {
+			factory.register(new IllegalArgumentExceptionHandler());
+			fail();
+		}
+		catch (IllegalArgumentException e) {
+			assertEquals("Exception handler for: java.lang.IllegalArgumentException " +
+			             "already registered with: com.zandero.rest.test.handler.ContextExceptionHandler", e.getMessage());
+		}
+	}
 }

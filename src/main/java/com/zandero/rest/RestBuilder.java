@@ -338,6 +338,7 @@ public class RestBuilder {
 			});
 		}
 
+		// put CORS handler in front of other handlers
 		Object[] handlers = null;
 		if (corsHandler != null) {
 			handlers = new Object[]{corsHandler};
