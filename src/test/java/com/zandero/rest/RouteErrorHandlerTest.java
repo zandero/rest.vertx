@@ -25,11 +25,11 @@ public class RouteErrorHandlerTest extends VertxTest {
 		super.before(context);
 
 		Router router = new RestBuilder(vertx)
-			                    .register(ErrorThrowingRest.class, new ErrorThrowingRest2())
-			                    .errorHandler(new MyExceptionHandler(),
-			                    	          new IllegalArgumentExceptionHandler(),
-			                                  new MyOtherExceptionHandler())
-			                    .build();
+			                .register(ErrorThrowingRest.class, new ErrorThrowingRest2())
+			                .errorHandler(new MyExceptionHandler(),
+			                              new IllegalArgumentExceptionHandler(),
+			                              new MyOtherExceptionHandler())
+			                .build();
 
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)
@@ -44,10 +44,9 @@ public class RouteErrorHandlerTest extends VertxTest {
 
 		client.getNow("/throw/unhandled", response -> {
 
-			context.assertEquals(400, response.statusCode());
-
 			response.bodyHandler(body -> {
 				context.assertEquals("Huh this produced an error: 'KABUM!'", body.toString());
+				context.assertEquals(400, response.statusCode());
 				async.complete();
 			});
 		});
@@ -61,10 +60,9 @@ public class RouteErrorHandlerTest extends VertxTest {
 
 		client.getNow("/throw/big/one", response -> {
 
-			context.assertEquals(406, response.statusCode()); // JsonExceptionHandler takes over
-
 			response.bodyHandler(body -> {
 				context.assertEquals("{\"message\":\"HTTP 405 Method Not Allowed\",\"code\":406}", body.toString());
+				context.assertEquals(406, response.statusCode()); // JsonExceptionHandler takes over
 				async.complete();
 			});
 		});
@@ -76,13 +74,12 @@ public class RouteErrorHandlerTest extends VertxTest {
 		// call and check response
 		final Async async = context.async();
 
-		// FAIL IllegalArgumentExceptionHandler should handle this one
+		// JsonExceptionHandler will take over
 		client.getNow("/throw/big/two", response -> {
 
-			context.assertEquals(400, response.statusCode());
-
 			response.bodyHandler(body -> {
-				context.assertEquals("Huh this produced an error: 'KABUM!'", body.toString());
+				context.assertEquals("{\"message\":\"Bang!\",\"code\":406}", body.toString());
+				context.assertEquals(406, response.statusCode());
 				async.complete();
 			});
 		});
@@ -94,13 +91,12 @@ public class RouteErrorHandlerTest extends VertxTest {
 		// call and check response
 		final Async async = context.async();
 
-		// FAIL IllegalArgumentExceptionHandler should handle this one
+		// JsonExceptionHandler
 		client.getNow("/throw/big/three", response -> {
 
-			context.assertEquals(400, response.statusCode());
-
 			response.bodyHandler(body -> {
-				context.assertEquals("Huh this produced an error: 'KABUM!'", body.toString());
+				context.assertEquals("{\"message\":\"WHAT!\",\"code\":406}", body.toString());
+				context.assertEquals(406, response.statusCode());
 				async.complete();
 			});
 		});
@@ -115,10 +111,77 @@ public class RouteErrorHandlerTest extends VertxTest {
 		// FAIL MyExceptionHandler should handle this one
 		client.getNow("/throw/big/four", response -> {
 
-			context.assertEquals(400, response.statusCode());
+			response.bodyHandler(body -> {
+				context.assertEquals("{\"message\":null,\"code\":406}", body.toString());
+				context.assertEquals(406, response.statusCode());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void throwHandledExceptionOne(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/throw/multi/one", response -> {
+
+			// MyOtherExceptionHandler should handle this
+			response.bodyHandler(body -> {
+				context.assertEquals("Exception: HTTP 405 Method Not Allowed", body.toString());
+				context.assertEquals(405, response.statusCode()); // JsonExceptionHandler takes over
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void throwHandledExceptionTwo(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		// IllegalArgumentExceptionHandler should handle this one
+		client.getNow("/throw/multi/two", response -> {
 
 			response.bodyHandler(body -> {
-				context.assertEquals("Huh this produced an error: 'KABUM!'", body.toString());
+				context.assertEquals("Huh this produced an error: 'Bang!'", body.toString());
+				context.assertEquals(400, response.statusCode());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void throwHandledExceptionThree(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		// IllegalArgumentExceptionHandler should handle this one
+		client.getNow("/throw/multi/three", response -> {
+
+			response.bodyHandler(body -> {
+				context.assertEquals("Huh this produced an error: 'WHAT!'", body.toString());
+				context.assertEquals(400, response.statusCode());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void throwHandledExceptionFour(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		// MyExceptionHandler should handle this one
+		client.getNow("/throw/multi/four", response -> {
+
+			response.bodyHandler(body -> {
+				context.assertEquals("Exception: ADIOS!", body.toString());
+				context.assertEquals(500, response.statusCode());
 				async.complete();
 			});
 		});

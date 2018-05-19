@@ -10,10 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.WebApplicationException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -22,35 +20,37 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 
 	private final static Logger log = LoggerFactory.getLogger(ExceptionHandlerFactory.class);
 
-	/**
-	 * standalone list of global handlers
- 	 */
-	private List<Class<? extends ExceptionHandler>> exceptionHandlers;
+	// NOTE
+	// classType list holds list of exception handlers and order how they are considered
+	// cache holds handler instances once initialized
+
+	static Map<Class, Class<? extends ExceptionHandler>> defaultHandlers;
+	{
+		defaultHandlers = new LinkedHashMap<>();
+		defaultHandlers.put(WebApplicationException.class, WebApplicationExceptionHandler.class);
+		defaultHandlers.put(Throwable.class, GenericExceptionHandler.class);
+	}
 
 	@Override
 	protected void init() {
 
-		exceptionHandlers = new ArrayList<>();
-
 		// register handlers from specific to general ...
 		// when searching we go over handlers ... first match is returned
 		classTypes = new LinkedHashMap<>();
-		classTypes.put(WebApplicationException.class, WebApplicationExceptionHandler.class);
-		classTypes.put(Throwable.class, GenericExceptionHandler.class);
 	}
 
 	public ExceptionHandler getExceptionHandler(Class<? extends Throwable> aClass,
-	                                            Class<? extends ExceptionHandler>[] handlers,
+	                                            Class<? extends ExceptionHandler>[] definitionExHandlers,
 	                                            InjectionProvider provider,
 	                                            RoutingContext context) throws ClassFactoryException, ContextException {
 
 		// trickle down ... from definition to default handler
 		Class<? extends ExceptionHandler> found = null;
 
-		// add as given in REST (class or method annotation)
-		if (handlers != null && handlers.length > 0) {
+		// search definition add as given in REST (class or method annotation)
+		if (definitionExHandlers != null && definitionExHandlers.length > 0) {
 
-			for (Class<? extends ExceptionHandler> handler: handlers) {
+			for (Class<? extends ExceptionHandler> handler: definitionExHandlers) {
 
 				Type type = getGenericType(handler);
 				if (checkIfCompatibleTypes(aClass, type)) {
@@ -70,33 +70,23 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 			}
 		}
 
-		// add globally registered class type
-		if (found == null && exceptionHandlers != null && exceptionHandlers.size() > 0) {
-
-			for (Class<? extends ExceptionHandler> handler: exceptionHandlers) {
-
-				Type type = getGenericType(handler);
-				if (checkIfCompatibleTypes(aClass, type)) {
-					found = handler;
-					log.info("Found matching exception handler: " + handler.getClass().getName());
-					break;
-				}
-			}
-		}
-
 		// get by exception type from classTypes list
 		if (found == null) {
 			found = super.get(aClass);
 
 			if (found != null) {
-				log.info("Found matching class type exception handler: " + found.getClass().getName());
+				log.info("Found matching class type exception handler: " + found.getName());
 			}
 		}
 
-		// nothing found provide generic
+		// nothing found provide default or generic
 		if (found == null) {
-			found = GenericExceptionHandler.class;
-			log.info("Resolving to generic exception handler: " + found.getClass().getName());
+
+			found = defaultHandlers.get(aClass);
+			if (found == null) {
+				found = GenericExceptionHandler.class;
+			}
+			log.info("Resolving to generic exception handler: " + found.getName());
 		}
 
 		// create class instance
@@ -107,7 +97,12 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 	public final void register(Class<? extends ExceptionHandler>... handlers) {
 
 		Assert.notNullOrEmpty(handlers, "Missing exception handler(s)!");
-		exceptionHandlers.addAll(Arrays.asList(handlers));
+
+		for (Class<? extends ExceptionHandler> handler: handlers) {
+
+			Type type = getGenericType(handler);
+			classTypes.put((Class)type, handler);
+		}
 	}
 
 	public final void register(ExceptionHandler... handlers) {
@@ -120,6 +115,11 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 
 			Type generic = getGenericType(handler.getClass());
 			Assert.notNull(generic, "Can't extract generic class type for exception handler: " + handler.getClass().getName());
+
+			// register
+			classTypes.put((Class)generic, handler.getClass());
+
+			// cache instance
 			super.register((Class)generic, handler);
 		}
 	}

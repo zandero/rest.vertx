@@ -2,7 +2,6 @@ package com.zandero.rest.test;
 
 import com.zandero.rest.annotation.CatchWith;
 import com.zandero.rest.exception.ExecuteException;
-import com.zandero.rest.exception.GenericExceptionHandler;
 import com.zandero.rest.exception.WebApplicationExceptionHandler;
 import com.zandero.rest.test.handler.*;
 
@@ -30,7 +29,7 @@ public class ErrorThrowingRest {
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("bang")
-	@CatchWith(GenericExceptionHandler.class)
+	@CatchWith()
 	public String returnBang() {
 
 		throw new IllegalArgumentException("Bang!");
@@ -58,10 +57,11 @@ public class ErrorThrowingRest {
 		}
 	}
 
+	// JsonExceptionHandler should catch those
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("big/{bang}")
-	public String returnBigBang(@PathParam("bang") String bang) throws ExecuteException, MyExceptionClass {
+	public String returnBigBang(@PathParam("bang") String bang) throws Throwable {
 
 		switch (bang) {
 			case "one":

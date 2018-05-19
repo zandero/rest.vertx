@@ -203,6 +203,7 @@ public class RestRouter {
 			                                                                    provider,
 			                                                                    null);
 			// set before other routes ...
+			// TODO: use defined minimums for blocking ... after CORS
 			output.route().order(Integer.MIN_VALUE).blockingHandler(getContextHandler(instance));
 		}
 		catch (ClassFactoryException | ContextException e) {
@@ -353,7 +354,8 @@ public class RestRouter {
 
 		handler.allowedHeaders(allowedHeaders);
 
-		router.route().handler(handler);
+		// TODO: define minimums ... for order
+		router.route().handler(handler); //.order(Integer.MIN_VALUE);
 	}
 
 	private static void checkBodyReader(RouteDefinition definition) {

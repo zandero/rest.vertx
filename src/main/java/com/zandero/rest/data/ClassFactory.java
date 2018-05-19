@@ -500,6 +500,8 @@ public abstract class ClassFactory<T> {
 	 */
 	static <T> Object constructViaMethod(Class<T> type, String fromValue) {
 
+		// TODO: Use fromString before valueOf (enums have valueOf already defined)
+
 		for (Method method : type.getMethods()) {
 			if (Modifier.isStatic(method.getModifiers()) &&
 			    method.getReturnType().equals(type) &&
