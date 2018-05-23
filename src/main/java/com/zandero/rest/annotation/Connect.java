@@ -13,4 +13,9 @@ import java.lang.annotation.*;
 public @interface Connect {
 
 	String value() default ""; // @Path to connect if not given in @Path
+
+	String[] produces() default "*/*";
+
+	String[] consumes() default "*/*";
 }
+

@@ -327,8 +327,17 @@ public class RouteDefinition {
 			    annotation instanceof HEAD ||
 			    annotation instanceof OPTIONS ||
 			    annotation instanceof PATCH ||
+
+			    // Custom rest.vertx method, path, consumes and produces combination
+			    annotation instanceof Get ||
+			    annotation instanceof Post ||
+			    annotation instanceof Put ||
+			    annotation instanceof Delete ||
+			    annotation instanceof Head ||
+			    annotation instanceof Options ||
+			    annotation instanceof Patch ||
 			    annotation instanceof Trace ||
-			    annotation instanceof Connect) { // TODO: what about OTHER ?
+			    annotation instanceof Connect) {
 
 				method(annotation.annotationType().getSimpleName());
 			}
@@ -391,6 +400,8 @@ public class RouteDefinition {
 	}
 
 	private RouteDefinition order(int value) {
+
+		Assert.isTrue(value >= 0, "@RouteOrder must be >= 0!");
 
 		order = value;
 		return this;

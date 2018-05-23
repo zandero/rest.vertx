@@ -46,6 +46,9 @@ import java.util.Set;
  */
 public class RestRouter {
 
+	public static final int ORDER_CORS_HANDLER = -10;
+	public static final int ORDER_PROVIDER_HANDLER = -5;
+
 	private final static Logger log = LoggerFactory.getLogger(RestRouter.class);
 
 	private static final WriterFactory writers = new WriterFactory();
@@ -203,8 +206,7 @@ public class RestRouter {
 			                                                                    provider,
 			                                                                    null);
 			// set before other routes ...
-			// TODO: use defined minimums for blocking ... after CORS
-			output.route().order(Integer.MIN_VALUE).blockingHandler(getContextHandler(instance));
+			output.route().order(ORDER_PROVIDER_HANDLER).blockingHandler(getContextHandler(instance));
 		}
 		catch (ClassFactoryException | ContextException e) {
 			throw new IllegalArgumentException(e.getMessage());
@@ -353,9 +355,7 @@ public class RestRouter {
 		}
 
 		handler.allowedHeaders(allowedHeaders);
-
-		// TODO: define minimums ... for order
-		router.route().handler(handler); //.order(Integer.MIN_VALUE);
+		router.route().handler(handler).order(ORDER_CORS_HANDLER);
 	}
 
 	private static void checkBodyReader(RouteDefinition definition) {

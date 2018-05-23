@@ -8,9 +8,9 @@ import java.lang.annotation.*;
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@HttpMethod("TRACE")
+@HttpMethod("DELETE")
 @Documented
-public @interface Trace {
+public @interface Delete {
 
 	String value() default ""; // @Path to trace if not given in @Path
 
