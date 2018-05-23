@@ -44,4 +44,10 @@ public class ErrorThrowingRest2 {
 				throw new MyExceptionClass("four", 406);
 		}
 	}
+
+	@GET
+	@Path("myHandler")
+	public String bang() {
+		throw new RuntimeException("auch!");
+	}
 }

@@ -1,10 +1,6 @@
 package com.zandero.rest;
 
-import ch.qos.logback.core.pattern.util.RestrictedEscapeUtil;
 import com.zandero.rest.test.TestDefaultValueRest;
-import com.zandero.rest.test.TestHtmlRest;
-import com.zandero.rest.test.TestPostRest;
-import com.zandero.rest.test.TestRest;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.Handler;
 import io.vertx.ext.unit.Async;
@@ -29,8 +25,7 @@ public class DefaultValueTest extends VertxTest {
 
 		super.before(context);
 
-		router = RestRouter.register(vertx,
-		                                    TestDefaultValueRest.class);
+		router = RestRouter.register(vertx, TestDefaultValueRest.class);
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)
 		     .listen(PORT);
@@ -90,7 +85,7 @@ public class DefaultValueTest extends VertxTest {
 	@Test
 	public void callPresentContext(TestContext context) {
 
-		router.route().order(-10).handler(pushContextHandler());
+		router.route().order(RestRouter.ORDER_PROVIDER_HANDLER).handler(pushContextHandler());
 
 		// call and check response
 		final Async async = context.async();
