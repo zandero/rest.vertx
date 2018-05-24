@@ -376,7 +376,7 @@ public class RestRouter {
 			ClassFactory.checkIfCompatibleTypes(bodyParameter.getDataType(), readerType,
 			                                    definition.toString().trim() + " - Parameter type: '" +
 			                                    bodyParameter.getDataType() + "' not matching reader type: '" +
-			                                    readerType + "' in: '" + bodyReader.getClass() + "'");
+			                                    readerType + "' in: '" + bodyReader.getClass() + "'!");
 		}
 	}
 
@@ -406,7 +406,7 @@ public class RestRouter {
 			                                    writerType,
 			                                    definition.toString().trim() + " - Response type: '" +
 			                                    returnType + "' not matching writer type: '" +
-			                                    writerType + "' in: '" + writer.getClass() + "'");
+			                                    writerType + "' in: '" + writer.getClass() + "'!");
 		}
 
 		return writer;

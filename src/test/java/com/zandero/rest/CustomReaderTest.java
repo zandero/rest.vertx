@@ -258,7 +258,8 @@ public class CustomReaderTest extends VertxTest {
 		}
 		catch (IllegalArgumentException e) {
 			assertEquals(
-				"POST /post/json - Parameter type: 'class com.zandero.rest.test.json.Dummy' not matching reader type: 'class java.lang.Integer' in: 'class com.zandero.rest.reader.IntegerBodyReader'",
+				"POST /post/json - Parameter type: 'class com.zandero.rest.test.json.Dummy' not matching reader type: " +
+				"'class java.lang.Integer' in: 'class com.zandero.rest.reader.IntegerBodyReader'!",
 				e.getMessage());
 		}
 	}
@@ -276,7 +277,8 @@ public class CustomReaderTest extends VertxTest {
 		}
 		catch (IllegalArgumentException e) {
 			assertEquals(
-				"POST /post/json - Response type: 'class com.zandero.rest.test.json.Dummy' not matching writer type: 'class java.lang.String' in: 'class com.zandero.rest.writer.TestCustomWriter'",
+				"POST /post/json - Response type: 'class com.zandero.rest.test.json.Dummy' not matching writer type: " +
+				"'class java.lang.String' in: 'class com.zandero.rest.writer.TestCustomWriter'!",
 				e.getMessage());
 		}
 	}

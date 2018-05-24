@@ -61,15 +61,6 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 			}
 		}
 
-		// get handler instance by exception type
-		if (found == null) {
-			ExceptionHandler handler = getCached(aClass.getName());
-			if (handler != null) {
-				log.info("Found matching exception handler: " + handler.getClass().getName());
-				return handler;
-			}
-		}
-
 		// get by exception type from classTypes list
 		if (found == null) {
 			found = super.get(aClass);
@@ -126,8 +117,8 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 			// register
 			classTypes.put((Class)generic, handler.getClass());
 
-			// cache instance
-			super.register((Class)generic, handler);
+			// cache instance by handler class type
+			super.register(handler);
 		}
 	}
 

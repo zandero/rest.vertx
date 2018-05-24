@@ -79,10 +79,10 @@ public abstract class ClassFactory<T> {
 		return cache.get(clazz.getName());
 	}
 
-	protected T getCached(String key) {
+	/*protected T getCached(String key) {
 
 		return cache.get(key);
-	}
+	}*/
 
 	@SuppressWarnings("unchecked")
 	public T getClassInstance(Class<? extends T> clazz,
@@ -130,7 +130,7 @@ public abstract class ClassFactory<T> {
 			instance = provider.getInstance(clazz);
 			if (instance == null) {
 				throw new ClassFactoryException("Failed to getInstance class of type: " + clazz.getName() + ", with injector: " +
-				                                provider.getClass().getName(), null);
+				                                provider.getClass().getName() + "!", null);
 			}
 		}
 
@@ -171,7 +171,7 @@ public abstract class ClassFactory<T> {
 		Assert.notNull(clazz, "Missing media type class");
 
 		MediaType type = MediaTypeHelper.valueOf(mediaType);
-		Assert.notNull(type, "Unknown media type given: " + mediaType);
+		Assert.notNull(type, "Unknown media type given: " + mediaType + "!");
 
 		String key = MediaTypeHelper.getKey(type);
 		mediaTypes.put(key, clazz);
@@ -180,10 +180,10 @@ public abstract class ClassFactory<T> {
 	protected void register(String mediaType, T clazz) {
 
 		Assert.notNull(mediaType, "Missing media type!");
-		Assert.notNull(clazz, "Missing media type class instance");
+		Assert.notNull(clazz, "Missing media type class instance!");
 
 		MediaType type = MediaTypeHelper.valueOf(mediaType);
-		Assert.notNull(type, "Unknown media type given: " + mediaType);
+		Assert.notNull(type, "Unknown media type given: " + mediaType + "!");
 
 		String key = MediaTypeHelper.getKey(type);
 		cache.put(key, clazz);
@@ -193,7 +193,7 @@ public abstract class ClassFactory<T> {
 	protected void register(MediaType mediaType, Class<? extends T> clazz) {
 
 		Assert.notNull(mediaType, "Missing media type!");
-		Assert.notNull(clazz, "Missing media type class");
+		Assert.notNull(clazz, "Missing media type class!");
 
 		String key = MediaTypeHelper.getKey(mediaType);
 		mediaTypes.put(key, clazz);
@@ -202,24 +202,31 @@ public abstract class ClassFactory<T> {
 	protected void register(MediaType mediaType, T clazz) {
 
 		Assert.notNull(mediaType, "Missing media type!");
-		Assert.notNull(clazz, "Missing media type class instance");
+		Assert.notNull(clazz, "Missing media type class instance!");
 
 		String key = MediaTypeHelper.getKey(mediaType);
 		cache.put(key, clazz);
 	}
 
+	protected void register(T clazz) {
+
+		Assert.notNull(clazz, "Missing class instance!");
+		cache.put(clazz.getClass().getName(), clazz);
+	}
+
 	protected void register(Class<?> aClass, Class<? extends T> clazz) {
 
 		Assert.notNull(aClass, "Missing associated class!");
-		Assert.notNull(clazz, "Missing response type class");
+		Assert.notNull(clazz, "Missing response type class!");
 
 		if (checkCompatibility(clazz)) {
 			Type expected = getGenericType(clazz);
-			checkIfCompatibleTypes(aClass, expected, "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + clazz + "'");
+			checkIfCompatibleTypes(aClass, expected, "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + clazz + "'!");
 		}
 
 		classTypes.put(aClass, clazz);
 	}
+
 
 	/**
 	 * checks if @SuppressCheck annotation is given
@@ -241,7 +248,7 @@ public abstract class ClassFactory<T> {
 			Type expected = getGenericType(instance.getClass());
 			checkIfCompatibleTypes(aClass,
 			                       expected,
-			                       "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + instance.getClass() + "'");
+			                       "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + instance.getClass() + "'!");
 		}
 
 		cache.put(aClass.getName(), instance);

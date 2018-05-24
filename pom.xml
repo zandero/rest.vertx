@@ -64,7 +64,7 @@
 
         <!-- testing -->
         <version.logback>[1.1.7,)</version.logback>
-        <version.junit>[4.12,)</version.junit>
+        <version.junit>[5.1.0,)</version.junit>
         <version.mockito-all>[1.10.19,)</version.mockito-all>
         <version.jetty>[9.3.7.v20160115,)</version.jetty>
         <version.glassfish>2.22.2</version.glassfish>
@@ -133,26 +133,26 @@
         <!-- END OF LOGGER -->
 
         <!--Testing stuff bellow-->
-        <dependency>
+        <!--<dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${version.junit}</version>
             <scope>test</scope>
-        </dependency>
+        </dependency>-->
 
-        <!--<dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${version.junit}</version>
             <scope>test</scope>
-        </dependency>-->
+        </dependency>
 
-        <!--<dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-all</artifactId>
+            <artifactId>junit-jupiter-api</artifactId>
             <version>${version.junit}</version>
             <scope>test</scope>
-        </dependency>-->
+        </dependency>
 
         <dependency>
             <groupId>io.vertx</groupId>

@@ -206,7 +206,7 @@ public class RestRouterTest extends VertxTest {
 			RestRouter.getReaders().register(List.class, IntegerBodyReader.class);
 			fail();
 		} catch (Exception e) {
-			assertEquals("Incompatible types: 'interface java.util.List' and: 'class java.lang.Integer' using: 'class com.zandero.rest.reader.IntegerBodyReader'", e.getMessage());
+			assertEquals("Incompatible types: 'interface java.util.List' and: 'class java.lang.Integer' using: 'class com.zandero.rest.reader.IntegerBodyReader'!", e.getMessage());
 		}
 	}
 
@@ -218,7 +218,7 @@ public class RestRouterTest extends VertxTest {
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertEquals("POST /incompatible/ouch - Parameter type: 'class java.lang.String' " +
-					             "not matching reader type: 'class java.lang.Integer' in: 'class com.zandero.rest.reader.IntegerBodyReader'", e.getMessage());
+					             "not matching reader type: 'class java.lang.Integer' in: 'class com.zandero.rest.reader.IntegerBodyReader'!", e.getMessage());
 		}
 	}
 
@@ -230,7 +230,7 @@ public class RestRouterTest extends VertxTest {
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertEquals("GET /incompatible/ouch - Response type: 'class java.lang.String' " +
-					             "not matching writer type: 'class com.zandero.rest.test.json.Dummy' in: 'class com.zandero.rest.writer.TestDummyWriter'", e.getMessage());
+					             "not matching writer type: 'class com.zandero.rest.test.json.Dummy' in: 'class com.zandero.rest.writer.TestDummyWriter'!", e.getMessage());
 		}
 	}
 
