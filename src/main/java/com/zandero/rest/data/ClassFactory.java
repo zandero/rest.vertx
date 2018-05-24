@@ -14,9 +14,7 @@ import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import javax.ws.rs.core.MediaType;
 import java.lang.reflect.*;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Simple class instance cache and class factory utility
@@ -507,24 +505,59 @@ public abstract class ClassFactory<T> {
 	 */
 	static <T> Object constructViaMethod(Class<T> type, String fromValue) {
 
-		// TODO: Use fromString before valueOf (enums have valueOf already defined)
+		// Try to usse fromString before valueOf (enums have valueOf already defined) - in case we override fromString()
+		List<Method> methods = getMethods(type, "fromString", "valueOf");
 
-		for (Method method : type.getMethods()) {
-			if (Modifier.isStatic(method.getModifiers()) &&
-			    method.getReturnType().equals(type) &&
-			    method.getParameterTypes().length == 1 &&
-			    method.getParameterTypes()[0].isAssignableFrom(String.class) &&
-			    (method.getName().equals("fromString") || method.getName().equals("valueOf"))) {
+		if (methods != null && methods.size() > 0) {
+
+			for (Method method : methods) {
 
 				try {
 					return method.invoke(null, fromValue);
 				}
 				catch (IllegalAccessException | InvocationTargetException e) {
+					// failed with this one ... try the others ...
 					log.warn("Failed invoking static method: " + method.getName());
 				}
 			}
 		}
 
 		return null;
+	}
+
+	/**
+	 * Get methods in order desired to invoke them one by one until match or fail
+	 * @param type desired
+	 * @param names of methods in order
+	 * @param <T> class to search for methods
+	 * @return method list to use
+	 */
+	private static <T> List<Method> getMethods(Class<T> type, String... names) {
+
+		Assert.notNull(type, "Missing class to search for methods!");
+		Assert.notNullOrEmpty(names, "Missing method names to search for!");
+
+		Map<String, Method> candidates = new HashMap<>();
+		for (Method method : type.getMethods()) {
+
+			if (Modifier.isStatic(method.getModifiers()) &&
+			    method.getReturnType().equals(type) &&
+			    method.getParameterTypes().length == 1 &&
+			    method.getParameterTypes()[0].isAssignableFrom(String.class)) {
+
+				candidates.put(method.getName(), method);
+			}
+		}
+
+		List<Method> output = new ArrayList<>();
+
+		// go in order desired
+		for (String name : names) {
+			if (candidates.containsKey(name)) {
+				output.add(candidates.get(name));
+			}
+		}
+
+		return output;
 	}
 }

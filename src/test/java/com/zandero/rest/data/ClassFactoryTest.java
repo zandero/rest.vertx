@@ -5,6 +5,8 @@ import com.zandero.rest.exception.WebApplicationExceptionHandler;
 import com.zandero.rest.reader.DummyBodyReader;
 import com.zandero.rest.reader.IntegerBodyReader;
 import com.zandero.rest.test.data.IntegerHolder;
+import com.zandero.rest.test.data.MyEnum;
+import com.zandero.rest.test.data.MyOtherEnum;
 import com.zandero.rest.test.data.SimulatedUser;
 import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
 import com.zandero.rest.test.json.Dummy;
@@ -142,6 +144,18 @@ public class ClassFactoryTest {
 
 		IntegerHolder holder = (IntegerHolder) constructViaMethod(IntegerHolder.class, "10");
 		assertNull(holder);
+	}
+
+	@Test
+	public void constructEnumTest() {
+		MyEnum value = (MyEnum) ClassFactory.constructViaMethod(MyEnum.class, "one");
+		assertEquals(MyEnum.one, value);
+
+		MyOtherEnum other = (MyOtherEnum) ClassFactory.constructViaMethod(MyOtherEnum.class, "one");
+		assertEquals(MyOtherEnum.one, other);
+
+		other = (MyOtherEnum) ClassFactory.constructViaMethod(MyOtherEnum.class, "2");
+		assertEquals(MyOtherEnum.two, other);
 	}
 
 	@Test

@@ -44,8 +44,6 @@ public class CustomReaderTest extends VertxTest {
 	@Test
 	public void testCustomInput(TestContext context) {
 
-
-
 		// call and check response
 		final Async async = context.async();
 
@@ -62,14 +60,6 @@ public class CustomReaderTest extends VertxTest {
 
 	@Test
 	public void testCustomInput_WithBuilder(TestContext context) {
-
-	/*	Router router = new RestBuilder(vertx)
-			                .register(TestReaderRest.class)
-			                .build();
-
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);*/
 
 		// call and check response
 		final Async async = context.async();
@@ -92,12 +82,6 @@ public class CustomReaderTest extends VertxTest {
 		          .register(List.class,
 		                    CustomWordListReader.class); // all arguments that are List<> go through this reader ... (reader returns List<String> as output)
 
-		/*Router router = RestRouter.register(vertx, TestReaderRest.class);
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);*/
-
-
 		// call and check response
 		final Async async = context.async();
 
@@ -118,15 +102,6 @@ public class CustomReaderTest extends VertxTest {
 
 		RestRouter.getReaders().register(Dummy.class, DummyBodyReader.class);
 		RestRouter.getReaders().register(ExtendedDummy.class, ExtendedDummyBodyReader.class);
-
-		/*TestReaderRest testRest = new TestReaderRest();
-
-		Router router = RestRouter.register(vertx, testRest);
-
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);
-		*/
 
 		// check if correct reader is used
 		Async async = context.async();
@@ -185,14 +160,6 @@ public class CustomReaderTest extends VertxTest {
 	public void extendedContentTypeTest(TestContext context) {
 
 		RestRouter.getReaders().register(Dummy.class, DummyBodyReader.class);
-
-		/*TestReaderRest testRest = new TestReaderRest();
-
-		Router router = RestRouter.register(vertx, testRest);
-
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);*/
 
 		final Async async = context.async();
 		client.post("/read/normal/dummy", response -> {
