@@ -10,6 +10,8 @@ import com.zandero.utils.StringUtils;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
@@ -18,14 +20,18 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Proxy;
 import java.util.*;
 
 /**
  * Holds definition of a route as defined with annotations
  */
 public class RouteDefinition {
+
+	private final static Logger log = LoggerFactory.getLogger(RouteDefinition.class);
 
 	private final String DELIMITER = "/";
 
@@ -99,7 +105,7 @@ public class RouteDefinition {
 
 	public RouteDefinition(Class clazz) {
 
-		init(clazz.getAnnotations());
+		init(clazz.getAnnotations(), clazz);
 	}
 
 	public RouteDefinition(RouteDefinition base, Method classMethod) {
@@ -125,7 +131,7 @@ public class RouteDefinition {
 		exceptionHandlers = ArrayUtils.join(exceptionHandlers, base.exceptionHandlers);
 
 		// complement / override with additional annotations
-		init(classMethod.getAnnotations());
+		init(classMethod.getAnnotations(), classMethod);
 
 		List<MethodParameter> pathParams = PathConverter.extract(path);
 		params = join(params, pathParams);
@@ -297,9 +303,9 @@ public class RouteDefinition {
 	 *
 	 * @param annotations list of method annotations
 	 */
-	private void init(Annotation[] annotations) {
+	private void init(Annotation[] annotations, Object source) {
 
-		boolean hasPath = hasPath(annotations);
+		//boolean hasPath = hasPath(annotations);
 
 		for (Annotation annotation : annotations) {
 			//log.info(annotation.toString());
@@ -326,10 +332,12 @@ public class RouteDefinition {
 			    annotation instanceof DELETE ||
 			    annotation instanceof HEAD ||
 			    annotation instanceof OPTIONS ||
-			    annotation instanceof PATCH ||
+			    annotation instanceof PATCH) {
+				method(annotation.annotationType().getSimpleName());
+			}
 
-			    // Custom rest.vertx method, path, consumes and produces combination
-			    annotation instanceof Get ||
+			// Custom rest.vertx method, path, consumes and produces combination
+			if (annotation instanceof Get ||
 			    annotation instanceof Post ||
 			    annotation instanceof Put ||
 			    annotation instanceof Delete ||
@@ -340,15 +348,19 @@ public class RouteDefinition {
 			    annotation instanceof Connect) {
 
 				method(annotation.annotationType().getSimpleName());
-			}
 
-			// TODO: this is an experiment to replace @Path with method value
-			if (!hasPath && annotation instanceof Trace) {
-				path(((Trace) annotation).value());
-			}
-
-			if (!hasPath && annotation instanceof Connect) {
-				path(((Connect) annotation).value());
+				// take path, consumes and produces values if given
+				// we need to use proxy to get to the underlying methods
+				InvocationHandler handler = Proxy.getInvocationHandler(annotation);
+				try {
+					path((String) handler.invoke(annotation, annotation.getClass().getMethod("value"), null));
+					consumes((String[]) handler.invoke(annotation, annotation.getClass().getMethod("consumes"), null));
+					produces((String[]) handler.invoke(annotation, annotation.getClass().getMethod("produces"), null));
+				}
+				catch (Throwable ex) {
+					// should not happen ...
+					log.warn("Failed to get annotation value via proxy!", ex);
+				}
 			}
 
 			if (annotation instanceof javax.ws.rs.HttpMethod) {

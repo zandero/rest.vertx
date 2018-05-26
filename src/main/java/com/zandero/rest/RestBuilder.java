@@ -77,12 +77,12 @@ public class RestBuilder {
 		return this;
 	}
 
-	public RestBuilder register(String... namespace) {
+	// Hidden from public view for now
+	private RestBuilder register(String... namespace) {
 
 		Assert.notNullOrEmpty(namespace, "Missing REST API namespaces!");
 
-		// TODO
-		// finds REST APIs on given class namespaces ...
+		// TODO finds REST APIs on given class namespaces ...
 
 		return this;
 	}

@@ -12,10 +12,10 @@ import java.lang.annotation.*;
 @Documented
 public @interface Connect {
 
-	String value() default ""; // @Path to connect if not given in @Path
+	String value() default ""; // same as @Path
 
-	String[] produces() default "*/*";
+	String[] produces() default "*/*"; // same as @Produces
 
-	String[] consumes() default "*/*";
+	String[] consumes() default "*/*"; // same as @Consumes
 }
 

@@ -338,7 +338,7 @@ If no specific ValueReader is assigned to a given class type, **rest.vertx** tri
 * converting String to primitive type if class is a String or primitive type
 * using a single String constructor
 * using a single primitive type constructor if given String can be converted to the specific type  
-* using static method _fromString(String value)_ or _valueOf(String value)_
+* using static methods _fromString(String value)_ or _valueOf(String value)_ (in that order)
 
 
 ## @SuppressCheck annotation

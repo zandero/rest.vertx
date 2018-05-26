@@ -38,6 +38,22 @@ public class NoMatchTest extends VertxTest {
 	}
 
 	@Test
+	public void testEcho(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/rest/echo", response -> {
+
+			response.bodyHandler(body -> {
+				context.assertEquals("\"echo\"", body.toString());
+				context.assertEquals(200, response.statusCode());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
 	public void testNoMatchDefault(TestContext context) {
 
 		// call and check response

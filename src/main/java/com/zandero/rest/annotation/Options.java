@@ -12,9 +12,9 @@ import java.lang.annotation.*;
 @Documented
 public @interface Options {
 
-	String value() default ""; // @Path to trace if not given in @Path
+	String value() default ""; // same as @Path
 
-	String[] produces() default "*/*";
+	String[] produces() default "*/*"; // same as @Produces
 
-	String[] consumes() default "*/*";
+	String[] consumes() default "*/*"; // same as @Consumes
 }

@@ -1,8 +1,8 @@
 package com.zandero.rest.test;
 
+import com.zandero.rest.annotation.Get;
 import com.zandero.rest.annotation.Trace;
 
-import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
 /**
@@ -11,14 +11,14 @@ import javax.ws.rs.Path;
 @Path("rest")
 public class TestEchoRest {
 
-	@GET
-	@Path("echo")
+	@Get(value = "echo", produces = "application/json", consumes = "text/html") // experimenting ... with path is value of method
 	public String echo() {
 		return "echo";
 	}
 
-	@Trace("echo") // experimenting ... with path is value of method
+	@Trace(value = "echo", produces = "application/json", consumes = "text/html")
 	public String trace() {
 		return "trace";
 	}
+
 }
