@@ -140,6 +140,21 @@ public class ArgumentProvider {
 		return args;
 	}
 
+	/*
+	private static void validate(Object arg, Validator validator) {
+		if (validator == null) {
+			return; // nothing to validate
+		}
+
+		if (arg != null) { // only non null values can be checked ...
+			Set<ConstraintViolation<Object>> result = validator.validate(arg);
+			if (result != null && result.size() > 0) { // we have a constraint violation ... throw exception
+				throw new ConstraintViolationException(result);
+			}
+		}
+	}
+	*/
+
 	private static String getValue(RouteDefinition definition, MethodParameter param, RoutingContext context, String defaultValue) {
 
 		String value = getValue(definition, param, context);
@@ -196,7 +211,8 @@ public class ArgumentProvider {
 	                                          MethodParameter parameter,
 	                                          RouteDefinition definition,
 	                                          RoutingContext context,
-	                                          ReaderFactory readers) {
+	                                          ReaderFactory
+		                                          readers) {
 
 		// get associated reader set in parameter
 		if (parameter.isBody()) {

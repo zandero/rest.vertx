@@ -50,6 +50,7 @@
         <version.java.annotation>1.3</version.java.annotation>
         <version.java.rs>2.1</version.java.rs>
         <version.javax.inject>1</version.javax.inject>
+        <version.java.validation>2.0.0.Final</version.java.validation>
 
         <version.zandero.utils>[1.2.7,)</version.zandero.utils>
         <version.zandero.utils.extra>[1.3,)</version.zandero.utils.extra>
@@ -71,6 +72,8 @@
 
         <version.guice>4.2.0</version.guice>
         <version.feather>1.0</version.feather>
+        <version.hibernate.validation>6.0.10.Final</version.hibernate.validation>
+        <version.java.validation.el>3.0.0</version.java.validation.el>
     </properties>
 
     <dependencies>
@@ -122,6 +125,12 @@
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
             <version>${version.javax.inject}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>${version.java.validation}</version>
         </dependency>
 
         <!-- LOGGER -->
@@ -210,6 +219,35 @@
             <groupId>org.codejargon.feather</groupId>
             <artifactId>feather</artifactId>
             <version>${version.feather}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-validator -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${version.hibernate.validation}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${version.hibernate.validation}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>javax.el-api</artifactId>
+            <version>${version.java.validation.el}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.el</artifactId>
+            <version>${version.java.validation.el}</version>
             <scope>test</scope>
         </dependency>
 

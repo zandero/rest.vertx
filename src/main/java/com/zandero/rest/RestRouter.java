@@ -31,6 +31,10 @@ import io.vertx.ext.web.handler.CorsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validator;
+import javax.validation.executable.ExecutableValidator;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.lang.reflect.InvocationTargetException;
@@ -60,6 +64,7 @@ public class RestRouter {
 	private static final ContextProviderFactory providers = new ContextProviderFactory();
 
 	private static InjectionProvider injectionProvider;
+	private static Validator validator;
 
 	/**
 	 * Searches for annotations to register routes ...
@@ -488,6 +493,8 @@ public class RestRouter {
 			fut -> {
 				try {
 					Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider);
+					validate(validator, method, toInvoke, args);
+
 					fut.complete(method.invoke(toInvoke, args));
 				}
 				catch (Exception e) {
@@ -524,12 +531,37 @@ public class RestRouter {
 		);
 	}
 
+	// TODO: improve reporting ... include information from annotations
+	private static void validate(Validator validator, Method method, Object toInvoke, Object[] args) {
+
+		if (validator != null) {
+
+			for (Object arg: args) {
+				if (arg != null) {
+					// TODO: add some additional info about the arg
+					Set<ConstraintViolation<Object>> result = validator.validate(arg);
+					if (result != null && result.size() > 0) {
+						throw new ConstraintViolationException(result);
+					}
+				}
+			}
+
+			ExecutableValidator executableValidator = validator.forExecutables();
+			Set<ConstraintViolation<Object>> result = executableValidator.validateParameters(toInvoke, method, args);
+			if (result != null && result.size() > 0) {
+				throw new ConstraintViolationException(result);
+			}
+		}
+	}
+
 	private static Handler<RoutingContext> getAsyncHandler(final Object toInvoke, final RouteDefinition definition, final Method method) {
 
 		return context -> {
 
 			try {
 				Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider);
+				validate(validator, method, toInvoke, args);
+
 				Object result = method.invoke(toInvoke, args);
 
 				if (result instanceof Future) {
@@ -741,7 +773,7 @@ public class RestRouter {
 	/**
 	 * Provide an injector to getInstance classes where needed
 	 *
-	 * @param provider to getInstance classes
+	 * @param provider to create/inject classes
 	 */
 	public static void injectWith(InjectionProvider provider) {
 
@@ -751,12 +783,37 @@ public class RestRouter {
 	/**
 	 * Provide an injector to getInstance classes where needed
 	 *
-	 * @param provider to create to getInstance classes
+	 * @param provider class type
 	 */
 	public static void injectWith(Class<InjectionProvider> provider) {
 
 		try {
 			injectionProvider = (InjectionProvider) ClassFactory.newInstanceOf(provider);
+		}
+		catch (ClassFactoryException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+	/**
+	 * Provide an validator to validate arguments
+	 *
+	 * @param provider to validate
+	 */
+	public static void validateWith(Validator provider) {
+
+		validator = provider;
+	}
+
+	/**
+	 * Provide an validator to validate arguments
+	 *
+	 * @param provider class type
+	 */
+	public static void validateWith(Class<Validator> provider) {
+
+		try {
+			validator = (Validator) ClassFactory.newInstanceOf(provider);
 		}
 		catch (ClassFactoryException e) {
 			throw new IllegalArgumentException(e);

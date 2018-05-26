@@ -8,6 +8,7 @@ import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.WebApplicationException;
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
@@ -27,6 +28,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 	static Map<Class, Class<? extends ExceptionHandler>> defaultHandlers;
 	{
 		defaultHandlers = new LinkedHashMap<>();
+		defaultHandlers.put(ConstraintViolationException.class, GenericConstrainViolationHandler.class);
 		defaultHandlers.put(WebApplicationException.class, WebApplicationExceptionHandler.class);
 		defaultHandlers.put(Throwable.class, GenericExceptionHandler.class);
 	}

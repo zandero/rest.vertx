@@ -16,6 +16,7 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.CorsHandler;
 
+import javax.validation.Validator;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
 
@@ -52,6 +53,7 @@ public class RestBuilder {
 	private CorsHandler corsHandler = null;
 
 	private InjectionProvider injectionProvider = null;
+	private Validator validator = null;
 
 	public RestBuilder(Router router) {
 
@@ -300,6 +302,12 @@ public class RestBuilder {
 		return this;
 	}
 
+
+	public RestBuilder validateWith(Validator provider) {
+		validator = provider;
+		return this;
+	}
+
 	public RestBuilder injectWith(Class<? extends InjectionProvider> provider) {
 		try {
 			injectionProvider = (InjectionProvider) ClassFactory.newInstanceOf(provider);
@@ -326,6 +334,8 @@ public class RestBuilder {
 		Assert.notNullOrEmpty(apis, "No REST API given, register at least one! Use: .register(api) call!");
 
 		RestRouter.injectWith(injectionProvider);
+		RestRouter.validateWith(validator);
+
 		if (registeredProviders.size() > 0) {
 
 			registeredProviders.forEach((clazz, provider) -> {
