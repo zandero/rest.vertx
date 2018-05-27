@@ -756,7 +756,16 @@ public class MyCustomReader implements ValueReader<MyNewObject> {
 }
 ```
 
-Using a value reader is simple:
+**Using a value reader is simple:**
+
+Register as global reader:
+```java
+RestRouter.getReaders().register(MyNewObject.class, MyCustomReader.class);  
+// OR  
+new RestBuilder(vertx).reader(MyNewObject.class, MyCustomReader.class);
+```
+
+Use only local on specific REST endpoint:
 ```java
 @Path("read")
 public class ReadMyNewObject {
@@ -816,7 +825,16 @@ public class MyCustomResponseWriter implements HttpResponseWriter<MyObject> {
 }
 ```
 
-Using a response writer is simple:
+**Using a response writer is simple:**  
+Register as global writer:
+```java
+RestRouter.getWriters().register(MyObject.class, MyCustomResponseWriter.class);  
+// OR  
+new RestBuilder(vertx).writer(MyObject.class, MyCustomResponseWriter.class);
+```
+
+Use only local on specific REST endpoint:
+
 ```java
 @Path("write")
 public class WriteMyObject {
