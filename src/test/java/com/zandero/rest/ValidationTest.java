@@ -1,8 +1,6 @@
 package com.zandero.rest;
 
 import com.zandero.rest.test.TestValidRest;
-import com.zandero.rest.test.json.Dummy;
-import com.zandero.rest.test.json.ValidDummy;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -13,12 +11,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -48,33 +42,40 @@ public class ValidationTest extends VertxTest {
 	}
 
 	@Test
-	public void testHibernate() {
-
-		Dummy dummy = new Dummy();
-		Set<ConstraintViolation<Dummy>> result = validator.validate(dummy);
-		assertEquals(0, result.size());
-
-		ValidDummy validDummy = new ValidDummy();
-		Set<ConstraintViolation<ValidDummy>> result2 = validator.validate(validDummy);
-		assertEquals(2, result2.size());
-	}
-
-	@Test
 	public void testDummyViolation(TestContext context) {
 
 		// call and check response
 		final Async async = context.async();
 
-		String content = "{\"name\": \"test\"}";
+		String content = "{\"name\": \"test\", \"size\": 12}";
 		client.post("/check/dummy", response -> {
 
 			response.bodyHandler(body -> {
-				context.assertEquals("value: must not be null", body.toString());
+				context.assertEquals("body ValidDummy.value: must not be null", body.toString());
 				context.assertEquals("Validation failed", response.getHeader("X-Status-Reason"));
 				context.assertEquals(400, response.statusCode());
 				async.complete();
 			});
-		}).putHeader("content-type", "application/x-www-form-urlencoded")
+		}).putHeader("content-type", "application/json")
+		      .end(content);
+	}
+
+	@Test
+	public void testDummyViolationSize(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		String content = "{\"name\": \"test\", \"value\": \"test\", \"size\": 30}";
+		client.post("/check/dummy", response -> {
+
+			response.bodyHandler(body -> {
+				context.assertEquals("body ValidDummy.size: must be less than or equal to 20", body.toString());
+				context.assertEquals("Validation failed", response.getHeader("X-Status-Reason"));
+				context.assertEquals(400, response.statusCode());
+				async.complete();
+			});
+		}).putHeader("content-type", "application/json")
 		      .end(content);
 	}
 
@@ -103,7 +104,29 @@ public class ValidationTest extends VertxTest {
 		client.getNow("/check/this", response -> {
 
 			response.bodyHandler(body -> {
-				context.assertEquals("thisOne.arg0: must not be null", body.toString());
+				context.assertEquals("@QueryParam(\"one\"): must not be null", body.toString());
+				context.assertEquals("Validation failed", response.getHeader("X-Status-Reason"));
+				context.assertEquals(400, response.statusCode());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void testTheOther(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/check/other?one=0&two=0&three=20", response -> {
+
+			response.bodyHandler(body -> {
+
+				String content = body.toString();
+				context.assertTrue(content.contains("@QueryParam(\"one\"): must be greater than or equal to 1"));
+				context.assertTrue(content.contains("@QueryParam(\"two\"): must be greater than or equal to 1"));
+				context.assertTrue(content.contains("@QueryParam(\"three\"): must be less than or equal to 10"));
+
 				context.assertEquals("Validation failed", response.getHeader("X-Status-Reason"));
 				context.assertEquals(400, response.statusCode());
 				async.complete();

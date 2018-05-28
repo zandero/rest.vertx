@@ -29,10 +29,9 @@ public class RouteWithTraceTest extends VertxTest {
 
 		client.request(HttpMethod.TRACE, "/rest/echo", response -> {
 
-			context.assertEquals(200, response.statusCode());
-
 			response.bodyHandler(body -> {
 				context.assertEquals("trace", body.toString()); // returns sorted list of unique words
+				context.assertEquals(200, response.statusCode());
 				async.complete();
 			});
 		}).end();

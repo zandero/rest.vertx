@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 import javax.validation.executable.ExecutableValidator;
 import javax.ws.rs.core.MediaType;
@@ -493,7 +492,7 @@ public class RestRouter {
 			fut -> {
 				try {
 					Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider);
-					validate(validator, method, toInvoke, args);
+					validate(method, definition, validator, toInvoke, args);
 
 					fut.complete(method.invoke(toInvoke, args));
 				}
@@ -531,25 +530,15 @@ public class RestRouter {
 		);
 	}
 
-	// TODO: improve reporting ... include information from annotations
-	private static void validate(Validator validator, Method method, Object toInvoke, Object[] args) {
+	private static void validate(Method method, RouteDefinition definition, Validator validator, Object toInvoke, Object[] args) {
 
 		if (validator != null) {
 
-			for (Object arg: args) {
-				if (arg != null) {
-					// TODO: add some additional info about the arg
-					Set<ConstraintViolation<Object>> result = validator.validate(arg);
-					if (result != null && result.size() > 0) {
-						throw new ConstraintViolationException(result);
-					}
-				}
-			}
-
+			// check method params first
 			ExecutableValidator executableValidator = validator.forExecutables();
 			Set<ConstraintViolation<Object>> result = executableValidator.validateParameters(toInvoke, method, args);
 			if (result != null && result.size() > 0) {
-				throw new ConstraintViolationException(result);
+				throw new ConstraintException(definition, result);
 			}
 		}
 	}
@@ -560,7 +549,7 @@ public class RestRouter {
 
 			try {
 				Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider);
-				validate(validator, method, toInvoke, args);
+				validate(method, definition, validator, toInvoke, args);
 
 				Object result = method.invoke(toInvoke, args);
 

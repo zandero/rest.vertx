@@ -16,7 +16,7 @@ public class TestEchoRest {
 		return "echo";
 	}
 
-	@Trace(value = "echo", produces = "application/json", consumes = "text/html")
+	@Trace(value = "echo")
 	public String trace() {
 		return "trace";
 	}

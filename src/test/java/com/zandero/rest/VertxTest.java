@@ -1,11 +1,14 @@
 package com.zandero.rest;
 
+import com.zandero.rest.injection.InjectionProvider;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.ext.unit.TestContext;
 import org.junit.After;
 import org.junit.Before;
+
+import javax.validation.Validator;
 
 /**
  *
@@ -33,6 +36,9 @@ public class VertxTest {
 		RestRouter.getWriters().clear();
 		RestRouter.getExceptionHandlers().clear();
 		RestRouter.getContextProviders().clear();
+		// clear
+		RestRouter.validateWith((Validator)null);
+		RestRouter.injectWith((InjectionProvider) null);
 	}
 
 	@After

@@ -61,10 +61,9 @@ public class RouteAuthorizationTest extends VertxTest {
 
 		client.getNow("/private/all", response -> {
 
-			context.assertEquals(200, response.statusCode());
-
 			response.bodyHandler(body -> {
 				context.assertEquals("all", body.toString());
+				context.assertEquals(200, response.statusCode());
 				async.complete();
 			});
 		});
@@ -104,10 +103,9 @@ public class RouteAuthorizationTest extends VertxTest {
 
 		client.get("/private/user", response -> {
 
-			context.assertEquals(200, response.statusCode());
-
 			response.bodyHandler(body -> {
 				context.assertEquals("user", body.toString());
+				context.assertEquals(200, response.statusCode());
 				async.complete();
 			});
 		}).putHeader("X-Token", "user").end();
@@ -121,10 +119,9 @@ public class RouteAuthorizationTest extends VertxTest {
 
 		client.get("/private/admin", response -> {
 
-			context.assertEquals(200, response.statusCode());
-
 			response.bodyHandler(body -> {
 				context.assertEquals("admin", body.toString());
+				context.assertEquals(200, response.statusCode());
 				async.complete();
 			});
 		}).putHeader("X-Token", "admin").end();

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.zandero.utils.extra.JsonUtils;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -33,6 +35,10 @@ public class ValidDummy {
 
 	@NotNull
 	public String value;
+
+	@Min(10)
+	@Max(20)
+	public int size;
 
 	public static ValidDummy valueOf(String json) {
 		return JsonUtils.fromJson(json, ValidDummy.class);
