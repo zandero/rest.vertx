@@ -42,13 +42,13 @@ public interface HttpResponseWriter<T> {
 				headers = join(headers, AnnotationProcessor.getNameValuePairs(writerHeader.value()));
 			}
 
-			// add Writer produces
+			// 4. add Writer produces
 			Produces writerProduces = this.getClass().getAnnotation(Produces.class);
 			if (writerProduces != null && writerProduces.value().length > 0) {
 				headers = join(headers, MediaTypeHelper.getMediaTypes(writerProduces.value()));
 			}
 
-			// add wildcard if no content-type present
+			// 5. add wildcard if no content-type present
 			if (!headers.containsKey(HttpHeaders.CONTENT_TYPE.toString())) {
 				headers.put(HttpHeaders.CONTENT_TYPE.toString(), MediaType.WILDCARD);
 			}
