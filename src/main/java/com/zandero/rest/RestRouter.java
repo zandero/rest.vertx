@@ -699,11 +699,10 @@ public class RestRouter {
 	@SuppressWarnings("unchecked")
 	private static void produceResponse(Object result, RoutingContext context, RouteDefinition definition, HttpResponseWriter writer) throws
 	                                                                                                                                  Throwable {
-
 		HttpServerResponse response = context.response();
 		HttpServerRequest request = context.request();
 
-		// add default response headers per definition
+		// add default response headers per definition (or from writer definition)
 		writer.addResponseHeaders(definition, response);
 
 		// write response and override headers if necessary

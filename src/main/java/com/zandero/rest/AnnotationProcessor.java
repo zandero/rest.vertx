@@ -1,5 +1,6 @@
 package com.zandero.rest;
 
+import com.zandero.rest.annotation.Header;
 import com.zandero.rest.data.MethodParameter;
 import com.zandero.rest.data.ParameterType;
 import com.zandero.rest.data.RouteDefinition;
@@ -263,5 +264,37 @@ public final class AnnotationProcessor {
 		}
 		builder.append(")");
 		return builder.toString();
+	}
+
+	public static Map<String, String> getNameValuePairs(Header annotation) {
+		return getNameValuePairs(annotation != null ? ((Header)annotation).value() : null);
+	}
+
+	public static Map<String, String> getNameValuePairs(String[] values) {
+		if (values == null || values.length == 0) {
+			return null;
+		}
+
+		Map<String, String> output = new HashMap<>();
+		for (String item : values) {
+
+			// default if split point can not be found
+			String name = item;
+			String value = "";
+
+			int idx = item.indexOf(":");
+			if (idx <= 0) {
+				idx = item.indexOf(" ");
+			}
+
+			if (idx > 0) {
+				name = item.substring(0, idx).trim();
+				value = item.substring(idx + 1).trim();
+			}
+
+			output.put(name, value);
+		}
+
+		return output;
 	}
 }

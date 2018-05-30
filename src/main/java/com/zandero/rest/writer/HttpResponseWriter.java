@@ -1,5 +1,6 @@
 package com.zandero.rest.writer;
 
+import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.Header;
 import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.rest.data.RouteDefinition;
@@ -23,69 +24,59 @@ public interface HttpResponseWriter<T> {
 
 	default void addResponseHeaders(RouteDefinition definition, HttpServerResponse response) {
 
-		if (!response.ended() &&
-		    !response.headers().contains(HttpHeaders.CONTENT_TYPE)) {
+		if (!response.ended()) {
 
-			boolean addWildcardContentType = true;
+			Map<String, String> headers = new HashMap<>();
 
-			// add static headers if any
-			Header headers = this.getClass().getAnnotation(Header.class);
-			Map<String, String> nameValuePairs = getNameValuePairs(headers != null ? headers.value() : null);
-			if (nameValuePairs != null && nameValuePairs.size() > 0) {
-				response.headers().addAll(nameValuePairs);
+			// collect all headers to put into response ...
 
-				addWildcardContentType = !nameValuePairs.containsKey(HttpHeaders.CONTENT_TYPE.toString());
+			// 1. add definition headers
+			headers = join(headers, definition.getHeaders());
+
+			// 2. add REST produces
+			headers = join(headers, definition.getProduces());
+
+			// 3. add writer headers
+			Header writerHeader = this.getClass().getAnnotation(Header.class);
+			if (writerHeader != null && writerHeader.value().length > 0) {
+				headers = join(headers, AnnotationProcessor.getNameValuePairs(writerHeader.value()));
 			}
 
+			// add Writer produces
 			Produces writerProduces = this.getClass().getAnnotation(Produces.class);
 			if (writerProduces != null && writerProduces.value().length > 0) {
-
-				addWildcardContentType = false;
-				for (String produces : writerProduces.value()) {
-					response.putHeader(HttpHeaders.CONTENT_TYPE, produces);
-				}
-			} else {
-				if (definition != null &&
-				    definition.getProduces() != null) {
-
-					addWildcardContentType = false;
-					for (MediaType produces : definition.getProduces()) {
-						response.putHeader(HttpHeaders.CONTENT_TYPE, MediaTypeHelper.toString(produces));
-					}
-				}
+				headers = join(headers, MediaTypeHelper.getMediaTypes(writerProduces.value()));
 			}
 
-			if (addWildcardContentType) {
-				response.putHeader(HttpHeaders.CONTENT_TYPE, MediaType.WILDCARD);
+			// add wildcard if no content-type present
+			if (!headers.containsKey(HttpHeaders.CONTENT_TYPE.toString())) {
+				headers.put(HttpHeaders.CONTENT_TYPE.toString(), MediaType.WILDCARD);
+			}
+
+			// add all headers not present in response
+			for (String name : headers.keySet()) {
+				if (!response.headers().contains(name)) {
+					response.headers().add(name, headers.get(name));
+				}
 			}
 		}
 	}
 
-	default Map<String, String> getNameValuePairs(String[] values) {
-		if (values == null || values.length == 0) {
-			return null;
+	default Map<String, String> join(Map<String, String> original, Map<String, String> additional) {
+		if (additional != null && additional.size() > 0) {
+			original.putAll(additional);
 		}
 
-		Map<String, String> output = new HashMap<>();
-		for (String item : values) {
+		return original;
+	}
 
-			// default if split point can not be found
-			String name = item;
-			String value = "";
-
-			int idx = item.indexOf(":");
-			if (idx <= 0) {
-				idx = item.indexOf(" ");
+	default Map<String, String> join(Map<String, String> original, MediaType[] additional) {
+		if (additional != null && additional.length > 0) {
+			for (MediaType produces : additional) {
+				original.put(HttpHeaders.CONTENT_TYPE.toString(), MediaTypeHelper.toString(produces));
 			}
-
-			if (idx > 0) {
-				name = item.substring(0, idx).trim();
-				value = item.substring(idx + 1).trim();
-			}
-
-			output.put(name, value);
 		}
 
-		return output;
+		return original;
 	}
 }

@@ -526,6 +526,24 @@ public class CustomContextRest {
 Metod results are converted using response writers.  
 Response writers take the method result and produce a vert.x response.
 
+Example of a simple response writer:
+```java
+@Produces("application/xml")        // content-type header
+@Header("X-Status: I'm a dummy")    // additional static headers
+public class DummyWriter implements HttpResponseWriter<Dummy> {
+
+	@Override
+	public void write(Dummy data, HttpServerRequest request, HttpServerResponse response) {
+
+		response.status(200); // for illustration ... needed only when overriding 200
+		
+		String out = data.name + "=" + data.value;
+		response.end("<custom>" + out + "</custom>");
+	}
+}
+```
+
+
 **Option 1** - The **@Produces** annotation **mime/type** defines the writer to be used when converting response.  
 In this case a build in JSON writer is applied.
 ```java
@@ -1275,6 +1293,82 @@ This is done in order to ensure thread safety, so one context does not jump into
 * By default all _HttpResponseWriter_, _ValueReader_ and _ExceptionHandler_ classes are singletons that are cached once initialized.
 * In case _HttpResponseWriter_, _ValueReader_ or _ExceptionHandler_ are utilizing a **@Context** field they are initialized on **every request** for thread safety 
 
+# Validation
+>since version 0.8.4 or later
+
+Rest.vertx can utilize any JSR 380 validation implementation, we only need to provide the appropriate validator implementation.  
+For instance we can use Hibernate implementation:
+
+```java
+HibernateValidatorConfiguration configuration = Validation.byProvider(HibernateValidator.class)
+	                                                          .configure();
+
+Validator validator = configuration.buildValidatorFactory()
+	                               .getValidator();
+```
+
+Link validator with **rest.vertx**:
+
+```java
+Router router = new RestBuilder(vertx)
+		                .validateWith(validator)
+		                .register(Rest.class)
+		                .build();
+```
+
+or
+
+```java
+RestRouter.validateWith(validator);
+```
+
+and annotate REST calls:
+
+```java
+@POST("valid")
+public int sum(@Max(10) @QueryParam("one") int one,
+               @Min(1) @QueryParam("two") int two,
+               @Valid Dummy body) {
+    return one + two + body.value;
+}
+```
+
+In case of a violation a _400 Bad request_ response will be generated using _ConstraintExceptionHandler_.
+
+# Static data annotations
+## @Produces on response writers
+Additional to REST endpoints @Produces can also be applied to response writers.
+
+Example:
+```java
+@Produces("application/json")
+public class JsonExceptionHandler implements ExceptionHandler<String> {
+
+	@Override
+	public void write(String result, HttpServerRequest request, HttpServerResponse response) {
+		...
+	}
+}
+```
+
+## @Header annotation
+>since version 0.8.4 or later
+
+The @Header annotation adds one or multiple static header to the response.
+It can be applied either to REST endpoints or to response writers.
+
+Example:
+```java
+@Header("X-Status-Reason: Validation failed")
+public class ConstraintExceptionHandler implements ExceptionHandler<ConstraintException> {
+
+	@Override
+	public void write(ConstraintException result, HttpServerRequest request, HttpServerResponse response) {
+        ...
+	}
+}
+```
+
 # Logging
 Rest.vertx uses [Slf4j](https://www.slf4j.org/) logging API.
 In order to see all messages produced by Rest.vertx use a Slf4j compatible logging implementation.
@@ -1283,4 +1377,32 @@ In order to see all messages produced by Rest.vertx use a Slf4j compatible loggi
 ```xml
 <logger name="com.zandero.rest" level="DEBUG" />
 ```
+
+## Experimental features
+> NOTE: not necessary to stay in the final release
+
+### Shorthands for method, path, consumes and produces
+Instead of the following:
+```java
+@GET
+@Path("/test")
+@Consumes("application/json")
+@Produces("application/json")
+public String method() { ... }
+```
+
+a shorthand form can be used combining all into one
+```java
+@Get("/test")
+@Consumes("application/json")
+@Produces("application/json")
+public String method() { ... }
+```
+or even:
+```java
+@Get(value = "/test", consumes = "application/json", produces = "application/json")
+public String method() { ... }
+```
+
+
 

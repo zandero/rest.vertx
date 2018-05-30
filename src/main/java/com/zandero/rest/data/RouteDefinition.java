@@ -1,5 +1,6 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.*;
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.reader.ValueReader;
@@ -59,6 +60,11 @@ public class RouteDefinition {
 	private MediaType[] consumes = null;
 
 	private MediaType[] produces = null;
+
+	/**
+	 * Headers to add to response (additionally to content-type)
+	 */
+	private Map<String, String> headers = null;
 
 	private io.vertx.core.http.HttpMethod method;
 
@@ -326,6 +332,10 @@ public class RouteDefinition {
 				consumes(((Consumes) annotation).value());
 			}
 
+			if (annotation instanceof Header) {
+				headers = headers(((Header)annotation).value());
+			}
+
 			if (annotation instanceof GET ||
 			    annotation instanceof POST ||
 			    annotation instanceof PUT ||
@@ -400,6 +410,10 @@ public class RouteDefinition {
 				suppressCheck = true;
 			}
 		}
+	}
+
+	private Map<String, String> headers(String[] value) {
+		return AnnotationProcessor.getNameValuePairs(value);
 	}
 
 	private boolean hasPath(Annotation[] annotations) {
@@ -711,6 +725,10 @@ public class RouteDefinition {
 	public Class<? extends HttpResponseWriter> getWriter() {
 
 		return writer;
+	}
+
+	public Map<String, String> getHeaders() {
+		return headers;
 	}
 
 	public Class<? extends ValueReader> getReader() {
