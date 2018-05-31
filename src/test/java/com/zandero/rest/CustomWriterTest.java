@@ -40,8 +40,6 @@ public class CustomWriterTest extends VertxTest {
 	@Test
 	public void testCustomOutput(TestContext context) {
 
-
-
 		// call and check response
 		final Async async = context.async();
 
@@ -70,6 +68,25 @@ public class CustomWriterTest extends VertxTest {
 
 			response.bodyHandler(body -> {
 				context.assertEquals("<custom>body</custom>", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void testProducesOnExperimentalGet(TestContext context) {
+
+		RestRouter.getWriters().register(MediaType.TEXT_HTML, TestCustomWriter.class); // bind media type to this writer
+
+		final Async async = context.async();
+
+		client.getNow("/html/head", response -> {
+
+			context.assertEquals(200, response.statusCode());
+			context.assertEquals(MediaType.TEXT_HTML, response.getHeader("Content-Type"));
+
+			response.bodyHandler(body -> {
+				context.assertEquals("<custom>head</custom>", body.toString());
 				async.complete();
 			});
 		});

@@ -46,9 +46,14 @@ public final class MediaTypeHelper {
 
 		List<MediaType> types = new ArrayList<>();
 		for (String item : value) {
-			MediaType type = MediaTypeHelper.valueOf(item);
-			if (type != null) {
-				types.add(type);
+
+			String[] items = item.split(","); // split by "," ...
+
+			for (String single: items) {
+				MediaType type = MediaTypeHelper.valueOf(single);
+				if (type != null) {
+					types.add(type);
+				}
 			}
 		}
 

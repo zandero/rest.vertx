@@ -364,6 +364,7 @@ public class RouteDefinition {
 				InvocationHandler handler = Proxy.getInvocationHandler(annotation);
 				try {
 					path((String) handler.invoke(annotation, annotation.getClass().getMethod("value"), null));
+
 					consumes((String[]) handler.invoke(annotation, annotation.getClass().getMethod("consumes"), null));
 					produces((String[]) handler.invoke(annotation, annotation.getClass().getMethod("produces"), null));
 				}
@@ -467,15 +468,27 @@ public class RouteDefinition {
 	public RouteDefinition consumes(String[] value) {
 
 		Assert.notNullOrEmpty(value, "Missing '@Consumes' definition!");
-		consumes = MediaTypeHelper.getMediaTypes(value);
+
+		MediaType[] values = MediaTypeHelper.getMediaTypes(value);
+		if (!isDefaultMediaType(values)) {
+			consumes = values;
+		}
 		return this;
 	}
 
 	public RouteDefinition produces(String[] value) {
 
 		Assert.notNullOrEmpty(value, "Missing '@Produces' definition!");
-		produces = MediaTypeHelper.getMediaTypes(value);
+		MediaType[] values = MediaTypeHelper.getMediaTypes(value);
+		if (!isDefaultMediaType(values)) {
+			produces = MediaTypeHelper.getMediaTypes(value);
+		}
 		return this;
+	}
+
+	private static boolean isDefaultMediaType(MediaType[] values) {
+
+		return values != null && values.length == 1 && values[0].isWildcardType() && values[0].isWildcardSubtype();
 	}
 
 	private RouteDefinition method(String value) {
