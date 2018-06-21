@@ -230,7 +230,7 @@ public class ArgumentProvider {
 			String path = removeMountPoint(mountPoint, request.path());
 
 			String[] items = path.split("/");
-			if (index < items.length) { // simplistic way to find param value from path by index
+			if (index >= 0 && index < items.length) { // simplistic way to find param value from path by index
 				return items[index];
 			}
 		}
