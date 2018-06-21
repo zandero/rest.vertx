@@ -48,6 +48,9 @@ public class NoMatchTest extends VertxTest {
 			response.bodyHandler(body -> {
 				context.assertEquals("\"echo\"", body.toString());
 				context.assertEquals(200, response.statusCode());
+
+				String header = response.getHeader("Content-Type");
+
 				async.complete();
 			});
 		});

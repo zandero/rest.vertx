@@ -41,4 +41,18 @@ public class TestRegExRest {
 	public Response test(int one, int two) {
 		return Response.ok(one - two).build();
 	}
+
+	/*@RouteOrder(30)
+	@GET
+	@Path("{path:^(?!\\/api\\/).*}")
+	public String allButApi(String path) {
+		return path;
+	}*/
+
+	@RouteOrder(40)
+	@GET
+	@Path(".*")
+	public String serveDocFile(@PathParam("path") String path) { // TODO: fix this ... throws exception
+		return path;
+	}
 }

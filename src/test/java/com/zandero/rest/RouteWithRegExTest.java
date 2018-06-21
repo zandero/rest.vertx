@@ -132,4 +132,21 @@ public class RouteWithRegExTest extends VertxTest {
 		});
 	}
 
+	@Test
+	public void testCommonPathRegEx(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/sub/regEx/ena/2/tri", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.bodyHandler(body -> {
+				context.assertEquals("{one=ena, two=2, three=tri}", body.toString());
+				async.complete();
+			});
+		});
+	}
+
 }

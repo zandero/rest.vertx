@@ -140,4 +140,11 @@ public final class MediaTypeHelper {
 
 		return builder.toString();
 	}
+
+	public static boolean isDefaultMediaType(MediaType[] values) {
+		return values != null &&
+		       values.length == 1 &&
+		       values[0].isWildcardType() &&
+		       values[0].isWildcardSubtype();
+	}
 }

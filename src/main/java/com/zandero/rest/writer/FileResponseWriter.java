@@ -6,7 +6,7 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.RoutingContext;
 
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
+import java.io.FileNotFoundException;
 
 /**
  * Serves static files / resources
@@ -17,14 +17,13 @@ public class FileResponseWriter implements HttpResponseWriter<String> {
 	RoutingContext context;
 
 	@Override
-	public void write(String path, HttpServerRequest request, HttpServerResponse response) {
+	public void write(String path, HttpServerRequest request, HttpServerResponse response) throws FileNotFoundException {
 
-		if (fileExists(context, path)) {
-			response.sendFile(path);
+		if (!fileExists(context, path)) {
+			throw new FileNotFoundException(path);
 		}
-		else {
-			response.setStatusCode(Response.Status.NOT_FOUND.getStatusCode());
-		}
+
+		response.sendFile(path);
 	}
 
 	protected boolean fileExists(RoutingContext context, String file) {

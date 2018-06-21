@@ -8,6 +8,7 @@ import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -59,6 +60,7 @@ public class StaticFileTest extends VertxTest {
 		});
 	}
 
+	@Ignore // todo: issue #26
 	@Test
 	public void fileNotFoundTest(TestContext context) {
 

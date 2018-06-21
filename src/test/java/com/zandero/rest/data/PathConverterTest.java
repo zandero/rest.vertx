@@ -1,5 +1,6 @@
 package com.zandero.rest.data;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -55,6 +56,13 @@ public class PathConverterTest {
 
 		assertEquals("/:one/\\d/:three", PathConverter.convert("/{one}/{two:\\d}/{three}"));
 		assertEquals("/a/\\d/b", PathConverter.convert("/a/\\d/b"));
+	}
+
+	@Ignore // todo: issue #25
+	@Test
+	public void convertRegEx2Test() {
+
+		assertEquals("/regEx/^(?!\\/api\\/).*", PathConverter.convert("/regEx/{path:^(?!\\/api\\/).*}"));
 	}
 
 	@Test

@@ -470,7 +470,7 @@ public class RouteDefinition {
 		Assert.notNullOrEmpty(value, "Missing '@Consumes' definition!");
 
 		MediaType[] values = MediaTypeHelper.getMediaTypes(value);
-		if (!isDefaultMediaType(values)) {
+		if (!MediaTypeHelper.isDefaultMediaType(values)) {
 			consumes = values;
 		}
 		return this;
@@ -480,15 +480,10 @@ public class RouteDefinition {
 
 		Assert.notNullOrEmpty(value, "Missing '@Produces' definition!");
 		MediaType[] values = MediaTypeHelper.getMediaTypes(value);
-		if (!isDefaultMediaType(values)) {
+		if (!MediaTypeHelper.isDefaultMediaType(values)) {
 			produces = MediaTypeHelper.getMediaTypes(value);
 		}
 		return this;
-	}
-
-	private static boolean isDefaultMediaType(MediaType[] values) {
-
-		return values != null && values.length == 1 && values[0].isWildcardType() && values[0].isWildcardSubtype();
 	}
 
 	private RouteDefinition method(String value) {
@@ -615,7 +610,7 @@ public class RouteDefinition {
 	 * @param returnType of REST method
 	 * @return true if async operation, false otherwise (blocking operation)
 	 */
-	public static boolean isAsync(Class<?> returnType) {
+	private static boolean isAsync(Class<?> returnType) {
 
 		return (returnType != null && returnType.isAssignableFrom(Future.class));
 	}
@@ -635,7 +630,7 @@ public class RouteDefinition {
 		}
 	}
 
-	public MethodParameter findParameter(int index) {
+	MethodParameter findParameter(int index) {
 
 		if (params == null) {
 			return null;
@@ -876,6 +871,6 @@ public class RouteDefinition {
 			}
 		}
 
-		return prefix + (method == null ? ">undefined<" : method) + " " + routePath + security;
+		return prefix + (method == null ? ">undefined<" : method) + " " + routePath + security + (pathIsRegEx() ? "[regex]" : "");
 	}
 }
