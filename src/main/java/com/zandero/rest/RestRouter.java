@@ -500,7 +500,7 @@ public class RestRouter {
 					fut.fail(e);
 				}
 			},
-			false,
+			definition.executeBlockingOrdered(), // false by default
 			res -> {
 
 				if (res.succeeded()) {

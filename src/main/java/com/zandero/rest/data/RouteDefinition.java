@@ -90,6 +90,11 @@ public class RouteDefinition {
 	private boolean async;
 
 	/**
+	 * Execute blocking parallel or serial
+	 */
+	private boolean blockingOrdered;
+
+	/**
 	 * Type of return value ...
 	 */
 	private Class<?> returnType;
@@ -196,6 +201,10 @@ public class RouteDefinition {
 
 		if (!async) {
 			async = additional.async;
+		}
+
+		if (!async && !blockingOrdered) {
+			blockingOrdered = additional.blockingOrdered;
 		}
 
 		exceptionHandlers = ArrayUtils.join(exceptionHandlers, additional.exceptionHandlers);
@@ -403,12 +412,15 @@ public class RouteDefinition {
 			}
 
 			if (annotation instanceof CatchWith) {
-				// method handler is applied before class handler
-				exceptionHandlers = ArrayUtils.join(((CatchWith) annotation).value(), exceptionHandlers);
+				exceptionHandlers = ArrayUtils.join(((CatchWith) annotation).value(), exceptionHandlers); // method handler is applied before class handler
 			}
 
 			if (annotation instanceof SuppressCheck) {
 				suppressCheck = true;
+			}
+
+			if (annotation instanceof Blocking) {
+				blockingOrdered = ((Blocking)annotation).value();
 			}
 		}
 	}
@@ -851,8 +863,20 @@ public class RouteDefinition {
 		return permitAll != null || (roles != null && roles.length > 0);
 	}
 
+	/**
+	 * defines if execute blocking or async
+	 * @return true async, false blocking
+	 */
 	public boolean isAsync() {
 		return async;
+	}
+
+	/**
+	 * Applies to executeBlocking only
+	 * @return true to execute serially, false to execute parallel on worker pool (default false)
+	 */
+	public boolean executeBlockingOrdered() {
+		return blockingOrdered;
 	}
 
 	@Override

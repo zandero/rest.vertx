@@ -125,11 +125,18 @@ public abstract class ClassFactory<T> {
 			instance = newInstanceOf(clazz);
 		} else {
 
-			instance = provider.getInstance(clazz);
-			if (instance == null) {
-				throw new ClassFactoryException("Failed to getInstance class of type: " + clazz.getName() + ", with injector: " +
-				                                provider.getClass().getName() + "!", null);
+			try {
+				instance = provider.getInstance(clazz);
+				if (instance == null) {
+					throw new ClassFactoryException("Failed to getInstance class of type: " + clazz.getName() + ", with injector: " +
+					                                provider.getClass().getName() + "!", null);
+				}
 			}
+			catch (Throwable e) {
+				throw new ClassFactoryException("Failed to getInstance class of type: " + clazz.getName() + ", with injector: " +
+				                                provider.getClass().getName() + "!", e);
+			}
+
 		}
 
 		if (ContextProviderFactory.hasContext(clazz)) {
@@ -527,9 +534,10 @@ public abstract class ClassFactory<T> {
 
 	/**
 	 * Get methods in order desired to invoke them one by one until match or fail
-	 * @param type desired
+	 *
+	 * @param type  desired
 	 * @param names of methods in order
-	 * @param <T> class to search for methods
+	 * @param <T>   class to search for methods
 	 * @return method list to use
 	 */
 	private static <T> List<Method> getMethods(Class<T> type, String... names) {

@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
  */
 public interface InjectionProvider {
 
-	<T> T getInstance(Class<T> clazz);
+	<T> T getInstance(Class<T> clazz) throws Throwable;
 
 	static boolean hasInjection(Class<?> clazz) {
 

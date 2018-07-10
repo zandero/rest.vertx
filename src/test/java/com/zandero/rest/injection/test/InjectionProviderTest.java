@@ -33,6 +33,20 @@ public class InjectionProviderTest extends VertxTest {
 		     .listen(PORT);
 	}
 
+	public void startWithClass(Class<? extends InjectionProvider> provider, TestContext context) {
+
+		super.before(context);
+
+		Router router = new RestBuilder(vertx)
+			                .injectWith(provider)
+			                .register(InjectedRest.class)
+			                .build();
+
+		vertx.createHttpServer()
+		     .requestHandler(router::accept)
+		     .listen(PORT);
+	}
+
 	@Test
 	public void guiceCallInjectedRestTest(TestContext context) {
 
@@ -91,6 +105,79 @@ public class InjectionProviderTest extends VertxTest {
 	public void featherCallInjectedRestTest2(TestContext context) {
 
 		startWith(new FeatherInjectionProvider(), context);
+
+		final Async async = context.async();
+
+		client.getNow("/injected/other", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.bodyHandler(body -> {
+				context.assertEquals("Oh yes I'm so dummy!", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	// class type tests
+	@Test
+	public void guiceCallInjectedClassRestTest(TestContext context) {
+
+		startWithClass(GuiceInjectionProvider.class, context);
+
+		final Async async = context.async();
+
+		client.getNow("/injected/dummy", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.bodyHandler(body -> {
+				context.assertEquals("I'm so dummy!", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void guiceCallInjectedClassRestTest2(TestContext context) {
+
+		startWithClass(GuiceInjectionProvider.class, context);
+
+		final Async async = context.async();
+
+		client.getNow("/injected/other", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.bodyHandler(body -> {
+				context.assertEquals("Oh yes I'm so dummy!", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void featherCallInjectedClassRestTest(TestContext context) {
+
+		startWithClass(FeatherInjectionProvider.class, context);
+
+		final Async async = context.async();
+
+		client.getNow("/injected/dummy", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.bodyHandler(body -> {
+				context.assertEquals("I'm so dummy!", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void featherCallInjectedClassRestTest2(TestContext context) {
+
+		startWithClass(FeatherInjectionProvider.class, context);
 
 		final Async async = context.async();
 
