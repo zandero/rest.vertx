@@ -349,7 +349,7 @@ public abstract class ClassFactory<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected static boolean checkIfCompatibleTypes(Class<?> expected, Type actual) {
+	public static boolean checkIfCompatibleTypes(Class<?> expected, Type actual) {
 
 		if (actual == null) {
 			return true;

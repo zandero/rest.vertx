@@ -1,8 +1,10 @@
 package com.zandero.rest;
 
+import com.zandero.rest.annotation.Event;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.context.ContextProviderFactory;
 import com.zandero.rest.data.*;
+import com.zandero.rest.events.RestEvent;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.reader.ReaderFactory;
@@ -39,10 +41,7 @@ import javax.ws.rs.core.Response;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Builds up a vert.x route based on JAX-RS annotation provided in given class
@@ -708,11 +707,66 @@ public class RestRouter {
 		// write response and override headers if necessary
 		writer.write(result, request, response);
 
+		// find and trigger events from // result / response
+		triggerEvents(definition, result, response.getStatusCode());
+
 		// finish if not finished by writer
 		// and is not an Async REST (Async RESTs must finish responses on their own)
 		if (!definition.isAsync() &&
 		    !response.ended()) {
 			response.end();
+		}
+	}
+
+
+	/**
+	 * Matches events to result / response
+	 * @param result of method
+	 * @param responseCode produced by writer
+	 * @return list of matching events or empty list if none found
+	 */
+	private static List<RestEvent> getEvents(RouteDefinition definition, Object result, int responseCode) {
+
+		if (definition.getEvents() == null) {
+			return Collections.emptyList();
+		}
+
+		List<RestEvent> matching = new ArrayList<>();
+		for (Event event: definition.getEvents()) {
+			// status code match OR all
+			if (event.response() == Event.DEFAULT_EVENT_STATUS || event.response() == responseCode) {
+
+				Class<? extends RestEvent> processor = event.value();
+
+				// check if generics fit
+				if (result != null) {
+					Type type = ClassFactory.getGenericType(processor);
+
+					if (ClassFactory.checkIfCompatibleTypes(result.getClass(), type) ) {
+						try {
+							// TODO: ... trigger directly via event bus ...
+
+							RestEvent instance = (RestEvent) ClassFactory.newInstanceOf(processor, injectionProvider, null);
+							matching.add(instance);
+						}
+						catch (ClassFactoryException | ContextException e) {
+							// TODO improve
+							log.error("Failed to provide RestEvent for: " + definition + " ", e);
+						}
+					}
+				}
+			}
+		}
+
+		return matching;
+	}
+
+	private static void triggerEvents(RouteDefinition definition, Object result, int responseCode) {
+		List<RestEvent> found = getEvents(definition, result, responseCode);
+		if (found.size() > 0) {
+			for (RestEvent event: found) {
+				event.execute(result);
+			}
 		}
 	}
 

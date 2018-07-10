@@ -75,6 +75,11 @@ public class RouteDefinition {
 	private Class<? extends ExceptionHandler>[] exceptionHandlers;
 
 	/**
+	 * List of event(s) to be executed when REST is executed (using event bus)
+	 */
+	private List<Event> events;
+
+	/**
 	 * Parameters extracted from request path, query, headers, cookies ...
 	 */
 	private Map<String, MethodParameter> params = new LinkedHashMap<>();
@@ -422,6 +427,20 @@ public class RouteDefinition {
 			if (annotation instanceof Blocking) {
 				blockingOrdered = ((Blocking)annotation).value();
 			}
+
+			if (annotation instanceof Event) {
+				Event event = (Event) annotation;
+				addEvent(event);
+			}
+
+			if (annotation instanceof Events) {
+				Events eventArray = (Events) annotation;
+				if (eventArray.value().length > 0) {
+					for (Event event : eventArray.value()) {
+						addEvent(event);
+					}
+				}
+			}
 		}
 	}
 
@@ -508,6 +527,14 @@ public class RouteDefinition {
 			}
 		}
 
+		return this;
+	}
+
+	private RouteDefinition addEvent(Event event) {
+		if (events == null) {
+			events = new ArrayList<>();
+		}
+		events.add(event);
 		return this;
 	}
 
@@ -877,6 +904,13 @@ public class RouteDefinition {
 	 */
 	public boolean executeBlockingOrdered() {
 		return blockingOrdered;
+	}
+
+	/**
+	 * @return List of mapped events to be executed or null if none provided
+	 */
+	public List<Event> getEvents() {
+		return events;
 	}
 
 	@Override
