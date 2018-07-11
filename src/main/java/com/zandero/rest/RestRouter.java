@@ -708,7 +708,7 @@ public class RestRouter {
 		writer.write(result, request, response);
 
 		// find and trigger events from // result / response
-		triggerEvents(definition, result, response.getStatusCode());
+		triggerEvents(definition, context, result, response.getStatusCode());
 
 		// finish if not finished by writer
 		// and is not an Async REST (Async RESTs must finish responses on their own)
@@ -725,7 +725,7 @@ public class RestRouter {
 	 * @param responseCode produced by writer
 	 * @return list of matching events or empty list if none found
 	 */
-	private static List<RestEvent> getEvents(RouteDefinition definition, Object result, int responseCode) {
+	private static List<RestEvent> getEvents(RouteDefinition definition, RoutingContext context, Object result, int responseCode) {
 
 		if (definition.getEvents() == null) {
 			return Collections.emptyList();
@@ -746,11 +746,11 @@ public class RestRouter {
 						try {
 							// TODO: ... trigger directly via event bus ...
 
-							RestEvent instance = (RestEvent) ClassFactory.newInstanceOf(processor, injectionProvider, null);
+							RestEvent instance = (RestEvent) ClassFactory.newInstanceOf(processor, injectionProvider, context);
 							matching.add(instance);
 						}
 						catch (ClassFactoryException | ContextException e) {
-							// TODO improve
+							// TODO should we throw or swallow?
 							log.error("Failed to provide RestEvent for: " + definition + " ", e);
 						}
 					}
@@ -761,11 +761,12 @@ public class RestRouter {
 		return matching;
 	}
 
-	private static void triggerEvents(RouteDefinition definition, Object result, int responseCode) {
-		List<RestEvent> found = getEvents(definition, result, responseCode);
+	private static void triggerEvents(RouteDefinition definition, RoutingContext context, Object result, int responseCode) throws Throwable {
+		List<RestEvent> found = getEvents(definition, context, result, responseCode);
 		if (found.size() > 0) {
+
 			for (RestEvent event: found) {
-				event.execute(result);
+				event.execute(result, context.vertx().eventBus());
 			}
 		}
 	}

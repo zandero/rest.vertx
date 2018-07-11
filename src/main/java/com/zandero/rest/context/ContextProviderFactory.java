@@ -7,6 +7,7 @@ import com.zandero.rest.exception.ContextException;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.auth.User;
@@ -111,8 +112,14 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 			return context;
 		}
 
+		// provide vertx via @Context
 		if (type.isAssignableFrom(Vertx.class)) {
 			return context.vertx();
+		}
+
+		// provide event bus via @Context
+		if (type.isAssignableFrom(EventBus.class)) {
+			return context.vertx().eventBus();
 		}
 
 		if (type.isAssignableFrom(User.class)) {

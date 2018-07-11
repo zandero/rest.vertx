@@ -1,10 +1,12 @@
 package com.zandero.rest.events;
 
+import io.vertx.core.eventbus.EventBus;
+
 /**
  * Triggered when REST call is complete ...
  * T being the entity produced by the original method OR writer producing the response
  */
 public interface RestEvent<T> {
 
-	void execute(T entity); // TODO: extend ...
+	void execute(T entity, EventBus eventBus) throws Throwable;
 }
