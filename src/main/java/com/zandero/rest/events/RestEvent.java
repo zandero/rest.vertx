@@ -1,6 +1,6 @@
 package com.zandero.rest.events;
 
-import io.vertx.core.eventbus.EventBus;
+import io.vertx.ext.web.RoutingContext;
 
 /**
  * Triggered when REST call is complete ...
@@ -8,5 +8,5 @@ import io.vertx.core.eventbus.EventBus;
  */
 public interface RestEvent<T> {
 
-	void execute(T entity, EventBus eventBus) throws Throwable;
+	void execute(T entity, RoutingContext context) throws Throwable;
 }

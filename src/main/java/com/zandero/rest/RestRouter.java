@@ -1,10 +1,9 @@
 package com.zandero.rest;
 
-import com.zandero.rest.annotation.Event;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.context.ContextProviderFactory;
 import com.zandero.rest.data.*;
-import com.zandero.rest.events.RestEvent;
+import com.zandero.rest.events.RestEventExecutor;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.reader.ReaderFactory;
@@ -41,7 +40,10 @@ import javax.ws.rs.core.Response;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Builds up a vert.x route based on JAX-RS annotation provided in given class
@@ -60,6 +62,8 @@ public class RestRouter {
 	private static final ExceptionHandlerFactory handlers = new ExceptionHandlerFactory();
 
 	private static final ContextProviderFactory providers = new ContextProviderFactory();
+
+	private static final RestEventExecutor eventExecutor = new RestEventExecutor();
 
 	private static InjectionProvider injectionProvider;
 	private static Validator validator;
@@ -100,7 +104,7 @@ public class RestRouter {
 
 			if (api instanceof Handler) {
 
-				Handler handler = (Handler)api;
+				Handler handler = (Handler) api;
 				router.route().handler(handler);
 				continue;
 			}
@@ -193,7 +197,7 @@ public class RestRouter {
 	// Check writer compatibility if possible
 	private static void checkWriterCompatibility(RouteDefinition definition) {
 		try { // no way to know the accept content at this point
-			getWriter(injectionProvider, definition.getReturnType(), definition, null, null, GenericResponseWriter.class);
+			getWriter(injectionProvider, definition.getReturnType(), definition, null, GenericResponseWriter.class);
 		}
 		catch (ClassFactoryException e) {
 			// not relevant at this point
@@ -386,12 +390,16 @@ public class RestRouter {
 	private static HttpResponseWriter getWriter(InjectionProvider injectionProvider,
 	                                            Class returnType,
 	                                            RouteDefinition definition,
-	                                            MediaType acceptHeader,
 	                                            RoutingContext context,
 	                                            Class<? extends HttpResponseWriter> defaultTo) throws ClassFactoryException {
 
 		if (returnType == null) {
 			returnType = definition.getReturnType();
+		}
+
+		MediaType acceptHeader = null;
+		if (context != null) {
+			acceptHeader = MediaTypeHelper.valueOf(context.getAcceptableContentType());
 		}
 
 		HttpResponseWriter writer = writers.getResponseWriter(returnType, definition, injectionProvider, context, acceptHeader);
@@ -508,11 +516,9 @@ public class RestRouter {
 						Object result = res.result();
 						Class returnType = result != null ? result.getClass() : definition.getReturnType();
 
-						MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
 						HttpResponseWriter writer = getWriter(injectionProvider,
 						                                      returnType,
 						                                      definition,
-						                                      accept,
 						                                      context,
 						                                      GenericResponseWriter.class);
 
@@ -562,14 +568,12 @@ public class RestRouter {
 
 							try {
 								Object futureResult = fut.result();
-								MediaType accept = MediaTypeHelper.valueOf(context.getAcceptableContentType());
 
 								HttpResponseWriter writer;
 								if (futureResult != null) { // get writer from result type otherwise we don't know
 									writer = getWriter(injectionProvider,
 									                   futureResult.getClass(),
 									                   definition,
-									                   accept,
 									                   context,
 									                   GenericResponseWriter.class);
 								} else { // due to limitations of Java generics we can't tell the type if response is null
@@ -661,6 +665,8 @@ public class RestRouter {
 
 		try {
 			handler.write(ex.getCause(), context.request(), context.response());
+
+			eventExecutor.triggerEvents(ex.getCause(), response.getStatusCode(), definition, context, injectionProvider);
 		}
 		catch (Throwable handlerException) {
 			// this should not happen
@@ -696,80 +702,31 @@ public class RestRouter {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void produceResponse(Object result, RoutingContext context, RouteDefinition definition, HttpResponseWriter writer) throws
-	                                                                                                                                  Throwable {
+	private static void produceResponse(Object result,
+	                                    RoutingContext context,
+	                                    RouteDefinition definition,
+	                                    HttpResponseWriter writer) throws Throwable {
 		HttpServerResponse response = context.response();
 		HttpServerRequest request = context.request();
 
 		// add default response headers per definition (or from writer definition)
 		writer.addResponseHeaders(definition, response);
-
-		// write response and override headers if necessary
 		writer.write(result, request, response);
 
 		// find and trigger events from // result / response
-		triggerEvents(definition, context, result, response.getStatusCode());
+		eventExecutor.triggerEvents(result, response.getStatusCode(), definition, context, injectionProvider);
 
 		// finish if not finished by writer
 		// and is not an Async REST (Async RESTs must finish responses on their own)
 		if (!definition.isAsync() &&
-		    !response.ended()) {
+		    !response.ended())
+
+		{
 			response.end();
 		}
+
 	}
 
-
-	/**
-	 * Matches events to result / response
-	 * @param result of method
-	 * @param responseCode produced by writer
-	 * @return list of matching events or empty list if none found
-	 */
-	private static List<RestEvent> getEvents(RouteDefinition definition, RoutingContext context, Object result, int responseCode) {
-
-		if (definition.getEvents() == null) {
-			return Collections.emptyList();
-		}
-
-		List<RestEvent> matching = new ArrayList<>();
-		for (Event event: definition.getEvents()) {
-			// status code match OR all
-			if (event.response() == Event.DEFAULT_EVENT_STATUS || event.response() == responseCode) {
-
-				Class<? extends RestEvent> processor = event.value();
-
-				// check if generics fit
-				if (result != null) {
-					Type type = ClassFactory.getGenericType(processor);
-
-					if (ClassFactory.checkIfCompatibleTypes(result.getClass(), type) ) {
-						try {
-							// TODO: ... trigger directly via event bus ...
-
-							RestEvent instance = (RestEvent) ClassFactory.newInstanceOf(processor, injectionProvider, context);
-							matching.add(instance);
-						}
-						catch (ClassFactoryException | ContextException e) {
-							// TODO should we throw or swallow?
-							log.error("Failed to provide RestEvent for: " + definition + " ", e);
-						}
-					}
-				}
-			}
-		}
-
-		return matching;
-	}
-
-	private static void triggerEvents(RouteDefinition definition, RoutingContext context, Object result, int responseCode) throws Throwable {
-		List<RestEvent> found = getEvents(definition, context, result, responseCode);
-		if (found.size() > 0) {
-
-			for (RestEvent event: found) {
-				event.execute(result, context.vertx().eventBus());
-			}
-		}
-	}
 
 	public static WriterFactory getWriters() {
 

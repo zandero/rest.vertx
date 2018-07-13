@@ -7,12 +7,15 @@ import com.zandero.rest.test.TestPostRest;
 import com.zandero.rest.test.TestRegExRest;
 import com.zandero.rest.test.TestRest;
 import com.zandero.rest.test.json.Dummy;
+import io.vertx.core.CompositeFuture;
+import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.*;
 
@@ -120,8 +123,6 @@ public class RouteDefinitionTest {
 
 		// TODO: issue #25
 		// assertEquals("\\/regEx\\/\\w+\\/\\d+\\/\\w+", def.getRoutePath());
-
-
 	}
 
 	@Test
@@ -135,5 +136,19 @@ public class RouteDefinitionTest {
 			             "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: arg0!",
 			             e.getMessage());
 		}
+	}
+
+	@Test public void isAsyncTest() {
+
+		Future<String> out = Future.future();
+		CompositeFuture out2 = CompositeFuture.all(out, out);
+
+		CompletableFuture<String> complete = new CompletableFuture<>();
+
+		assertTrue(RouteDefinition.isAsync(out.getClass()));
+		assertTrue(RouteDefinition.isAsync(out2.getClass()));
+
+		assertFalse(RouteDefinition.isAsync(complete.getClass()));
+		assertFalse(RouteDefinition.isAsync(String.class));
 	}
 }

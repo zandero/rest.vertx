@@ -43,6 +43,38 @@ public class RouteAsyncTest extends VertxTest {
 	}
 
 	@Test
+	public void testAsyncCompletableRest(TestContext context) {
+
+		final Async async = context.async();
+
+		client.getNow("/async/completable", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.bodyHandler(body -> {
+				context.assertEquals("{\"name\": \"hello\", \"value\": \"world\"}", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void testAsyncCallWithExecutorRest(TestContext context) {
+
+		final Async async = context.async();
+
+		client.getNow("/async/executor", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.bodyHandler(body -> {
+				context.assertEquals("{\"name\": \"async\", \"value\": \"called\"}", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
 	public void testAsyncCallInsideRestNullFutureResult(TestContext context) {
 
 		final Async async = context.async();

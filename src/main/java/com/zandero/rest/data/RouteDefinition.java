@@ -260,12 +260,12 @@ public class RouteDefinition {
 		Map<String, MethodParameter> out = new LinkedHashMap<>();
 
 		Set<MethodParameter> found = new HashSet<>();
-		for (String name: base.keySet()) {
+		for (String name : base.keySet()) {
 
 			MethodParameter baseParam = base.get(name);
 
 			boolean joined = false;
-			for (MethodParameter additionalParam: additional) {
+			for (MethodParameter additionalParam : additional) {
 
 				if (baseParam.sameAs(additionalParam)) {
 					baseParam.join(additionalParam);
@@ -282,10 +282,10 @@ public class RouteDefinition {
 		}
 
 		// add missing
-		for (MethodParameter additionalParam: additional) {
+		for (MethodParameter additionalParam : additional) {
 
 			boolean newParam = true;
-			for (MethodParameter present: found) {
+			for (MethodParameter present : found) {
 				if (present.sameAs(additionalParam)) {
 					newParam = false;
 					break;
@@ -347,7 +347,7 @@ public class RouteDefinition {
 			}
 
 			if (annotation instanceof Header) {
-				headers = headers(((Header)annotation).value());
+				headers = headers(((Header) annotation).value());
 			}
 
 			if (annotation instanceof GET ||
@@ -417,7 +417,8 @@ public class RouteDefinition {
 			}
 
 			if (annotation instanceof CatchWith) {
-				exceptionHandlers = ArrayUtils.join(((CatchWith) annotation).value(), exceptionHandlers); // method handler is applied before class handler
+				exceptionHandlers =
+					ArrayUtils.join(((CatchWith) annotation).value(), exceptionHandlers); // method handler is applied before class handler
 			}
 
 			if (annotation instanceof SuppressCheck) {
@@ -425,7 +426,7 @@ public class RouteDefinition {
 			}
 
 			if (annotation instanceof Blocking) {
-				blockingOrdered = ((Blocking)annotation).value();
+				blockingOrdered = ((Blocking) annotation).value();
 			}
 
 			if (annotation instanceof Event) {
@@ -649,9 +650,9 @@ public class RouteDefinition {
 	 * @param returnType of REST method
 	 * @return true if async operation, false otherwise (blocking operation)
 	 */
-	private static boolean isAsync(Class<?> returnType) {
+	static boolean isAsync(Class<?> returnType) {
 
-		return (returnType != null && returnType.isAssignableFrom(Future.class));
+		return ClassFactory.checkIfCompatibleTypes(returnType, Future.class);
 	}
 
 	private void setUsedArguments(Map<String, MethodParameter> arguments) {
@@ -892,6 +893,7 @@ public class RouteDefinition {
 
 	/**
 	 * defines if execute blocking or async
+	 *
 	 * @return true async, false blocking
 	 */
 	public boolean isAsync() {
@@ -900,6 +902,7 @@ public class RouteDefinition {
 
 	/**
 	 * Applies to executeBlocking only
+	 *
 	 * @return true to execute serially, false to execute parallel on worker pool (default false)
 	 */
 	public boolean executeBlockingOrdered() {
