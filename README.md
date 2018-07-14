@@ -439,6 +439,7 @@ Following types are by default supported:
 * **@Context HttpServerRequest** - vert.x current request 
 * **@Context HttpServerResponse** - vert.x response (of current request)
 * **@Context Vertx** - vert.x instance
+* **@Context EventBus** - vert.x EventBus instance
 * **@Context RoutingContext** - vert.x routing context (of current request)
 * **@Context User** - vert.x user entity (if set)
 * **@Context RouteDefinition** - vertx.rest route definition (reflection of **Rest.Vertx** route annotation data)
@@ -910,6 +911,71 @@ public String second() {
 > GET /test -> "first" 
 ```
 
+# Rest events
+> version 0.8.6 or later  
+
+Rest events are a useful when some additional work/action must be performed based on the response produced.  
+For instance we want to send out a registration confirmation e-mail only to a 200 response (a successful registration).
+
+Rest events are triggered after the response has been generated, but before the REST has ended.  
+One or more events are executed **synchronously** after the REST execution.  
+The order of events triggered is not defined, nor should one event rely on the execution of another event. 
+
+Rest events can be bound to:
+* http response code
+* thrown exception
+* ot both
+
+This is the place to trigger some async operation via event bus or some other response based operation.
+
+A RestEvent processor must implement the RestEvent interface (similar to ResponseWriters).
+The event input is either the produced response entity or the exception thrown.  
+If the event/entity pair does not match, the event is **not triggered**.
+
+#### Example 
+```java
+@GET
+@Path("trigger/{status}")
+@Events({@Event(SimpleEvent.class), // triggered on OK respons >=200 <300
+         @Event(value = FailureEvent.class, exception = IllegalArgumentException.class), // triggered via exception thrown
+         @Event(value = SimpleEvent.class, response = 301)}) // triggered on response code 301
+public Dummy returnOrFail(@PathParam("status") int status) {
+
+    if (status >= 200 && status < 300) {
+        return new Dummy("one", "event");
+    }
+
+    if (status >= 300 && status < 400) {
+        response.setStatusCode(301);
+        return new Dummy("two", "failed");
+    }
+
+    throw new IllegalArgumentException("Failed: " + status);
+}  
+```
+
+```java
+public class SimpleEvent implements RestEvent<Dummy> {
+
+	@Override
+	public void execute(Dummy entity, RoutingContext context) {
+
+		System.out.println("Event triggered: " + entity.name + ": " + entity.value);
+		context.vertx().eventBus().send("rest.vertx.testing", JsonUtils.toJson(entity)); // send as JSON to event bus ...
+	}
+}
+```
+
+```java
+public class FailureEvent implements RestEvent<Exception> {
+
+	@Override
+	public void execute(Exception entity, RoutingContext context) throws Throwable {
+		log.error("Error: ", entity);
+	}
+}
+```
+
 # Enabling CORS requests
 > version 0.7.4 or later 
 
@@ -1143,34 +1209,55 @@ will load resource file in _html/{path}_ and return it's content.
 ## Blocking and Async RESTs
 > version 0.8.1 or later
 
+### Default
 By default all REST utilize _vertx().executeBlocking()_ call. Therefore the vertx event loop is not blocked. 
+It will utilize the default vertx thread pool:
+
+```java
+DeploymentOptions options = new DeploymentOptions();
+options.setWorkerPoolSize(poolSize);
+options.setMaxWorkerExecuteTime(maxExecuteTime);
+options.setWorkerPoolName("rest.vertx.example.worker.pool");
+
+vertx.deployVerticle(new RestVertxVerticle(settings), options);
+```
+
 Responses are always terminated (ended).
 
-If desired a REST endpoint can return _Future_ and will be executed asynchronously waiting for the future object to finish.
+### Async
+If desired a REST endpoint can return io.vertx.core._Future_ and will be executed asynchronously waiting for the future object to finish.
 If used with non default (provided) _HttpResponseWriter_ the response must be terminated manually.
 
+This should be used in case we need to use a specific vertx worker pool   
+... thus we can manually execute the Future<> with that specific worker pool.  
+
 The output writer is determined upon the Future<Object> type returned. If returned future object is _null_ then 
-due to Java generics limitations the object type **can not** be determinied.
+due to Java generics limitations the object type **can not** be determined.
 Therefore the response will be produced by the best matching response writer instead.  
 
 > **suggestion:** wrap null responses to object instances 
 
 #### Simple async example
+
+```java
+WorkerExecutor executor = Vertx.vertx().createSharedWorkerExecutor("SlowServiceExecutor", 20);
+```
+
 ```java
 @GET
 @Path("async")
 public Future<Dummy> create(@Context Vertx vertx) throws InterruptedException {
 
     Future<Dummy> res = Future.future();
-    asyncCall(vertx, res);
+    asyncCall(executor, res);
     return res;
 }
 ```
 
 ```java
-public void asyncCall(Vertx vertx, Future<Dummy> value) throws InterruptedException {
+public void asyncCall(WorkerExecutor executor, Future<Dummy> value) throws InterruptedException {
 
-    vertx.executeBlocking(
+    executor.executeBlocking(
             fut -> {
                 try {
                     Thread.sleep(1000);
@@ -1213,25 +1300,34 @@ RestRouter.injectWith(GuiceInjectionProvider.class);
 Following is a simple implementation of a Guice injection provider.
 
 ```java
-public class GuiceInjectionProvider extends AbstractModule implements InjectionProvider  {
+public class GuiceInjectionProvider implements InjectionProvider {
 
 	private Injector injector;
 
-	public GuiceInjectionProvider() {
-		injector = Guice.createInjector(this);
+	public GuiceInjectionProvider(Module[] modules) {
+		injector = Guice.createInjector(modules);
 	}
 
-	@Override
-	protected void configure() {
-		bind(MyService.class).to(MyServiceImpl.class);
-		bind(OtherService.class).to(MyOtherServiceImpl.class);
-	}
-
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object getInstance(Class clazz) {
 		return injector.getInstance(clazz);
 	}
 }
+```
+  
+```java
+Router router = new RestBuilder(vertx).injectWith(new GuiceInjectionProvider(getModules())).build();
+vertx.createHttpServer()
+		     .requestHandler(router::accept)
+		     .listen(port);
+
+private Module[] getModules() {
+		return new Module[]{
+			new ServiceModule(),
+			new SecurityModule() ... 
+		};
+	}
 ```
 
 ### Implement service (use @Inject if needed)
