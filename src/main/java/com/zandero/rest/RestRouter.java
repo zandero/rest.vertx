@@ -200,7 +200,7 @@ public class RestRouter {
 			getWriter(injectionProvider, definition.getReturnType(), definition, null, GenericResponseWriter.class);
 		}
 		catch (ClassFactoryException e) {
-			// not relevant at this point
+			// ignoring instance creation ... but leaving Illegal argument exceptions to pass
 		}
 	}
 
@@ -246,7 +246,7 @@ public class RestRouter {
 					}
 				}
 				catch (Throwable e) {
-					handleException(e, context, null);
+					handleException(e, context, null); // no definition
 				}
 			}
 
@@ -723,15 +723,10 @@ public class RestRouter {
 
 		// finish if not finished by writer
 		// and is not an Async REST (Async RESTs must finish responses on their own)
-		if (!definition.isAsync() &&
-		    !response.ended())
-
-		{
+		if (!definition.isAsync() && !response.ended()) {
 			response.end();
 		}
-
 	}
-
 
 	public static WriterFactory getWriters() {
 
@@ -756,10 +751,13 @@ public class RestRouter {
 	public static void addProvider(Class<? extends ContextProvider> provider) {
 
 		Class clazz = (Class) ClassFactory.getGenericType(provider);
+		log.info("Registering '" + clazz + "' provider '" + provider.getName() + "'");
 		providers.register(clazz, provider);
 	}
 
 	public static <T> void addProvider(Class<T> clazz, ContextProvider<T> provider) {
+
+		log.info("Registering '" + clazz + "' provider '" + provider.getClass().getName() + "'");
 		providers.register(clazz, provider);
 	}
 
@@ -783,6 +781,9 @@ public class RestRouter {
 	public static void injectWith(InjectionProvider provider) {
 
 		injectionProvider = provider;
+		if (injectionProvider != null) {
+			log.info("Registered injection provider: " + injectionProvider.getClass().getName());
+		}
 	}
 
 	/**
@@ -794,8 +795,10 @@ public class RestRouter {
 
 		try {
 			injectionProvider = (InjectionProvider) ClassFactory.newInstanceOf(provider);
+			log.info("Registered injection provider: " + injectionProvider.getClass().getName());
 		}
 		catch (ClassFactoryException e) {
+			log.error("Failed to instantiate injection provider: ", e);
 			throw new IllegalArgumentException(e);
 		}
 	}
@@ -808,6 +811,9 @@ public class RestRouter {
 	public static void validateWith(Validator provider) {
 
 		validator = provider;
+		if (validator != null) {
+			log.info("Registered validation provider: " + validator.getClass().getName());
+		}
 	}
 
 	/**
@@ -819,8 +825,10 @@ public class RestRouter {
 
 		try {
 			validator = (Validator) ClassFactory.newInstanceOf(provider);
+			log.info("Registered validation provider: " + validator.getClass().getName());
 		}
 		catch (ClassFactoryException e) {
+			log.error("Failed to instantiate validation provider: ", e);
 			throw new IllegalArgumentException(e);
 		}
 	}
