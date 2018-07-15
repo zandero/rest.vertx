@@ -204,9 +204,9 @@ public class RestRouter {
 		}
 	}
 
-	public static void provide(Router output, Class<? extends ContextProvider> provider) throws Throwable {
+	public static void provide(Router output, Class<? extends ContextProvider> provider) {
 
-		// try
+		try {
 			Class clazz = (Class) ClassFactory.getGenericType(provider);
 			ContextProvider instance = getContextProviders().getContextProvider(injectionProvider,
 			                                                                    clazz,
@@ -214,15 +214,15 @@ public class RestRouter {
 			                                                                    null);
 			// set before other routes ...
 			output.route().order(ORDER_PROVIDER_HANDLER).blockingHandler(getContextHandler(instance));
-		/*}
-		catch (ClassFactoryException | ContextException e) {
-			throw new IllegalArgumentException(e.getMessage());
-		}*/
+		}
+		catch (Throwable e) {
+			throw new IllegalArgumentException(e);
+		}
 	}
 
 	public static void provide(Router output, ContextProvider<?> provider) {
 
-		output.route().blockingHandler(getContextHandler(provider));
+		output.route().order(ORDER_PROVIDER_HANDLER).blockingHandler(getContextHandler(provider));
 	}
 
 	private static Handler<RoutingContext> getContextHandler(ContextProvider instance) {
@@ -230,26 +230,23 @@ public class RestRouter {
 		return context -> {
 
 			if (instance != null) {
-
-				Object provided;
 				try {
-					provided = instance.provide(context.request());
+					Object provided = instance.provide(context.request());
+
+					if (provided instanceof User) {
+						context.setUser((User) provided);
+					}
+
+					if (provided instanceof Session) {
+						context.setSession((Session) provided);
+					}
+
+					if (provided != null) {
+						context.data().put(ContextProviderFactory.getContextKey(provided), provided);
+					}
 				}
 				catch (Throwable e) {
-					// TODO: ??
-					throw new IllegalArgumentException(e);
-				}
-
-				if (provided instanceof User) {
-					context.setUser((User) provided);
-				}
-
-				if (provided instanceof Session) {
-					context.setSession((Session) provided);
-				}
-
-				if (provided != null) {
-					context.data().put(ContextProviderFactory.getContextKey(provided), provided);
+					handleException(e, context, null);
 				}
 			}
 
