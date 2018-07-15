@@ -27,7 +27,7 @@ public class RouteWithMultiProducesTest extends VertxTest {
 		Router router = new RestBuilder(vertx)
 			.register(TestMultiProducesRest.class)
 			.writer(MediaType.APPLICATION_XML, TestXmlResponseWriter.class)
-			.writer(MediaType.APPLICATION_JSON, TestJsonResponseWriter.class)
+			.writer(TestJsonResponseWriter.class) // resolve from @Produces
 			.build();
 
 

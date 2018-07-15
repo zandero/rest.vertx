@@ -84,26 +84,19 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 		Assert.notNull(writer, "Missing writer type!");
 		boolean registered = false;
 
-		Class classType = (Class) ClassFactory.getGenericType(writer);
-		if (classType != null) {
-			register(classType, writer);
-			registered = true;
-		}
-
 		Produces found = writer.getAnnotation(Produces.class);
 		if (found != null) {
 			MediaType[] produces = MediaTypeHelper.getMediaTypes(found.value());
 			if (produces != null && produces.length > 0) {
 				for (MediaType type : produces) {
-					super.register(type, writer);
+					register(type, writer);
 				}
 				registered = true;
 			}
 		}
 
 		Assert.isTrue(registered,
-		              "Failed to register writer: '" + writer.getName() +
-		              "', could not extract generic type / missing @Produces annotation!");
+		              "Failed to register writer: '" + writer.getName() + "', missing @Produces annotation!");
 	}
 
 	public void register(HttpResponseWriter writer) {
@@ -111,26 +104,19 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 		Assert.notNull(writer, "Missing writer!");
 		boolean registered = false;
 
-		Class classType = (Class) ClassFactory.getGenericType(writer.getClass());
-		if (classType != null) {
-			register(classType, writer);
-			registered = true;
-		}
-
 		Produces found = writer.getClass().getAnnotation(Produces.class);
 		if (found != null) {
 			MediaType[] produces = MediaTypeHelper.getMediaTypes(found.value());
 			if (produces != null && produces.length > 0) {
 				for (MediaType type : produces) {
-					super.register(type, writer);
+					register(type, writer);
 				}
 				registered = true;
 			}
 		}
 
 		Assert.isTrue(registered,
-		              "Failed to register writer: '" + writer.getClass().getName() +
-		              "', could not extract generic type / missing @Produces annotation!");
+		              "Failed to register writer: '" + writer.getClass().getName() + "', missing @Produces annotation!");
 	}
 
 	public void register(Class<?> aClass, Class<? extends HttpResponseWriter> clazz) {

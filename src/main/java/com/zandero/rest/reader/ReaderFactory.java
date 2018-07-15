@@ -90,26 +90,19 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 		Assert.notNull(reader, "Missing reader class!");
 		boolean registered = false;
 
-		Class classType = (Class) ClassFactory.getGenericType(reader);
-		if (classType != null) {
-			register(classType, reader);
-			registered = true;
-		}
-
 		Consumes found = reader.getAnnotation(Consumes.class);
 		if (found != null) {
 			MediaType[] consumes = MediaTypeHelper.getMediaTypes(found.value());
 			if (consumes != null && consumes.length > 0) {
 				for (MediaType type : consumes) {
-					super.register(type, reader);
+					register(type, reader);
 				}
 			}
 			registered = true;
 		}
 
 		Assert.isTrue(registered,
-		              "Failed to register reader: '" + reader.getName() +
-		              "', could not extract generic type / missing @Consumes annotation!");
+		              "Failed to register reader: '" + reader.getName() + "', missing @Consumes annotation!");
 	}
 
 	/**
@@ -120,26 +113,19 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 		Assert.notNull(reader, "Missing reader!");
 		boolean registered = false;
 
-		Class classType = (Class) ClassFactory.getGenericType(reader.getClass());
-		if (classType != null) {
-			register(classType, reader);
-			registered = true;
-		}
-
 		Consumes found = reader.getClass().getAnnotation(Consumes.class);
 		if (found != null) {
 			MediaType[] consumes = MediaTypeHelper.getMediaTypes(found.value());
 			if (consumes != null && consumes.length > 0) {
 				for (MediaType type : consumes) {
-					super.register(type, reader);
+					register(type, reader);
 				}
 				registered = true;
 			}
 		}
 
 		Assert.isTrue(registered,
-		              "Failed to register reader: '" + reader.getClass().getName() +
-		              "', could not extract generic type / missing @Consumes annotation!");
+		              "Failed to register reader: '" + reader.getClass().getName() + "', missing @Consumes annotation!");
 	}
 
 	public void register(Class<?> clazz, Class<? extends ValueReader> reader) {

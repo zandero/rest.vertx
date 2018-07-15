@@ -3,9 +3,12 @@ package com.zandero.rest.writer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
+import javax.ws.rs.Produces;
+
 /**
  *
  */
+@Produces("application/xml")
 public class TestXmlResponseWriter implements HttpResponseWriter<String> {
 
 	@Override
