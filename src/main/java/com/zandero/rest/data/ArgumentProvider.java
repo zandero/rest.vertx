@@ -28,8 +28,8 @@ public class ArgumentProvider {
 	                                    RouteDefinition definition,
 	                                    RoutingContext context,
 	                                    ReaderFactory readers,
-	                                    ContextProviderFactory contextProvider,
-	                                    InjectionProvider injectionProvider) {
+	                                    ContextProviderFactory providerFactory,
+	                                    InjectionProvider injectionProvider) throws Throwable {
 
 		Assert.notNull(method, "Missing method to provide arguments for!");
 		Assert.notNull(definition, "Missing route definition!");
@@ -69,7 +69,7 @@ public class ArgumentProvider {
 						case context:
 
 							// check if providers need to be called to assure context
-							ContextProvider provider = contextProvider.get(dataType, null, injectionProvider, context, null);
+							ContextProvider provider = providerFactory.get(dataType, null, injectionProvider, context, null);
 							if (provider != null) {
 								Object result = provider.provide(context.request());
 								if (result != null) {
@@ -89,35 +89,38 @@ public class ArgumentProvider {
 							break;
 					}
 				}
-				catch (ContextException e) {
-					throw new IllegalArgumentException(e.getMessage());
-				}
-				catch (IllegalArgumentException e) {
+				catch (Throwable e) {
 
-					MethodParameter paramDefinition = definition.findParameter(parameter.getIndex());
-					String providedType = value != null ? value.getClass().getSimpleName() : "null";
-					String expectedType = method.getParameterTypes()[parameter.getIndex()].getTypeName();
-
-					String error;
-					if (paramDefinition != null) {
-						error = "Invalid parameter type for: " + paramDefinition + " for: " + definition.getPath() + ", expected: " + expectedType;
-					} else {
-						error =
-							"Invalid parameter type for " + (parameter.getIndex() + 1) + " argument for: " + method + " expected: " + expectedType;
+					if (e instanceof ContextException) {
+						throw new IllegalArgumentException(e.getMessage());
 					}
 
-					if (!StringUtils.equals(expectedType, providedType, false)) {
-						error = error + ", but got: " + providedType;
+					if (e instanceof IllegalArgumentException) {
+
+						MethodParameter paramDefinition = definition.findParameter(parameter.getIndex());
+						String providedType = value != null ? value.getClass().getSimpleName() : "null";
+						String expectedType = method.getParameterTypes()[parameter.getIndex()].getTypeName();
+
+						String error;
+						if (paramDefinition != null) {
+							error =
+								"Invalid parameter type for: " + paramDefinition + " for: " + definition.getPath() + ", expected: " + expectedType;
+						} else {
+							error =
+								"Invalid parameter type for " + (parameter.getIndex() + 1) + " argument for: " + method + " expected: " +
+								expectedType;
+						}
+
+						if (!StringUtils.equals(expectedType, providedType, false)) {
+							error = error + ", but got: " + providedType;
+						}
+
+						error = error + " -> " + e;
+
+						throw new IllegalArgumentException(error, e);
 					}
 
-					error = error + " -> " + e;
-
-					throw new IllegalArgumentException(error, e);
-
-				}
-				catch (Exception e) {
-
-					throw new IllegalArgumentException(e);
+					throw e;
 				}
 			}
 		}

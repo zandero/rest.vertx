@@ -30,7 +30,6 @@ public class RestEventExecutor {
 	 * @param definition route definition
 	 * @param context routing context
 	 * @param injectionProvider injection provider to instantiate event processor
-	 * @return list of matching events or empty list if none found
 	 */
 	public void triggerEvents(Object result,
 	                          int responseCode,

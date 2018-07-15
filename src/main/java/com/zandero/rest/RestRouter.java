@@ -204,9 +204,9 @@ public class RestRouter {
 		}
 	}
 
-	public static void provide(Router output, Class<? extends ContextProvider> provider) {
+	public static void provide(Router output, Class<? extends ContextProvider> provider) throws Throwable {
 
-		try {
+		// try
 			Class clazz = (Class) ClassFactory.getGenericType(provider);
 			ContextProvider instance = getContextProviders().getContextProvider(injectionProvider,
 			                                                                    clazz,
@@ -214,10 +214,10 @@ public class RestRouter {
 			                                                                    null);
 			// set before other routes ...
 			output.route().order(ORDER_PROVIDER_HANDLER).blockingHandler(getContextHandler(instance));
-		}
+		/*}
 		catch (ClassFactoryException | ContextException e) {
 			throw new IllegalArgumentException(e.getMessage());
-		}
+		}*/
 	}
 
 	public static void provide(Router output, ContextProvider<?> provider) {
@@ -230,7 +230,15 @@ public class RestRouter {
 		return context -> {
 
 			if (instance != null) {
-				Object provided = instance.provide(context.request());
+
+				Object provided;
+				try {
+					provided = instance.provide(context.request());
+				}
+				catch (Throwable e) {
+					// TODO: ??
+					throw new IllegalArgumentException(e);
+				}
 
 				if (provided instanceof User) {
 					context.setUser((User) provided);
@@ -503,7 +511,7 @@ public class RestRouter {
 
 					fut.complete(method.invoke(toInvoke, args));
 				}
-				catch (Exception e) {
+				catch (Throwable e) {
 					fut.fail(e);
 				}
 			},
@@ -592,7 +600,7 @@ public class RestRouter {
 					});
 				}
 			}
-			catch (Exception e) {
+			catch (Throwable e) {
 				handleException(e, context, definition);
 			}
 		};

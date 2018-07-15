@@ -84,7 +84,6 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 
 	/**
 	 * Takes media type from @Consumes annotation if specified,
-	 * @param reader
 	 */
 	public void register(Class<? extends ValueReader> reader) {
 

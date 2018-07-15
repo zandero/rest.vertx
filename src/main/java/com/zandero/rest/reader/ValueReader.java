@@ -9,5 +9,5 @@ package com.zandero.rest.reader;
  */
 public interface ValueReader<T> {
 
-	T read(String value, Class<T> type);
+	T read(String value, Class<T> type) throws Throwable;
 }

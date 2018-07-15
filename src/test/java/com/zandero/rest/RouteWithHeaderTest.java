@@ -72,10 +72,9 @@ public class RouteWithHeaderTest extends VertxTest {
 
 		client.get("/header/npe", response -> {
 
-			context.assertEquals(400, response.statusCode());
-
 			response.bodyHandler(body -> {
-				context.assertEquals("java.lang.NullPointerException: OH SHIT!", body.toString());
+				context.assertEquals("OH SHIT!", body.toString());
+				context.assertEquals(500, response.statusCode());
 				async.complete();
 			});
 		}).putHeader("dummy", "").end();

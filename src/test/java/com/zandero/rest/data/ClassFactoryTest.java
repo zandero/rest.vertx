@@ -10,6 +10,7 @@ import com.zandero.rest.test.data.MyOtherEnum;
 import com.zandero.rest.test.data.SimulatedUser;
 import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
 import com.zandero.rest.test.json.Dummy;
+import com.zandero.utils.Pair;
 import io.vertx.ext.auth.AbstractUser;
 import org.junit.Test;
 
@@ -116,46 +117,52 @@ public class ClassFactoryTest {
 	@Test
 	public void constructViaConstructorTest() {
 
-		Dummy dummy = (Dummy) ClassFactory.constructViaConstructor(Dummy.class, "{\"name\":\"unknown\", \"value\": \"user\"}");
+		Pair<Boolean, Dummy> dummy = ClassFactory.constructViaConstructor(Dummy.class, "{\"name\":\"unknown\", \"value\": \"user\"}");
 		assertNotNull(dummy);
-		assertEquals("unknown", dummy.name);
-		assertEquals("user", dummy.value);
+		assertEquals("unknown", dummy.getValue().name);
+		assertEquals("user", dummy.getValue().value);
 
-		SimulatedUser user = (SimulatedUser) ClassFactory.constructViaConstructor(SimulatedUser.class, "BLA");
+		Pair<Boolean, SimulatedUser> user = ClassFactory.constructViaConstructor(SimulatedUser.class, "BLA");
 		assertNotNull(user);
-		assertEquals("BLA", user.getRole());
+		assertEquals("BLA", user.getValue().getRole());
 
-		IntegerHolder holder = (IntegerHolder) constructViaConstructor(IntegerHolder.class, "10");
+		Pair<Boolean, IntegerHolder> holder = constructViaConstructor(IntegerHolder.class, "10");
 		assertNotNull(holder);
-		assertEquals(10, holder.value);
+		assertEquals(10, holder.getValue().value);
 	}
 
 	@Test
 	public void constructViaMethodTest() {
 
-		Dummy dummy = (Dummy) ClassFactory.constructViaMethod(Dummy.class, "{\"name\":\"unknown\", \"value\": \"user\"}");
+		Pair<Boolean, Dummy> dummy = ClassFactory.constructViaMethod(Dummy.class, "{\"name\":\"unknown\", \"value\": \"user\"}");
 		assertNotNull(dummy);
-		assertEquals("unknown", dummy.name);
-		assertEquals("user", dummy.value);
+		assertEquals("unknown", dummy.getValue().name);
+		assertEquals("user", dummy.getValue().value);
 
-		SimulatedUser user = (SimulatedUser) ClassFactory.constructViaMethod(SimulatedUser.class, "BLA");
+		Pair<Boolean, SimulatedUser> user = ClassFactory.constructViaMethod(SimulatedUser.class, "BLA");
 		assertNotNull(user);
-		assertEquals("BLA", user.getRole());
+		assertTrue(user.getKey());
+		assertEquals("BLA", user.getValue().getRole());
 
-		IntegerHolder holder = (IntegerHolder) constructViaMethod(IntegerHolder.class, "10");
-		assertNull(holder);
+		Pair<Boolean, IntegerHolder> holder = constructViaMethod(IntegerHolder.class, "10");
+		assertFalse(holder.getKey());
+		assertNull(holder.getValue());
 	}
 
 	@Test
 	public void constructEnumTest() {
-		MyEnum value = (MyEnum) ClassFactory.constructViaMethod(MyEnum.class, "one");
-		assertEquals(MyEnum.one, value);
+		Pair<Boolean, MyEnum> value = ClassFactory.constructViaMethod(MyEnum.class, "one");
+		assertEquals(MyEnum.one, value.getValue());
 
-		MyOtherEnum other = (MyOtherEnum) ClassFactory.constructViaMethod(MyOtherEnum.class, "one");
-		assertEquals(MyOtherEnum.one, other);
+		Pair<Boolean, MyOtherEnum> other = ClassFactory.constructViaMethod(MyOtherEnum.class, "one");
+		assertEquals(MyOtherEnum.one, other.getValue());
 
-		other = (MyOtherEnum) ClassFactory.constructViaMethod(MyOtherEnum.class, "2");
-		assertEquals(MyOtherEnum.two, other);
+		other = ClassFactory.constructViaMethod(MyOtherEnum.class, "2");
+		assertEquals(MyOtherEnum.two, other.getValue());
+
+		other = ClassFactory.constructViaMethod(MyOtherEnum.class, "");
+		assertEquals(true, other.getKey());
+		assertNull(other.getValue());
 	}
 
 	@Test

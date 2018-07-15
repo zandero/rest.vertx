@@ -11,5 +11,5 @@ public interface ContextProvider<T> {
 	 * @param request current request
 	 * @return object to be pushed into context storage
 	 */
-	T provide(HttpServerRequest request);
+	T provide(HttpServerRequest request) throws Throwable;
 }

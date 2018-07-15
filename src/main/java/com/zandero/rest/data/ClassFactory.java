@@ -6,6 +6,7 @@ import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.ContextException;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
+import com.zandero.utils.Pair;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -437,14 +438,14 @@ public abstract class ClassFactory<T> {
 		}
 
 		// have a constructor that accepts a single argument (String or any other primitive type that can be converted from String)
-		Object result = constructViaConstructor(type, fromValue);
-		if (result != null) {
-			return result;
+		Pair<Boolean, T> result = constructViaConstructor(type, fromValue);
+		if (result.getKey()) {
+			return result.getValue();
 		}
 
 		result = constructViaMethod(type, fromValue);
-		if (result != null) {
-			return result;
+		if (result.getKey()) {
+			return result.getValue();
 		}
 
 		//
@@ -476,8 +477,9 @@ public abstract class ClassFactory<T> {
 	/**
 	 * have a constructor that accepts a single argument
 	 * (String or any other primitive type that can be converted from String)
+	 * Pair(success, object)
 	 */
-	static <T> Object constructViaConstructor(Class<T> type, String fromValue) {
+	static <T> Pair<Boolean, T> constructViaConstructor(Class<T> type, String fromValue) {
 
 		Constructor[] allConstructors = type.getDeclaredConstructors();
 		for (Constructor ctor : allConstructors) {
@@ -492,7 +494,7 @@ public abstract class ClassFactory<T> {
 						if (pType[0].isAssignableFrom(primitive)) {
 
 							Object value = stringToPrimitiveType(fromValue, primitive);
-							return ctor.newInstance(value);
+							return new Pair(true, ctor.newInstance(value));
 						}
 					}
 				}
@@ -503,7 +505,7 @@ public abstract class ClassFactory<T> {
 			}
 		}
 
-		return null;
+		return new Pair<>(false, null);
 	}
 
 	/**
@@ -514,7 +516,7 @@ public abstract class ClassFactory<T> {
 	 * @param <T>       class type
 	 * @return Object of type or null if failed to construct
 	 */
-	static <T> Object constructViaMethod(Class<T> type, String fromValue) {
+	static <T> Pair<Boolean, T> constructViaMethod(Class<T> type, String fromValue) {
 
 		// Try to usse fromString before valueOf (enums have valueOf already defined) - in case we override fromString()
 		List<Method> methods = getMethods(type, "fromString", "valueOf");
@@ -524,7 +526,8 @@ public abstract class ClassFactory<T> {
 			for (Method method : methods) {
 
 				try {
-					return method.invoke(null, fromValue);
+					Object value = method.invoke(null, fromValue);
+					return new Pair(true, value);
 				}
 				catch (IllegalAccessException | InvocationTargetException e) {
 					// failed with this one ... try the others ...
@@ -533,7 +536,7 @@ public abstract class ClassFactory<T> {
 			}
 		}
 
-		return null;
+		return new Pair<>(false, null);
 	}
 
 	/**

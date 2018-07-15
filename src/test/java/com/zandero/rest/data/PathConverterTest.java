@@ -14,7 +14,7 @@ import static org.junit.Assert.assertTrue;
 public class PathConverterTest {
 
 	@Test
-	public void convertTest() throws Exception {
+	public void convertTest() {
 
 		assertEquals(":test", PathConverter.convert("{test}"));
 		assertEquals(":test/:test2", PathConverter.convert("{test}/{test2}"));

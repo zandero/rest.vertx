@@ -361,7 +361,12 @@ public class RestBuilder {
 
 		contextProviders.forEach(provider -> {
 			if (provider instanceof Class) {
-				RestRouter.provide(output, (Class<? extends ContextProvider>) provider);
+				try {
+					RestRouter.provide(output, (Class<? extends ContextProvider>) provider);
+				}
+				catch (Throwable throwable) { // TODO: ... ??
+					throw new IllegalArgumentException(throwable);
+				}
 			} else {
 				RestRouter.provide(output, (ContextProvider<?>) provider);
 			}

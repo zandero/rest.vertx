@@ -16,6 +16,7 @@ public @interface Header {
 	 * Can be applied to RESTs or response writers
 	 *
 	 * example: "X-Auth: test", or "X-Auth test" ... will add a "X-Auth" header with value "test"
+	 * @return one or more headers ...
 	 */
 	String[] value() default "";
 }
