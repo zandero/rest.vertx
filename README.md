@@ -915,7 +915,7 @@ public String second() {
 > version 0.8.6 or later  
 
 Rest events are a useful when some additional work/action must be performed based on the response produced.  
-For instance we want to send out a registration confirmation e-mail only to a 200 response (a successful registration).
+For instance we want to send out a registration confirmation e-mail on a 200 response (a successful registration).
 
 Rest events are triggered after the response has been generated, but before the REST has ended.  
 One or more events are executed **synchronously** after the REST execution.  
@@ -924,7 +924,7 @@ The order of events triggered is not defined, nor should one event rely on the e
 Rest events can be bound to:
 * http response code
 * thrown exception
-* ot both
+* or both
 
 This is the place to trigger some async operation via event bus or some other response based operation.
 
@@ -958,7 +958,7 @@ public Dummy returnOrFail(@PathParam("status") int status) {
 public class SimpleEvent implements RestEvent<Dummy> {
 
 	@Override
-	public void execute(Dummy entity, RoutingContext context) {
+	public void execute(Dummy entity, RoutingContext context) throws Throwable {
 
 		System.out.println("Event triggered: " + entity.name + ": " + entity.value);
 		context.vertx().eventBus().send("rest.vertx.testing", JsonUtils.toJson(entity)); // send as JSON to event bus ...
