@@ -83,49 +83,104 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 	}
 
 	/**
-	 * Takes media type from @Consumes annotation if specified,
+	 * Takes media type from @Consumes annotation if specified, otherwise fallback to generics
 	 */
 	public void register(Class<? extends ValueReader> reader) {
 
-		Consumes found = reader.getAnnotation(Consumes.class);
-		Assert.notNull(found, "Annotate reader with @Consumes to provide media type information!");
+		Assert.notNull(reader, "Missing reader class!");
+		boolean registered = false;
 
-		MediaType[] consumes = MediaTypeHelper.getMediaTypes(found.value());
-		if (consumes != null && consumes.length > 0) {
-			for (MediaType type : consumes) {
-				super.register(type, reader);
+		Class classType = (Class) ClassFactory.getGenericType(reader);
+		if (classType != null) {
+			register(classType, reader);
+			registered = true;
+		}
+
+		Consumes found = reader.getAnnotation(Consumes.class);
+		if (found != null) {
+			MediaType[] consumes = MediaTypeHelper.getMediaTypes(found.value());
+			if (consumes != null && consumes.length > 0) {
+				for (MediaType type : consumes) {
+					super.register(type, reader);
+				}
+			}
+			registered = true;
+		}
+
+		Assert.isTrue(registered,
+		              "Failed to register reader: '" + reader.getName() +
+		              "', could not extract generic type / missing @Consumes annotation!");
+	}
+
+	/**
+	 * Registers both ... generic type and media type if given in @Consumes annotation
+	 */
+	public void register(ValueReader reader) {
+
+		Assert.notNull(reader, "Missing reader!");
+		boolean registered = false;
+
+		Class classType = (Class) ClassFactory.getGenericType(reader.getClass());
+		if (classType != null) {
+			register(classType, reader);
+			registered = true;
+		}
+
+		Consumes found = reader.getClass().getAnnotation(Consumes.class);
+		if (found != null) {
+			MediaType[] consumes = MediaTypeHelper.getMediaTypes(found.value());
+			if (consumes != null && consumes.length > 0) {
+				for (MediaType type : consumes) {
+					super.register(type, reader);
+				}
+				registered = true;
 			}
 		}
+
+		Assert.isTrue(registered,
+		              "Failed to register reader: '" + reader.getClass().getName() +
+		              "', could not extract generic type / missing @Consumes annotation!");
 	}
 
 	public void register(Class<?> clazz, Class<? extends ValueReader> reader) {
 
-		Assert.notNull(clazz, "Missing read in class!");
+		Assert.notNull(clazz, "Missing reader type class!");
 		Assert.notNull(reader, "Missing request reader type class!");
 
+		log.info("Registering '" + clazz.getName() + "' reader '" + reader.getName() + "'");
 		super.register(clazz, reader);
 	}
 
 	public void register(Class<?> clazz, ValueReader reader) {
 
-		Assert.notNull(clazz, "Missing read in class!");
-		Assert.notNull(reader, "Missing request reader type class!");
+		Assert.notNull(clazz, "Missing reader type class!");
+		Assert.notNull(reader, "Missing request reader!");
 
+		log.info("Registering '" + clazz.getName() + "' reader '" + reader.getClass().getName() + "'");
 		super.register(clazz, reader);
 	}
 
 	public void register(String mediaType, Class<? extends ValueReader> clazz) {
 
+		log.info("Registering '" + mediaType + "' reader '" + clazz.getName() + "'");
+		super.register(mediaType, clazz);
+	}
+
+	public void register(String mediaType, ValueReader clazz) {
+
+		log.info("Registering '" + mediaType + "' reader '" + clazz.getClass().getName() + "'");
 		super.register(mediaType, clazz);
 	}
 
 	public void register(MediaType mediaType, Class<? extends ValueReader> clazz) {
 
+		log.info("Registering '" + mediaType + "' reader '" + clazz.getName() + "'");
 		super.register(mediaType, clazz);
 	}
 
 	public void register(MediaType mediaType, ValueReader clazz) {
 
+		log.info("Registering '" + mediaType + "' reader '" + clazz.getClass().getName() + "'");
 		super.register(mediaType, clazz);
 	}
 }

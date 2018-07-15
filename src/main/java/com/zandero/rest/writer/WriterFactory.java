@@ -1,6 +1,7 @@
 package com.zandero.rest.writer;
 
 import com.zandero.rest.data.ClassFactory;
+import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.ContextException;
@@ -11,6 +12,7 @@ import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -77,34 +79,99 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 		}
 	}
 
+	public void register(Class<? extends HttpResponseWriter> writer) {
+
+		Assert.notNull(writer, "Missing writer type!");
+		boolean registered = false;
+
+		Class classType = (Class) ClassFactory.getGenericType(writer);
+		if (classType != null) {
+			register(classType, writer);
+			registered = true;
+		}
+
+		Produces found = writer.getAnnotation(Produces.class);
+		if (found != null) {
+			MediaType[] produces = MediaTypeHelper.getMediaTypes(found.value());
+			if (produces != null && produces.length > 0) {
+				for (MediaType type : produces) {
+					super.register(type, writer);
+				}
+				registered = true;
+			}
+		}
+
+		Assert.isTrue(registered,
+		              "Failed to register writer: '" + writer.getName() +
+		              "', could not extract generic type / missing @Produces annotation!");
+	}
+
+	public void register(HttpResponseWriter writer) {
+
+		Assert.notNull(writer, "Missing writer!");
+		boolean registered = false;
+
+		Class classType = (Class) ClassFactory.getGenericType(writer.getClass());
+		if (classType != null) {
+			register(classType, writer);
+			registered = true;
+		}
+
+		Produces found = writer.getClass().getAnnotation(Produces.class);
+		if (found != null) {
+			MediaType[] produces = MediaTypeHelper.getMediaTypes(found.value());
+			if (produces != null && produces.length > 0) {
+				for (MediaType type : produces) {
+					super.register(type, writer);
+				}
+				registered = true;
+			}
+		}
+
+		Assert.isTrue(registered,
+		              "Failed to register writer: '" + writer.getClass().getName() +
+		              "', could not extract generic type / missing @Produces annotation!");
+	}
+
 	public void register(Class<?> aClass, Class<? extends HttpResponseWriter> clazz) {
 
-		Assert.notNull(aClass, "Missing response class!");
 		Assert.notNull(clazz, "Missing response writer type class!");
+		Assert.notNull(aClass, "Missing response writer type class!");
 
+		log.info("Registering '" + aClass.getName() + "' writer '" + clazz.getName() + "'");
 		super.register(aClass, clazz);
 	}
 
 	public void register(Class<?> aClass, HttpResponseWriter clazz) {
 
-		Assert.notNull(aClass, "Missing response class!");
 		Assert.notNull(clazz, "Missing response writer instance!");
+		Assert.notNull(aClass, "Missing response writer type class!");
 
+		log.info("Registering '" + aClass.getName() + "' writer '" + clazz.getClass().getName() + "'");
 		super.register(aClass, clazz);
 	}
 
 	public void register(String mediaType, Class<? extends HttpResponseWriter> clazz) {
 
+		log.info("Registering '" + mediaType + "' writer '" + clazz.getName() + "'");
+		super.register(mediaType, clazz);
+	}
+
+	public void register(String mediaType, HttpResponseWriter clazz) {
+
+		log.info("Registering '" + mediaType + "' writer '" + clazz.getClass().getName() + "'");
 		super.register(mediaType, clazz);
 	}
 
 	public void register(MediaType mediaType, Class<? extends HttpResponseWriter> clazz) {
 
+		log.info("Registering '" + mediaType + "' writer '" + clazz.getName() + "'");
 		super.register(mediaType, clazz);
 	}
 
 	public void register(MediaType mediaType, HttpResponseWriter clazz) {
 
+		log.info("Registering '" + mediaType + "' writer '" + clazz.getClass().getName() + "'");
 		super.register(mediaType, clazz);
 	}
 }

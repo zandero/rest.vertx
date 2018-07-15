@@ -189,6 +189,22 @@ public class RestBuilder {
 		return this;
 	}
 
+	public RestBuilder writer(Class<? extends HttpResponseWriter> writer) {
+
+		Assert.notNull(writer, "Missing response writer type class!");
+
+		classResponseWriters.put(null, writer);
+		return this;
+	}
+
+	public RestBuilder writer(HttpResponseWriter writer) {
+
+		Assert.notNull(writer, "Missing response writer type class!");
+
+		classResponseWriters.put(null, writer);
+		return this;
+	}
+
 	public RestBuilder writer(Class<?> clazz, Class<? extends HttpResponseWriter> writer) {
 
 		Assert.notNull(clazz, "Missing response class!");
@@ -250,6 +266,14 @@ public class RestBuilder {
 	}
 
 	public RestBuilder reader(Class<? extends ValueReader> reader) {
+
+		Assert.notNull(reader, "Missing value reader class!");
+
+		mediaTypeValueReaders.put(null, reader);
+		return this;
+	}
+
+	public RestBuilder reader(ValueReader reader) {
 
 		Assert.notNull(reader, "Missing value reader class!");
 
@@ -371,39 +395,75 @@ public class RestBuilder {
 		classValueReaders.forEach((clazz, reader) -> {
 
 			if (reader instanceof Class) {
-				RestRouter.getReaders().register(clazz, (Class<? extends ValueReader>) reader);
+				if (clazz == null) {
+					RestRouter.getReaders().register((Class<? extends ValueReader>) reader);
+				}
+				else {
+					RestRouter.getReaders().register(clazz, (Class<? extends ValueReader>) reader);
+				}
 			} else {
-				RestRouter.getReaders().register(clazz, (ValueReader) reader);
+				if (clazz == null) {
+					RestRouter.getReaders().register((ValueReader) reader);
+				}
+				else {
+					RestRouter.getReaders().register(clazz, (ValueReader) reader);
+				}
 			}
 		});
 
 		mediaTypeValueReaders.forEach((type, reader) -> {
 
-			if (type == null) {
-				RestRouter.getReaders().register((Class<? extends ValueReader>) reader);
-			}
-
 			if (reader instanceof Class) {
-				RestRouter.getReaders().register(type, (Class<? extends ValueReader>) reader);
+				if (type == null) {
+					RestRouter.getReaders().register((Class<? extends ValueReader>) reader);
+				}
+				else {
+					RestRouter.getReaders().register(type, (Class<? extends ValueReader>) reader);
+				}
 			} else {
-				RestRouter.getReaders().register(type, (ValueReader) reader);
+				if (type == null) {
+					RestRouter.getReaders().register((ValueReader)reader);
+				}
+				else {
+					RestRouter.getReaders().register(type, (ValueReader) reader);
+				}
 			}
 		});
 
 		// register writers
 		classResponseWriters.forEach((clazz, writer) -> {
+
 			if (writer instanceof Class) {
-				RestRouter.getWriters().register(clazz, (Class<? extends HttpResponseWriter>) writer);
+				if (clazz == null) {
+					RestRouter.getWriters().register((Class<? extends HttpResponseWriter>) writer);
+				}
+				else {
+					RestRouter.getWriters().register(clazz, (Class<? extends HttpResponseWriter>) writer);
+				}
 			} else {
-				RestRouter.getWriters().register(clazz, (HttpResponseWriter) writer);
+				if (clazz == null) {
+					RestRouter.getWriters().register((HttpResponseWriter) writer);
+				} else {
+					RestRouter.getWriters().register(clazz, (HttpResponseWriter) writer);
+				}
 			}
 		});
 
 		mediaTypeResponseWriters.forEach((type, writer) -> {
 			if (writer instanceof Class) {
-				RestRouter.getWriters().register(type, (Class<? extends HttpResponseWriter>) writer);
+				if (type == null) {
+					RestRouter.getWriters().register((Class<? extends HttpResponseWriter>) writer);
+				}
+				else {
+					RestRouter.getWriters().register(type, (Class<? extends HttpResponseWriter>) writer);
+				}
 			} else {
-				RestRouter.getWriters().register(type, (HttpResponseWriter<?>) writer);
+				if (type == null) {
+					RestRouter.getWriters().register((HttpResponseWriter<?>) writer);
+				}
+				else {
+					RestRouter.getWriters().register(type, (HttpResponseWriter<?>) writer);
+				}
 			}
 		});
 
