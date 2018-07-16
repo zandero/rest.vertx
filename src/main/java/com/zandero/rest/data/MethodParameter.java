@@ -1,5 +1,6 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
@@ -55,6 +56,11 @@ public class MethodParameter {
 	 */
 	private Class<? extends ValueReader> reader;
 
+	/**
+	 * Request to type converter
+	 */
+	private Class<? extends ContextProvider> contextProvider;
+
 
 	public MethodParameter(ParameterType parameterType, String paramName) {
 
@@ -93,6 +99,10 @@ public class MethodParameter {
 
 		if (reader == null) {
 			reader = joining.reader;
+		}
+
+		if (contextProvider == null) {
+			contextProvider = joining.contextProvider;
 		}
 
 		if (index == -1) {
@@ -192,6 +202,14 @@ public class MethodParameter {
 
 	public Class<? extends ValueReader> getReader() {
 		return reader;
+	}
+
+	public void setContextProvider(Class<? extends ContextProvider> provider) {
+		 contextProvider = provider;
+	}
+
+	public Class<? extends ContextProvider> getContextProvider() {
+		return contextProvider;
 	}
 
 	public boolean isBody() {

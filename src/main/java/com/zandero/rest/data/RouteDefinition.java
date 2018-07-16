@@ -2,6 +2,7 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.*;
+import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.rest.writer.HttpResponseWriter;
@@ -21,10 +22,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -71,6 +69,8 @@ public class RouteDefinition {
 	private Class<? extends HttpResponseWriter> writer;
 
 	private Class<? extends ValueReader> reader;
+
+	private Class<? extends ContextProvider> contextProvider;
 
 	private Class<? extends ExceptionHandler>[] exceptionHandlers;
 
@@ -135,6 +135,7 @@ public class RouteDefinition {
 
 		reader = base.getReader();
 		writer = base.getWriter();
+		contextProvider = base.getContextProvider();
 
 		// set root privileges
 		permitAll = base.getPermitAll();
@@ -189,6 +190,10 @@ public class RouteDefinition {
 
 		if (reader == null) {
 			reader = additional.reader;
+		}
+
+		if (contextProvider == null) {
+			contextProvider = additional.contextProvider;
 		}
 
 		if (!suppressCheck) {
@@ -401,6 +406,10 @@ public class RouteDefinition {
 				reader = ((RequestReader) annotation).value();
 			}
 
+			if (annotation instanceof ContextReader) {
+				contextProvider = ((ContextReader)annotation).value();
+			}
+
 			if (annotation instanceof RolesAllowed) {
 				permitAll = null; // override any previous definition
 				roles = ((RolesAllowed) annotation).value();
@@ -562,6 +571,7 @@ public class RouteDefinition {
 			ParameterType type = null;
 			String defaultValue = null;
 			Class<? extends ValueReader> valueReader = null;
+			Class<? extends ContextProvider> contextValueProvider = null;
 
 			for (Annotation annotation : ann) {
 
@@ -605,6 +615,10 @@ public class RouteDefinition {
 					valueReader = ((RequestReader) annotation).value();
 				}
 
+				if (annotation instanceof ContextReader) {
+					contextValueProvider = ((ContextReader) annotation).value();
+				}
+
 				if (annotation instanceof Context) {
 					type = ParameterType.context;
 					name = parameters[index].getName();
@@ -636,7 +650,16 @@ public class RouteDefinition {
 
 			// collect only needed params for this method
 			if (name != null) {
-				MethodParameter parameter = provideArgument(name, type, defaultValue, parameterTypes[index], valueReader, index);
+
+				// set context provider from method annotation if fitting
+				if (contextValueProvider == null && contextProvider != null) {
+					Type generic = ClassFactory.getGenericType(contextProvider);
+				    if (ClassFactory.checkIfCompatibleTypes(parameterTypes[index], generic)) {
+					    contextValueProvider = contextProvider;
+				    }
+				}
+
+				MethodParameter parameter = provideArgument(name, type, defaultValue, parameterTypes[index], valueReader, contextValueProvider, index);
 				arguments.put(name, parameter);
 			}
 
@@ -701,6 +724,7 @@ public class RouteDefinition {
 	                                        String defaultValue,
 	                                        Class<?> parameterType,
 	                                        Class<? extends ValueReader> valueReader,
+	                                        Class<? extends ContextProvider> contextProvider,
 	                                        int index) {
 
 
@@ -724,6 +748,7 @@ public class RouteDefinition {
 		MethodParameter newParam = new MethodParameter(type, name, parameterType, index);
 		newParam.setDefaultValue(defaultValue);
 		newParam.setValueReader(valueReader);
+		newParam.setContextProvider(contextProvider);
 		return newParam;
 	}
 
@@ -771,7 +796,6 @@ public class RouteDefinition {
 	}
 
 	public Class<? extends HttpResponseWriter> getWriter() {
-
 		return writer;
 	}
 
@@ -780,8 +804,11 @@ public class RouteDefinition {
 	}
 
 	public Class<? extends ValueReader> getReader() {
-
 		return reader;
+	}
+
+	public Class<? extends ContextProvider> getContextProvider() {
+		return contextProvider;
 	}
 
 	public Class<? extends ExceptionHandler>[] getExceptionHandlers() {

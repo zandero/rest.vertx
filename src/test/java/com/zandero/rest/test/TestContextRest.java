@@ -1,6 +1,9 @@
 package com.zandero.rest.test;
 
+import com.zandero.rest.annotation.ContextReader;
 import com.zandero.rest.data.RouteDefinition;
+import com.zandero.rest.test.data.DummyProvider;
+import com.zandero.rest.test.data.NewTokenProvider;
 import com.zandero.rest.test.data.Token;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.http.HttpServerRequest;
@@ -64,5 +67,21 @@ public class TestContextRest {
 	public String login(@Context Token token) {
 
 		return token.token;
+	}
+
+	@GET
+	@Path("/dummy")
+	@ContextReader(DummyProvider.class)
+	public String contextRead(@Context Token token, @Context Dummy dummy) {
+
+		return token.token + "," + dummy.name + ":" + dummy.value;
+	}
+
+	@GET
+	@Path("/dummy-token")
+	public String paramContextRead(@ContextReader(NewTokenProvider.class) @Context Token token,
+	                               @ContextReader(DummyProvider.class) @Context Dummy dummy) {
+
+		return token.token + "," + dummy.name + ":" + dummy.value;
 	}
 }

@@ -110,7 +110,7 @@ public class RouteWithContextTest extends VertxTest {
 	}
 
 	@Test
-	public void testResponseContex(TestContext context) {
+	public void testResponseContext(TestContext context) {
 
 		// call and check response
 		final Async async = context.async();

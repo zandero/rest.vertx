@@ -69,7 +69,7 @@ public class ArgumentProvider {
 						case context:
 
 							// check if providers need to be called to assure context
-							ContextProvider provider = providerFactory.get(dataType, null, injectionProvider, context, null);
+							ContextProvider provider = providerFactory.get(dataType, parameter.getContextProvider(), injectionProvider, context, null);
 							if (provider != null) {
 								Object result = provider.provide(context.request());
 								if (result != null) {
@@ -142,21 +142,6 @@ public class ArgumentProvider {
 
 		return args;
 	}
-
-	/*
-	private static void validate(Object arg, Validator validator) {
-		if (validator == null) {
-			return; // nothing to validate
-		}
-
-		if (arg != null) { // only non null values can be checked ...
-			Set<ConstraintViolation<Object>> result = validator.validate(arg);
-			if (result != null && result.size() > 0) { // we have a constraint violation ... throw exception
-				throw new ConstraintViolationException(result);
-			}
-		}
-	}
-	*/
 
 	private static String getValue(RouteDefinition definition, MethodParameter param, RoutingContext context, String defaultValue) {
 

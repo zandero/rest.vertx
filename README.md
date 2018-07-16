@@ -457,9 +457,27 @@ public String createdResponse(@Context HttpServerResponse response, @Context Htt
 ### Registering a context provider
 If desired a custom context provider can be implemented to extract information from _request_ into a object.  
 The context provider is only invoked in when the context object type is needed. 
+Use _addProvider()_ method on **RestRouter** or **RestBuilder** to register a context provider.
 
 ```java
-RestRouter.addContextProvider(Token.class, request -> {
+public class TokenProvider  implements ContextProvider<Token> {
+                           
+    @Override
+    public Token provide(HttpServerRequest request) throws Throwable {
+        String token = request.getHeader("X-Token");
+        if (token != null) {
+            return new Token(token);
+        }
+        
+        return null;
+    }
+}
+
+RestRouter.addProvider(Token.class, TokenProvider.class);
+```
+OR  
+```java
+RestRouter.addProvider(Token.class, request -> {
 		String token = request.getHeader("X-Token");
 		if (token != null) {
 			return new Token(token);
@@ -469,6 +487,20 @@ RestRouter.addContextProvider(Token.class, request -> {
 	});
 ```
 
+OR
+
+```java
+public class Token {
+
+	public String token; 
+	
+	public Token (HttpServerRequest request) {
+		token = request.getHeader("X-Token");
+    }
+}
+
+RestRouter..addProvider(Token.class, Token::new)
+```
 
 ```java
 @GET
@@ -507,6 +539,12 @@ private Handler<RoutingContext> pushContextHandler() {
 	};
 }
 ```
+OR
+```java
+RestRouter.provide(TokenProvider.class); // push of context provider 
+```
+
+> A pushed context is handy in case we wan't to make sure some context related object is always present (on every request), ie. session / user ...
 
 Then the context object can than be used as a method argument 
 ```java
@@ -569,7 +607,7 @@ public class ConsumeJSON {
 	@GET
 	@Path("write")
 	@Produces("application/json")
-	@ResponseWriter(SomeClassWriter.class)
+	@ResponseWriter(SomeClassWriter.class) // writer will be used for this REST call only
 	public SomeClass write() {
 
 		return new SomeClass();
@@ -577,17 +615,21 @@ public class ConsumeJSON {
 }
 ```
 
+> Global writers are used in case no other writer is specified for given type or content-type!
+
 **Option 3** - An ResponseWriter is globally assigned to a specific class type.
 
 ```java
 RestRouter.getWriters().register(SomeClass.class, SomeClassWriter.class);
+RestRouter.getWriters().register("application/json", SomeClassWriter.class);
+RestRouter.getWriters().register(SomeClassWriter.class); // where SomeClassWriter is annotated with @Produces("application/json")
 ```
 
 **Option 4** - An ResponseWriter is globally assigned to a specific mime type.
 
 ```java
+RestRouter.getWriters().register(MyClass.class, MyJsonWriter.class);
 RestRouter.getWriters().register("application/json", MyJsonWriter.class);
-// or
 RestRouter.getWriters().register(MyJsonWriter.class); // where MyJsonWriter is annotated with @Produces("application/json") 
 ```
 
@@ -597,8 +639,8 @@ public class ConsumeJSON {
 
 	@GET
 	@Path("write")
-	@Produces("application/json")
-	public SomeClass write() {
+	@Produces("application/json") // appropriate content-type writer will be looked up
+	public SomeClass write() { 
 
 		return new SomeClass();
 	}
@@ -779,10 +821,17 @@ public class MyCustomReader implements ValueReader<MyNewObject> {
 **Using a value reader is simple:**
 
 Register as global reader:
+> Global readers are used in case no other reader is specified for given type or content-type!
 ```java
-RestRouter.getReaders().register(MyNewObject.class, MyCustomReader.class);  
+RestRouter.getReaders().register(MyNewObject.class, MyCustomReader.class);
+RestRouter.getReaders().register("application/json", MyCustomReader.class);
+RestRouter.getReaders().register(MyCustomReader.class); // if reader is annotated with @Consumes("application/json")
+
 // OR  
 new RestBuilder(vertx).reader(MyNewObject.class, MyCustomReader.class);
+new RestBuilder(vertx).reader("appplication/json", MyCustomReader.class);
+new RestBuilder(vertx).reader(MyCustomReader.class); // if reader is annotated with @Consumes("application/json")
+
 ```
 
 Use only local on specific REST endpoint:
@@ -1434,7 +1483,8 @@ In case of a violation a _400 Bad request_ response will be generated using _Con
 
 # Static data annotations
 ## @Produces on response writers
-Additional to REST endpoints @Produces can also be applied to response writers.
+Additional to REST endpoints @Produces can also be applied to response writers.  
+This will add the appropriate content-type header to the output, plus will register writer to the given content-type if no other association is given.
 
 Example:
 ```java

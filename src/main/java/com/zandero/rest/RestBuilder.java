@@ -52,7 +52,14 @@ public class RestBuilder {
 	 */
 	private CorsHandler corsHandler = null;
 
+	/**
+	 * Injected class provider
+	 */
 	private InjectionProvider injectionProvider = null;
+
+	/**
+	 * Validation
+	 */
 	private Validator validator = null;
 
 	public RestBuilder(Router router) {

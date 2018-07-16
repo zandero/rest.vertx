@@ -10,7 +10,7 @@ import java.lang.annotation.*;
  *
  * @see ValueReader
  */
-@Target({ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER})
+@Target({ElementType.METHOD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface RequestReader {

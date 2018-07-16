@@ -85,4 +85,44 @@ public class RouteWithContextProviderTest extends VertxTest {
 			});
 		});
 	}
+
+	@Test
+	public void readMethodContextTokenDummy(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.get("/context/dummy", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.bodyHandler(body -> {
+				context.assertEquals("mySession,Name:Dummy", body.toString());
+				async.complete();
+			});
+		}).putHeader("X-Token", "mySession")
+		      .putHeader("X-dummy-value", "Dummy")
+		      .putHeader("X-dummy-name", "Name")
+		      .end();
+	}
+
+	@Test
+	public void readParamContextTokenDummy(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.get("/context/dummy-token", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.bodyHandler(body -> {
+				context.assertEquals("***mySession***,Name:Dummy", body.toString());
+				async.complete();
+			});
+		}).putHeader("X-Token", "mySession")
+		      .putHeader("X-dummy-value", "Dummy")
+		      .putHeader("X-dummy-name", "Name")
+		      .end();
+	}
 }
