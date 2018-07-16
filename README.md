@@ -77,7 +77,7 @@ vertx.createHttpServer()
 ```
 
 ## RestBuilder
-> since version 0.7
+> version 0.7 or later
 
 Rest endpoints, error handlers, writers and readers can be bound in one go using the RestBuilder.
 
@@ -475,7 +475,7 @@ public class TokenProvider  implements ContextProvider<Token> {
 
 RestRouter.addProvider(Token.class, TokenProvider.class);
 ```
-OR  
+or  
 ```java
 RestRouter.addProvider(Token.class, request -> {
 		String token = request.getHeader("X-Token");
@@ -486,9 +486,7 @@ RestRouter.addProvider(Token.class, request -> {
 		return null;
 	});
 ```
-
-OR
-
+or
 ```java
 public class Token {
 
@@ -539,7 +537,7 @@ private Handler<RoutingContext> pushContextHandler() {
 	};
 }
 ```
-OR
+or
 ```java
 RestRouter.provide(TokenProvider.class); // push of context provider 
 ```
@@ -558,6 +556,29 @@ public class CustomContextRest {
     
     }
 ```
+
+### Context reader
+> version 0.8.6 or later
+A custom context reader can be applied to a @Context annotated variable to override the global context providers.
+
+```java
+    @GET
+    @Path("/token")
+    @ContextReader(TokenProvider.class) 
+    public String createdResponse(@Context Token token) {
+        return token.token;
+    }
+	
+    // or
+        
+    @GET
+    @Path("/token")
+    public String createdResponse(@ContextReader(TokenProvider.class) @Context Token token) {
+        return token.token;
+    }
+```
+
+ 
 
 ## Response building
 
@@ -827,7 +848,7 @@ RestRouter.getReaders().register(MyNewObject.class, MyCustomReader.class);
 RestRouter.getReaders().register("application/json", MyCustomReader.class);
 RestRouter.getReaders().register(MyCustomReader.class); // if reader is annotated with @Consumes("application/json")
 
-// OR  
+// or  
 new RestBuilder(vertx).reader(MyNewObject.class, MyCustomReader.class);
 new RestBuilder(vertx).reader("appplication/json", MyCustomReader.class);
 new RestBuilder(vertx).reader(MyCustomReader.class); // if reader is annotated with @Consumes("application/json")
@@ -846,7 +867,7 @@ public class ReadMyNewObject {
     return "OK";
   }
   
-  // OR
+  // or
   
   @PUT
   @Path("object")
@@ -898,7 +919,7 @@ public class MyCustomResponseWriter implements HttpResponseWriter<MyObject> {
 Register as global writer:
 ```java
 RestRouter.getWriters().register(MyObject.class, MyCustomResponseWriter.class);  
-// OR  
+// or  
 new RestBuilder(vertx).writer(MyObject.class, MyCustomResponseWriter.class);
 ```
 
