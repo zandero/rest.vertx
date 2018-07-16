@@ -54,6 +54,25 @@ public class GuicedInjectionTest extends VertxTest {
 	}
 
 	@Test
+	public void guiceCallGuicedRestTest(TestContext context) {
+
+		startWith(new GuiceInjectionProvider(), context);
+
+		final Async async = context.async();
+
+		client.getNow("/guiceit", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.bodyHandler(bodyHandler -> {
+				String body = bodyHandler.toString();
+				context.assertEquals("Oh yes I'm so dummy!", body);
+				async.complete();
+			});
+		});
+	}
+
+	@Test
 	public void guiceCallInjectedPost(TestContext context) {
 
 		startWith(new GuiceInjectionProvider(), context);

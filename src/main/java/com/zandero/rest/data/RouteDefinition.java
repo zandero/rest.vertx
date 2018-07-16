@@ -121,7 +121,7 @@ public class RouteDefinition {
 
 	public RouteDefinition(Class clazz) {
 
-		init(clazz.getAnnotations(), clazz);
+		init(clazz.getAnnotations());
 	}
 
 	public RouteDefinition(RouteDefinition base, Method classMethod) {
@@ -148,7 +148,7 @@ public class RouteDefinition {
 		exceptionHandlers = ArrayUtils.join(exceptionHandlers, base.exceptionHandlers);
 
 		// complement / override with additional annotations
-		init(classMethod.getAnnotations(), classMethod);
+		init(classMethod.getAnnotations());
 
 		List<MethodParameter> pathParams = PathConverter.extract(path);
 		params = join(params, pathParams);
@@ -328,12 +328,9 @@ public class RouteDefinition {
 	 *
 	 * @param annotations list of method annotations
 	 */
-	private void init(Annotation[] annotations, Object source) {
-
-		//boolean hasPath = hasPath(annotations);
+	private void init(Annotation[] annotations) {
 
 		for (Annotation annotation : annotations) {
-			//log.info(annotation.toString());
 
 			if (annotation instanceof RouteOrder) {
 				order(((RouteOrder) annotation).value());

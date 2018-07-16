@@ -16,11 +16,13 @@ import javax.ws.rs.*;
 public class GuicedRest {
 
 	private final Provider<Settings> settings;
+	private final GuiceInjectService service;
 
 	@Inject
-	public GuicedRest(Provider<Settings> someSettings) {
+	public GuicedRest(Provider<Settings> someSettings, GuiceInjectService guicedService) {
 
 		settings = someSettings;
+		service = guicedService;
 	}
 
 	@GET
@@ -29,6 +31,13 @@ public class GuicedRest {
 	public String get(@PathParam("name") String name) {
 
 		return settings.get().get(name);
+	}
+
+	@GET
+	@Path("guiceit")
+	public String doubleGuice() {
+
+		return service.getOther();
 	}
 
 	@POST

@@ -2,16 +2,16 @@ package com.zandero.rest.injection.test;
 
 import com.zandero.rest.RestBuilder;
 import com.zandero.rest.VertxTest;
-import com.zandero.rest.injection.FeatherInjectionProvider;
-import com.zandero.rest.injection.GuiceInjectionProvider;
-import com.zandero.rest.injection.InjectedRest;
-import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.rest.injection.*;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -45,6 +45,16 @@ public class InjectionProviderTest extends VertxTest {
 		vertx.createHttpServer()
 		     .requestHandler(router::accept)
 		     .listen(PORT);
+	}
+
+	@Test
+	public void testHasInjection() {
+
+		assertTrue(InjectionProvider.hasInjection(GuiceInjectService.class));
+		assertTrue(InjectionProvider.hasInjection(OtherServiceImpl.class));
+		assertTrue(InjectionProvider.hasInjection(GuicedRest.class));
+
+		assertFalse(InjectionProvider.hasInjection(UserServiceImpl.class));
 	}
 
 	@Test

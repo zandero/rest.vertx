@@ -558,7 +558,8 @@ public class CustomContextRest {
 ```
 
 ### Context reader
-> version 0.8.6 or later
+> version 0.8.6 or later  
+
 A custom context reader can be applied to a @Context annotated variable to override the global context providers.
 
 ```java
@@ -1303,7 +1304,7 @@ This should be used in case we need to use a specific vertx worker pool
 ... thus we can manually execute the Future<> with that specific worker pool.  
 
 The output writer is determined upon the Future<Object> type returned. If returned future object is _null_ then 
-due to Java generics limitations the object type **can not** be determined.
+due to Java generics limitations, the object type **can not** be determined.
 Therefore the response will be produced by the best matching response writer instead.  
 
 > **suggestion:** wrap null responses to object instances 

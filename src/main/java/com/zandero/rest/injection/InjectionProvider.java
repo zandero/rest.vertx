@@ -1,6 +1,8 @@
 package com.zandero.rest.injection;
 
-import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -11,24 +13,29 @@ import java.lang.reflect.Method;
  */
 public interface InjectionProvider {
 
+	Logger log = LoggerFactory.getLogger(InjectionProvider.class);
+
+	String GUICE_INJECT = "com.google.inject.Inject";
+	String JAVA_INJECT = "javax.inject.Inject";
+
 	<T> T getInstance(Class<T> clazz) throws Throwable;
 
 	static boolean hasInjection(Class<?> clazz) {
 
 		// checks if any constructors are annotated with @Inject annotation
 		Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-
 		for (Constructor<?> constructor : constructors) {
-			Annotation found = constructor.getAnnotation(Inject.class);
+
+			Annotation found = findAnnotation(constructor.getAnnotations(), JAVA_INJECT, GUICE_INJECT);
 			if (found != null) {
 				return true;
 			}
 		}
-		
+
 		// check if any class members are injected
 		Field[] fields = clazz.getDeclaredFields();
-		for (Field field: fields) {
-			Annotation found = field.getAnnotation(Inject.class);
+		for (Field field : fields) {
+			Annotation found = findAnnotation(field.getAnnotations(), JAVA_INJECT, GUICE_INJECT);
 			if (found != null) {
 				return true;
 			}
@@ -36,13 +43,29 @@ public interface InjectionProvider {
 
 		// check methods if they need injection
 		Method[] methods = clazz.getDeclaredMethods();
-		for (Method method: methods) {
-			Annotation found = method.getAnnotation(Inject.class);
+		for (Method method : methods) {
+
+			Annotation found = findAnnotation(method.getAnnotations(), JAVA_INJECT, GUICE_INJECT);
 			if (found != null) {
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	static Annotation findAnnotation(Annotation[] annotations, String... packages) {
+
+		if (annotations != null && annotations.length > 0) {
+			for (Annotation annotation : annotations) {
+				for (String name : packages) {
+					if (annotation.annotationType().getName().equals(name)) {
+						return annotation;
+					}
+				}
+			}
+		}
+
+		return null;
 	}
 }
