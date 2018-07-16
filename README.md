@@ -583,11 +583,12 @@ public class ConsumeJSON {
 RestRouter.getWriters().register(SomeClass.class, SomeClassWriter.class);
 ```
 
-
 **Option 4** - An ResponseWriter is globally assigned to a specific mime type.
 
 ```java
 RestRouter.getWriters().register("application/json", MyJsonWriter.class);
+// or
+RestRouter.getWriters().register(MyJsonWriter.class); // where MyJsonWriter is annotated with @Produces("application/json") 
 ```
 
 ```java

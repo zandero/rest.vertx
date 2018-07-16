@@ -10,7 +10,7 @@ import javax.ws.rs.Produces;
 /**
  *
  */
-@Produces("text/xml") // we can annotate request writers with produces
+@Produces({"text/xml"}) // we can annotate request writers with produces
 @Header({"Cache-Control: private,no-cache,no-store", "Content-Type: text/xml"}) // we can add additional static headers ...
 public class MyXmlWriter implements HttpResponseWriter<User> {
 

@@ -281,6 +281,12 @@ public class RestBuilder {
 		return this;
 	}
 
+	/**
+	 * Creates a provider handler into routing
+	 * @param provider to be executed on every request
+	 * @param <T> provided object to insert into @Context
+	 * @return builder
+	 */
 	public <T> RestBuilder provide(ContextProvider<T> provider) {
 
 		Assert.notNull(provider, "Missing context provider!");
@@ -289,6 +295,12 @@ public class RestBuilder {
 		return this;
 	}
 
+	/**
+	 * Creates a provider handler by type into routing
+	 * @param provider to be executed on every request
+	 * @param <T> provided object to insert into @Context
+	 * @return builder
+	 */
 	public <T> RestBuilder provide(Class<? extends ContextProvider<T>> provider) {
 
 		Assert.notNull(provider, "Missing context provider!");
@@ -297,21 +309,59 @@ public class RestBuilder {
 		return this;
 	}
 
+	/**
+	 * Creates a provider that delivers type when needed
+	 * @param provider to be executed when needed
+	 * @param <T> provided object as argument
+	 * @return builder
+	 */
 	public <T> RestBuilder addProvider(Class<T> clazz, ContextProvider<T> provider) {
 
 		Assert.notNull(clazz, "Missing provided class type!");
 		Assert.notNull(provider, "Missing context provider!");
-
 		registeredProviders.put(clazz, provider);
 		return this;
 	}
 
+	/**
+	 * Creates a provider that delivers type when needed
+	 * @param provider to be executed when needed
+	 * @param <T> provided object as argument
+	 * @return builder
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> RestBuilder addProvider(ContextProvider<T> provider) {
+
+		Assert.notNull(provider, "Missing context provider!");
+		registeredProviders.put(null, provider);
+		return this;
+	}
+
+	/**
+	 * Creates a provider that delivers type when needed
+	 * @param provider to be executed when needed
+	 * @param <T> provided object as argument
+	 * @return builder
+	 */
+	public <T> RestBuilder addProvider(Class<T> clazz, Class<? extends ContextProvider<T>> provider) {
+
+		Assert.notNull(clazz, "Missing provided class type!");
+		Assert.notNull(provider, "Missing context provider!");
+		registeredProviders.put(clazz, provider);
+		return this;
+	}
+
+	/**
+	 * Creates a provider that delivers type when needed
+	 * @param provider to be executed when needed
+	 * @param <T> provided object as argument
+	 * @return builder
+	 */
+	@SuppressWarnings("unchecked")
 	public <T> RestBuilder addProvider(Class<? extends ContextProvider<T>> provider) {
 
 		Assert.notNull(provider, "Missing context provider!");
-
-		Class clazz = (Class) ClassFactory.getGenericType(provider);
-		registeredProviders.put(clazz, provider);
+		registeredProviders.put(null, provider);
 		return this;
 	}
 
@@ -365,9 +415,19 @@ public class RestBuilder {
 			registeredProviders.forEach((clazz, provider) -> {
 
 				if (provider instanceof Class) {
-					RestRouter.addProvider((Class<? extends ContextProvider>) provider);
+					if (clazz == null) {
+						RestRouter.addProvider((Class<? extends ContextProvider>) provider);
+					}
+					else {
+						RestRouter.addProvider(clazz, (Class<? extends ContextProvider>) provider);
+					}
 				} else {
-					RestRouter.addProvider(clazz, (ContextProvider) provider);
+					if (clazz == null) {
+						RestRouter.addProvider((ContextProvider) provider);
+					}
+					else {
+						RestRouter.addProvider(clazz, (ContextProvider) provider);
+					}
 				}
 			});
 		}

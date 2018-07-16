@@ -66,11 +66,8 @@ public class JaxResponseWriter implements HttpResponseWriter<Response> {
 				while (it.hasNext()) {
 					Object next = it.next();
 					if (next instanceof NewCookie) {
-
 						NewCookie cookie = (NewCookie) next;
 						response.putHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-						it.remove();
 					}
 				}
 

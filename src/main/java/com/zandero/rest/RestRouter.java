@@ -241,7 +241,7 @@ public class RestRouter {
 						context.setSession((Session) provided);
 					}
 
-					if (provided != null) {
+					if (provided != null) { // push provided context into request data
 						context.data().put(ContextProviderFactory.getContextKey(provided), provided);
 					}
 				}
@@ -751,14 +751,31 @@ public class RestRouter {
 	public static void addProvider(Class<? extends ContextProvider> provider) {
 
 		Class clazz = (Class) ClassFactory.getGenericType(provider);
-		log.info("Registering '" + clazz + "' provider '" + provider.getName() + "'");
-		providers.register(clazz, provider);
+		addProvider(clazz, provider);
 	}
 
-	public static <T> void addProvider(Class<T> clazz, ContextProvider<T> provider) {
+	public static void addProvider(Class clazz, Class<? extends ContextProvider> provider) {
 
-		log.info("Registering '" + clazz + "' provider '" + provider.getClass().getName() + "'");
+		Assert.notNull(clazz, "Missing provided class type!");
+		Assert.notNull(provider, "Missing provider class type!!");
+
 		providers.register(clazz, provider);
+		log.info("Registering '" + clazz + "' provider '" + provider.getName() + "'");
+	}
+
+	public static void addProvider(ContextProvider provider) {
+
+		Class clazz = (Class) ClassFactory.getGenericType(provider.getClass());
+		addProvider(clazz, provider);
+	}
+
+	public static void addProvider(Class clazz, ContextProvider provider) {
+
+		Assert.notNull(clazz, "Missing provider class type!");
+		Assert.notNull(provider, "Missing provider instance!");
+
+		providers.register(clazz, provider);
+		log.info("Registering '" + clazz + "' provider '" + provider.getClass().getName() + "'");
 	}
 
 	public static ContextProviderFactory getContextProviders() {
