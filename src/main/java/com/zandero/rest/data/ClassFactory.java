@@ -7,6 +7,7 @@ import com.zandero.rest.exception.ContextException;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
 import com.zandero.utils.Pair;
+import com.zandero.utils.StringUtils;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,7 +123,16 @@ public abstract class ClassFactory<T> {
 
 		Object instance;
 
-		if (provider == null || !InjectionProvider.hasInjection(clazz)) {
+		boolean hasInjection = InjectionProvider.hasInjection(clazz);
+
+		if (provider == null || !hasInjection) {
+
+			SuppressWarnings suppress = clazz.getAnnotation(SuppressWarnings.class);
+			if (hasInjection &&
+			    (suppress == null || !contain(suppress.value(), "Inject", "Injection", "InjectionProvider"))) {
+				log.warn(clazz.getName() + " uses @Inject but no InjectionProvider registered!");
+			}
+
 			instance = newInstanceOf(clazz);
 		} else {
 
@@ -147,6 +157,23 @@ public abstract class ClassFactory<T> {
 		return instance;
 	}
 
+	private static boolean contain(String[] value, String... text) {
+
+		if (value.length == 0 || text.length == 0) {
+			return false;
+		}
+
+		for (String search: text) {
+			for (String item: value) {
+				if (StringUtils.equals(search, item, true)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	public static Object newInstanceOf(Class<?> clazz) throws ClassFactoryException {
 
 		if (clazz == null) {
@@ -154,7 +181,6 @@ public abstract class ClassFactory<T> {
 		}
 
 		try {
-
 			for (Constructor<?> c : clazz.getDeclaredConstructors()) {
 				c.setAccessible(true);
 				// initialize with empty constructor
