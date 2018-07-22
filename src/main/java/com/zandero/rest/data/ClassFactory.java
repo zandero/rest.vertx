@@ -1,5 +1,6 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.annotation.NoCache;
 import com.zandero.rest.annotation.SuppressCheck;
 import com.zandero.rest.context.ContextProviderFactory;
 import com.zandero.rest.exception.ClassFactoryException;
@@ -79,11 +80,6 @@ public abstract class ClassFactory<T> {
 		return cache.get(clazz.getName());
 	}
 
-	/*protected T getCached(String key) {
-
-		return cache.get(key);
-	}*/
-
 	@SuppressWarnings("unchecked")
 	public T getClassInstance(Class<? extends T> clazz,
 	                          InjectionProvider provider,
@@ -96,16 +92,18 @@ public abstract class ClassFactory<T> {
 
 		// only use cache if no @Context is needed
 		boolean hasContext = ContextProviderFactory.hasContext(clazz);
+		boolean cacheIt = clazz.getAnnotation(NoCache.class) == null; // caching disabled / enabled
 
 		T instance = null;
-		if (!hasContext) { // no Context ... we can get it from cache
+		if (!hasContext && cacheIt) { // no Context ... we can get it from cache
 			instance = getCached(clazz);
 		}
+
 		if (instance == null) {
 
 			instance = (T) newInstanceOf(clazz, provider, context);
 
-			if (!hasContext) { // no context .. we can cache this instance
+			if (!hasContext && cacheIt) { // no context .. we can cache this instance
 				cache(instance);
 			}
 		}

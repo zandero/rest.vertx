@@ -15,6 +15,16 @@ If this project help you reduce time to develop? Keep it running and donate for 
      <version>0.8.5</version>      
 </dependency>
 ```
+
+```xml
+Bleeding edge release (use at own risk)  
+<dependency>      
+     <groupId>com.zandero</groupId>      
+     <artifactId>rest.vertx</artifactId>      
+     <version>0.8.6-BETA</version>      
+</dependency>
+```
+
 See also: [older versions](https://github.com/zandero/rest.vertx/releases)
 
 ## Acknowledgments
@@ -1460,6 +1470,16 @@ This is done in order to ensure thread safety, so one context does not jump into
 * All registered REST classes are singletons by default, no need to annotate them with _@Singleton_ annotation.  
 * By default all _HttpResponseWriter_, _ValueReader_ and _ExceptionHandler_ classes are singletons that are cached once initialized.
 * In case _HttpResponseWriter_, _ValueReader_ or _ExceptionHandler_ are utilizing a **@Context** field they are initialized on **every request** for thread safety 
+
+### Disabling caching
+>since version 0.8.6 or later  
+
+To disabled caching use the @NoCache annotation.
+```java
+@NoCache
+public class NotCachedClass() {
+}
+```
 
 # Validation
 >since version 0.8.4 or later
