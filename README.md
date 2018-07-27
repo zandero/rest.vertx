@@ -12,16 +12,7 @@ If this project help you reduce time to develop? Keep it running and donate for 
 <dependency>      
      <groupId>com.zandero</groupId>      
      <artifactId>rest.vertx</artifactId>      
-     <version>0.8.5</version>      
-</dependency>
-```
-
-```xml
-Bleeding edge release (use at own risk)  
-<dependency>      
-     <groupId>com.zandero</groupId>      
-     <artifactId>rest.vertx</artifactId>      
-     <version>0.8.6-BETA</version>      
+     <version>0.8.6</version>      
 </dependency>
 ```
 

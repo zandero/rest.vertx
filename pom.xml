@@ -7,7 +7,7 @@
 
     <artifactId>rest.vertx</artifactId>
     <groupId>com.zandero</groupId>
-    <version>0.8.6-BETA</version>
+    <version>0.8.6</version>
     <packaging>jar</packaging>
 
     <name>Zandero REST Vert.X</name>
