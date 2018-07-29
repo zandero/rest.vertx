@@ -498,7 +498,7 @@ public class Token {
     }
 }
 
-RestRouter..addProvider(Token.class, Token::new)
+RestRouter.addProvider(Token.class, Token::new)
 ```
 
 ```java
@@ -1452,6 +1452,22 @@ In case needed a RequestReader, ResponseWriter or ExceptionHandler can use a @Co
 Use _@Context_ fields only when really necessary, as the readers, writers and handlers are not cached but initialized on the fly on every request when needed.  
   
 This is done in order to ensure thread safety, so one context does not jump into another thread.
+
+```java
+public class StringWriter implements HttpResponseWriter<String> {
+
+	@Context
+	RoutingContext context;
+
+	@Override
+	public void write(String path, HttpServerRequest request, HttpServerResponse response) throws FileNotFoundException {
+
+		if (context.data().get("myData") == null) {
+			...
+		}
+		else { ... }
+	}
+```
 
 ## Internal caching
 >since version 0.8.1 or later
