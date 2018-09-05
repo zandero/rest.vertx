@@ -476,6 +476,8 @@ public class RouteDefinition {
 
 		Assert.notNullOrEmptyTrimmed(subPath, "Missing or empty route '@Path'!");
 
+		subPath = PathConverter.clean(subPath);
+
 		// clean up path so all paths end with "/"
 		if (subPath.length() == 1 && DELIMITER.equals(subPath)) {
 			return this;

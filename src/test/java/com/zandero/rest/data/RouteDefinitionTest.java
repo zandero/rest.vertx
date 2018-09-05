@@ -2,10 +2,7 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.RouteOrder;
-import com.zandero.rest.test.TestMissingAnnotationsRest;
-import com.zandero.rest.test.TestPostRest;
-import com.zandero.rest.test.TestRegExRest;
-import com.zandero.rest.test.TestRest;
+import com.zandero.rest.test.*;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
@@ -49,6 +46,18 @@ public class RouteDefinitionTest {
 		assertEquals(HttpMethod.GET, def.getMethod());
 
 		assertNull(def.getConsumes());
+	}
+
+	@Test
+	public void emptyRootPath() throws NoSuchMethodException {
+
+		RouteDefinition base = new RouteDefinition(TestEchoRest2.class);
+		assertEquals("/test", base.getPath());
+
+		Method method = TestEchoRest2.class.getMethod("bla");
+		RouteDefinition def = new RouteDefinition(base, method);
+
+		assertEquals("/test/bla", def.getPath());
 	}
 
 	@Test

@@ -20,5 +20,4 @@ public class TestEchoRest {
 	public String trace() {
 		return "trace";
 	}
-
 }

@@ -166,4 +166,15 @@ public final class PathConverter {
 		path = StringUtils.trimToNull(path);
 		return path != null && path.startsWith("{") && path.endsWith("}") && path.length() > 2;
 	}
+
+	/**
+	 * Removes double "//" if any ... and trims whitespace
+	 * @param path to clean
+ 	 * @return cleaned up path
+	 */
+	public static String clean(String path) {
+
+		path = path.replaceAll("//", "/");
+		return StringUtils.trimToNull(path);
+	}
 }

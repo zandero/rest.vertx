@@ -15,6 +15,8 @@ import javax.validation.Validator;
  */
 public class VertxTest {
 
+	public static final String API_ROOT = "/";
+
 	protected static final int PORT = 4444;
 
 	private static final String HOST = "localhost";

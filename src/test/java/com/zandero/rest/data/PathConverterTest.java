@@ -176,4 +176,10 @@ public class PathConverterTest {
 		assertEquals(1, param.getPathIndex());
 		assertEquals(ParameterType.path, param.getType());
 	}
+
+	@Test
+	public void cleanTest() {
+
+		assertEquals("/test/test", PathConverter.clean("  //test//test  "));
+	}
 }
