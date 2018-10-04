@@ -216,6 +216,16 @@ public class CalculateRest {
 > GET /calculate/add?two=2&one=1 -> 3
 ```
 
+In case needed a request reader can be assigned to provide the correct variable:
+
+```java
+	@GET
+	public int getDummyValue(@QueryParam("dummy") @RequestReader(DummyReader.class) Dummy dummy) {
+
+		return dummy.value;
+```
+
+
 ### Matrix parameters
 Matrix parameters are defined using the @MatrixParam annotation.
 

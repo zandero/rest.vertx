@@ -12,9 +12,13 @@ import com.zandero.utils.extra.UrlUtils;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.RoutingContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +26,8 @@ import java.util.Map;
  * Extracts arguments to be provided for given method from definition and current context (request)
  */
 public class ArgumentProvider {
+
+	private final static Logger log = LoggerFactory.getLogger(ArgumentProvider.class);
 
 	@SuppressWarnings("unchecked")
 	public static Object[] getArguments(Method method,
@@ -172,7 +178,24 @@ public class ArgumentProvider {
 
 			case query:
 				Map<String, String> query = UrlUtils.getQuery(context.request().query());
-				return query.get(param.getName());
+				String value = query.get(param.getName());
+
+				// user specified @Raw annotation ... provide as it is
+				if (param.isRaw()) {
+					return value;
+				}
+
+				// by default decode
+				if (!StringUtils.isNullOrEmptyTrimmed(value)) {
+					try {
+						return URLDecoder.decode(value, "UTF-8");
+					}
+					catch (UnsupportedEncodingException e) {
+						log.warn("Failed to decode query: " + value, e);
+					}
+				}
+
+				return value;
 
 			case cookie:
 				Cookie cookie = context.getCookie(param.getName());

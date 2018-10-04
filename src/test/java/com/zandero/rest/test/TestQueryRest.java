@@ -1,8 +1,10 @@
 package com.zandero.rest.test;
 
+import com.zandero.rest.annotation.Raw;
 import com.zandero.rest.annotation.RequestReader;
 import com.zandero.rest.reader.DummyBodyReader;
 import com.zandero.rest.test.json.Dummy;
+import com.zandero.utils.StringUtils;
 
 import javax.ws.rs.*;
 
@@ -48,5 +50,15 @@ public class TestQueryRest {
 		}
 
 		return empty ? "true" : "false";
+	}
+
+	@GET
+	@Path("/decode")
+	public String echoGetQuery(@QueryParam("query") String query,
+	                           @QueryParam("original") @Raw String original) {
+
+		original = StringUtils.trimToNull(original) == null ? "" : original;
+		query = StringUtils.trimToNull(query) == null ? "" : query;
+		return query + original;
 	}
 }

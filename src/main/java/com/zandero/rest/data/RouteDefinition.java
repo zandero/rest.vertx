@@ -569,6 +569,7 @@ public class RouteDefinition {
 			String name = null;
 			ParameterType type = null;
 			String defaultValue = null;
+			boolean raw = false;
 			Class<? extends ValueReader> valueReader = null;
 			Class<? extends ContextProvider> contextValueProvider = null;
 
@@ -584,6 +585,10 @@ public class RouteDefinition {
 					// add param
 					name = ((QueryParam) annotation).value();
 					type = ParameterType.query;
+				}
+
+				if (annotation instanceof Raw) {
+					raw = true;
 				}
 
 				if (annotation instanceof FormParam) {
@@ -658,7 +663,7 @@ public class RouteDefinition {
 				    }
 				}
 
-				MethodParameter parameter = provideArgument(name, type, defaultValue, parameterTypes[index], valueReader, contextValueProvider, index);
+				MethodParameter parameter = provideArgument(name, type, defaultValue, raw, parameterTypes[index], valueReader, contextValueProvider, index);
 				arguments.put(name, parameter);
 			}
 
@@ -721,6 +726,7 @@ public class RouteDefinition {
 	private MethodParameter provideArgument(String name,
 	                                        ParameterType type,
 	                                        String defaultValue,
+	                                        boolean raw,
 	                                        Class<?> parameterType,
 	                                        Class<? extends ValueReader> valueReader,
 	                                        Class<? extends ContextProvider> contextProvider,
@@ -748,6 +754,9 @@ public class RouteDefinition {
 		newParam.setDefaultValue(defaultValue);
 		newParam.setValueReader(valueReader);
 		newParam.setContextProvider(contextProvider);
+		if (raw) {
+			newParam.setRaw();
+		}
 		return newParam;
 	}
 

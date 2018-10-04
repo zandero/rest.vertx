@@ -47,6 +47,11 @@ public class MethodParameter {
 	private String defaultValue;
 
 	/**
+	 * Return raw value (if applicable)
+	 */
+	private boolean raw = false;
+
+	/**
 	 * path is a regular expression
 	 */
 	private String regularExpression;
@@ -184,6 +189,10 @@ public class MethodParameter {
 		regExIndex = index;
 	}
 
+	public void setRaw() {
+		raw = true;
+	}
+
 	public boolean isRegEx() {
 		return regularExpression != null;
 	}
@@ -224,6 +233,10 @@ public class MethodParameter {
 
 		return (index >= 0 && additionalParam.index == index ||
 				StringUtils.equals(name, additionalParam.name));
+	}
+
+	public boolean isRaw() {
+		return raw;
 	}
 
 	@Override
