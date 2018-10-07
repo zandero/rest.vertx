@@ -1,6 +1,5 @@
 package com.zandero.rest.data;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -32,19 +31,19 @@ public class PathConverterTest {
 		assertEquals("/:test/:test2", PathConverter.convert("/:test/{test2}"));
 		assertEquals("/:test/:test2/:test3", PathConverter.convert("/{test}/:test2/{test3}"));
 
-		assertEquals("/:test/", PathConverter.convert("/{test}/"));
-		assertEquals("/:test/:test2/", PathConverter.convert("/{test}/{test2}/"));
-		assertEquals("/:test/:test2/:test3/", PathConverter.convert("/{test}/{test2}/{test3}/"));
+		assertEquals("/:test", PathConverter.convert("/{test}/"));
+		assertEquals("/:test/:test2", PathConverter.convert("/{test}/{test2}/"));
+		assertEquals("/:test/:test2/:test3", PathConverter.convert("/{test}/{test2}/{test3}/"));
 
-		assertEquals("/:test/", PathConverter.convert("/:test/"));
-		assertEquals("/:test/:test2/", PathConverter.convert("/:test/{test2}/"));
-		assertEquals("/:test/:test2/:test3/", PathConverter.convert("/{test}/:test2/{test3}/"));
+		assertEquals("/:test", PathConverter.convert("/:test/"));
+		assertEquals("/:test/:test2", PathConverter.convert("/:test/{test2}/"));
+		assertEquals("/:test/:test2/:test3", PathConverter.convert("/{test}/:test2/{test3}/"));
 	}
 
 	@Test
 	public void convertTest_2() {
 
- 		assertEquals("/a", PathConverter.convert("/a"));
+		assertEquals("/a", PathConverter.convert("/a"));
 		assertEquals("/a/b", PathConverter.convert("/a/b"));
 		assertEquals("/a/b/c", PathConverter.convert("/a/b/c"));
 
@@ -58,11 +57,11 @@ public class PathConverterTest {
 		assertEquals("/a/\\d/b", PathConverter.convert("/a/\\d/b"));
 	}
 
-	@Ignore // todo: issue #25
 	@Test
 	public void convertRegEx2Test() {
 
 		assertEquals("/regEx/^(?!\\/api\\/).*", PathConverter.convert("/regEx/{path:^(?!\\/api\\/).*}"));
+		assertEquals("\\/api", PathConverter.convert("\\/api"));
 	}
 
 	@Test

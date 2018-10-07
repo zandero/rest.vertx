@@ -42,17 +42,17 @@ public class TestRegExRest {
 		return Response.ok(one - two).build();
 	}
 
-	/*@RouteOrder(30)
+	@RouteOrder(30)
 	@GET
 	@Path("{path:^(?!\\/api\\/).*}")
 	public String allButApi(String path) {
-		return path;
-	}*/
+		return path + " - not /api";
+	}
 
 	@RouteOrder(40)
 	@GET
-	@Path(".*")
-	public String serveDocFile(@PathParam("path") String path) { // TODO: fix this ... throws exception
-		return path;
+	@Path("{path:.*}")
+	public String serveDocFile(@PathParam("path") String path) {
+		return path + " - last";
 	}
 }

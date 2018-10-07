@@ -5,6 +5,7 @@ import com.zandero.utils.extra.ValidatingUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Converts {path}/{subPath} into Vert.X path matching format
@@ -26,9 +27,9 @@ public final class PathConverter {
 
 		List<MethodParameter> output = new ArrayList<>();
 
-		String[] items = path.split("/");
+		List<String> items = split(path);
 
-		if (items.length > 0) {
+		if (items.size() > 0) {
 
 			int pathIndex = 0;
 			int index = 0;
@@ -48,14 +49,70 @@ public final class PathConverter {
 		return output;
 	}
 
+	static List<String> split(String path) {
+
+		List<String> out = new ArrayList<>();
+
+		char[] chars = path.toCharArray();
+
+		int bracket = 0;
+
+		//StringBuilder out = new StringBuilder();
+		String collected = "";
+
+		for (char c : chars) {
+
+			if (c != '/' || bracket > 0) {
+				collected += c;
+			}
+
+			switch (c) {
+				case '{':
+					bracket++;
+					break;
+
+				case '}':
+					bracket--;
+					break;
+
+				// split on new path except when in {}
+				case '/':
+					if (bracket == 0) {
+						out.add(collected);
+						collected = "";
+					}
+					break;
+			}
+		}
+
+		if (collected.length() > 0) {
+			out.add(collected);
+		}
+
+		return out;
+	}
+
+	static String convert(String path) {
+
+		// 1. split into groups with /{} (if any)
+		List<String> paths = split(path);
+
+		// 2. convert each group
+		paths = paths.stream().map(PathConverter::convertSub).collect(Collectors.toList());
+
+		// 3. join back together into single path
+		return StringUtils.join(paths, "/");
+	}
+
+
 	/**
 	 * Converts {@code {path}} definitions to vert.x {@code :path}
 	 * also takes care of regular expressions in case they are present in path
 	 *
 	 * @param path to be converted
 	 * @return vertx. path format
-	 */
-	static String convert(String path) {
+	 *//*
+	static String convertSubPath(String path) {
 
 		StringBuilder out = new StringBuilder();
 		String[] items = path.split("/");
@@ -80,7 +137,7 @@ public final class PathConverter {
 		}
 
 		return out.toString();
-	}
+	}*/
 
 	private static MethodParameter getParamFromPath(String path, int regExIndex, int pathIndex) {
 
@@ -169,8 +226,9 @@ public final class PathConverter {
 
 	/**
 	 * Removes double "//" if any ... and trims whitespace
+	 *
 	 * @param path to clean
- 	 * @return cleaned up path
+	 * @return cleaned up path
 	 */
 	public static String clean(String path) {
 

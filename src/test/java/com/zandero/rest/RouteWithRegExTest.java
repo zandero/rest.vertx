@@ -133,17 +133,32 @@ public class RouteWithRegExTest extends VertxTest {
 	}
 
 	@Test
-	public void testCommonPathRegEx(TestContext context) {
+	public void testAllButApi(TestContext context) {
 
 		// call and check response
 		final Async async = context.async();
 
-		client.getNow("/sub/regEx/ena/2/tri", response -> {
-
-			context.assertEquals(200, response.statusCode());
+		client.getNow("/regEx/api", response -> {
 
 			response.bodyHandler(body -> {
-				context.assertEquals("{one=ena, two=2, three=tri}", body.toString());
+				context.assertEquals(200, response.statusCode());
+				context.assertEquals("api - last", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void testAllButApi2(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/regEx/test", response -> {
+
+			response.bodyHandler(body -> {
+				context.assertEquals(200, response.statusCode());
+				context.assertEquals("test - not /api", body.toString());
 				async.complete();
 			});
 		});

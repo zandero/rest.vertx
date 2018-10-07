@@ -127,11 +127,7 @@ public class RouteDefinitionTest {
 		def = new RouteDefinition(base, method);
 		assertTrue(def.pathIsRegEx());
 
-
-		//assertEquals("/regEx/{one:\\w+}/{two:\\d+}/{three:\\w+}", def.getPath());
-
-		// TODO: issue #25
-		// assertEquals("\\/regEx\\/\\w+\\/\\d+\\/\\w+", def.getRoutePath());
+		assertEquals("\\/regEx\\/^(?!\\/api\\/).*", def.getRoutePath());
 	}
 
 	@Test
