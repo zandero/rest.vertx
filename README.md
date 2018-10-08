@@ -181,11 +181,14 @@ public String oneTwoThree(@PathParam("one") String one, @PathParam("two") int tw
 > GET /test/4/you -> test4you
 ```
 
-**Not recommended** but possible are vert.x style paths with regular expressions.  
-In this case method parameters correspond to path expressions by index. 
+>since version 0.8.7 or later
+
+Also possible are Vert.x style paths with regular expressions.
+
 ```java
+// VertX style path :parameter:regEx   
 @GET
-@Path("/\\d+/minus/\\d+")
+@Path("/:one:\\d+/minus/:two:\\d+")
 public Response test(int one, int two) {
     return Response.ok(one - two).build();
 }
@@ -197,8 +200,8 @@ public Response test(int one, int two) {
 
 ### Query variables
 Query variables are defined using the @QueryParam annotation.  
-In case method arguments are not _nullable_ they must be provided or a **400 bad request** response follows. 
-
+In case method arguments are not _nullable_ they must be provided or a **400 bad request** response follows.
+  
 ```java
 @Path("calculate")
 public class CalculateRest {
@@ -225,6 +228,26 @@ In case needed a request reader can be assigned to provide the correct variable:
 		return dummy.value;
 ```
 
+
+#### Decoding of query varibales
+>since version 0.8.7 or later  
+ 
+Query variables are decoded by default   
+If the original (non decoded) value is desired, we can use the @Raw annotation.
+
+```java
+@GET
+	@Path("/decode")
+	public String echoGetQuery(@QueryParam("decoded") String decodedQuery,
+	                           @QueryParam("raw") @Raw String rawQuery) {
+
+```
+
+```
+> GET /decode?decoded=hello+world -> decoded = "hello world"
+> GET /decode?raw=hello+world     -> raw = "hello+world"
+
+```
 
 ### Matrix parameters
 Matrix parameters are defined using the @MatrixParam annotation.

@@ -212,6 +212,21 @@ public class RouteWithQueryTest extends VertxTest {
 	}
 
 	@Test
+	public void decodeQueryWithPlus(TestContext context) {
+
+		final Async async = context.async();
+		client.getNow("/query/decode?query=hello+world", response -> {
+
+			context.assertEquals(200, response.statusCode());
+
+			response.bodyHandler(body -> {
+				context.assertEquals("hello world", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
 	public void rawQueryParamMissingTest(TestContext context) {
 
 		final Async async = context.async();
