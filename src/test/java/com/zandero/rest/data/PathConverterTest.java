@@ -41,6 +41,15 @@ public class PathConverterTest {
 	}
 
 	@Test
+	public void convertVertXRegExPath() {
+
+		assertEquals("\\d", PathConverter.convert(":test:\\d"));
+		assertEquals("\\d/:test/.*", PathConverter.convert(":test:\\d/:test/:test:.*"));
+		assertEquals(".", PathConverter.convert(":test:."));
+		assertEquals(":test/*.", PathConverter.convert("{test}/:test2:*."));
+	}
+
+	@Test
 	public void convertTest_2() {
 
 		assertEquals("/a", PathConverter.convert("/a"));
@@ -55,6 +64,8 @@ public class PathConverterTest {
 
 		assertEquals("/:one/\\d/:three", PathConverter.convert("/{one}/{two:\\d}/{three}"));
 		assertEquals("/a/\\d/b", PathConverter.convert("/a/\\d/b"));
+
+		assertEquals("/:+", PathConverter.convert("/:a::+"));
 	}
 
 	@Test
@@ -113,11 +124,11 @@ public class PathConverterTest {
 		assertEquals(ParameterType.path, param.getType());
 
 
-		list = PathConverter.extract("/[A-Z]/{test:\\d}/b");
+		list = PathConverter.extract("/:one:[A-Z]/{test:\\d}/b");
 		assertEquals(2, list.size());
 
 		param = list.get(0);
-		assertEquals("param0", param.getName());
+		assertEquals("one", param.getName());
 		assertEquals("[A-Z]", param.getRegEx());
 		assertEquals(-1, param.getIndex());
 		assertEquals(0, param.getRegExIndex());
@@ -138,11 +149,11 @@ public class PathConverterTest {
 	@Test
 	public void extractRegExTest2() {
 
-		List<MethodParameter> list = PathConverter.extract("/\\d+/minus/\\w+");
+		List<MethodParameter> list = PathConverter.extract("/:one:\\d+/minus/:two:\\w+");
 		assertEquals(2, list.size());
 
 		MethodParameter param = list.get(0);
-		assertEquals("param0", param.getName());
+		assertEquals("one", param.getName());
 		assertEquals("\\d+", param.getRegEx());
 		assertTrue(param.isRegEx());
 		assertEquals(-1, param.getIndex());
@@ -151,7 +162,7 @@ public class PathConverterTest {
 		assertEquals(ParameterType.path, param.getType());
 
 		param = list.get(1);
-		assertEquals("param1", param.getName());
+		assertEquals("two", param.getName());
 		assertEquals("\\w+", param.getRegEx());
 		assertTrue(param.isRegEx());
 		assertEquals(-1, param.getIndex());

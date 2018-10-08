@@ -767,9 +767,9 @@ public class RouteDefinition {
 
 	public String getRoutePath() {
 
-		if (pathIsRegEx()) {
+		/*if (pathIsRegEx()) {
 			return regExPathEscape(routePath);
-		}
+		}*/
 
 		return routePath;
 	}

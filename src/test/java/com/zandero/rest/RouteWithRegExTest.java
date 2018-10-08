@@ -138,7 +138,7 @@ public class RouteWithRegExTest extends VertxTest {
 		// call and check response
 		final Async async = context.async();
 
-		client.getNow("/regEx/api", response -> {
+		client.getNow("/regEx/api/a", response -> {
 
 			response.bodyHandler(body -> {
 				context.assertEquals(200, response.statusCode());

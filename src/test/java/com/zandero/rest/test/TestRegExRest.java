@@ -1,10 +1,12 @@
 package com.zandero.rest.test;
 
 import com.zandero.rest.annotation.RouteOrder;
+import com.zandero.rest.data.RouteDefinition;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,21 +32,21 @@ public class TestRegExRest {
 
 	@RouteOrder(10)
 	@GET
-	@Path("/\\d+")
+	@Path("/:one:\\d+")
 	public Response test(int one) {
 		return Response.ok(one).build();
 	}
 
 	@RouteOrder(15)
 	@GET
-	@Path("/\\d+/minus/\\d+")
+	@Path("/:one:\\d+/minus/:two:\\d+")
 	public Response test(int one, int two) {
 		return Response.ok(one - two).build();
 	}
 
 	@RouteOrder(30)
 	@GET
-	@Path("{path:^(?!\\/api\\/).*}")
+	@Path("{path:(?!api\\/).*}")
 	public String allButApi(String path) {
 		return path + " - not /api";
 	}
@@ -54,5 +56,19 @@ public class TestRegExRest {
 	@Path("{path:.*}")
 	public String serveDocFile(@PathParam("path") String path) {
 		return path + " - last";
+	}
+
+	@RouteOrder(50)
+	@GET
+	@Path("/1.0")
+	public String notRegExPath(@Context RouteDefinition definition) {
+		return definition.getPath() + " - notRegEx";
+	}
+
+	@RouteOrder(60)
+	@GET
+	@Path("/1.0/:version:1.3")
+	public String isRegExPath(@PathParam("path") String version, @Context RouteDefinition definition) {
+		return definition.getPath() + " " + version + " - asRegEx";
 	}
 }

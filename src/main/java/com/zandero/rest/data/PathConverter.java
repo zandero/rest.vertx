@@ -1,7 +1,6 @@
 package com.zandero.rest.data;
 
 import com.zandero.utils.StringUtils;
-import com.zandero.utils.extra.ValidatingUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,35 +51,44 @@ public final class PathConverter {
 	static List<String> split(String path) {
 
 		List<String> out = new ArrayList<>();
-
 		char[] chars = path.toCharArray();
 
-		int bracket = 0;
+		int level = 0;
+		int vertxLevel = 0;
 
-		//StringBuilder out = new StringBuilder();
 		String collected = "";
 
 		for (char c : chars) {
 
-			if (c != '/' || bracket > 0) {
+			if (c != '/' || level > 0 || (level == 0 && vertxLevel > 0)) { // part of group if not on first level
 				collected += c;
 			}
 
 			switch (c) {
+
+				case ':' :
+					if (collected.length() == 0) {
+						vertxLevel++; // handling :param:value
+					}
+					break;
+
 				case '{':
-					bracket++;
+					level++;
 					break;
 
 				case '}':
-					bracket--;
+					level--;
 					break;
 
 				// split on new path except when in {}
 				case '/':
-					if (bracket == 0) {
+					if (level == 0 && vertxLevel <= 1) {
 						out.add(collected);
+						// reset
 						collected = "";
+						vertxLevel = 0;
 					}
+
 					break;
 			}
 		}
@@ -104,64 +112,37 @@ public final class PathConverter {
 		return StringUtils.join(paths, "/");
 	}
 
-
-	/**
-	 * Converts {@code {path}} definitions to vert.x {@code :path}
-	 * also takes care of regular expressions in case they are present in path
-	 *
-	 * @param path to be converted
-	 * @return vertx. path format
-	 *//*
-	static String convertSubPath(String path) {
-
-		StringBuilder out = new StringBuilder();
-		String[] items = path.split("/");
-		if (items.length > 0) {
-
-			boolean addTrailing = path.endsWith("/");
-
-			for (int index = 0; index < items.length; index++) {
-
-				String item = items[index];
-				item = convertSub(item);
-
-				out.append(item);
-				if (index + 1 < items.length) {
-					out.append("/");
-				}
-			}
-
-			if (addTrailing) {
-				out.append("/");
-			}
-		}
-
-		return out.toString();
-	}*/
-
 	private static MethodParameter getParamFromPath(String path, int regExIndex, int pathIndex) {
 
 		if (StringUtils.isNullOrEmptyTrimmed(path)) {
 			return null;
 		}
 
+		// {paramName} or {paramName:regEx}
 		if (isRestEasyPath(path)) {
 			return getRestEasyParam(path, regExIndex, pathIndex);
 		}
 
-		// Regular named parameter
+		// :paramName
 		int index = path.lastIndexOf(":");
 		if (index == 0) {
+
 			path = path.substring(1); // is vert.x path
 			MethodParameter parameter = new MethodParameter(ParameterType.path, path);
 			parameter.setPathIndex(pathIndex);
 			return parameter;
 		}
 
-		// VertX definition of RegEx
-		if (ValidatingUtils.isRegEx(path)) {
+		// :paramName:regEx
+		if (isVertxRegExPath(path)) {
 
-			String name = "param" + regExIndex; // Vert.X name ... no other option here
+			int idx  = path.indexOf(":", 1); // is vert.x path - remove first ":"
+			String name = path.substring(1, idx);
+
+			// regEx
+			path = path.substring(idx + 1);
+
+			//String name = "param" + regExIndex; // Vert.X name ... no other option here
 			MethodParameter parameter = new MethodParameter(ParameterType.path, name);
 			parameter.setPathIndex(pathIndex);
 			parameter.setRegEx(path, regExIndex);
@@ -170,7 +151,6 @@ public final class PathConverter {
 
 		return null;
 	}
-
 
 	private static MethodParameter getRestEasyParam(String path, int paramIndex, int pathIndex) {
 
@@ -206,7 +186,6 @@ public final class PathConverter {
 
 			// remove {}
 			path = path.substring(1, path.length() - 1);
-
 			int index = path.lastIndexOf(":");  // check for regular expression
 			if (index > 0 && index + 1 < path.length()) {
 				return path.substring(index + 1); // make regular expression the path part
@@ -215,7 +194,20 @@ public final class PathConverter {
 			return ":" + path; // put : in front of param name
 		}
 
+		if (isVertxRegExPath(path)) {
+			// remove parameter name - :parameter:<regularExpression>
+			int idx = path.indexOf(":", 1);
+			return path.substring(idx + 1);
+		}
+
 		return path;
+	}
+
+	private static boolean isVertxRegExPath(String path) {
+
+		return path.startsWith(":") &&
+		       path.lastIndexOf(":") > 0 &&
+		       path.lastIndexOf(":") < path.length();
 	}
 
 	private static boolean isRestEasyPath(String path) {
