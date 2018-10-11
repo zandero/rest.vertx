@@ -229,7 +229,7 @@ In case needed a request reader can be assigned to provide the correct variable:
 ```
 
 
-#### Decoding of query varibales
+#### Decoding of query variables
 >since version 0.8.7 or later  
  
 Query variables are decoded by default   

@@ -13,7 +13,6 @@ import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.rest.writer.NotFoundResponseWriter;
 import com.zandero.rest.writer.WriterFactory;
 import com.zandero.utils.Assert;
-import com.zandero.utils.extra.ValidatingUtils;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -287,54 +286,39 @@ public class RestRouter {
 	}
 
 	/**
-	 * Handles not found route in case request path mathes given path prefix
+	 * Handles not found route in case request regExPath mathes given regExPath prefix
 	 *
 	 * @param router   to add route to
-	 * @param path     prefix
+	 * @param regExPath     prefix
 	 * @param notFound handler
 	 */
-	public static void notFound(Router router, String path, NotFoundResponseWriter notFound) {
+	public static void notFound(Router router, String regExPath, NotFoundResponseWriter notFound) {
 
 		Assert.notNull(router, "Missing router!");
 		Assert.notNull(notFound, "Missing not found handler!");
 
-		addLastHandler(router, path, getNotFoundHandler(notFound));
+		addLastHandler(router, regExPath, getNotFoundHandler(notFound));
 	}
 
 	/**
-	 * Handles not found route in case request path mathes given path prefix
+	 * Handles not found route in case request regExPath mathes given regExPath prefix
 	 *
 	 * @param router   to add route to
-	 * @param path     prefix
+	 * @param regExPath     prefix
 	 * @param notFound hander
 	 */
-	public static void notFound(Router router, String path, Class<? extends NotFoundResponseWriter> notFound) {
+	public static void notFound(Router router, String regExPath, Class<? extends NotFoundResponseWriter> notFound) {
 
 		Assert.notNull(router, "Missing router!");
 		Assert.notNull(notFound, "Missing not found handler!");
 
-		addLastHandler(router, path, getNotFoundHandler(notFound));
+		addLastHandler(router, regExPath, getNotFoundHandler(notFound));
 	}
 
 	private static void addLastHandler(Router router, String path, Handler<RoutingContext> notFoundHandler) {
 		if (path == null) {
 			router.route().last().handler(notFoundHandler);
 		} else {
-
-			if (!ValidatingUtils.isRegEx(path)) {
-
-				if (!path.startsWith("/")) {
-					path = "/" + path;
-				}
-
-				if (!path.endsWith("/")) {
-					path = path + "/";
-				}
-
-				path = path.replaceAll("\\/", "\\\\/");  // escape path to be valid regEx
-				path = path + ".*";
-			}
-
 			router.routeWithRegex(path).last().handler(notFoundHandler);
 		}
 	}

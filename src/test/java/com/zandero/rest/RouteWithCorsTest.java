@@ -38,7 +38,7 @@ public class RouteWithCorsTest extends VertxTest {
 			                .enableCors("*", false, -1, allowedHeaders,
 			                            HttpMethod.GET, HttpMethod.POST, HttpMethod.OPTIONS)
 			                .register(TestEchoRest.class)
-			                .notFound("*", RestNotFoundHandler.class) // rest not found info
+			                .notFound(".*", RestNotFoundHandler.class) // rest not found info
 			                .notFound(NotFoundHandler.class) // last resort 404 page
 			                .build();
 	}

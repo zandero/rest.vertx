@@ -96,12 +96,12 @@ public class RestBuilder {
 		return this;
 	}
 
-	public RestBuilder notFound(String path, Class<? extends NotFoundResponseWriter> writer) {
+	public RestBuilder notFound(String regExPath, Class<? extends NotFoundResponseWriter> writer) {
 
-		Assert.notNullOrEmptyTrimmed(path, "Missing path prefix!");
+		Assert.notNullOrEmptyTrimmed(regExPath, "Missing regEx path!");
 		Assert.notNull(writer, "Missing not fount response writer!");
 
-		notFound.put(path, writer); // adds route path prefix
+		notFound.put(regExPath, writer); // adds route regExPath prefix
 		return this;
 	}
 

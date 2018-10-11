@@ -26,7 +26,7 @@ public class NoMatchTest extends VertxTest {
 		Router router = new RestBuilder(vertx)
 			                .register(TestEchoRest.class)
 			                .notFound(".*\\/other", OtherNotFoundHandler.class)
-			                .notFound("rest", RestNotFoundHandler.class)
+			                .notFound("/rest/.*", RestNotFoundHandler.class)
 			                .notFound(NotFoundHandler.class)
 			                .build();
 
