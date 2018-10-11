@@ -25,7 +25,7 @@ public class NoMatchTest extends VertxTest {
 
 		Router router = new RestBuilder(vertx)
 			                .register(TestEchoRest.class)
-			                .notFound(".*\\/other", OtherNotFoundHandler.class)
+			                .notFound(".*\\/other/?.*", OtherNotFoundHandler.class)
 			                .notFound("/rest/.*", RestNotFoundHandler.class)
 			                .notFound(NotFoundHandler.class)
 			                .build();
@@ -102,6 +102,23 @@ public class NoMatchTest extends VertxTest {
 
 			response.bodyHandler(body -> {
 				context.assertEquals("'/rest/other' not found!", body.toString());
+				async.complete();
+			});
+		}).putHeader("Accept", "application/json").end();
+	}
+
+	@Test
+	public void testOther2Rest(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.get("/rest/other/", response -> {
+
+			context.assertEquals(404, response.statusCode());
+
+			response.bodyHandler(body -> {
+				context.assertEquals("'/rest/other/' not found!", body.toString());
 				async.complete();
 			});
 		}).putHeader("Accept", "application/json").end();

@@ -12,7 +12,7 @@ If this project help you reduce time to develop? Keep it running and donate for 
 <dependency>      
      <groupId>com.zandero</groupId>      
      <artifactId>rest.vertx</artifactId>      
-     <version>0.8.6</version>      
+     <version>0.8.7</version>      
 </dependency>
 ```
 
@@ -1253,14 +1253,14 @@ Handlers are considered in order given, first matching handler is used.
 To ease page/resource not found handling a special _notFound()_ handler can be be utilized.
 
 We can
-* handle a subpath / pattern where a handler was not found
+* handle a subpath (regular expression pattern) where a handler was not found
 * handle all not matching requests 
 
 ```java
 Router router = new RestBuilder(vertx)
     .register(MyRest.class)
-    .notFound(".*\\/other", OtherNotFoundHandler.class) // handle all calls to a /other request
-    .notFound("rest", RestNotFoundHandler.class) // handle all calls to /rest subpath
+    .notFound(".*\\/other/?.*", OtherNotFoundHandler.class) // handle all calls to an /other request
+    .notFound("/rest/.*", RestNotFoundHandler.class) // handle all calls to /rest subpath
     .notFound(NotFoundHandler.class) // handle all other not found requests
     .build();
 ```
