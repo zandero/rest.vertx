@@ -237,9 +237,9 @@ If the original (non decoded) value is desired, we can use the @Raw annotation.
 
 ```java
 @GET
-	@Path("/decode")
-	public String echoGetQuery(@QueryParam("decoded") String decodedQuery,
-	                           @QueryParam("raw") @Raw String rawQuery) {
+@Path("/decode")
+public String echoGetQuery(@QueryParam("decoded") String decodedQuery,
+	                       @QueryParam("raw") @Raw String rawQuery) {
 
 ```
 
