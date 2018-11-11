@@ -112,6 +112,39 @@ public class RouteAuthorizationTest extends VertxTest {
 	}
 
 	@Test
+	public void testPostUserAuthorized(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.post("/private/user", response -> {
+
+			response.bodyHandler(body -> {
+				context.assertEquals("HELLO", body.toString());
+				context.assertEquals(200, response.statusCode());
+				async.complete();
+			});
+		}).putHeader("X-Token", "user")
+		      .end("HELLO");
+	}
+
+	@Test
+	public void testPostUserUnauthorized(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.post("/private/user", response -> {
+
+			response.bodyHandler(body -> {
+				context.assertEquals("HTTP 401 Unauthorized", body.toString());
+				context.assertEquals(401, response.statusCode());
+				async.complete();
+			});
+		}).end("HELLO");
+	}
+
+	@Test
 	public void testGetAdminAuthorized(TestContext context) {
 
 		// call and check response

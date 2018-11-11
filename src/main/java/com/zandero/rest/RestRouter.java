@@ -128,6 +128,7 @@ public class RestRouter {
 
 			for (RouteDefinition definition : definitions.keySet()) {
 
+
 				// add BodyHandler in case request has a body ...
 				if (definition.requestHasBody() && !bodyHandlerRegistered) {
 					router.route().handler(BodyHandler.create());
@@ -421,7 +422,9 @@ public class RestRouter {
 			route = router.route(definition.getMethod(), definition.getRoutePath());
 		}
 
-		route.order(definition.getOrder()); // same order as following handler
+		if (definition.getOrder() != 0) {
+			route.order(definition.getOrder()); // same order as following handler
+		}
 
 		Handler<RoutingContext> securityHandler = getSecurityHandler(definition);
 		route.blockingHandler(securityHandler);
@@ -525,29 +528,6 @@ public class RestRouter {
 		);
 	}
 
-	private static void validate(Method method, RouteDefinition definition, Validator validator, Object toInvoke, Object[] args) {
-
-		// check method params first (if any)
-		if (validator != null && args != null) {
-			ExecutableValidator executableValidator = validator.forExecutables();
-			Set<ConstraintViolation<Object>> result = executableValidator.validateParameters(toInvoke, method, args);
-			if (result != null && result.size() > 0) {
-				throw new ConstraintException(definition, result);
-			}
-		}
-	}
-
-	private static void validateResult(Object result, Method method, RouteDefinition definition, Validator validator, Object toInvoke) {
-
-		if (validator != null) {
-			ExecutableValidator executableValidator = validator.forExecutables();
-			Set<ConstraintViolation<Object>> validationResult = executableValidator.validateReturnValue(toInvoke, method, result);
-			if (validationResult != null && validationResult.size() > 0) {
-				throw new ConstraintException(definition, validationResult);
-			}
-		}
-	}
-
 	private static Handler<RoutingContext> getAsyncHandler(final Object toInvoke, final RouteDefinition definition, final Method method) {
 
 		return context -> {
@@ -597,6 +577,29 @@ public class RestRouter {
 				handleException(e, context, definition);
 			}
 		};
+	}
+
+	private static void validate(Method method, RouteDefinition definition, Validator validator, Object toInvoke, Object[] args) {
+
+		// check method params first (if any)
+		if (validator != null && args != null) {
+			ExecutableValidator executableValidator = validator.forExecutables();
+			Set<ConstraintViolation<Object>> result = executableValidator.validateParameters(toInvoke, method, args);
+			if (result != null && result.size() > 0) {
+				throw new ConstraintException(definition, result);
+			}
+		}
+	}
+
+	private static void validateResult(Object result, Method method, RouteDefinition definition, Validator validator, Object toInvoke) {
+
+		if (validator != null) {
+			ExecutableValidator executableValidator = validator.forExecutables();
+			Set<ConstraintViolation<Object>> validationResult = executableValidator.validateReturnValue(toInvoke, method, result);
+			if (validationResult != null && validationResult.size() > 0) {
+				throw new ConstraintException(definition, validationResult);
+			}
+		}
 	}
 
 	@SuppressWarnings("unchecked")
