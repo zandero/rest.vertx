@@ -123,28 +123,7 @@ public class RestRouter {
 
 			Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(api.getClass());
 
-			boolean bodyHandlerRegistered = false;
-			boolean cookieHandlerRegistered = false;
-
 			for (RouteDefinition definition : definitions.keySet()) {
-
-
-				// add BodyHandler in case request has a body ...
-				if (definition.requestHasBody() && !bodyHandlerRegistered) {
-					router.route().handler(BodyHandler.create());
-					bodyHandlerRegistered = true;
-				}
-
-				// add CookieHandler in case cookies are expected
-				if (definition.hasCookies() && !cookieHandlerRegistered) {
-					router.route().handler(CookieHandler.create());
-					cookieHandlerRegistered = true;
-				}
-
-				// add security check handler in front of regular route handler
-				if (definition.checkSecurity()) {
-					checkSecurity(router, definition);
-				}
 
 				// bind method execution
 				Route route;
@@ -175,10 +154,24 @@ public class RestRouter {
 				// check body and reader compatibility beforehand
 				checkBodyReader(definition);
 
-				Method method = definitions.get(definition);
+				// add BodyHandler in case request has a body ...
+				if (definition.requestHasBody()) {
+					route.handler(BodyHandler.create());
+				}
+
+				// add CookieHandler in case cookies are expected
+				if (definition.hasCookies()) {
+					route.handler(CookieHandler.create());
+				}
+
+				// add security check handler in front of regular route handler
+				if (definition.checkSecurity()) {
+					route.handler(getSecurityHandler(definition));
+				}
 
 				// bind handler // blocking or async
 				Handler<RoutingContext> handler;
+				Method method = definitions.get(definition);
 
 				if (definition.isAsync()) {
 					handler = getAsyncHandler(api, definition, method);
@@ -213,7 +206,7 @@ public class RestRouter {
 			                                                                    provider,
 			                                                                    null);
 			// set before other routes ...
-			output.route().order(ORDER_PROVIDER_HANDLER).blockingHandler(getContextHandler(instance));
+			output.route().order(ORDER_PROVIDER_HANDLER).handler(getContextHandler(instance));
 		}
 		catch (Throwable e) {
 			throw new IllegalArgumentException(e);
@@ -222,7 +215,7 @@ public class RestRouter {
 
 	public static void provide(Router output, ContextProvider<?> provider) {
 
-		output.route().order(ORDER_PROVIDER_HANDLER).blockingHandler(getContextHandler(provider));
+		output.route().order(ORDER_PROVIDER_HANDLER).handler(getContextHandler(provider));
 	}
 
 	private static Handler<RoutingContext> getContextHandler(ContextProvider instance) {
@@ -411,23 +404,6 @@ public class RestRouter {
 		}
 
 		return writer;
-	}
-
-	private static void checkSecurity(Router router, final RouteDefinition definition) {
-
-		Route route;
-		if (definition.pathIsRegEx()) {
-			route = router.routeWithRegex(definition.getMethod(), definition.getRoutePath());
-		} else {
-			route = router.route(definition.getMethod(), definition.getRoutePath());
-		}
-
-		if (definition.getOrder() != 0) {
-			route.order(definition.getOrder()); // same order as following handler
-		}
-
-		Handler<RoutingContext> securityHandler = getSecurityHandler(definition);
-		route.blockingHandler(securityHandler);
 	}
 
 	private static Handler<RoutingContext> getSecurityHandler(final RouteDefinition definition) {

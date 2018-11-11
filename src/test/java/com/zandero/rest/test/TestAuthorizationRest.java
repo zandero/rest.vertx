@@ -50,7 +50,7 @@ public class TestAuthorizationRest {
 	@Path("/user")
 	@Produces(MediaType.TEXT_PLAIN)
 	@RolesAllowed("user")
-	@RouteOrder(10)
+	//@RouteOrder(10)
 	public String setTest(String test) {
 
 		return test;

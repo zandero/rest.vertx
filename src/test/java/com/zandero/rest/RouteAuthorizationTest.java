@@ -120,8 +120,8 @@ public class RouteAuthorizationTest extends VertxTest {
 		client.post("/private/user", response -> {
 
 			response.bodyHandler(body -> {
-				context.assertEquals("HELLO", body.toString());
 				context.assertEquals(200, response.statusCode());
+				context.assertEquals("HELLO", body.toString());
 				async.complete();
 			});
 		}).putHeader("X-Token", "user")
