@@ -512,7 +512,8 @@ public class RestRouter {
 						                                      GenericResponseWriter.class);
 
 
-						produceResponse(res.result(), context, definition, writer);
+						validateResult(result, method, definition, validator, toInvoke);
+						produceResponse(result, context, definition, writer);
 					}
 					catch (Throwable e) {
 						handleException(e, context, definition);
@@ -526,13 +527,23 @@ public class RestRouter {
 
 	private static void validate(Method method, RouteDefinition definition, Validator validator, Object toInvoke, Object[] args) {
 
-		if (validator != null) {
-
-			// check method params first
+		// check method params first (if any)
+		if (validator != null && args != null) {
 			ExecutableValidator executableValidator = validator.forExecutables();
 			Set<ConstraintViolation<Object>> result = executableValidator.validateParameters(toInvoke, method, args);
 			if (result != null && result.size() > 0) {
 				throw new ConstraintException(definition, result);
+			}
+		}
+	}
+
+	private static void validateResult(Object result, Method method, RouteDefinition definition, Validator validator, Object toInvoke) {
+
+		if (validator != null) {
+			ExecutableValidator executableValidator = validator.forExecutables();
+			Set<ConstraintViolation<Object>> validationResult = executableValidator.validateReturnValue(toInvoke, method, result);
+			if (validationResult != null && validationResult.size() > 0) {
+				throw new ConstraintException(definition, validationResult);
 			}
 		}
 	}
@@ -570,6 +581,7 @@ public class RestRouter {
 									writer = (HttpResponseWriter) WriterFactory.newInstanceOf(writerClass);
 								}
 
+								validateResult(futureResult, method, definition, validator, toInvoke);
 								produceResponse(futureResult, context, definition, writer);
 							}
 							catch (Throwable e) {
@@ -602,7 +614,7 @@ public class RestRouter {
 					writer = (HttpResponseWriter) notFoundWriter;
 				}
 
-				produceResponse(null, context, definition, writer);
+				produceResponse(null, context, definition,  writer);
 			}
 			catch (Throwable e) {
 				handleException(e, context, null);
@@ -695,6 +707,7 @@ public class RestRouter {
 	                                    RoutingContext context,
 	                                    RouteDefinition definition,
 	                                    HttpResponseWriter writer) throws Throwable {
+
 		HttpServerResponse response = context.response();
 		HttpServerRequest request = context.request();
 

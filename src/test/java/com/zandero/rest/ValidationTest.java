@@ -133,4 +133,78 @@ public class ValidationTest extends VertxTest {
 			});
 		});
 	}
+
+	@Test
+	public void testResult(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/check/result?one=1", response -> {
+
+			response.bodyHandler(body -> {
+
+				context.assertEquals(200, response.statusCode());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void testResultInvalid(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/check/result?one=11", response -> {
+
+			response.bodyHandler(body -> {
+
+				context.assertEquals(400, response.statusCode());
+
+				String content = body.toString();
+				context.assertTrue(content.contains("must be less than or equal to 10"));
+				context.assertEquals("Validation failed", response.getHeader("X-Status-Reason"));
+
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void testResultInvalidNull(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/check/result?one=A", response -> {
+
+			response.bodyHandler(body -> {
+
+				context.assertEquals(400, response.statusCode());
+
+				String content = body.toString();
+				context.assertTrue(content.contains("must not be null"));
+				context.assertEquals("Validation failed", response.getHeader("X-Status-Reason"));
+
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void testEmptyMethod(TestContext context) {
+
+		// call and check response
+		final Async async = context.async();
+
+		client.getNow("/check/empty", response -> {
+
+			response.bodyHandler(body -> {
+
+				context.assertEquals(200, response.statusCode());
+				async.complete();
+			});
+		});
+	}
 }
