@@ -845,7 +845,8 @@ public class RouteDefinition {
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/
 		// also see:
 		// https://www.owasp.org/index.php/Test_HTTP_Methods_(OTG-CONFIG-006)
-		return HttpMethod.POST.equals(method) ||
+		return HttpMethod.DELETE.equals(method) ||
+			   HttpMethod.POST.equals(method) ||
 		       HttpMethod.PUT.equals(method) ||
 		       HttpMethod.PATCH.equals(method) ||
 		       HttpMethod.TRACE.equals(method);

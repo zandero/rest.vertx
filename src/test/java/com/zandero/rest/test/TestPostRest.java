@@ -41,4 +41,17 @@ public class TestPostRest {
 
 		return postParam;
 	}
+
+	@DELETE
+	@Path("/json")
+	@RequestReader(DummyBodyReader.class)
+	@ResponseWriter(TestDummyWriter.class)
+	@RouteOrder(20)
+	public Dummy deleteWithJson(Dummy postParam, @HeaderParam("X-Test") String testHeader) {
+
+		postParam.name = "Received-" + postParam.name;
+		postParam.value = "Received-" + postParam.value;
+
+		return postParam;
+	}
 }
