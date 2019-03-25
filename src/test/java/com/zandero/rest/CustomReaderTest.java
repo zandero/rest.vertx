@@ -32,7 +32,7 @@ public class CustomReaderTest extends VertxTest {
 	@Before
 	public void startUp(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		Router router = RestRouter.register(vertx, TestReaderRest.class);
 

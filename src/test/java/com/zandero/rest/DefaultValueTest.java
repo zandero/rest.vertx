@@ -23,7 +23,7 @@ public class DefaultValueTest extends VertxTest {
 	@Before
 	public void setUp(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		router = RestRouter.register(vertx, TestDefaultValueRest.class);
 		vertx.createHttpServer()

@@ -30,7 +30,7 @@ public class RouteRegistrationTest extends VertxTest {
 	@Before
 	public void start(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		TestRest testRest = new TestRest();
 		TestPostRest testPostRest = new TestPostRest();

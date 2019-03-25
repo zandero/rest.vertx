@@ -9,7 +9,9 @@ import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
 import com.zandero.rest.test.handler.MyExceptionHandler;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.rest.writer.TestCustomWriter;
+import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -23,6 +25,11 @@ import static org.junit.Assert.fail;
  */
 @RunWith(VertxUnitRunner.class)
 public class RestBuilderTest extends VertxTest {
+
+	@Before
+	public void start(TestContext context) {
+		super.before();
+	}
 
 	@Test
 	public void buildInterfaceTest() {

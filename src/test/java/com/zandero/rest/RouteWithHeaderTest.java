@@ -20,7 +20,7 @@ public class RouteWithHeaderTest extends VertxTest {
 	@Before
 	public void start(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		Router router = RestRouter.register(vertx, TestHeaderRest.class);
 		vertx.createHttpServer()

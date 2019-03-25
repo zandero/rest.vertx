@@ -23,7 +23,7 @@ public class RouteWithCorsTest extends VertxTest {
 	@Test
 	public void start(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		Set<String> allowedHeaders = new HashSet<>();
 		allowedHeaders.add("Access-Control-Request-Method");

@@ -18,7 +18,7 @@ public class InheritedRouteTest extends VertxTest {
 	@Before
 	public void start(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		Router router = RestRouter.register(vertx, ImplementationRest.class);
 

@@ -20,7 +20,7 @@ public class RouteWithContextWriterTest extends VertxTest {
 	@Before
 	public void start(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		Router router = RestRouter.register(vertx, TestWithXmlRest.class);
 		RestRouter.getWriters().register(User.class, MyXmlWriter.class);

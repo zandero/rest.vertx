@@ -21,7 +21,7 @@ public class NoMatchTest extends VertxTest {
 	@Before
 	public void start(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		Router router = new RestBuilder(vertx)
 			                .register(TestEchoRest.class)

@@ -18,7 +18,7 @@ public class RouteWithMissingContextTest extends VertxTest {
 	@Before
 	public void start(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		TestContextRest testRest = new TestContextRest();
 		Router router = RestRouter.register(vertx, testRest);

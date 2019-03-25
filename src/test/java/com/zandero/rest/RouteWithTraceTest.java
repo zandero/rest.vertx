@@ -6,6 +6,7 @@ import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -14,6 +15,11 @@ import org.junit.runner.RunWith;
  */
 @RunWith(VertxUnitRunner.class)
 public class RouteWithTraceTest extends VertxTest {
+
+	@Before
+	public void start(TestContext context) {
+		super.before();
+	}
 
 	@Test
 	public void testTrace(TestContext context) {

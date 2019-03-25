@@ -22,7 +22,7 @@ public class RouteWithContextTest extends VertxTest {
 	@Before
 	public void start(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		Router router = Router.router(vertx);
 		router.route().handler(pushContextHandler());

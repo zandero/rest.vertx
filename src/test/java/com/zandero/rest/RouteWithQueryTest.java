@@ -20,7 +20,7 @@ public class RouteWithQueryTest extends VertxTest {
 	@Before
 	public void start(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		TestQueryRest testRest = new TestQueryRest();
 

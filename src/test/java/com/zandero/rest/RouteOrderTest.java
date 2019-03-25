@@ -20,7 +20,7 @@ public class RouteOrderTest extends VertxTest {
 	@Before
 	public void start(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		TestOrderRest testRest = new TestOrderRest();
 

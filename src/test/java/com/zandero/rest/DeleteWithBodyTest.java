@@ -20,7 +20,7 @@ public class DeleteWithBodyTest extends VertxTest {
 	@Before
 	public void startUp(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		Router router = RestRouter.register(vertx, TestPostRest.class);
 

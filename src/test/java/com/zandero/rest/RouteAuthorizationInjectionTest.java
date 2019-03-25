@@ -20,7 +20,7 @@ public class RouteAuthorizationInjectionTest extends VertxTest {
 	@Before
 	public void start(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		// 2. REST with @RolesAllowed annotations
 		Router router = new RestBuilder(vertx)

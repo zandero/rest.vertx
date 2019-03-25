@@ -21,7 +21,7 @@ public class RouteAuthorizationTest extends VertxTest {
 	@Before
 	public void start(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 
 		// 1. register handler to initialize User

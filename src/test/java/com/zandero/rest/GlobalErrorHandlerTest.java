@@ -21,7 +21,7 @@ public class GlobalErrorHandlerTest extends VertxTest {
 	@Before
 	public void start(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		ErrorThrowingRest handled = new ErrorThrowingRest();
 		ErrorThrowingRest2 unhandled = new ErrorThrowingRest2();

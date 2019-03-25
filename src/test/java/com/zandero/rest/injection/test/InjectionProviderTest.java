@@ -21,7 +21,7 @@ public class InjectionProviderTest extends VertxTest {
 
 	public void startWith(InjectionProvider provider, TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		Router router = new RestBuilder(vertx)
 			                .injectWith(provider)
@@ -35,7 +35,7 @@ public class InjectionProviderTest extends VertxTest {
 
 	public void startWithClass(Class<? extends InjectionProvider> provider, TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		Router router = new RestBuilder(vertx)
 			                .injectWith(provider)
@@ -49,6 +49,8 @@ public class InjectionProviderTest extends VertxTest {
 
 	@Test
 	public void testHasInjection() {
+
+		super.before();
 
 		assertTrue(InjectionProvider.hasInjection(GuiceInjectService.class));
 		assertTrue(InjectionProvider.hasInjection(OtherServiceImpl.class));

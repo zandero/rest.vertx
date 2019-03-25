@@ -7,12 +7,14 @@ import io.vertx.core.http.HttpClientOptions;
 import io.vertx.ext.unit.TestContext;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 
 import javax.validation.Validator;
 
 /**
  *
  */
+@Ignore
 public class VertxTest {
 
 	public static final String API_ROOT = "/";
@@ -27,8 +29,7 @@ public class VertxTest {
 
 	protected HttpClient client;
 
-	@Before
-	public void before(TestContext context) {
+	public void before() {
 
 		vertx = Vertx.vertx();
 		client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost(HOST).setDefaultPort(PORT));
@@ -43,9 +44,8 @@ public class VertxTest {
 		RestRouter.injectWith((InjectionProvider) null);
 	}
 
-	@After
-	public void after(TestContext context) {
-
-		vertx.close(context.asyncAssertSuccess());
-	}
+    @After
+    public void after(TestContext context) {
+        vertx.close(context.asyncAssertSuccess());
+    }
 }

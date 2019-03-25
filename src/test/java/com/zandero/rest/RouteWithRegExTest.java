@@ -18,7 +18,7 @@ public class RouteWithRegExTest extends VertxTest {
 	@Before
 	public void start(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		TestRegExRest testRest = new TestRegExRest();
 		Router router = RestRouter.register(vertx, testRest);

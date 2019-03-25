@@ -26,7 +26,7 @@ public class CustomWriterTest extends VertxTest {
 	@Before
 	public void setUp(TestContext context) {
 
-		super.before(context);
+		super.before();
 
 		Router router = RestRouter.register(vertx,
 		                                    TestRest.class,
