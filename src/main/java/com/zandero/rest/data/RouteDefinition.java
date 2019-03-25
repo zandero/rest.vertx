@@ -623,6 +623,11 @@ public class RouteDefinition {
 					contextValueProvider = ((ContextReader) annotation).value();
 				}
 
+				if (annotation instanceof BeanParam) {
+					type = ParameterType.bean;
+					name = parameters[index].getName();
+				}
+
 				if (annotation instanceof Context) {
 					type = ParameterType.context;
 					name = parameters[index].getName();

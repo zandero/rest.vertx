@@ -41,6 +41,11 @@ public enum ParameterType {
 	matrix("@MatrixParam"),
 
 	/**
+	 * Bean parameter (aggregator)
+	 */
+	bean("@BeanParam"),
+
+	/**
 	 * Request body
 	 */
 	body("body"),
