@@ -72,6 +72,11 @@ public class ArgumentProvider {
 				try {
 					switch (parameter.getType()) {
 
+						case bean :
+
+							// TODO : initialize bean
+							break;
+
 						case context:
 
 							// check if providers need to be called to assure context
