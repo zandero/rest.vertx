@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestFormRest;
 import io.vertx.ext.unit.Async;
@@ -9,9 +10,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class FormRestTest extends VertxTest {
 
@@ -86,3 +89,4 @@ public class FormRestTest extends VertxTest {
 		}).putHeader("Cookie", "username=blabla").end();
 	}
 }
+*/

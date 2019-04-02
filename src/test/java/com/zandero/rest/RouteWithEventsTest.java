@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestEventsRest;
 import com.zandero.rest.test.json.Dummy;
@@ -17,9 +18,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertTrue;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteWithEventsTest extends VertxTest {
 
@@ -124,3 +127,4 @@ public class RouteWithEventsTest extends VertxTest {
 		assertTrue(messageHasBeenSend.get());
 	}
 }
+*/

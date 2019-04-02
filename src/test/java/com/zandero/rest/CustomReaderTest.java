@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.reader.CustomWordListReader;
 import com.zandero.rest.reader.DummyBodyReader;
@@ -23,9 +24,11 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class CustomReaderTest extends VertxTest {
 
@@ -250,3 +253,4 @@ public class CustomReaderTest extends VertxTest {
 		}
 	}
 }
+*/

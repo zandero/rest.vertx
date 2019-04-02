@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestDefaultValueRest;
 import com.zandero.rest.test.json.Dummy;
@@ -12,9 +13,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class DefaultValueTest extends VertxTest {
 
@@ -109,3 +112,4 @@ public class DefaultValueTest extends VertxTest {
 		};
 	}
 }
+*/

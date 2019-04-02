@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestHeaderRest;
 import com.zandero.rest.test.json.Dummy;
@@ -11,9 +12,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteWithHeaderTest extends VertxTest {
 
@@ -80,3 +83,4 @@ public class RouteWithHeaderTest extends VertxTest {
 		}).putHeader("dummy", "").end();
 	}
 }
+*/

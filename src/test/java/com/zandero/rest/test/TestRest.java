@@ -22,6 +22,7 @@ public class TestRest {
 	@Produces(MediaType.TEXT_HTML)
 	public String echo() {
 
+		System.out.println("HELLO");
 		return "Hello world!";
 	}
 

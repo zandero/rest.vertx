@@ -1,4 +1,5 @@
 package com.zandero.rest.injection.test;
+/*
 
 import com.zandero.rest.RestBuilder;
 import com.zandero.rest.VertxTest;
@@ -13,13 +14,15 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class InjectionProviderTest extends VertxTest {
 
-	public void startWith(InjectionProvider provider, TestContext context) {
+	public void startWith(InjectionProvider provider) {
 
 		super.before();
 
@@ -33,7 +36,7 @@ public class InjectionProviderTest extends VertxTest {
 		     .listen(PORT);
 	}
 
-	public void startWithClass(Class<? extends InjectionProvider> provider, TestContext context) {
+	public void startWithClass(Class<? extends InjectionProvider> provider) {
 
 		super.before();
 
@@ -62,10 +65,10 @@ public class InjectionProviderTest extends VertxTest {
 	@Test
 	public void guiceCallInjectedRestTest(TestContext context) {
 
-		startWith(new GuiceInjectionProvider(), context);
+		startWith(new GuiceInjectionProvider());
 
 		final Async async = context.async();
-
+		
 		client.getNow("/injected/dummy", response -> {
 
 			context.assertEquals(200, response.statusCode());
@@ -80,7 +83,7 @@ public class InjectionProviderTest extends VertxTest {
 	@Test
 	public void guiceCallInjectedRestTest2(TestContext context) {
 
-		startWith(new GuiceInjectionProvider(), context);
+		startWith(new GuiceInjectionProvider());
 
 		final Async async = context.async();
 
@@ -98,7 +101,7 @@ public class InjectionProviderTest extends VertxTest {
 	@Test
 	public void featherCallInjectedRestTest(TestContext context) {
 
-		startWith(new FeatherInjectionProvider(), context);
+		startWith(new FeatherInjectionProvider());
 
 		final Async async = context.async();
 
@@ -116,7 +119,7 @@ public class InjectionProviderTest extends VertxTest {
 	@Test
 	public void featherCallInjectedRestTest2(TestContext context) {
 
-		startWith(new FeatherInjectionProvider(), context);
+		startWith(new FeatherInjectionProvider());
 
 		final Async async = context.async();
 
@@ -135,7 +138,7 @@ public class InjectionProviderTest extends VertxTest {
 	@Test
 	public void guiceCallInjectedClassRestTest(TestContext context) {
 
-		startWithClass(GuiceInjectionProvider.class, context);
+		startWithClass(GuiceInjectionProvider.class);
 
 		final Async async = context.async();
 
@@ -153,7 +156,7 @@ public class InjectionProviderTest extends VertxTest {
 	@Test
 	public void guiceCallInjectedClassRestTest2(TestContext context) {
 
-		startWithClass(GuiceInjectionProvider.class, context);
+		startWithClass(GuiceInjectionProvider.class);
 
 		final Async async = context.async();
 
@@ -171,7 +174,7 @@ public class InjectionProviderTest extends VertxTest {
 	@Test
 	public void featherCallInjectedClassRestTest(TestContext context) {
 
-		startWithClass(FeatherInjectionProvider.class, context);
+		startWithClass(FeatherInjectionProvider.class);
 
 		final Async async = context.async();
 
@@ -189,7 +192,7 @@ public class InjectionProviderTest extends VertxTest {
 	@Test
 	public void featherCallInjectedClassRestTest2(TestContext context) {
 
-		startWithClass(FeatherInjectionProvider.class, context);
+		startWithClass(FeatherInjectionProvider.class);
 
 		final Async async = context.async();
 
@@ -204,3 +207,4 @@ public class InjectionProviderTest extends VertxTest {
 		});
 	}
 }
+*/

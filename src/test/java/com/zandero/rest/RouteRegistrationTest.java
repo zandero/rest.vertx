@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.http.HttpUtils;
 import com.zandero.rest.test.TestPathRest;
@@ -21,9 +22,11 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteRegistrationTest extends VertxTest {
 
@@ -90,3 +93,4 @@ public class RouteRegistrationTest extends VertxTest {
 		async.complete();
 	}
 }
+*/

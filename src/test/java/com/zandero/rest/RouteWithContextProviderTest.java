@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestContextRest;
 import com.zandero.rest.test.data.TokenProvider;
@@ -11,9 +12,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteWithContextProviderTest extends VertxTest {
 
@@ -126,3 +129,4 @@ public class RouteWithContextProviderTest extends VertxTest {
 		      .end();
 	}
 }
+*/

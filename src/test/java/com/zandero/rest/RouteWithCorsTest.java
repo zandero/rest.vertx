@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.injection.GuiceInjectionProvider;
 import com.zandero.rest.test.TestEchoRest;
@@ -14,9 +15,11 @@ import org.junit.runner.RunWith;
 import java.util.HashSet;
 import java.util.Set;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteWithCorsTest extends VertxTest {
 
@@ -42,4 +45,4 @@ public class RouteWithCorsTest extends VertxTest {
 			                .notFound(NotFoundHandler.class) // last resort 404 page
 			                .build();
 	}
-}
+}*/

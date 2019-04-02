@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestEchoRest;
 import com.zandero.rest.test.handler.NotFoundHandler;
@@ -12,9 +13,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class NoMatchTest extends VertxTest {
 
@@ -124,3 +127,4 @@ public class NoMatchTest extends VertxTest {
 		}).putHeader("Accept", "application/json").end();
 	}
 }
+*/

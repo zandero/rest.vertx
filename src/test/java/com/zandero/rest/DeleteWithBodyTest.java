@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestPostRest;
 import com.zandero.rest.test.json.Dummy;
@@ -11,9 +12,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class DeleteWithBodyTest extends VertxTest {
 
@@ -50,3 +53,4 @@ public class DeleteWithBodyTest extends VertxTest {
 		}).putHeader("Content-Type", "application/json").end(json);
 	}
 }
+*/

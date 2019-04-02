@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestPatchRest;
 import com.zandero.rest.test.TestPathRest;
@@ -13,9 +14,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteWithPatchTest extends VertxTest {
 
@@ -50,3 +53,4 @@ public class RouteWithPatchTest extends VertxTest {
 		}).end(JsonUtils.toJson(json));
 	}
 }
+*/

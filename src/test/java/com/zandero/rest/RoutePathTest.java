@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestDoubleBodyParamRest;
 import com.zandero.rest.test.TestInvalidMethodRest;
@@ -17,9 +18,11 @@ import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RoutePathTest extends VertxTest {
 
@@ -122,3 +125,4 @@ public class RoutePathTest extends VertxTest {
 		}
 	}
 }
+*/

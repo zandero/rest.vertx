@@ -1,5 +1,6 @@
 package com.zandero.rest;
 
+/*
 import com.zandero.rest.test.TestStaticFileRest;
 import com.zandero.rest.test.handler.RestNotFoundHandler;
 import io.vertx.core.http.HttpServerOptions;
@@ -12,9 +13,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class StaticFileTest extends VertxTest {
 
@@ -24,8 +27,8 @@ public class StaticFileTest extends VertxTest {
 		super.before();
 
 		Router router = new RestBuilder(vertx)
-			                .register(TestStaticFileRest.class)
-			                .build();
+				.register(TestStaticFileRest.class)
+				.build();
 
 		RestRouter.notFound(router, "rest", RestNotFoundHandler.class);
 
@@ -78,3 +81,4 @@ public class StaticFileTest extends VertxTest {
 		});
 	}
 }
+*/

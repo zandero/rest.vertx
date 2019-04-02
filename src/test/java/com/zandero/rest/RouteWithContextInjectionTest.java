@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.injection.GuiceInjectionProvider;
 import com.zandero.rest.injection.SimulatedUserProvider;
@@ -13,9 +14,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteWithContextInjectionTest extends VertxTest {
 
@@ -68,3 +71,4 @@ public class RouteWithContextInjectionTest extends VertxTest {
 		}).end();
 	}
 }
+*/

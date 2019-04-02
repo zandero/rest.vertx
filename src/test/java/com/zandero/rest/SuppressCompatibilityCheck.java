@@ -1,5 +1,6 @@
 package com.zandero.rest;
 
+/*
 import com.zandero.rest.test.TestEchoRest;
 import com.zandero.rest.writer.TestSuppressedWriter;
 import io.vertx.core.http.HttpServerOptions;
@@ -12,9 +13,11 @@ import org.junit.runner.RunWith;
 
 import static org.junit.Assert.fail;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class SuppressCompatibilityCheck extends VertxTest {
 
@@ -51,3 +54,4 @@ public class SuppressCompatibilityCheck extends VertxTest {
 		}
 	}
 }
+*/

@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestContextRest;
 import io.vertx.ext.unit.Async;
@@ -9,9 +10,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteWithMissingContextTest extends VertxTest {
 
@@ -45,3 +48,4 @@ public class RouteWithMissingContextTest extends VertxTest {
 		});
 	}
 }
+*/

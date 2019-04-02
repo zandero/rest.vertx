@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestEchoRest;
 import io.vertx.core.http.HttpMethod;
@@ -10,9 +11,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteWithTraceTest extends VertxTest {
 
@@ -43,3 +46,4 @@ public class RouteWithTraceTest extends VertxTest {
 		}).end();
 	}
 }
+*/

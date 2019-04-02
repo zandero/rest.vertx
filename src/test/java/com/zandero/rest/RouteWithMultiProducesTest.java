@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestMultiProducesRest;
 import com.zandero.rest.writer.TestJsonResponseWriter;
@@ -13,9 +14,11 @@ import org.junit.runner.RunWith;
 
 import javax.ws.rs.core.MediaType;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteWithMultiProducesTest extends VertxTest {
 
@@ -66,3 +69,4 @@ public class RouteWithMultiProducesTest extends VertxTest {
 		}).putHeader("Accept", "application/json").end();
 	}
 }
+*/

@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestContextRest;
 import com.zandero.rest.test.json.Dummy;
@@ -13,9 +14,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteWithContextTest extends VertxTest {
 
@@ -127,3 +130,4 @@ public class RouteWithContextTest extends VertxTest {
 		});
 	}
 }
+*/

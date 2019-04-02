@@ -66,7 +66,7 @@
 
         <!-- testing -->
         <version.logback>[1.1.7,)</version.logback>
-        <version.junit>[5.1.0,)</version.junit>
+        <version.junit>[5.3.1,)</version.junit>
         <version.mockito-all>[1.10.19,)</version.mockito-all>
         <version.jetty>[9.3.7.v20160115,)</version.jetty>
         <version.glassfish>2.22.2</version.glassfish>
@@ -159,7 +159,14 @@
 
         <dependency>
             <groupId>io.vertx</groupId>
-            <artifactId>vertx-unit</artifactId>
+            <artifactId>vertx-junit5</artifactId>
+            <version>${version.vertx}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-web-client</artifactId>
             <version>${version.vertx}</version>
             <scope>test</scope>
         </dependency>
@@ -256,11 +263,11 @@
         </snapshotRepository>
 
         <!-- Repository for releases -->
-<!--        <repository>
-            <id>nexus-releases</id>
-            <name>Nexus Release Repository</name>
-            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>-->
+        <!--        <repository>
+                    <id>nexus-releases</id>
+                    <name>Nexus Release Repository</name>
+                    <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>-->
     </distributionManagement>
 
     <build>

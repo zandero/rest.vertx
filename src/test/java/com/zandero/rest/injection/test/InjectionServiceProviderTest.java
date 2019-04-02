@@ -1,4 +1,5 @@
 package com.zandero.rest.injection.test;
+/*
 
 import com.zandero.rest.RestBuilder;
 import com.zandero.rest.VertxTest;
@@ -13,9 +14,11 @@ import io.vertx.ext.web.Router;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class InjectionServiceProviderTest extends VertxTest {
 
@@ -119,3 +122,4 @@ public class InjectionServiceProviderTest extends VertxTest {
 		});
 	}
 }
+*/

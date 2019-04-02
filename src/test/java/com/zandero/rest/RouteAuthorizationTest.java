@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestAuthorizationRest;
 import com.zandero.rest.test.data.SimulatedUser;
@@ -12,9 +13,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteAuthorizationTest extends VertxTest {
 
@@ -228,3 +231,4 @@ public class RouteAuthorizationTest extends VertxTest {
 		}).putHeader("X-Token", "two").end();
 	}
 }
+*/

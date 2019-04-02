@@ -1,54 +1,66 @@
 package com.zandero.rest;
 
 import com.zandero.rest.test.TestValidRest;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.junit5.VertxExtension;
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.HibernateValidatorConfiguration;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
 
-/**
- *
- */
-@RunWith(VertxUnitRunner.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+//@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class ValidationTest extends VertxTest {
 
-	HibernateValidatorConfiguration configuration = Validation.byProvider(HibernateValidator.class)
-	                                                          .configure();
+    HibernateValidatorConfiguration configuration = Validation.byProvider(HibernateValidator.class)
+            .configure();
 
-	Validator validator = configuration.buildValidatorFactory()
-	                                   .getValidator();
+    Validator validator = configuration.buildValidatorFactory()
+            .getValidator();
 
-	@Before
-	public void start(TestContext context) {
+    @Before
+    public void start() {
 
-		super.before();
+        super.before();
 
-		Router router = new RestBuilder(vertx)
-			                .register(TestValidRest.class)
-			                .validateWith(validator)
-			                .build();
+        Router router = new RestBuilder(vertx)
+                .register(TestValidRest.class)
+                .validateWith(validator)
+                .build();
 
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);
-	}
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT, testContext.completing());
+    }
 
-	@Test
-	public void testDummyViolation(TestContext context) {
+    @Test
+    public void testDummyViolation() {
 
-		// call and check response
-		final Async async = context.async();
+        // call and check response
+        //final Async async = context.async();
 
-		String content = "{\"name\": \"test\", \"size\": 12}";
-		client.post("/check/dummy", response -> {
+        String content = "{\"name\": \"test\", \"size\": 12}";
+
+
+        WebClient client = WebClient.create(vertx);
+
+        client.post(PORT, HOST, "/check/dummy")
+                .putHeader("content-type", "application/json")
+                .sendBuffer(Buffer.buffer(content), testContext.succeeding(response -> testContext.verify(() -> {
+                    assertEquals(response.body().toString(), "Plop");
+                    testContext.completeNow();
+                })));
+
+
+		/*client.post("/check/dummy", response -> {
 
 			response.bodyHandler(body -> {
 				context.assertEquals("body ValidDummy.value: must not be null", body.toString());
@@ -57,10 +69,10 @@ public class ValidationTest extends VertxTest {
 				async.complete();
 			});
 		}).putHeader("content-type", "application/json")
-		      .end(content);
-	}
+		      .end(content);*/
+    }
 
-	@Test
+/*	@Test
 	public void testDummyViolationSize(TestContext context) {
 
 		// call and check response
@@ -206,5 +218,5 @@ public class ValidationTest extends VertxTest {
 				async.complete();
 			});
 		});
-	}
+	}*/
 }

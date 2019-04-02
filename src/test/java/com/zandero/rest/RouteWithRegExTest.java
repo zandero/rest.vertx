@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestRegExRest;
 import io.vertx.ext.unit.Async;
@@ -9,9 +10,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteWithRegExTest extends VertxTest {
 
@@ -165,3 +168,4 @@ public class RouteWithRegExTest extends VertxTest {
 	}
 
 }
+*/

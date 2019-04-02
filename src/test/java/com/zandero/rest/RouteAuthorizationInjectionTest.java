@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.handler.UserHandler;
 import com.zandero.rest.injection.GuiceInjectionProvider;
@@ -11,9 +12,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteAuthorizationInjectionTest extends VertxTest {
 
@@ -212,3 +215,4 @@ public class RouteAuthorizationInjectionTest extends VertxTest {
 		}).end("HELLO");
 	}
 }
+*/

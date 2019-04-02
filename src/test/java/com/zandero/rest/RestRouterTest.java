@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.reader.IntegerBodyReader;
 import com.zandero.rest.test.TestIncompatibleReaderRest;
@@ -21,62 +22,69 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+*/
+
+import com.zandero.rest.test.TestRest;
+import com.zandero.rest.test.TestRestWithNonRestMethod;
+import io.vertx.core.Vertx;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * Basic GET, POST tests
  */
-@RunWith(VertxUnitRunner.class)
+
+@ExtendWith(VertxExtension.class)
 public class RestRouterTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+    @BeforeEach
+    void start() {
 
-		super.before();
+        super.before();
 
-		TestRest testRest = new TestRest();
+        TestRest testRest = new TestRest();
 
-		Router router = RestRouter.register(vertx,
-		                                    testRest,
-		                                    TestRestWithNonRestMethod.class);
+        Router router = RestRouter.register(vertx,
+                testRest,
+                TestRestWithNonRestMethod.class);
 
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);
-	}
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT, testContext.succeeding());
+    }
 
-	@Test
-	public void registerTestRest(TestContext context) {
+    @Test
+    void registerTestRest(Vertx vertx, VertxTestContext testContext) {
 
-		// call and check response
-		final Async async = context.async();
+        client.get(PORT, HOST, "/test/echo")
+                .as(BodyCodec.string())
+                .send(testContext.succeeding(response -> testContext.verify(() -> {
+                    assertEquals("Hello world!", response.body());
+                    testContext.completeNow();
+                })));
+    }
 
-		client.getNow("/test/echo", response -> {
+    @Test
+    void jaxResponseTest(Vertx vertx, VertxTestContext testContext) {
 
-			context.assertEquals(200, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("Hello world!", body.toString());
-				async.complete();
-			});
-		});
-	}
-
-	@Test
-	public void jaxResponseTest(TestContext context) {
-
-		final Async async = context.async();
-
-		client.getNow("/test/jax", response -> {
-
-			context.assertEquals(202, response.statusCode());
-			context.assertEquals("Test", response.getHeader("X-Test"));
-
-			response.bodyHandler(body -> {
-				context.assertEquals("\"Hello\"", body.toString()); // produces JSON ... so quotes are correct
-				async.complete();
-			});
-		});
-	}
-
+        client.get(PORT, HOST, "/test/jax")
+                .as(BodyCodec.string())
+                .send(testContext.succeeding(response -> testContext.verify(() -> {
+                    assertEquals(202, response.statusCode());
+                    assertEquals("Test", response.getHeader("X-Test"));
+                    assertEquals("\"Hello\"", response.body()); // produces JSON ... so quotes are correct
+                    testContext.completeNow();
+                })));
+    }
+}
+/*
 	@Test
 	public void pathMatchTest(TestContext context) {
 
@@ -150,12 +158,14 @@ public class RestRouterTest extends VertxTest {
 		String json = JsonUtils.toJson(dummy);
 
 
-		/*StringEntity input = new StringEntity(json);
+		*/
+/*StringEntity input = new StringEntity(json);
 		input.setContentType("application/json");
 
 		HttpPost request = (HttpPost) HttpUtils.post("http://localhost:4444/test/json", null, null, input, null);
 		HttpUtils.execute(request);
-*/
+*//*
+
 		client.post("/test/json/post", response -> {
 
 			context.assertEquals(200, response.statusCode());
@@ -248,4 +258,4 @@ public class RestRouterTest extends VertxTest {
 			async.complete();
 		});
 	}
-}
+}*/

@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.ErrorThrowingRest2;
 import com.zandero.rest.test.handler.MyGlobalExceptionHandler;
@@ -10,9 +11,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteErrorHandler2Test extends VertxTest {
 
@@ -49,3 +52,4 @@ public class RouteErrorHandler2Test extends VertxTest {
 		});
 	}
 }
+*/

@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestHtmlRest;
 import com.zandero.rest.test.TestPostRest;
@@ -17,9 +18,11 @@ import org.junit.runner.RunWith;
 
 import javax.ws.rs.core.MediaType;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class CustomWriterTest extends VertxTest {
 
@@ -134,3 +137,4 @@ public class CustomWriterTest extends VertxTest {
 		}).putHeader("Content-Type", "application/json").end(json);
 	}
 }
+*/

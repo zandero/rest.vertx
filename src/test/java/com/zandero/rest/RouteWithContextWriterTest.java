@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestWithXmlRest;
 import com.zandero.rest.test.json.User;
@@ -11,9 +12,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteWithContextWriterTest extends VertxTest {
 
@@ -73,3 +76,4 @@ public class RouteWithContextWriterTest extends VertxTest {
 		});
 	}
 }
+*/

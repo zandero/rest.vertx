@@ -1,0 +1,75 @@
+package com.zandero.rest;
+
+import com.zandero.rest.test.TestBeanReaderRest;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.ext.web.Router;
+import io.vertx.junit5.VertxExtension;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+//@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
+public class BeanReaderTest extends VertxTest {
+
+    @Before
+    public void startUp() {
+
+//        super.before();
+
+        Router router = RestRouter.register(vertx, TestBeanReaderRest.class);
+
+        vertx.createHttpServer()
+                .requestHandler(router::accept)
+                .listen(PORT);
+    }
+
+   /* @Test
+    public void testCustomInput() {
+
+        // call and check response
+        //final Async async = context.async();
+
+        Vertx vertx = Vertx.vertx();
+        vertx.createHttpServer()
+                .requestHandler(req -> req.response().end("Ok"))
+                .listen(PORT, ar -> {
+                    // (we can check here if the server started or not)
+                });
+
+        client.post("/read/bean", response -> {
+
+            context.assertEquals(200, response.statusCode());
+
+            response.bodyHandler(body -> {
+                context.assertEquals("brown,dog,fox,jumps,over,quick,red,the", body.toString()); // returns sorted list of unique words
+                async.complete();
+            });
+        }).end("The quick brown fox jumps over the red dog!");
+    }
+
+    @Test
+    public void testCustomInputNew(TestContext context) {
+
+        // call and check response
+        final Async async = context.async();
+
+        FakeReadStream<Buffer> rs = new FakeReadStream<>();
+*//*        FakeWriteStream<String> ws = new FakeWriteStream<>();
+        ws.write("The quick brown fox jumps over the red dog!")
+        Pump.pump(rs, ws);*//*
+
+        *//*ReadStream<Buffer> readStream = new BufferReadStream(testBuffer);
+        IntStream intStream = "The quick brown fox jumps over the red dog!".chars();*//*
+
+
+        webClient.post(HOST, "/read/bean").sendStream(rs, response -> {
+
+            context.assertTrue(response.succeeded(), response.cause().getMessage());
+            HttpResponse<Buffer> buffer = response.result();
+
+            context.assertEquals("brown,dog,fox,jumps,over,quick,red,the", buffer.bodyAsString()); // returns sorted list of unique words
+        });
+    }*/
+}

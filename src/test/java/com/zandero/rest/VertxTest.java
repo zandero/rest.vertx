@@ -2,14 +2,16 @@ package com.zandero.rest;
 
 import com.zandero.rest.injection.InjectionProvider;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientOptions;
-import io.vertx.ext.unit.TestContext;
-import org.junit.After;
-import org.junit.Before;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.junit5.VertxTestContext;
 import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
 
 import javax.validation.Validator;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
@@ -17,35 +19,40 @@ import javax.validation.Validator;
 @Ignore
 public class VertxTest {
 
-	public static final String API_ROOT = "/";
+    public static final String API_ROOT = "/";
 
-	protected static final int PORT = 4444;
+    protected static final int PORT = 4444;
 
-	private static final String HOST = "localhost";
+    static final String HOST = "localhost";
 
-	protected static final String ROOT_PATH = "http://" + HOST + ":" + PORT;
+    protected static final String ROOT_PATH = "http://" + HOST + ":" + PORT;
 
-	protected Vertx vertx;
+    protected Vertx vertx;
+    protected VertxTestContext testContext;
+    protected WebClient client;
 
-	protected HttpClient client;
+    public void before() {
 
-	public void before() {
+        vertx = Vertx.vertx();
+        testContext = new VertxTestContext();
 
-		vertx = Vertx.vertx();
-		client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost(HOST).setDefaultPort(PORT));
+        // clear all registered writers or reader and handlers
+        RestRouter.getReaders().clear();
+        RestRouter.getWriters().clear();
+        RestRouter.getExceptionHandlers().clear();
+        RestRouter.getContextProviders().clear();
+        // clear
+        RestRouter.validateWith((Validator) null);
+        RestRouter.injectWith((InjectionProvider) null);
 
-		// clear all registered writers or reader and handlers
-		RestRouter.getReaders().clear();
-		RestRouter.getWriters().clear();
-		RestRouter.getExceptionHandlers().clear();
-		RestRouter.getContextProviders().clear();
-		// clear
-		RestRouter.validateWith((Validator)null);
-		RestRouter.injectWith((InjectionProvider) null);
-	}
-
-    @After
-    public void after(TestContext context) {
-        vertx.close(context.asyncAssertSuccess());
+        client = WebClient.create(vertx);
     }
+
+     @AfterEach
+     public void after() throws InterruptedException {
+
+    //     assertTrue(testContext.awaitCompletion(5, TimeUnit.SECONDS));
+//         assertFalse(testContext.failed(), testContext.causeOfFailure().getMessage());
+     }
+
 }

@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.TestOrderRest;
 import io.vertx.ext.unit.Async;
@@ -11,9 +12,11 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteOrderTest extends VertxTest {
 
@@ -46,3 +49,4 @@ public class RouteOrderTest extends VertxTest {
 		});
 	}
 }
+*/

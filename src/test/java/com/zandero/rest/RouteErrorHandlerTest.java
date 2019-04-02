@@ -1,4 +1,5 @@
 package com.zandero.rest;
+/*
 
 import com.zandero.rest.test.ErrorThrowingRest;
 import com.zandero.rest.test.ErrorThrowingRest2;
@@ -13,9 +14,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+*/
 /**
  *
- */
+ *//*
+
 @RunWith(VertxUnitRunner.class)
 public class RouteErrorHandlerTest extends VertxTest {
 
@@ -187,3 +190,4 @@ public class RouteErrorHandlerTest extends VertxTest {
 		});
 	}
 }
+*/

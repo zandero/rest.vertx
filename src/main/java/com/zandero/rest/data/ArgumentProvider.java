@@ -72,11 +72,22 @@ public class ArgumentProvider {
 				try {
 					switch (parameter.getType()) {
 
-						case bean :
+						/*case bean :
 
 							// TODO : initialize bean
-							break;
+                            BeanProvider beanProvider = providerFactory.get(dataType, injectionProvider, context, null);
+                            if (beanProvider != null) {
+                                Object result = beanProvider.provide(context.request());
+                                if (result != null) {
+                                    context.data().put(ContextProviderFactory.getContextKey(dataType), result);
+                                }
+                            }
 
+                            args[parameter.getIndex()] = ContextProviderFactory.provideContext(method.getParameterTypes()[parameter.getIndex()],
+                                    parameter.getDefaultValue(),
+                                    context);
+
+							break;*//**/
 						case context:
 
 							// check if providers need to be called to assure context
