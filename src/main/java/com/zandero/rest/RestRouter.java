@@ -477,10 +477,8 @@ public class RestRouter {
 			},
 			definition.executeBlockingOrdered(), // false by default
 			res -> {
-
 				if (res.succeeded()) {
 					try {
-
 						Object result = res.result();
 						Class returnType = result != null ? result.getClass() : definition.getReturnType();
 

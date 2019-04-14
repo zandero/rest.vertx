@@ -8,10 +8,6 @@ import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 
 import javax.validation.Validator;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
@@ -47,12 +43,4 @@ public class VertxTest {
 
         client = WebClient.create(vertx);
     }
-
-     @AfterEach
-     public void after() throws InterruptedException {
-
-    //     assertTrue(testContext.awaitCompletion(5, TimeUnit.SECONDS));
-//         assertFalse(testContext.failed(), testContext.causeOfFailure().getMessage());
-     }
-
 }
