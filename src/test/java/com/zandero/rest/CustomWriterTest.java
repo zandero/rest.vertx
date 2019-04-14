@@ -1,5 +1,4 @@
 package com.zandero.rest;
-/*
 
 import com.zandero.rest.test.TestHtmlRest;
 import com.zandero.rest.test.TestPostRest;
@@ -8,133 +7,120 @@ import com.zandero.rest.test.json.Dummy;
 import com.zandero.rest.writer.TestCustomWriter;
 import com.zandero.rest.writer.TestDummyWriter;
 import com.zandero.utils.extra.JsonUtils;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.MediaType;
 
-*/
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  *
- *//*
+ */
+@ExtendWith(VertxExtension.class)
+class CustomWriterTest extends VertxTest {
 
-@RunWith(VertxUnitRunner.class)
-public class CustomWriterTest extends VertxTest {
+    @BeforeEach
+    void start() {
 
-	@Before
-	public void setUp(TestContext context) {
+        super.before();
 
-		super.before();
+        Router router = RestRouter.register(vertx,
+                TestRest.class,
+                TestHtmlRest.class,
+                TestPostRest.class);
 
-		Router router = RestRouter.register(vertx,
-		                                    TestRest.class,
-		                                    TestHtmlRest.class,
-		                                    TestPostRest.class);
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);
-	}
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-	@Test
-	public void testCustomOutput(TestContext context) {
+    @Test
+    void testCustomOutput(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
+        client.get(PORT, HOST, "/test/custom")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("<custom>CUSTOM</custom>", response.body());
+                    context.completeNow();
+                })));
+    }
 
-		client.getNow("/test/custom", response -> {
+    @Test
+    void testRegisteredContentTypeWriterOutput(VertxTestContext context) {
 
-			context.assertEquals(200, response.statusCode());
+        RestRouter.getWriters().register(MediaType.TEXT_HTML, TestCustomWriter.class); // bind media type to this writer
 
-			response.bodyHandler(body -> {
-				context.assertEquals("<custom>CUSTOM</custom>", body.toString());
-				async.complete();
-			});
-		});
-	}
+        client.get(PORT, HOST, "/html/body")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals(MediaType.TEXT_HTML, response.getHeader("Content-Type"));
+                    assertEquals("<custom>body</custom>", response.body());
+                    context.completeNow();
+                })));
+    }
 
-	@Test
-	public void testRegisteredContentTypeWriterOutput(TestContext context) {
+    @Test
+    void testProducesOnExperimentalGet(VertxTestContext context) {
 
-		RestRouter.getWriters().register(MediaType.TEXT_HTML, TestCustomWriter.class); // bind media type to this writer
+        RestRouter.getWriters().register(MediaType.TEXT_HTML, TestCustomWriter.class); // bind media type to this writer
 
-		final Async async = context.async();
+        client.get(PORT, HOST, "/html/head").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
 
-		client.getNow("/html/body", response -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals(MediaType.TEXT_HTML, response.getHeader("Content-Type"));
 
-			context.assertEquals(200, response.statusCode());
-			context.assertEquals(MediaType.TEXT_HTML, response.getHeader("Content-Type"));
+                    assertEquals("<custom>head</custom>", response.body());
+                    context.completeNow();
+                })));
+    }
 
-			response.bodyHandler(body -> {
-				context.assertEquals("<custom>body</custom>", body.toString());
-				async.complete();
-			});
-		});
-	}
+    @Test
+    void testRegisteredClassTypeWriterOutput(VertxTestContext context) {
 
-	@Test
-	public void testProducesOnExperimentalGet(TestContext context) {
+        RestRouter.getWriters().register(Dummy.class, TestDummyWriter.class); // bind media type to this writer
 
-		RestRouter.getWriters().register(MediaType.TEXT_HTML, TestCustomWriter.class); // bind media type to this writer
 
-		final Async async = context.async();
+        Dummy dummy = new Dummy("hello", "world");
+        String json = JsonUtils.toJson(dummy);
 
-		client.getNow("/html/head", response -> {
+        client.post(PORT, HOST,"/post/json")
+                .as(BodyCodec.string())
+                .putHeader("Content-Type", "application/json")
+                .sendBuffer(Buffer.buffer(json),
+                        context.succeeding(response -> context.verify(() -> {
 
-			context.assertEquals(200, response.statusCode());
-			context.assertEquals(MediaType.TEXT_HTML, response.getHeader("Content-Type"));
+                            assertEquals(200, response.statusCode());
+                            assertEquals("application/json;charset=utf-8", response.getHeader("Content-Type"));
+                            assertEquals("<custom>Received-hello=Received-world</custom>", response.body());
+                            context.completeNow();
+                        })));
+    }
 
-			response.bodyHandler(body -> {
-				context.assertEquals("<custom>head</custom>", body.toString());
-				async.complete();
-			});
-		});
-	}
+    @Test
+    void testRegisteredClassTypeReaderOutput(VertxTestContext context) {
 
-	@Test
-	public void testRegisteredClassTypeWriterOutput(TestContext context) {
+        Dummy dummy = new Dummy("hello", "world");
+        String json = JsonUtils.toJson(dummy);
 
-		RestRouter.getWriters().register(Dummy.class, TestDummyWriter.class); // bind media type to this writer
+        client.put(PORT, HOST, "/post/json")
+                .as(BodyCodec.string())
+                .putHeader("Content-Type", "application/json")
+                .sendBuffer(Buffer.buffer(json), context.succeeding(response -> context.verify(() -> {
 
-		final Async async = context.async();
-
-		Dummy dummy = new Dummy("hello", "world");
-		String json = JsonUtils.toJson(dummy);
-
-		client.post("/post/json", response -> {
-
-			context.assertEquals(200, response.statusCode());
-			context.assertEquals("application/json;charset=utf-8", response.getHeader("Content-Type"));
-
-			response.bodyHandler(body -> {
-				context.assertEquals("<custom>Received-hello=Received-world</custom>", body.toString());
-				async.complete();
-			});
-		}).putHeader("Content-Type", "application/json").end(json);
-	}
-
-	@Test
-	public void testRegisteredClassTypeReaderOutput(TestContext context) {
-
-		final Async async = context.async();
-
-		Dummy dummy = new Dummy("hello", "world");
-		String json = JsonUtils.toJson(dummy);
-
-		client.put("/post/json", response -> {
-
-			context.assertEquals(200, response.statusCode());
-			context.assertEquals(MediaType.APPLICATION_JSON, response.getHeader("Content-Type"));
-
-			response.bodyHandler(body -> {
-				context.assertEquals("<custom>Received-hello=Received-world</custom>", body.toString());
-				async.complete();
-			});
-		}).putHeader("Content-Type", "application/json").end(json);
-	}
+                    assertEquals(200, response.statusCode());
+                    assertEquals(MediaType.APPLICATION_JSON, response.getHeader("Content-Type"));
+                    assertEquals("<custom>Received-hello=Received-world</custom>", response.body());
+                    context.completeNow();
+                })));
+    }
 }
-*/
