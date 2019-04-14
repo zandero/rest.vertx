@@ -5,6 +5,7 @@ import io.vertx.core.Vertx;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.junit5.VertxTestContext;
 import org.junit.Ignore;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 
 import javax.validation.Validator;
@@ -19,15 +20,15 @@ public class VertxTest {
 
     protected static final int PORT = 4444;
 
-    static final String HOST = "localhost";
+    public static final String HOST = "localhost";
 
     protected static final String ROOT_PATH = "http://" + HOST + ":" + PORT;
 
-    protected Vertx vertx;
-    protected VertxTestContext testContext;
-    protected WebClient client;
+    protected static Vertx vertx = null;
+    protected static VertxTestContext testContext;
+    protected static WebClient client;
 
-    public void before() {
+    public static void before() {
 
         vertx = Vertx.vertx();
         testContext = new VertxTestContext();
@@ -42,5 +43,15 @@ public class VertxTest {
         RestRouter.injectWith((InjectionProvider) null);
 
         client = WebClient.create(vertx);
+    }
+
+    @AfterEach
+    void lastChecks(Vertx vertx) {
+        vertx.close(testContext.succeeding());
+    }
+
+    @AfterAll
+    static void close() {
+        vertx.close();
     }
 }

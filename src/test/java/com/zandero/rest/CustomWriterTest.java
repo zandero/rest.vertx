@@ -1,5 +1,7 @@
 package com.zandero.rest;
 
+import com.zandero.rest.RestRouter;
+import com.zandero.rest.VertxTest;
 import com.zandero.rest.test.TestHtmlRest;
 import com.zandero.rest.test.TestPostRest;
 import com.zandero.rest.test.TestRest;
@@ -12,12 +14,13 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import org.junit.Before;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import javax.ws.rs.core.MediaType;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -26,10 +29,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(VertxExtension.class)
 class CustomWriterTest extends VertxTest {
 
-    @BeforeEach
-    void start() {
+    @BeforeAll
+    static void start() {
 
-        super.before();
+        before();
 
         Router router = RestRouter.register(vertx,
                 TestRest.class,

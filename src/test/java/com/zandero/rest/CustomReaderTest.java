@@ -1,5 +1,7 @@
 package com.zandero.rest;
 
+import com.zandero.rest.RestRouter;
+import com.zandero.rest.VertxTest;
 import com.zandero.rest.reader.CustomWordListReader;
 import com.zandero.rest.reader.DummyBodyReader;
 import com.zandero.rest.reader.ExtendedDummyBodyReader;
@@ -15,6 +17,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,10 +34,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ExtendWith(VertxExtension.class)
 class CustomReaderTest extends VertxTest {
 
-    @BeforeEach
-    void start() {
+    @BeforeAll
+    static void start() {
 
-        super.before();
+        before();
 
         Router router = RestRouter.register(vertx, TestReaderRest.class);
 
