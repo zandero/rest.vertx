@@ -1,5 +1,4 @@
 package com.zandero.rest;
-/*
 
 import com.zandero.rest.reader.CustomWordListReader;
 import com.zandero.rest.reader.DummyBodyReader;
@@ -11,246 +10,213 @@ import com.zandero.rest.test.json.Dummy;
 import com.zandero.rest.test.json.ExtendedDummy;
 import com.zandero.rest.writer.TestCustomWriter;
 import com.zandero.utils.extra.JsonUtils;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-*/
 /**
  *
- *//*
+ */
 
-@RunWith(VertxUnitRunner.class)
-public class CustomReaderTest extends VertxTest {
+@ExtendWith(VertxExtension.class)
+class CustomReaderTest extends VertxTest {
 
-	@Before
-	public void startUp(TestContext context) {
+    @BeforeEach
+    void start() {
 
-		super.before();
+        super.before();
 
-		Router router = RestRouter.register(vertx, TestReaderRest.class);
+        Router router = RestRouter.register(vertx, TestReaderRest.class);
 
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);
-	}
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-	@Test
-	public void testCustomInput(TestContext context) {
+    @Test
+    void testCustomInput(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
+        client.post(PORT, HOST, "/read/custom")
+                .as(BodyCodec.string())
+                .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
+                        context.succeeding(response -> context.verify(() -> {
 
-		client.post("/read/custom", response -> {
+                            assertEquals(200, response.statusCode());
+                            assertEquals("brown,dog,fox,jumps,over,quick,red,the", response.body()); // returns sorted list of unique words
+                            context.completeNow();
+                        })));
+    }
 
-			context.assertEquals(200, response.statusCode());
+    @Test
+    void testCustomInput_WithBuilder(VertxTestContext context) {
 
-			response.bodyHandler(body -> {
-				context.assertEquals("brown,dog,fox,jumps,over,quick,red,the", body.toString()); // returns sorted list of unique words
-				async.complete();
-			});
-		}).end("The quick brown fox jumps over the red dog!");
-	}
+        client.post(PORT, HOST, "/read/custom")
+                .as(BodyCodec.string())
+                .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
+                        context.succeeding(response -> context.verify(() -> {
 
-	@Test
-	public void testCustomInput_WithBuilder(TestContext context) {
+                            assertEquals(200, response.statusCode());
+                            assertEquals("brown,dog,fox,jumps,over,quick,red,the", response.body()); // returns sorted list of unique words
+                            context.completeNow();
+                        })));
+    }
 
-		// call and check response
-		final Async async = context.async();
+    @Test
+    void testCustomInput_2(VertxTestContext context) {
 
-		client.post("/read/custom", response -> {
+        RestRouter.getReaders()
+                .register(List.class, CustomWordListReader.class); // all arguments that are List<> go through this reader ... (reader returns List<String> as output)
 
-			context.assertEquals(200, response.statusCode());
+        client.post(PORT, HOST, "/read/registered")
+                .as(BodyCodec.string())
+                .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
+                        context.succeeding(response -> context.verify(() -> {
+                            assertEquals(200, response.statusCode());
+                            assertEquals("brown,dog,fox,jumps,over,quick,red,the", response.body()); // returns sorted list of unique words
+                            context.completeNow();
+                        })));
+    }
 
-			response.bodyHandler(body -> {
-				context.assertEquals("brown,dog,fox,jumps,over,quick,red,the", body.toString()); // returns sorted list of unique words
-				async.complete();
-			});
-		}).end("The quick brown fox jumps over the red dog!");
-	}
+    @Test
+    void testExtendedReader(VertxTestContext context) {
 
-	@Test
-	public void testCustomInput_2(TestContext context) {
+        RestRouter.getReaders().register(Dummy.class, DummyBodyReader.class);
+        RestRouter.getReaders().register(ExtendedDummy.class, ExtendedDummyBodyReader.class);
 
-		RestRouter.getReaders()
-		          .register(List.class,
-		                    CustomWordListReader.class); // all arguments that are List<> go through this reader ... (reader returns List<String> as output)
+        // check if correct reader is used
 
-		// call and check response
-		final Async async = context.async();
+        client.post(PORT, HOST, "/read/normal/dummy")
+                .as(BodyCodec.string())
+                .putHeader("Content-Type", "application/json")
+                .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
+                        context.succeeding(response -> context.verify(() -> {
+                            assertEquals(200, response.statusCode());
+                            assertEquals("one=dummy", response.body()); // returns sorted list of unique words
+                            context.completeNow();
+                        })));
 
-		client.post("/read/registered", response -> {
+        // 2nd send extended dummy to same REST
+        client.post(PORT, HOST, "/read/normal/dummy")
+                .as(BodyCodec.string())
+                .putHeader("Content-Type", "application/json")
+                .sendBuffer(Buffer.buffer(JsonUtils.toJson(new ExtendedDummy("one", "dummy", "extra"))),
+                        context.succeeding(response -> context.verify(() -> {
+                            assertEquals(200, response.statusCode());
+                            assertEquals("one=dummy", response.body()); // returns sorted list of unique words
+                            context.completeNow();
+                        })));
 
-			context.assertEquals(200, response.statusCode());
+        // 3rd send extended dummy to extended REST
+        client.post(PORT, HOST, "/read/extended/dummy")
+                .as(BodyCodec.string())
+                .putHeader("Content-Type", "application/json")
+                .sendBuffer(Buffer.buffer(JsonUtils.toJson(new ExtendedDummy("one", "dummy", "extra"))),
+                        context.succeeding(response -> context.verify(() -> {
+                            assertEquals(200, response.statusCode());
+                            assertEquals("one=dummy (extra)", response.body()); // returns sorted list of unique words
+                            context.completeNow();
+                        })));
 
-			response.bodyHandler(body -> {
-				context.assertEquals("brown,dog,fox,jumps,over,quick,red,the", body.toString()); // returns sorted list of unique words
-				async.complete();
-			});
-		}).end("The quick brown fox jumps over the red dog!");
-	}
 
+        // 4th send normal dummy to extended REST
+        client.post(PORT, HOST, "/read/extended/dummy")
+                .as(BodyCodec.string())
+                .putHeader("Content-Type", "application/json")
+                .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
+                        context.succeeding(response -> context.verify(() -> {
+                            assertEquals(200, response.statusCode());
+                            assertEquals("one=dummy (null)", response.body()); // returns sorted list of unique words
+                            context.completeNow();
+                        })));
+    }
 
-	@Test
-	public void testExtendedReader(TestContext context) {
+    @Test
+    void extendedContentTypeTest(VertxTestContext context) {
 
-		RestRouter.getReaders().register(Dummy.class, DummyBodyReader.class);
-		RestRouter.getReaders().register(ExtendedDummy.class, ExtendedDummyBodyReader.class);
+        RestRouter.getReaders().register(Dummy.class, DummyBodyReader.class);
 
-		// check if correct reader is used
-		Async async = context.async();
-		client.post("/read/normal/dummy", response -> {
+        client.post(PORT, HOST, "/read/normal/dummy")
+                .as(BodyCodec.string())
+                .putHeader("Content-Type", "application/json;charset=UTF-8")
+                .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
+                        context.succeeding(response -> context.verify(() -> {
+                            assertEquals(200, response.statusCode());
+                            assertEquals("one=dummy", response.body()); // returns sorted list of unique words
+                            context.completeNow();
+                        })));
+    }
 
-			context.assertEquals(200, response.statusCode());
+    @Test
+    void extendedContentTypeByMediaType(VertxTestContext context) {
 
-			response.bodyHandler(body -> {
-				context.assertEquals("one=dummy", body.toString()); // returns sorted list of unique words
-				async.complete();
-			});
-		}).putHeader("Content-Type", "application/json")
-		      .end(JsonUtils.toJson(new Dummy("one", "dummy")));
+        // register reader afterwards - should still work
+        RestRouter.getReaders().register("application/json", DummyBodyReader.class);
 
-		// 2nd send extended dummy to same REST
-		Async async2 = context.async();
-		client.post("/read/normal/dummy", response -> {
+        client.post(PORT, HOST, "/read/normal/dummy")
+                .as(BodyCodec.string())
+                .putHeader("Content-Type", "application/json")
+                .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
+                        context.succeeding(response -> context.verify(() -> {
+                            assertEquals(200, response.statusCode());
+                            assertEquals("one=dummy", response.body()); // returns sorted list of unique words
+                            context.completeNow();
+                        })));
+    }
 
-			context.assertEquals(200, response.statusCode());
+    @Test
+    void extendedContentTypeByAnnotatedMediaType(VertxTestContext context) {
 
-			response.bodyHandler(body -> {
-				context.assertEquals("one=dummy", body.toString()); // returns sorted list of unique words
-				async2.complete();
-			});
-		}).putHeader("Content-Type", "application/json")
-		      .end(JsonUtils.toJson(new ExtendedDummy("one", "dummy", "extra")));
+        // register reader afterwards - should still work
+        RestRouter.getReaders().register(DummyBodyReader.class);
 
-		// 3rd send extended dummy to extended REST
-		Async async3 = context.async();
-		client.post("/read/extended/dummy", response -> {
+        client.post(PORT, HOST, "/read/normal/dummy")
+                .as(BodyCodec.string())
+                .putHeader("Content-Type", "application/json")
+                .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
+                        context.succeeding(response -> context.verify(() -> {
+                            assertEquals(200, response.statusCode());
+                            assertEquals("one=dummy", response.body()); // returns sorted list of unique words
+                            context.completeNow();
+                        })));
+    }
 
-			context.assertEquals(200, response.statusCode());
+    @Test
+    void incompatibleMimeTypeReaderTest() {
 
-			response.bodyHandler(body -> {
-				context.assertEquals("one=dummy (extra)", body.toString()); // returns sorted list of unique words
-				async3.complete();
-			});
-		}).putHeader("Content-Type", "application/json")
-		      .end(JsonUtils.toJson(new ExtendedDummy("one", "dummy", "extra")));
+        // register application/json to IntegerReader
+        RestRouter.getReaders().register("application/json", IntegerBodyReader.class);
 
-		// 4th send normal dummy to extended REST
-		Async async4 = context.async();
-		client.post("/read/extended/dummy", response -> {
+        // bind rest that consumes application/json
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> RestRouter.register(vertx, TestPostRest.class));
+        assertEquals(
+                "POST /post/json - Parameter type: 'class com.zandero.rest.test.json.Dummy' not matching reader type: " +
+                        "'class java.lang.Integer' in: 'class com.zandero.rest.reader.IntegerBodyReader'!",
+                e.getMessage());
+    }
 
-			context.assertEquals(200, response.statusCode());
+    @Test
+    void incompatibleMimeTypeWriterTest() {
 
-			response.bodyHandler(body -> {
-				context.assertEquals("one=dummy (null)", body.toString()); // returns sorted list of unique words
-				async4.complete();
-			});
-		}).putHeader("Content-Type", "application/json")
-		      .end(JsonUtils.toJson(new Dummy("one", "dummy")));
-	}
+        // register application/json to String writer
+        RestRouter.getWriters().register("application/json", TestCustomWriter.class);
 
-	@Test
-	public void extendedContentTypeTest(TestContext context) {
-
-		RestRouter.getReaders().register(Dummy.class, DummyBodyReader.class);
-
-		final Async async = context.async();
-		client.post("/read/normal/dummy", response -> {
-
-			context.assertEquals(200, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("one=dummy", body.toString()); // returns sorted list of unique words
-				async.complete();
-			});
-		}).putHeader("Content-Type", "application/json;charset=UTF-8")
-		      .end(JsonUtils.toJson(new Dummy("one", "dummy")));
-	}
-
-	@Test
-	public void extendedContentTypeByMediaType(TestContext context) {
-
-		// register reader afterwards - should still work
-		RestRouter.getReaders().register("application/json", DummyBodyReader.class);
-
-		final Async async = context.async();
-		client.post("/read/normal/dummy", response -> {
-
-			context.assertEquals(200, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("one=dummy", body.toString()); // returns sorted list of unique words
-				async.complete();
-			});
-		}).putHeader("Content-Type", "application/json;charset=UTF-8")
-		      .end(JsonUtils.toJson(new Dummy("one", "dummy")));
-	}
-
-	@Test
-	public void extendedContentTypeByAnnotatedMediaType(TestContext context) {
-
-		// register reader afterwards - should still work
-		RestRouter.getReaders().register(DummyBodyReader.class);
-
-		final Async async = context.async();
-		client.post("/read/normal/dummy", response -> {
-
-			context.assertEquals(200, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("one=dummy", body.toString()); // returns sorted list of unique words
-				async.complete();
-			});
-		}).putHeader("Content-Type", "application/json;charset=UTF-8")
-		      .end(JsonUtils.toJson(new Dummy("one", "dummy")));
-	}
-
-	@Test
-	public void incompatibleMimeTypeReaderTest() {
-
-		// register application/json to IntegerReader
-		RestRouter.getReaders().register("application/json", IntegerBodyReader.class);
-
-		// bind rest that consumes application/json
-		try {
-			RestRouter.register(vertx, TestPostRest.class);
-			fail();
-		}
-		catch (IllegalArgumentException e) {
-			assertEquals(
-				"POST /post/json - Parameter type: 'class com.zandero.rest.test.json.Dummy' not matching reader type: " +
-				"'class java.lang.Integer' in: 'class com.zandero.rest.reader.IntegerBodyReader'!",
-				e.getMessage());
-		}
-	}
-
-	@Test
-	public void incompatibleMimeTypeWriterTest() {
-
-		// register application/json to String writer
-		RestRouter.getWriters().register("application/json", TestCustomWriter.class);
-
-		// bind rest that consumes application/json
-		try {
-			RestRouter.register(vertx, TestPostRest.class);
-			fail();
-		}
-		catch (IllegalArgumentException e) {
-			assertEquals(
-				"POST /post/json - Response type: 'class com.zandero.rest.test.json.Dummy' not matching writer type: " +
-				"'class java.lang.String' in: 'class com.zandero.rest.writer.TestCustomWriter'!",
-				e.getMessage());
-		}
-	}
+        // bind rest that consumes application/json
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> RestRouter.register(vertx, TestPostRest.class));
+        assertEquals(
+                "POST /post/json - Response type: 'class com.zandero.rest.test.json.Dummy' not matching writer type: " +
+                        "'class java.lang.String' in: 'class com.zandero.rest.writer.TestCustomWriter'!",
+                e.getMessage());
+    }
 }
-*/
