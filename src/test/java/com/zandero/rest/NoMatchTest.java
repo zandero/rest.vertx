@@ -1,130 +1,108 @@
 package com.zandero.rest;
-/*
 
 import com.zandero.rest.test.TestEchoRest;
 import com.zandero.rest.test.handler.NotFoundHandler;
 import com.zandero.rest.test.handler.OtherNotFoundHandler;
 import com.zandero.rest.test.handler.RestNotFoundHandler;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-*/
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  *
- *//*
+ */
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class NoMatchTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+    @BeforeAll
+    static void start() {
+        before();
 
-		super.before();
+        Router router = new RestBuilder(vertx)
+                .register(TestEchoRest.class)
+                .notFound(".*\\/other/?.*", OtherNotFoundHandler.class)
+                .notFound("/rest/.*", RestNotFoundHandler.class)
+                .notFound(NotFoundHandler.class)
+                .build();
 
-		Router router = new RestBuilder(vertx)
-			                .register(TestEchoRest.class)
-			                .notFound(".*\\/other/?.*", OtherNotFoundHandler.class)
-			                .notFound("/rest/.*", RestNotFoundHandler.class)
-			                .notFound(NotFoundHandler.class)
-			                .build();
+        RestRouter.notFound(router, "rest", RestNotFoundHandler.class);
 
-		RestRouter.notFound(router, "rest", RestNotFoundHandler.class);
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);
-	}
+    @Test
+    void testEcho(VertxTestContext context) {
 
-	@Test
-	public void testEcho(TestContext context) {
+        client.get(PORT, HOST, "/rest/echo")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("\"echo\"", response.body());
+                    assertEquals(200, response.statusCode());
 
-		// call and check response
-		final Async async = context.async();
+                    String header = response.getHeader("Content-Type");
+                    assertEquals("application/json;charset=UTF-8", header);
+                    context.completeNow();
+                })));
+    }
 
-		client.getNow("/rest/echo", response -> {
+    @Test
+    void testNoMatchDefault(VertxTestContext context) {
 
-			response.bodyHandler(body -> {
-				context.assertEquals("\"echo\"", body.toString());
-				context.assertEquals(200, response.statusCode());
+        client.get(PORT, HOST, "/bla")
+                .putHeader("Accept", "application/json")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(404, response.statusCode());
+                    assertEquals("404 HTTP Resource: '/bla' not found!", response.body());
+                    context.completeNow();
+                })));
+    }
 
-				String header = response.getHeader("Content-Type");
+    @Test
+    void testNoMatchRest(VertxTestContext context) {
 
-				async.complete();
-			});
-		});
-	}
+        client.get(PORT, HOST, "/rest/bla")
+                .as(BodyCodec.string())
+                .putHeader("Accept", "application/json")
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(404, response.statusCode());
+                    assertEquals("REST endpoint: '/rest/bla' not found!", response.body());
+                    context.completeNow();
+                })));
+    }
 
-	@Test
-	public void testNoMatchDefault(TestContext context) {
+    @Test
+    void testOtherRest(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
+        client.get(PORT, HOST, "/rest/other")
+                .as(BodyCodec.string())
+                .putHeader("Accept", "application/json")
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(404, response.statusCode());
+                    assertEquals("'/rest/other' not found!", response.body());
+                    context.completeNow();
+                })));
+    }
 
-		client.get("/bla", response -> {
+    @Test
+    void testOther2Rest(VertxTestContext context) {
 
-			context.assertEquals(404, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("404 HTTP Resource: '/bla' not found!", body.toString());
-				async.complete();
-			});
-		}).putHeader("Accept", "application/json").end();
-	}
-
-	@Test
-	public void testNoMatchRest(TestContext context) {
-
-		// call and check response
-		final Async async = context.async();
-
-		client.get("/rest/bla", response -> {
-
-			context.assertEquals(404, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("REST endpoint: '/rest/bla' not found!", body.toString());
-				async.complete();
-			});
-		}).putHeader("Accept", "application/json").end();
-	}
-
-	@Test
-	public void testOtherRest(TestContext context) {
-
-		// call and check response
-		final Async async = context.async();
-
-		client.get("/rest/other", response -> {
-
-			context.assertEquals(404, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("'/rest/other' not found!", body.toString());
-				async.complete();
-			});
-		}).putHeader("Accept", "application/json").end();
-	}
-
-	@Test
-	public void testOther2Rest(TestContext context) {
-
-		// call and check response
-		final Async async = context.async();
-
-		client.get("/rest/other/", response -> {
-
-			context.assertEquals(404, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("'/rest/other/' not found!", body.toString());
-				async.complete();
-			});
-		}).putHeader("Accept", "application/json").end();
-	}
+        client.get(PORT, HOST, "/rest/other/")
+                .putHeader("Accept", "application/json")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(404, response.statusCode());
+                    assertEquals("'/rest/other/' not found!", response.body());
+                    context.completeNow();
+                })));
+    }
 }
-*/
