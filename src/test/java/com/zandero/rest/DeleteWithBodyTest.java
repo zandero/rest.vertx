@@ -1,18 +1,4 @@
 package com.zandero.rest;
-/*
-
-import com.zandero.rest.test.TestPostRest;
-import com.zandero.rest.test.json.Dummy;
-import com.zandero.utils.extra.JsonUtils;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.VertxTestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-*/
 
 import com.zandero.rest.test.TestPostRest;
 import com.zandero.rest.test.json.Dummy;

@@ -1,19 +1,4 @@
 package com.zandero.rest;
-/*
-
-import com.zandero.rest.test.ErrorThrowingRest;
-import com.zandero.rest.test.ErrorThrowingRest2;
-import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
-import com.zandero.rest.test.handler.JsonExceptionHandler;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.VertxTestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-*/
 
 import com.zandero.rest.test.ErrorThrowingRest;
 import com.zandero.rest.test.ErrorThrowingRest2;

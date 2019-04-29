@@ -1,65 +1,52 @@
 package com.zandero.rest;
-/*
 
 import com.zandero.rest.test.ImplementationRest;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-*/
-/**
- *
- *//*
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(VertxUnitRunner.class)
-public class InheritedRouteTest extends VertxTest {
+@ExtendWith(VertxExtension.class)
+class InheritedRouteTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+    @BeforeAll
+    static void start() {
+        before();
 
-		super.before();
+        Router router = RestRouter.register(vertx, ImplementationRest.class);
 
-		Router router = RestRouter.register(vertx, ImplementationRest.class);
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);
-	}
+    @Test
+    void echoTest(VertxTestContext context) {
 
-	@Test
-	public void echoTest(TestContext context) {
+        client.get(PORT, HOST, "/implementation/echo?name=test")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("\"test\"", response.body()); // JsonExceptionWriter
+                    assertEquals(200, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 
-		// call and check response
-		final Async async = context.async();
+    @Test
+    void getTest(VertxTestContext context) {
 
-		client.getNow("/implementation/echo?name=test", response -> {
 
-			response.bodyHandler(body -> {
-				context.assertEquals("\"test\"", body.toString()); // JsonExceptionWriter
-				context.assertEquals(200, response.statusCode());
-				async.complete();
-			});
-		});
-	}
-
-	@Test
-	public void getTest(TestContext context) {
-
-		// call and check response
-		final Async async = context.async();
-
-		client.getNow("/implementation/get/test?additional=it", response -> {
-
-			response.bodyHandler(body -> {
-				context.assertEquals("\"testit\"", body.toString()); // JsonExceptionWriter
-				context.assertEquals(200, response.statusCode());
-				async.complete();
-			});
-		});
-	}
+        client.get(PORT, HOST, "/implementation/get/test?additional=it")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("\"testit\"", response.body()); // JsonExceptionWriter
+                    assertEquals(200, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 }
-*/
