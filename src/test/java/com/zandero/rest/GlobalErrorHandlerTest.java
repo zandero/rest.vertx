@@ -6,7 +6,7 @@ import com.zandero.rest.test.ErrorThrowingRest2;
 import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
 import com.zandero.rest.test.handler.JsonExceptionHandler;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -14,151 +14,140 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 */
+
+import com.zandero.rest.test.ErrorThrowingRest;
+import com.zandero.rest.test.ErrorThrowingRest2;
+import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
+import com.zandero.rest.test.handler.JsonExceptionHandler;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  *
- *//*
+ */
 
-@RunWith(VertxUnitRunner.class)
-public class GlobalErrorHandlerTest extends VertxTest {
+@ExtendWith(VertxExtension.class)
+class GlobalErrorHandlerTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+    @BeforeAll
+    static void start() {
+        before();
 
-		super.before();
+        ErrorThrowingRest handled = new ErrorThrowingRest();
+        ErrorThrowingRest2 unhandled = new ErrorThrowingRest2();
 
-		ErrorThrowingRest handled = new ErrorThrowingRest();
-		ErrorThrowingRest2 unhandled = new ErrorThrowingRest2();
+        Router router = RestRouter.register(vertx, unhandled, handled);
 
-		Router router = RestRouter.register(vertx, unhandled, handled);
+        vertx.createHttpServer()
+                .requestHandler(router::accept)
+                .listen(PORT);
+    }
 
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);
-	}
+    @Test
+    void throwOuchExceptionTest(VertxTestContext context) {
 
-	@Test
-	public void throwOuchExceptionTest(TestContext context) {
+        client.get(PORT, HOST, "/throw/ouch")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("{\"message\":\"Ouch!\",\"code\":406}", response.body()); // JsonExceptionWriter
+                    assertEquals(406, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 
-		// call and check response
-		final Async async = context.async();
+    @Test
+    void throwBangExceptionTest(VertxTestContext context) {
 
-		client.getNow("/throw/ouch", response -> {
+        client.get(PORT, HOST, "/throw/bang")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
 
-			response.bodyHandler(body -> {
-				context.assertEquals("{\"message\":\"Ouch!\",\"code\":406}", body.toString()); // JsonExceptionWriter
-				context.assertEquals(406, response.statusCode());
-				async.complete();
-			});
-		});
-	}
+                    assertEquals("Bang!", response.body());
+                    assertEquals(400, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 
-	@Test
-	public void throwBangExceptionTest(TestContext context) {
+    @Test
+    void throwUnhandledExceptionTest(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
+        // call and check response
+        RestRouter.getExceptionHandlers().register(IllegalArgumentExceptionHandler.class);
 
-		client.getNow("/throw/bang", response -> {
+        client.get(PORT, HOST, "/throw/unhandled")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
 
-			response.bodyHandler(body -> {
-				context.assertEquals("Bang!", body.toString()); // Generic exception writer
-				context.assertEquals(400, response.statusCode());
-				async.complete();
-			});
-		});
-	}
+                    assertEquals("Huh this produced an error: 'KABUM!'", response.body());
+                    assertEquals(400, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 
-	@Test
-	public void throwUnhandledExceptionTest(TestContext context) {
+    @Test
+    void throwDifferentExceptionTestOne(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
-		RestRouter.getExceptionHandlers().register(IllegalArgumentExceptionHandler.class);
+        client.get(PORT, HOST, "/throw/multi/one")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> { // throws NotAllowedException
+                    assertEquals("Exception: HTTP 405 Method Not Allowed", response.body()); // ExceptionWriter kicked in
+                    assertEquals(405, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 
-		client.getNow("/throw/unhandled", response -> {
+    @Test
+    void throwDifferentExceptionTestTwo(VertxTestContext context) {
 
-			response.bodyHandler(body -> {
-				context.assertEquals("Huh this produced an error: 'KABUM!'", body.toString());
-				context.assertEquals(400, response.statusCode());
-				async.complete();
-			});
-		});
-	}
+        client.get(PORT, HOST, "/throw/multi/two")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("Huh this produced an error: 'Bang!'", response.body()); // IllegalArgumentExceptionWriter kicked in
+                    assertEquals(400, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 
-	@Test
-	public void throwDifferentExceptionTestOne(TestContext context) {
+    @Test
+    void multipleGlobalErrorHandlersTest(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
+        RestRouter.getExceptionHandlers().register(new JsonExceptionHandler());
 
-		client.getNow("/throw/multi/one", response -> { // throws NotAllowedException
+        client.get(PORT, HOST, "/throw/multi/four")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("Exception: ADIOS!", response.body()); // ExceptionWriter kicked in
+                    assertEquals(500, response.statusCode()); //
+                    context.completeNow();
+                })));
+    }
 
-			response.bodyHandler(body -> {
-				context.assertEquals("Exception: HTTP 405 Method Not Allowed", body.toString()); // ExceptionWriter kicked in
-				context.assertEquals(405, response.statusCode());
-				async.complete();
-			});
-		});
-	}
+    @Test
+    void multipleGlobalErrorHandlersTest2(VertxTestContext context) {
+        client.get(PORT, HOST, "/throw/multi/one")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("Exception: HTTP 405 Method Not Allowed", response.body()); // ExceptionWriter kicked in
+                    assertEquals(405, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 
-	@Test
-	public void throwDifferentExceptionTestTwo(TestContext context) {
-
-		// call and check response
-		final Async async = context.async();
-
-		client.getNow("/throw/multi/two", response -> {
-
-			response.bodyHandler(body -> {
-				context.assertEquals("Huh this produced an error: 'Bang!'", body.toString()); // IllegalArgumentExceptionWriter kicked in
-				context.assertEquals(400, response.statusCode());
-				async.complete();
-			});
-		});
-	}
-
-	@Test
-	public void multipleGlobalErrorHandlersTest(TestContext context) {
-
-		// call and check response
-		final Async async = context.async();
-
-		RestRouter.getExceptionHandlers().register(new JsonExceptionHandler());
-
-		client.getNow("/throw/multi/four", response -> {
-
-			response.bodyHandler(body -> {
-				context.assertEquals("Exception: ADIOS!", body.toString()); // ExceptionWriter kicked in
-				context.assertEquals(500, response.statusCode()); //
-				async.complete();
-			});
-		});
-	}
-
-	@Test
-	public void multipleGlobalErrorHandlersTest2(TestContext context) {
-		final Async async = context.async();
-		client.getNow("/throw/multi/one", response -> {
-
-			response.bodyHandler(body -> {
-				context.assertEquals("Exception: HTTP 405 Method Not Allowed", body.toString()); // ExceptionWriter kicked in
-				context.assertEquals(405, response.statusCode());
-				async.complete();
-			});
-		});
-	}
-
-	@Test
-	public void multipleGlobalErrorHandlersTest3(TestContext context) {
-		final Async async = context.async();
-		client.getNow("/throw/multi/three", response -> {
-
-			response.bodyHandler(body -> {
-				context.assertEquals("Huh this produced an error: 'WHAT!'", body.toString()); // ExceptionWriter kicked in
-				context.assertEquals(400, response.statusCode());
-				async.complete();
-			});
-		});
-	}
+    @Test
+    void multipleGlobalErrorHandlersTest3(VertxTestContext context) {
+        client.get(PORT, HOST, "/throw/multi/three")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("Huh this produced an error: 'WHAT!'", response.body()); // ExceptionWriter kicked in
+                    assertEquals(400, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 }
-*/

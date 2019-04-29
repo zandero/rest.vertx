@@ -5,7 +5,7 @@ import com.zandero.rest.test.TestPostRest;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -13,44 +13,53 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 */
+
+import com.zandero.rest.test.TestPostRest;
+import com.zandero.rest.test.json.Dummy;
+import com.zandero.utils.extra.JsonUtils;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  *
- *//*
+ */
+@ExtendWith(VertxExtension.class)
+class DeleteWithBodyTest extends VertxTest {
 
-@RunWith(VertxUnitRunner.class)
-public class DeleteWithBodyTest extends VertxTest {
+    @BeforeAll
+    static void start() {
+        before();
 
-	@Before
-	public void startUp(TestContext context) {
+        Router router = RestRouter.register(vertx, TestPostRest.class);
 
-		super.before();
+        vertx.createHttpServer()
+                .requestHandler(router::accept)
+                .listen(PORT);
+    }
 
-		Router router = RestRouter.register(vertx, TestPostRest.class);
+    @Test
+    void testDelete(VertxTestContext context) {
 
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);
-	}
+        // call and check response
+        Dummy dummy = new Dummy("hello", "world");
+        String json = JsonUtils.toJson(dummy);
 
-	@Test
-	public void testDelete(TestContext context) {
-
-		// call and check response
-		final Async async = context.async();
-
-		Dummy dummy = new Dummy("hello", "world");
-		String json = JsonUtils.toJson(dummy);
-
-		client.delete("/post/json", response -> {
-
-			context.assertEquals(200, response.statusCode());
-			context.assertEquals("application/json", response.getHeader("Content-Type"));
-
-			response.bodyHandler(body -> {
-				context.assertEquals("<custom>Received-hello=Received-world</custom>", body.toString());
-				async.complete();
-			});
-		}).putHeader("Content-Type", "application/json").end(json);
-	}
+        client.delete(PORT, HOST, "/post/json")
+                .as(BodyCodec.string())
+                .putHeader("Content-Type", "application/json")
+                .sendBuffer(Buffer.buffer(json), context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("application/json", response.getHeader("Content-Type"));
+                    assertEquals("<custom>Received-hello=Received-world</custom>", response.body());
+                    context.completeNow();
+                })));
+    }
 }
-*/
