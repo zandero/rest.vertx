@@ -76,7 +76,8 @@ class CustomWriterTest extends VertxTest {
 
         RestRouter.getWriters().register(MediaType.TEXT_HTML, TestCustomWriter.class); // bind media type to this writer
 
-        client.get(PORT, HOST, "/html/head").as(BodyCodec.string())
+        client.get(PORT, HOST, "/html/head")
+                .as(BodyCodec.string())
                 .send(context.succeeding(response -> context.verify(() -> {
 
                     assertEquals(200, response.statusCode());

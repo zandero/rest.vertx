@@ -1,104 +1,89 @@
 package com.zandero.rest;
-/*
 
 import com.zandero.rest.test.TestAsyncRest;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-*/
-/**
- *
- *//*
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(VertxUnitRunner.class)
-public class RouteAsyncTest extends VertxTest {
+@ExtendWith(VertxExtension.class)
+class RouteAsyncTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+    @BeforeAll
+    static void start() {
 
-		super.before();
+        before();
 
-		Router router = RestRouter.register(vertx, TestAsyncRest.class);
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);
-	}
+        Router router = RestRouter.register(vertx, TestAsyncRest.class);
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-	@Test
-	public void testAsyncCallInsideRest(TestContext context) {
+    @Test
+    void testAsyncCallInsideRest(VertxTestContext context) {
 
-		final Async async = context.async();
+        client.get(PORT, HOST, "/async/call")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("{\"name\": \"async\", \"value\": \"called\"}", response.body());
+                    context.completeNow();
+                })));
+    }
 
-		client.getNow("/async/call", response -> {
+    @Test
+    void testAsyncCompletableRest(VertxTestContext context) {
 
-			context.assertEquals(200, response.statusCode());
 
-			response.bodyHandler(body -> {
-				context.assertEquals("{\"name\": \"async\", \"value\": \"called\"}", body.toString());
-				async.complete();
-			});
-		});
-	}
+        client.get(PORT, HOST, "/async/completable")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("{\"name\": \"hello\", \"value\": \"world\"}", response.body());
+                    context.completeNow();
+                })));
+    }
 
-	@Test
-	public void testAsyncCompletableRest(TestContext context) {
+    @Test
+    void testAsyncCallWithExecutorRest(VertxTestContext context) {
 
-		final Async async = context.async();
+        client.get(PORT, HOST, "/async/executor")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("{\"name\": \"async\", \"value\": \"called\"}", response.body());
+                    context.completeNow();
+                })));
 
-		client.getNow("/async/completable", response -> {
+    }
 
-			context.assertEquals(200, response.statusCode());
+    @Test
+    void testAsyncCallInsideRestNullFutureResult(VertxTestContext context) {
 
-			response.bodyHandler(body -> {
-				context.assertEquals("{\"name\": \"hello\", \"value\": \"world\"}", body.toString());
-				async.complete();
-			});
-		});
-	}
+        client.get(PORT, HOST, "/async/empty")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(204, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 
-	@Test
-	public void testAsyncCallWithExecutorRest(TestContext context) {
+    @Test
+    void testAsyncCallInsideRestNullNoWriterFutureResult(VertxTestContext context) {
 
-		final Async async = context.async();
+        client.get(PORT, HOST, "/async/null")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
 
-		client.getNow("/async/executor", response -> {
-
-			context.assertEquals(200, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("{\"name\": \"async\", \"value\": \"called\"}", body.toString());
-				async.complete();
-			});
-		});
-	}
-
-	@Test
-	public void testAsyncCallInsideRestNullFutureResult(TestContext context) {
-
-		final Async async = context.async();
-
-		client.getNow("/async/empty", response -> {
-
-			context.assertEquals(204, response.statusCode());
-			async.complete();
-		});
-	}
-
-	@Test
-	public void testAsyncCallInsideRestNullNoWriterFutureResult(TestContext context) {
-
-		final Async async = context.async();
-
-		client.getNow("/async/null", response -> {
-
-			context.assertEquals(200, response.statusCode());
-			async.complete();
-		});
-	}
+                    assertEquals(200, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 }
-*/
+
