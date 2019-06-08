@@ -1,55 +1,47 @@
 package com.zandero.rest;
-/*
 
 import com.zandero.rest.test.ErrorThrowingRest2;
 import com.zandero.rest.test.handler.MyGlobalExceptionHandler;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-*/
-/**
- *
- *//*
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(VertxUnitRunner.class)
-public class RouteErrorHandler2Test extends VertxTest {
+@ExtendWith(VertxExtension.class)
+class RouteErrorHandler2Test extends VertxTest {
 
-	MyGlobalExceptionHandler handler = new MyGlobalExceptionHandler("Big");
+    @BeforeAll
+    static void start() {
 
-	@Before
-	public void start(TestContext context) {
+        before();
 
-		super.before();
+        MyGlobalExceptionHandler handler = new MyGlobalExceptionHandler("Big");
 
-		Router router = new RestBuilder(vertx)
-			                .register(new ErrorThrowingRest2())
-			                .errorHandler(handler)
-			                .build();
+        Router router = new RestBuilder(vertx)
+                .register(new ErrorThrowingRest2())
+                .errorHandler(handler)
+                .build();
 
-		vertx.createHttpServer()
-		     .requestHandler(router::accept)
-		     .listen(PORT);
-	}
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-	@Test
-	public void throwUnhandledExceptionTest(TestContext context) {
+    @Test
+    void throwUnhandledExceptionTest(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
-
-		client.getNow("/throw/myHandler", response -> {
-
-			response.bodyHandler(body -> {
-				context.assertEquals("Big auch!", body.toString());
-				context.assertEquals(400, response.statusCode());
-				async.complete();
-			});
-		});
-	}
+        client.get(PORT, HOST, "/throw/myHandler")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("Big auch!", response.body());
+                    assertEquals(400, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 }
-*/
+

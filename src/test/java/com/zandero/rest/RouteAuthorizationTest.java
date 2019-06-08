@@ -57,12 +57,11 @@ class RouteAuthorizationTest extends VertxTest {
 
         client.get(PORT, HOST, "/private/all")
                 .as(BodyCodec.string())
-                .send(context.succeeding(response ->
-                        context.verify(() -> {
-                            assertEquals("all", response.body());
-                            assertEquals(200, response.statusCode());
-                            context.completeNow();
-                        })));
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("all", response.body());
+                    assertEquals(200, response.statusCode());
+                    context.completeNow();
+                })));
     }
 
     @Test
