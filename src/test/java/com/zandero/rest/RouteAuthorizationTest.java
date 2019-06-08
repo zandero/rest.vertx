@@ -1,234 +1,193 @@
 package com.zandero.rest;
-/*
 
 import com.zandero.rest.test.TestAuthorizationRest;
 import com.zandero.rest.test.data.SimulatedUser;
 import io.vertx.core.Handler;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-*/
-/**
- *
- *//*
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(VertxUnitRunner.class)
-public class RouteAuthorizationTest extends VertxTest {
+@ExtendWith(VertxExtension.class)
+class RouteAuthorizationTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+    @BeforeAll
+    static void start() {
 
-		super.before();
+        before();
 
+        // 1. register handler to initialize User
+        Router router = Router.router(vertx);
+        router.route().handler(getUserHandler());
 
-		// 1. register handler to initialize User
-		Router router = Router.router(vertx);
-		router.route().handler(getUserHandler());
+        // 2. REST with @RolesAllowed annotations
+        TestAuthorizationRest testRest = new TestAuthorizationRest();
+        RestRouter.register(router, testRest);
 
-		// 2. REST with @RolesAllowed annotations
-		TestAuthorizationRest testRest = new TestAuthorizationRest();
-		RestRouter.register(router, testRest);
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-		vertx.createHttpServer()
-			.requestHandler(router::accept)
-			.listen(PORT);
-	}
+    private static Handler<RoutingContext> getUserHandler() {
 
-	public Handler<RoutingContext> getUserHandler() {
+        return context -> {
 
-		return context -> {
+            // read header ... if present ... create user with given value
+            String token = context.request().getHeader("X-Token");
 
-			// read header ... if present ... create user with given value
-			String token = context.request().getHeader("X-Token");
+            // set user ...
+            if (token != null) {
+                context.setUser(new SimulatedUser(token));
+            }
 
-			// set user ...
-			if (token != null) {
-				context.setUser(new SimulatedUser(token));
-			}
+            context.next();
+        };
+    }
 
-			context.next();
-		};
-	}
+    @Test
+    void testGetAll(VertxTestContext context) {
 
-	@Test
-	public void testGetAll(TestContext context) {
+        client.get(PORT, HOST, "/private/all")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response ->
+                        context.verify(() -> {
+                            assertEquals("all", response.body());
+                            assertEquals(200, response.statusCode());
+                            context.completeNow();
+                        })));
+    }
 
-		// call and check response
-		final Async async = context.async();
+    @Test
+    void testGetNobody(VertxTestContext context) {
 
-		client.getNow("/private/all", response -> {
+        client.get(PORT, HOST, "/private/nobody")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(401, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 
-			response.bodyHandler(body -> {
-				context.assertEquals("all", body.toString());
-				context.assertEquals(200, response.statusCode());
-				async.complete();
-			});
-		});
-	}
+    @Test
+    void testGetUserNonAuthorized(VertxTestContext context) {
 
-	@Test
-	public void testGetNobody(TestContext context) {
+        client.get(PORT, HOST, "/private/user")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(401, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 
-		// call and check response
-		final Async async = context.async();
+    @Test
+    void testGetUserAuthorized(VertxTestContext context) {
 
-		client.getNow("/private/nobody", response -> {
+        client.get(PORT, HOST, "/private/user")
+                .as(BodyCodec.string())
+                .putHeader("X-Token", "user")
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("user", response.body());
+                    assertEquals(200, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 
-			context.assertEquals(401, response.statusCode());
-			async.complete();
-		});
-	}
+    @Test
+    void testPostUserAuthorized(VertxTestContext context) {
 
-	@Test
-	public void testGetUserNonAuthorized(TestContext context) {
+        client.post(PORT, HOST, "/private/user")
+                .as(BodyCodec.string())
+                .putHeader("X-Token", "user")
+                .sendBuffer(Buffer.buffer("HELLO"), context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("HELLO", response.body());
+                    context.completeNow();
+                })));
+    }
 
-		// call and check response
-		final Async async = context.async();
+    @Test
+    void testPostUserUnauthorized(VertxTestContext context) {
 
-		client.getNow("/private/user", response -> {
+        client.post(PORT, HOST, "/private/user")
+                .as(BodyCodec.string())
+                .sendBuffer(Buffer.buffer("HELLO"), context.succeeding(response -> context.verify(() -> {
+                    assertEquals("HTTP 401 Unauthorized", response.body());
+                    assertEquals(401, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 
-			context.assertEquals(401, response.statusCode());
-			async.complete();
-		});
-	}
+    @Test
+    void testGetAdminAuthorized(VertxTestContext context) {
 
-	@Test
-	public void testGetUserAuthorized(TestContext context) {
+        client.get(PORT, HOST, "/private/admin")
+                .as(BodyCodec.string())
+                .putHeader("X-Token", "admin")
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("admin", response.body());
+                    assertEquals(200, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 
-		// call and check response
-		final Async async = context.async();
+    @Test
+    void testGetAdminUnAuthorized(VertxTestContext context) {
 
-		client.get("/private/user", response -> {
+        client.get(PORT, HOST, "/private/admin")
+                .as(BodyCodec.string())
+                .putHeader("X-Token", "user")
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(401, response.statusCode());
+                    assertEquals("HTTP 401 Unauthorized", response.body());
+                    context.completeNow();
+                })));
+    }
 
-			response.bodyHandler(body -> {
-				context.assertEquals("user", body.toString());
-				context.assertEquals(200, response.statusCode());
-				async.complete();
-			});
-		}).putHeader("X-Token", "user").end();
-	}
+    @Test
+    void testGetOtherUnAuthorized(VertxTestContext context) {
 
-	@Test
-	public void testPostUserAuthorized(TestContext context) {
+        client.get(PORT, HOST, "/private/other")
+                .as(BodyCodec.string())
+                .putHeader("X-Token", "user")
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(401, response.statusCode());
+                    assertEquals("HTTP 401 Unauthorized", response.body());
+                    context.completeNow();
+                })));
+    }
 
-		// call and check response
-		final Async async = context.async();
+    @Test
+    void testGetOtherOneAuthorized(VertxTestContext context) {
 
-		client.post("/private/user", response -> {
+        client.get(PORT, HOST, "/private/other")
+                .as(BodyCodec.string())
+                .putHeader("X-Token", "one")
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("{\"role\":\"one\"}", response.body());
+                    context.completeNow();
+                })));
+    }
 
-			response.bodyHandler(body -> {
-				context.assertEquals(200, response.statusCode());
-				context.assertEquals("HELLO", body.toString());
-				async.complete();
-			});
-		}).putHeader("X-Token", "user")
-		      .end("HELLO");
-	}
+    @Test
+    void testGetOtherTwoAuthorized(VertxTestContext context) {
 
-	@Test
-	public void testPostUserUnauthorized(TestContext context) {
-
-		// call and check response
-		final Async async = context.async();
-
-		client.post("/private/user", response -> {
-
-			response.bodyHandler(body -> {
-				context.assertEquals("HTTP 401 Unauthorized", body.toString());
-				context.assertEquals(401, response.statusCode());
-				async.complete();
-			});
-		}).end("HELLO");
-	}
-
-	@Test
-	public void testGetAdminAuthorized(TestContext context) {
-
-		// call and check response
-		final Async async = context.async();
-
-		client.get("/private/admin", response -> {
-
-			response.bodyHandler(body -> {
-				context.assertEquals("admin", body.toString());
-				context.assertEquals(200, response.statusCode());
-				async.complete();
-			});
-		}).putHeader("X-Token", "admin").end();
-	}
-
-	@Test
-	public void testGetAdminUnAuthorized(TestContext context) {
-
-		// call and check response
-		final Async async = context.async();
-
-		client.get("/private/admin", response -> {
-
-			context.assertEquals(401, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("HTTP 401 Unauthorized", body.toString());
-				async.complete();
-			});
-		}).putHeader("X-Token", "user").end();
-	}
-
-	@Test
-	public void testGetOtherUnAuthorized(TestContext context) {
-
-		// call and check response
-		final Async async = context.async();
-
-		client.get("/private/other", response -> {
-
-			context.assertEquals(401, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("HTTP 401 Unauthorized", body.toString());
-				async.complete();
-			});
-		}).putHeader("X-Token", "user").end();
-	}
-
-	@Test
-	public void testGetOtherOneAuthorized(TestContext context) {
-
-		// call and check response
-		final Async async = context.async();
-
-		client.get("/private/other", response -> {
-
-			context.assertEquals(200, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("{\"role\":\"one\"}", body.toString());
-				async.complete();
-			});
-		}).putHeader("X-Token", "one").end();
-	}
-
-	@Test
-	public void testGetOtherTwoAuthorized(TestContext context) {
-
-		// call and check response
-		final Async async = context.async();
-
-		client.get("/private/other", response -> {
-
-			context.assertEquals(200, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("{\"role\":\"two\"}", body.toString());
-				async.complete();
-			});
-		}).putHeader("X-Token", "two").end();
-	}
+        // call and check response
+        client.get(PORT, HOST, "/private/other")
+                .as(BodyCodec.string())
+                .putHeader("X-Token", "two")
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("{\"role\":\"two\"}", response.body());
+                    context.completeNow();
+                })));
+    }
 }
-*/
