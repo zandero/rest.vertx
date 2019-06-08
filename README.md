@@ -46,7 +46,7 @@ TestRest rest = new TestRest();
 Router router = RestRouter.register(vertx, rest);
 
 vertx.createHttpServer()
-	.requestHandler(router::accept)
+	.requestHandler(router)
 	.listen(PORT);
 ```
 
@@ -58,7 +58,7 @@ TestRest rest = new TestRest();
 RestRouter.register(router, rest);
 
 vertx.createHttpServer()
-	.requestHandler(router::accept)
+	.requestHandler(router)
 	.listen(PORT);
 ```
 
@@ -73,7 +73,7 @@ Alternatively RESTs can be registered by class type only.
 Router router = RestRouter.register(vertx, TestRest.class);
 
 vertx.createHttpServer()
-	.requestHandler(router::accept)
+	.requestHandler(router)
 	.listen(PORT);
 ```
 
@@ -560,7 +560,7 @@ router.route().handler(pushContextHandler());
 
 router = RestRouter.register(router, new CustomContextRest());
 vertx.createHttpServer()
-		.requestHandler(router::accept)
+		.requestHandler(router)
 		.listen(PORT);
 
 private Handler<RoutingContext> pushContextHandler() {
@@ -770,7 +770,7 @@ public void init() {
     RestRouter.register(router, testRest);
 
     vertx.createHttpServer()
-        .requestHandler(router::accept)
+        .requestHandler(router)
         .listen(PORT);
 }
 
@@ -1235,7 +1235,7 @@ In case no global error handler is associated a default (generic) error handler 
   RestRouter.getExceptionHandlers().register(MyExceptionHandler.class);  
     
   vertx.createHttpServer()
-    .requestHandler(router::accept)
+    .requestHandler(router)
     .listen(PORT);
 ```
 
@@ -1425,7 +1425,7 @@ public class GuiceInjectionProvider implements InjectionProvider {
 ```java
 Router router = new RestBuilder(vertx).injectWith(new GuiceInjectionProvider(getModules())).build();
 vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(port);
 
 private Module[] getModules() {
