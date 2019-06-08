@@ -1,6 +1,6 @@
 package com.zandero.rest.data;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -10,10 +10,10 @@ import static org.junit.Assert.assertTrue;
 /**
  *
  */
-public class PathConverterTest {
+class PathConverterTest {
 
 	@Test
-	public void convertTest() {
+	void convertTest() {
 
 		assertEquals(":test", PathConverter.convert("{test}"));
 		assertEquals(":test/:test2", PathConverter.convert("{test}/{test2}"));
@@ -41,7 +41,7 @@ public class PathConverterTest {
 	}
 
 	@Test
-	public void convertVertXRegExPath() {
+	void convertVertXRegExPath() {
 
 		assertEquals("\\d", PathConverter.convert(":test:\\d"));
 		assertEquals("\\d/:test/.*", PathConverter.convert(":test:\\d/:test/:test:.*"));
@@ -50,7 +50,7 @@ public class PathConverterTest {
 	}
 
 	@Test
-	public void convertTest_2() {
+	void convertTest_2() {
 
 		assertEquals("/a", PathConverter.convert("/a"));
 		assertEquals("/a/b", PathConverter.convert("/a/b"));
@@ -60,7 +60,7 @@ public class PathConverterTest {
 	}
 
 	@Test
-	public void convertRegExTest() {
+	void convertRegExTest() {
 
 		assertEquals("/:one/\\d/:three", PathConverter.convert("/{one}/{two:\\d}/{three}"));
 		assertEquals("/a/\\d/b", PathConverter.convert("/a/\\d/b"));
@@ -69,14 +69,14 @@ public class PathConverterTest {
 	}
 
 	@Test
-	public void convertRegEx2Test() {
+	void convertRegEx2Test() {
 
 		assertEquals("/regEx/^(?!\\/api\\/).*", PathConverter.convert("/regEx/{path:^(?!\\/api\\/).*}"));
 		assertEquals("\\/api", PathConverter.convert("\\/api"));
 	}
 
 	@Test
-	public void extractTest() {
+	void extractTest() {
 
 		List<MethodParameter> list = PathConverter.extract("/a/:test/b");
 		assertEquals(1, list.size());
@@ -112,7 +112,7 @@ public class PathConverterTest {
 	}
 
 	@Test
-	public void extractRegExTest() {
+	void extractRegExTest() {
 
 		List<MethodParameter> list = PathConverter.extract("/a/{test:\\d}/b");
 		assertEquals(1, list.size());
@@ -147,7 +147,7 @@ public class PathConverterTest {
 	}
 
 	@Test
-	public void extractRegExTest2() {
+	void extractRegExTest2() {
 
 		List<MethodParameter> list = PathConverter.extract("/:one:\\d+/minus/:two:\\w+");
 		assertEquals(2, list.size());
@@ -172,7 +172,7 @@ public class PathConverterTest {
 	}
 
 	@Test
-	public void extractRegExTest3() {
+	void extractRegExTest3() {
 
 		List<MethodParameter> list = PathConverter.extract("direct/{placeholder:.*}");
 		assertEquals(1, list.size());
@@ -188,7 +188,7 @@ public class PathConverterTest {
 	}
 
 	@Test
-	public void cleanTest() {
+	void cleanTest() {
 
 		assertEquals("/test/test", PathConverter.clean("  //test//test  "));
 	}

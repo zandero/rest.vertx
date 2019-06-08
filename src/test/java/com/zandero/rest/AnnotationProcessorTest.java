@@ -10,22 +10,24 @@ import com.zandero.rest.test.TestReaderRest;
 import com.zandero.rest.test.TestRest;
 import com.zandero.rest.test.TestRestWithNonRestMethod;
 import io.vertx.core.http.HttpMethod;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 /**
  *
  */
-public class AnnotationProcessorTest {
+class AnnotationProcessorTest {
 
 	@Test
-	public void getDefinitions() {
+	void getDefinitions() {
 
 		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(TestRest.class);
 
@@ -63,7 +65,7 @@ public class AnnotationProcessorTest {
 
 			/*@GET
 			@Path("/match/{this}/{that}")
-			public Response match(@PathParam("this") String thisParam, @PathParam("that") String thatParam) {*/
+			Response match(@PathParam("this") String thisParam, @PathParam("that") String thatParam) {*/
 			if (definition.getPath().equals("/test/match/{this}/{that}")) {
 
 				//Method method = definitions.get(definition);
@@ -92,7 +94,7 @@ public class AnnotationProcessorTest {
 	}
 
 	@Test
-	public void getReaderDefinitions() {
+	void getReaderDefinitions() {
 
 		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(TestReaderRest.class);
 		assertEquals(4, definitions.size());
@@ -122,7 +124,7 @@ public class AnnotationProcessorTest {
 	}
 
 	@Test
-	public void getInheritedDefinition() {
+	void getInheritedDefinition() {
 
 		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(ImplementationRest.class);
 
@@ -193,7 +195,7 @@ public class AnnotationProcessorTest {
 	}
 
 	@Test
-	public void skipNonRestMethodsTest() {
+	void skipNonRestMethodsTest() {
 
 		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(TestRestWithNonRestMethod.class);
 		assertEquals(1, definitions.size());

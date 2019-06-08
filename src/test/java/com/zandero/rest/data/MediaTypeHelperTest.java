@@ -1,25 +1,26 @@
 package com.zandero.rest.data;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.MediaType;
 
 import static com.zandero.utils.junit.AssertFinalClass.isWellDefined;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  *
  */
-public class MediaTypeHelperTest {
+class MediaTypeHelperTest {
 
 	@Test
-	public void isWellDefinedTest() {
+	void isWellDefinedTest() {
 		isWellDefined(MediaTypeHelper.class);
 	}
 
 	@Test
-	public void getKeyTest() {
+	void getKeyTest() {
 
 		assertEquals("*/*", MediaTypeHelper.getKey(null));
 		assertEquals("application/json", MediaTypeHelper.getKey(MediaType.APPLICATION_JSON_TYPE));
@@ -27,13 +28,13 @@ public class MediaTypeHelperTest {
 	}
 
 	@Test
-	public void getMediaTypeInvalidCharset() {
+	void getMediaTypeInvalidCharset() {
 		MediaType type = MediaTypeHelper.valueOf("application/json;UTF-8");
 		assertEquals(MediaTypeHelper.toString(MediaType.APPLICATION_JSON_TYPE), MediaTypeHelper.toString(type));
 	}
 
 	@Test
-	public void getMediaTypeTest() {
+	void getMediaTypeTest() {
 
 		assertNull(MediaTypeHelper.valueOf(null));
 		assertNull(MediaTypeHelper.valueOf(""));
