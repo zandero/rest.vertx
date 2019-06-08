@@ -1,130 +1,95 @@
 package com.zandero.rest;
-/*
 
 import com.zandero.rest.test.TestEventsRest;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.VertxTestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.assertTrue;
-
-*/
-/**
- *
- *//*
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(VertxExtension.class)
-public class RouteWithEventsTest extends VertxTest {
+class RouteWithEventsTest extends VertxTest {
 
-	@BeforeAll
-	static void start() {
-		super.before();
-	}
+    @BeforeAll
+    static void start() {
+        before();
+    }
 
-	@Test
-	public void testSimpleEvent(VertxTestContext context) throws InterruptedException {
+    @BeforeEach
+    void startUp() {
+        Router router = RestRouter.register(vertx, TestEventsRest.class);
 
-		Router router = RestRouter.register(vertx, TestEventsRest.class);
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-		AtomicBoolean messageHasBeenSend = new AtomicBoolean(false);
-		vertx.eventBus().consumer("rest.vertx.testing", (Handler<Message<String>>) event -> {
+    @Test
+    void testSimpleEvent(VertxTestContext context) throws InterruptedException {
 
-			Dummy dummy = JsonUtils.fromJson(event.body(), Dummy.class);
-			System.out.println("Received dummy: " + dummy.name + ": " + dummy.value);
-			messageHasBeenSend.set(true);
-		});
+        AtomicBoolean messageHasBeenSend = new AtomicBoolean(false);
+        vertx.eventBus().consumer("rest.vertx.testing", (Handler<Message<String>>) event -> {
 
-		vertx.createHttpServer()
-		     .requestHandler(router)
-		     .listen(PORT);
+            Dummy dummy = JsonUtils.fromJson(event.body(), Dummy.class);
+            System.out.println("Received dummy: " + dummy.name + ": " + dummy.value);
+            messageHasBeenSend.set(true);
+        });
 
+        client.get(PORT, HOST, "/events/ok").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    context.completeNow();
+                })));
 
+        Thread.sleep(1000);
+        assertTrue(messageHasBeenSend.get());
 
-		client.get(PORT, HOST, "/events/ok").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
+        // 2
+        messageHasBeenSend.set(false);
+        vertx.eventBus().consumer("rest.vertx.testing", (Handler<Message<String>>) event -> {
 
-			response.bodyHandler(body -> {
-				context.assertEquals(200, response.statusCode());
-				async.complete();
-			});
-		});
+            Dummy dummy = JsonUtils.fromJson(event.body(), Dummy.class);
+            System.out.println("Received dummy: " + dummy.name + ": " + dummy.value);
+            messageHasBeenSend.set(true);
+        });
 
-		Thread.sleep(1000);
-		assertTrue(messageHasBeenSend.get());
-	}
+        client.get(PORT, HOST, "/events/error/301").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(301, response.statusCode());
+                    context.completeNow();
+                })));
 
-	@Test
-	public void testStatusEvent(VertxTestContext context) throws InterruptedException {
+        Thread.sleep(1000);
+        assertTrue(messageHasBeenSend.get());
 
-		Router router = RestRouter.register(vertx, TestEventsRest.class);
+        // 3
+        messageHasBeenSend.set(false);
+        vertx.eventBus().consumer("rest.vertx.testing", (Handler<Message<Exception>>) event -> {
 
-		AtomicBoolean messageHasBeenSend = new AtomicBoolean(false);
-		vertx.eventBus().consumer("rest.vertx.testing", (Handler<Message<String>>) event -> {
+            //Dummy dummy = JsonUtils.fromJson(event.body(), Dummy.class);
+            System.out.println("Received exception: " + event);
+            messageHasBeenSend.set(true);
+        });
 
-			Dummy dummy = JsonUtils.fromJson(event.body(), Dummy.class);
-			System.out.println("Received dummy: " + dummy.name + ": " + dummy.value);
-			messageHasBeenSend.set(true);
-		});
+        client.get(PORT, HOST, "/events/error/400").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(400, response.statusCode());
+                    context.completeNow();
+                })));
 
-		vertx.createHttpServer()
-		     .requestHandler(router)
-		     .listen(PORT);
-
-
-
-		client.get(PORT, HOST, "/events/error/301").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
-
-			response.bodyHandler(body -> {
-				context.assertEquals(301, response.statusCode());
-				async.complete();
-			});
-		});
-
-		Thread.sleep(1000);
-		assertTrue(messageHasBeenSend.get());
-	}
-
-	@Test
-	public void testExceptionEvent(VertxTestContext context) throws InterruptedException {
-
-		Router router = RestRouter.register(vertx, TestEventsRest.class);
-
-		AtomicBoolean messageHasBeenSend = new AtomicBoolean(false);
-		vertx.eventBus().consumer("rest.vertx.testing", (Handler<Message<Exception>>) event -> {
-
-			//Dummy dummy = JsonUtils.fromJson(event.body(), Dummy.class);
-			System.out.println("Received exception: " + event);
-			messageHasBeenSend.set(true);
-		});
-
-		vertx.createHttpServer()
-		     .requestHandler(router)
-		     .listen(PORT);
-
-
-
-		client.get(PORT, HOST, "/events/error/400").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
-
-			response.bodyHandler(body -> {
-				context.assertEquals(400, response.statusCode());
-				async.complete();
-			});
-		});
-
-		Thread.sleep(1000);
-		assertTrue(messageHasBeenSend.get());
-	}
+        Thread.sleep(1000);
+        assertTrue(messageHasBeenSend.get());
+    }
 }
-*/

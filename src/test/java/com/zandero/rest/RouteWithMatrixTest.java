@@ -1,65 +1,48 @@
 package com.zandero.rest;
-/*
 
 import com.zandero.rest.test.TestMatrixParamRest;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.VertxTestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-*/
-/**
- *
- *//*
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(VertxExtension.class)
-public class RouteWithMatrixTest extends VertxTest {
+class RouteWithMatrixTest extends VertxTest {
 
-	@BeforeAll
-	static void start() {
+    @BeforeAll
+    static void start() {
 
-		super.before();
+        before();
 
-		Router router = RestRouter.register(vertx, TestMatrixParamRest.class);
-		vertx.createHttpServer()
-		.requestHandler(router)
-		.listen(PORT);
-	}
+        Router router = RestRouter.register(vertx, TestMatrixParamRest.class);
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-	@Test
-	public void matrixExtractTest(VertxTestContext context) {
+    @Test
+    void matrixExtractTest(VertxTestContext context) {
 
-		final Async async = context.async();
+        client.get(PORT, HOST, "/matrix/extract/result;one=1;two=2").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("result=3", response.body());
+                    context.completeNow();
+                })));
+    }
 
-		client.get(PORT, HOST, "/matrix/extract/result;one=1;two=2").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
+    @Test
+    void matrixRegExTest(VertxTestContext context) {
 
-			context.assertEquals(200, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("result=3", body.toString());
-				async.complete();
-			});
-		});
-	}
-
-	@Test
-	public void matrixRegExTest(VertxTestContext context) {
-
-		final Async async = context.async();
-
-		client.get(PORT, HOST, "/matrix/direct/param;one=1;two=2").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
-
-			//context.assertEquals(200, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("3", body.toString());
-				async.complete();
-			});
-		});
-	}
-}*/
+        client.get(PORT, HOST, "/matrix/direct/param;one=1;two=2").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("3", response.body());
+                    context.completeNow();
+                })));
+    }
+}

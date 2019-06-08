@@ -1,131 +1,90 @@
 package com.zandero.rest;
-/*
 
 import com.zandero.rest.test.TestDoubleBodyParamRest;
 import com.zandero.rest.test.TestInvalidMethodRest;
 import com.zandero.rest.test.TestMissingPathRest;
 import com.zandero.rest.test.TestPathRest;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.VertxTestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-*/
-/**
- *
- *//*
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(VertxExtension.class)
-public class RoutePathTest extends VertxTest {
+class RoutePathTest extends VertxTest {
 
-	@BeforeAll
-	static void start() {
+    @BeforeAll
+    static void start() {
 
-		super.before();
+        before();
 
-		TestPathRest testRest = new TestPathRest();
+        TestPathRest testRest = new TestPathRest();
 
-		Router router = RestRouter.register(vertx, testRest);
-		vertx.createHttpServer()
-			.requestHandler(router)
-			.listen(PORT);
-	}
+        Router router = RestRouter.register(vertx, testRest);
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-	@Test
-	public void rootWithRootPathTest(VertxTestContext context) throws IOException {
+    @Test
+    void rootWithRootPathTest(VertxTestContext context) {
 
-		final Async async = context.async();
+        client.get(PORT, HOST, "/query/echo/this").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("querythis", response.body());
+                    context.completeNow();
+                })));
+    }
 
-		client.get(PORT, HOST, "/query/echo/this").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
+    @Test
+    void rootWithRootPathTest2(VertxTestContext context) {
 
-			context.assertEquals(200, response.statusCode());
+        client.get(PORT, HOST, "/this/echo/query").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("thisquery", response.body());
+                    context.completeNow();
+                })));
+    }
 
-			response.bodyHandler(body -> {
-				context.assertEquals("querythis", body.toString());
-				async.complete();
-			});
-		});
-	}
+    @Test
+    void rootWithoutPathTest(VertxTestContext context) {
 
-	@Test
-	public void rootWithRootPathTest2(VertxTestContext context) throws IOException {
+        client.get(PORT, HOST, "/this").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("this", response.body());
+                    context.completeNow();
+                })));
+    }
 
-		final Async async = context.async();
+    @Test
+    void invalidDuplicateMethodRestTest() {
 
-		client.get(PORT, HOST, "/this/echo/query").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
+        Exception e = assertThrows(IllegalArgumentException.class, () -> RestRouter.register(vertx, TestInvalidMethodRest.class));
+        assertEquals("com.zandero.rest.test.TestInvalidMethodRest.echo() - Method already set to: POST!", e.getMessage());
+    }
 
-			context.assertEquals(200, response.statusCode());
+    @Test
+    void invalidDoubleBodyRestTest() {
 
-			response.bodyHandler(body -> {
-				context.assertEquals("thisquery", body.toString());
-				async.complete();
-			});
-		});
-	}
+        Exception e = assertThrows(IllegalArgumentException.class, () -> RestRouter.register(vertx, TestDoubleBodyParamRest.class));
+        assertEquals("com.zandero.rest.test.TestDoubleBodyParamRest.echo(String arg0, String arg1) - to many body arguments given. " +
+                        "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: unknown arg1!",
+                e.getMessage());
+    }
 
-	@Test
-	public void rootWithoutPathTest(VertxTestContext context) throws IOException {
+    @Test
+    void noPathRestTest() {
 
-		final Async async = context.async();
-
-		client.get(PORT, HOST, "/this").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
-
-			context.assertEquals(200, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("this", body.toString());
-				async.complete();
-			});
-		});
-	}
-
-	@Test
-	public void invalidDuplicateMethodRestTest() {
-
-		try {
-			RestRouter.register(vertx, TestInvalidMethodRest.class);
-			fail();
-		}
-		catch (Exception e) {
-			assertEquals("com.zandero.rest.test.TestInvalidMethodRest.echo() - Method already set to: POST!", e.getMessage());
-		}
-	}
-
-	@Test
-	public void invalidDoubleBodyRestTest() {
-
-		try {
-			RestRouter.register(vertx, TestDoubleBodyParamRest.class);
-			fail();
-		}
-		catch (Exception e) {
-			assertEquals("com.zandero.rest.test.TestDoubleBodyParamRest.echo(String arg0, String arg1) - to many body arguments given. " +
-			             "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: unknown arg1!",
-			             e.getMessage());
-		}
-	}
-
-	@Test
-	public void noPathRestTest() {
-
-		try {
-			RestRouter.register(vertx, TestMissingPathRest.class);
-			fail();
-		}
-		catch (Exception e) {
-			assertEquals("com.zandero.rest.test.TestMissingPathRest.echo() - Missing route @Path!", e.getMessage());
-		}
-	}
+        Exception e = assertThrows(IllegalArgumentException.class, () -> RestRouter.register(vertx, TestMissingPathRest.class));
+        assertEquals("com.zandero.rest.test.TestMissingPathRest.echo() - Missing route @Path!", e.getMessage());
+    }
 }
-*/
+

@@ -25,7 +25,7 @@ public class GuicedInjectionTest extends VertxTest {
 
 	public void startWith(InjectionProvider provider, VertxTestContext context) {
 
-		super.before();
+before();
 
 		Router router = new RestBuilder(vertx)
 			                .injectWith(provider)
@@ -45,16 +45,15 @@ public class GuicedInjectionTest extends VertxTest {
 		final Async async = context.async();
 
 		client.get(PORT, HOST, "/guice/A").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
+                .send(context.succeeding(response -> context.verify(() -> {
 
-			context.assertEquals(200, response.statusCode());
+			assertEquals(200, response.statusCode());
 
 			response.bodyHandler(bodyHandler -> {
 				String body = bodyHandler.getString(0, bodyHandler.length());
-				context.assertEquals("1=I'm so dummy!", body);
-				async.complete();
-			});
-		});
+				assertEquals("1=I'm so dummy!", body);
+				context.completeNow();
+			})));
 	}
 
 	@Test
@@ -65,16 +64,15 @@ public class GuicedInjectionTest extends VertxTest {
 		final Async async = context.async();
 
 		client.get(PORT, HOST, "/guiceit").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
+                .send(context.succeeding(response -> context.verify(() -> {
 
-			context.assertEquals(200, response.statusCode());
+			assertEquals(200, response.statusCode());
 
 			response.bodyHandler(bodyHandler -> {
 				String body = bodyHandler.toString();
-				context.assertEquals("Oh yes I'm so dummy!", body);
-				async.complete();
-			});
-		});
+				assertEquals("Oh yes I'm so dummy!", body);
+				context.completeNow();
+			})));
 	}
 
 	@Test
@@ -86,14 +84,14 @@ public class GuicedInjectionTest extends VertxTest {
 
 		Dummy json = new Dummy("test", "me");
 		client.post("/guice/json").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
+                .send(context.succeeding(response -> context.verify(() -> {
 
-			context.assertEquals(200, response.statusCode());
+			assertEquals(200, response.statusCode());
 
 			response.bodyHandler(bodyHandler -> {
 				String body = bodyHandler.getString(0, bodyHandler.length());
-				context.assertEquals("{\"name\":\"Received-Oh yes I'm so dummy!\",\"value\":\"Received-{\\\"name\\\":\\\"test\\\",\\\"value\\\":\\\"me\\\"}\"}", body);
-				async.complete();
+				assertEquals("{\"name\":\"Received-Oh yes I'm so dummy!\",\"value\":\"Received-{\\\"name\\\":\\\"test\\\",\\\"value\\\":\\\"me\\\"}\"}", body);
+				context.completeNow();
 			});
 		}).putHeader("Content-Type", "application/json").end(JsonUtils.toJson(json));
 	}

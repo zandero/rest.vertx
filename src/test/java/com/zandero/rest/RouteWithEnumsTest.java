@@ -1,64 +1,49 @@
 package com.zandero.rest;
-/*
 
 import com.zandero.rest.test.TestEnumRest;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.VertxTestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-*/
-/**
- *
- *//*
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(VertxExtension.class)
 public class RouteWithEnumsTest extends VertxTest {
 
-	@BeforeAll
-	static void start() {
+    @BeforeAll
+    static void start() {
 
-		super.before();
+        before();
 
-		Router router = RestRouter.register(vertx, TestEnumRest.class);
-		vertx.createHttpServer()
-		     .requestHandler(router)
-		     .listen(PORT);
-	}
+        Router router = RestRouter.register(vertx, TestEnumRest.class);
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-	@Test
-	public void valueOfTest(VertxTestContext context) {
+    @Test
+    void valueOfTest(VertxTestContext context) {
 
-		final Async async = context.async();
+        client.get(PORT, HOST, "/enum/simple/one").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("one", response.body());
+                    assertEquals(200, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 
-		client.get(PORT, HOST, "/enum/simple/one").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
+    @Test
+    void fromStringTest(VertxTestContext context) {
 
-			response.bodyHandler(body -> {
-				context.assertEquals("one", body.toString());
-				context.assertEquals(200, response.statusCode());
-				async.complete();
-			});
-		});
-	}
-
-	@Test
-	public void fromStringTest(VertxTestContext context) {
-
-		final Async async = context.async();
-
-		client.get(PORT, HOST, "/enum/fromString/3").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
-
-			response.bodyHandler(body -> {
-				context.assertEquals("three", body.toString());
-				context.assertEquals(200, response.statusCode());
-				async.complete();
-			});
-		});
-	}
-
-}*/
+        client.get(PORT, HOST, "/enum/fromString/3").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("three", response.body());
+                    assertEquals(200, response.statusCode());
+                    context.completeNow();
+                })));
+    }
+}

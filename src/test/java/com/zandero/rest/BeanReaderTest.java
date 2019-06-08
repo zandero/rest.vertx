@@ -40,13 +40,13 @@ public class BeanReaderTest extends VertxTest {
                 });
 
         client.post("/read/bean").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
+                .send(context.succeeding(response -> context.verify(() -> {
 
-            context.assertEquals(200, response.statusCode());
+            assertEquals(200, response.statusCode());
 
-            response.bodyHandler(body -> {
-                context.assertEquals("brown,dog,fox,jumps,over,quick,red,the", body.toString()); // returns sorted list of unique words
-                async.complete();
+
+                assertEquals("brown,dog,fox,jumps,over,quick,red,the", response.body()); // returns sorted list of unique words
+                context.completeNow();
             });
         }).end("The quick brown fox jumps over the red dog!");
     }
@@ -55,7 +55,7 @@ public class BeanReaderTest extends VertxTest {
     public void testCustomInputNew(VertxTestContext context) {
 
         // call and check response
-        final Async async = context.async();
+
 
         FakeReadStream<Buffer> rs = new FakeReadStream<>();
 *//*        FakeWriteStream<String> ws = new FakeWriteStream<>();
@@ -67,12 +67,12 @@ public class BeanReaderTest extends VertxTest {
 
 
         webClient.post(HOST, "/read/bean").sendStream(rs.as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
+                .send(context.succeeding(response -> context.verify(() -> {
 
             context.assertTrue(response.succeeded(), response.cause().getMessage());
             HttpResponse<Buffer> buffer = response.result();
 
-            context.assertEquals("brown,dog,fox,jumps,over,quick,red,the", buffer.bodyAsString()); // returns sorted list of unique words
+            assertEquals("brown,dog,fox,jumps,over,quick,red,the", buffer.bodyAsString()); // returns sorted list of unique words
         });
     }*/
 }

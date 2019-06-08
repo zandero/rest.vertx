@@ -1,89 +1,74 @@
 package com.zandero.rest;
-/*
 
 import com.zandero.rest.test.TestHeaderRest;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.VertxTestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-*/
-/**
- *
- *//*
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(VertxExtension.class)
-public class RouteWithHeaderTest extends VertxTest {
+class RouteWithHeaderTest extends VertxTest {
 
-	@BeforeAll
-	static void start() {
+    @BeforeAll
+    static void start() {
 
-		super.before();
+        before();
 
-		Router router = RestRouter.register(vertx, TestHeaderRest.class);
-		vertx.createHttpServer()
-			.requestHandler(router)
-			.listen(PORT);
-	}
+        Router router = RestRouter.register(vertx, TestHeaderRest.class);
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-	@Test
-	public void echoDummyJsonTest(VertxTestContext context) {
+    @Test
+    void echoDummyJsonTest(VertxTestContext context) {
 
-		final Async async = context.async();
-		Dummy dummy = new Dummy("one", "dude");
-		String json = JsonUtils.toJson(dummy);
+        Dummy dummy = new Dummy("one", "dude");
+        String json = JsonUtils.toJson(dummy);
 
-		client.get("/header/dummy").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
+        client.get(PORT, HOST, "/header/dummy").as(BodyCodec.string())
+                .putHeader("dummy", json)
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("one=dude", response.body());
+                    context.completeNow();
+                })));
+    }
 
-			context.assertEquals(200, response.statusCode());
+    @Test
+    void echoPostHeaderTest(VertxTestContext context) {
 
-			response.bodyHandler(body -> {
-				context.assertEquals("one=dude", body.toString());
-				async.complete();
-			});
-		}).putHeader("dummy", json).end();
-	}
+        Dummy dummy = new Dummy("one", "dude");
 
-	@Test
-	public void echoPostHeaderTest(VertxTestContext context) {
+        String json = JsonUtils.toJson(dummy);
 
-		final Async async = context.async();
-		Dummy dummy = new Dummy("one", "dude");
+        client.post(PORT, HOST,"/header/dummy").as(BodyCodec.string())
+                .putHeader("token", "doing")
+                .putHeader("other", "things")
+                .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)), context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("one=dude, doing things", response.body());
+                    context.completeNow();
+                })));
+    }
 
-		String json = JsonUtils.toJson(dummy);
+    @Test
+    void npeReaderTest(VertxTestContext context) {
 
-		client.post("/header/dummy").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
-
-			context.assertEquals(200, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("one=dude, doing things", body.toString());
-				async.complete();
-			});
-		}).putHeader("token", "doing").putHeader("other", "things").end(json);
-	}
-
-	@Test
-	public void npeReaderTest(VertxTestContext context) {
-
-		final Async async = context.async();
-
-		client.get("/header/npe").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
-
-			response.bodyHandler(body -> {
-				context.assertEquals("OH SHIT!", body.toString());
-				context.assertEquals(500, response.statusCode());
-				async.complete();
-			});
-		}).putHeader("dummy", "").end();
-	}
+        client.get(PORT, HOST, "/header/npe").as(BodyCodec.string())
+                .putHeader("dummy", "")
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("OH SHIT!", response.body());
+                    assertEquals(500, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 }
-*/

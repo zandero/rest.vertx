@@ -1,49 +1,40 @@
 package com.zandero.rest;
-/*
 
 import com.zandero.rest.test.TestEchoRest;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.VertxTestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-*/
-/**
- *
- *//*
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(VertxExtension.class)
-public class RouteWithTraceTest extends VertxTest {
+class RouteWithTraceTest extends VertxTest {
 
-	@BeforeAll
-	static void start() {
-		super.before();
-	}
+    @BeforeAll
+    static void start() {
+        before();
 
-	@Test
-	public void testTrace(VertxTestContext context) {
+        Router router = RestRouter.register(vertx, TestEchoRest.class);
 
-		Router router = RestRouter.register(vertx, TestEchoRest.class);
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-		vertx.createHttpServer()
-		     .requestHandler(router)
-		     .listen(PORT);
+    @Test
+    void testTrace(VertxTestContext context) {
 
-
-
-		client.request(HttpMethod.TRACE, "/rest/echo").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
-
-			response.bodyHandler(body -> {
-				context.assertEquals("trace", body.toString()); // returns sorted list of unique words
-				context.assertEquals(200, response.statusCode());
-				async.complete();
-			});
-		}).end();
-	}
+        client.request(HttpMethod.TRACE, PORT, HOST, "/rest/echo").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals("trace", response.body()); // returns sorted list of unique words
+                    assertEquals(200, response.statusCode());
+                    context.completeNow();
+                })));
+    }
 }
-*/
+

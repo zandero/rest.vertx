@@ -1,76 +1,66 @@
 package com.zandero.rest;
-/*
 
 import com.zandero.rest.test.TestWithXmlRest;
 import com.zandero.rest.test.json.User;
 import com.zandero.rest.writer.MyXmlWriter;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.VertxTestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-*/
-/**
- *
- *//*
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(VertxExtension.class)
-public class RouteWithXmlTest extends VertxTest {
+class RouteWithXmlTest extends VertxTest {
 
-	@BeforeAll
+    @BeforeAll
+    static void start() {
+        before();
 
-		Router router = RestRouter.register(vertx, TestWithXmlRest.class);
-		RestRouter.getWriters().register(User.class, MyXmlWriter.class);
+        Router router = RestRouter.register(vertx, TestWithXmlRest.class);
+        RestRouter.getWriters().register(User.class, MyXmlWriter.class);
 
-		vertx.createHttpServer()
-		     .requestHandler(router)
-		     .listen(PORT);
-	}
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-	@Test
-	public void textXml(VertxTestContext context) {
+    @Test
+    void textXml(VertxTestContext context) {
 
+        client.get(PORT, HOST, "/xml/test").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
 
+                    assertEquals(200, response.statusCode());
 
-		client.get(PORT, HOST, "/xml/test").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
+                    String header = response.getHeader("Content-Type");
+                    assertEquals("text/xml", header); // writer always overrides definition
 
-			context.assertEquals(200, response.statusCode());
+                    header = response.getHeader("Cache-Control");
+                    assertEquals("private,no-cache,no-store", header);
 
-			String header = response.getHeader("Content-Type");
-			context.assertEquals("text/xml", header); // writer always overrides definition
+                    assertEquals("<u name=\"test\" />", response.body());
+                    context.completeNow();
+                })));
+    }
 
-			header = response.getHeader("Cache-Control");
-			context.assertEquals("private,no-cache,no-store", header);
+    @Test
+    void textXmlWriterAddsHeader(VertxTestContext context) {
 
-			response.bodyHandler(body -> {
-				context.assertEquals("<u name=\"test\" />", body.toString());
-				async.complete();
-			});
-		});
-	}
+        client.get(PORT, HOST, "/xml/test2").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
 
-	@Test
-	public void textXmlWriterAddsHeader(VertxTestContext context) {
+                    assertEquals(200, response.statusCode());
 
+                    String header = response.getHeader("Content-Type");
+                    assertEquals("text/xml", header);
 
-
-		client.get(PORT, HOST, "/xml/test2").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
-
-			context.assertEquals(200, response.statusCode());
-
-			String header = response.getHeader("Content-Type");
-			context.assertEquals("text/xml", header);
-
-			response.bodyHandler(body -> {
-				context.assertEquals("<u name=\"test\" />", body.toString());
-				async.complete();
-			});
-		});
-	}
+                    assertEquals("<u name=\"test\" />", response.body());
+                    context.completeNow();
+                })));
+    }
 }
-*/
+

@@ -1,51 +1,40 @@
 package com.zandero.rest;
-/*
 
 import com.zandero.rest.test.TestContextRest;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.VertxTestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-*/
-/**
- *
- *//*
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(VertxExtension.class)
-public class RouteWithMissingContextTest extends VertxTest {
+class RouteWithMissingContextTest extends VertxTest {
 
-	@BeforeAll
-	static void start() {
+    @BeforeAll
+    static void start() {
 
-		super.before();
+        before();
 
-		TestContextRest testRest = new TestContextRest();
-		Router router = RestRouter.register(vertx, testRest);
+        TestContextRest testRest = new TestContextRest();
+        Router router = RestRouter.register(vertx, testRest);
 
-		vertx.createHttpServer()
-		     .requestHandler(router)
-		     .listen(PORT);
-	}
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-	@Test
-	public void missingContextTest(VertxTestContext context) {
+    @Test
+    void missingContextTest(VertxTestContext context) {
 
-
-
-		client.get(PORT, HOST, "/context/custom").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
-
-			context.assertEquals(400, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("Can't provide @Context of type: class com.zandero.rest.test.json.Dummy", body.toString());
-				async.complete();
-			});
-		});
-	}
+        client.get(PORT, HOST, "/context/custom").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(400, response.statusCode());
+                    assertEquals("Can't provide @Context of type: class com.zandero.rest.test.json.Dummy", response.body());
+                    context.completeNow();
+                })));
+    }
 }
-*/

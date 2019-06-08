@@ -1,7 +1,5 @@
 package com.zandero.rest;
 
-import com.zandero.rest.RestRouter;
-import com.zandero.rest.VertxTest;
 import com.zandero.rest.reader.CustomWordListReader;
 import com.zandero.rest.reader.DummyBodyReader;
 import com.zandero.rest.reader.ExtendedDummyBodyReader;
@@ -34,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ExtendWith(VertxExtension.class)
 class CustomReaderTest extends VertxTest {
 
-    @BeforeEach
+    @BeforeAll
     static void start() {
 
         before();
@@ -46,6 +44,15 @@ class CustomReaderTest extends VertxTest {
                 .listen(PORT);
     }
 
+    @BeforeEach
+    void cleanUp() {
+        // clear all registered writers or reader and handlers
+        RestRouter.getReaders().clear();
+        RestRouter.getWriters().clear();
+        RestRouter.getExceptionHandlers().clear();
+        RestRouter.getContextProviders().clear();
+    }
+
     @Test
     void testCustomInput(VertxTestContext context) {
 
@@ -53,7 +60,6 @@ class CustomReaderTest extends VertxTest {
                 .as(BodyCodec.string())
                 .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
                         context.succeeding(response -> context.verify(() -> {
-
                             assertEquals(200, response.statusCode());
                             assertEquals("brown,dog,fox,jumps,over,quick,red,the", response.body()); // returns sorted list of unique words
                             context.completeNow();
@@ -67,7 +73,6 @@ class CustomReaderTest extends VertxTest {
                 .as(BodyCodec.string())
                 .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
                         context.succeeding(response -> context.verify(() -> {
-
                             assertEquals(200, response.statusCode());
                             assertEquals("brown,dog,fox,jumps,over,quick,red,the", response.body()); // returns sorted list of unique words
                             context.completeNow();

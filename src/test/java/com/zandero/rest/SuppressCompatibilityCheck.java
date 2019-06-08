@@ -24,7 +24,7 @@ public class SuppressCompatibilityCheck extends VertxTest {
 	@BeforeAll
 	static void start() {
 
-		super.before();
+before();
 
 		Router router = new RestBuilder(vertx)
 			                .writer(String.class, TestSuppressedWriter.class)

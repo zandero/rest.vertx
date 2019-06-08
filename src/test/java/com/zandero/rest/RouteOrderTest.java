@@ -1,53 +1,40 @@
 package com.zandero.rest;
-/*
 
 import com.zandero.rest.test.TestOrderRest;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.VertxTestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.io.IOException;
-
-*/
-/**
- *
- *//*
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(VertxExtension.class)
-public class RouteOrderTest extends VertxTest {
+class RouteOrderTest extends VertxTest {
 
-	@BeforeAll
-	static void start() {
+    @BeforeAll
+    static void start() {
 
-		super.before();
+        before();
 
-		TestOrderRest testRest = new TestOrderRest();
+        TestOrderRest testRest = new TestOrderRest();
 
-		Router router = RestRouter.register(vertx, testRest);
-		vertx.createHttpServer()
-			.requestHandler(router)
-			.listen(PORT);
-	}
+        Router router = RestRouter.register(vertx, testRest);
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-	@Test
-	public void rootWithRootPathTest(VertxTestContext context) throws IOException {
+    @Test
+    void rootWithRootPathTest(VertxTestContext context) {
 
-		final Async async = context.async();
-
-		client.get(PORT, HOST, "/order/test").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
-
-			context.assertEquals(200, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("first", body.toString());
-				async.complete();
-			});
-		});
-	}
+        client.get(PORT, HOST, "/order/test").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("first", response.body());
+                    context.completeNow();
+                })));
+    }
 }
-*/

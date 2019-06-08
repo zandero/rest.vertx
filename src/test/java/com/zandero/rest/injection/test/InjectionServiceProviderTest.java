@@ -24,7 +24,7 @@ public class InjectionServiceProviderTest extends VertxTest {
 
 	public void startWith(InjectionProvider provider, VertxTestContext context) {
 
-		super.before();
+before();
 
 		Router router = new RestBuilder(vertx)
 			                .injectWith(provider)
@@ -38,7 +38,7 @@ public class InjectionServiceProviderTest extends VertxTest {
 
 	public void startWithClass(Class<? extends InjectionProvider> provider, VertxTestContext context) {
 
-		super.before();
+before();
 
 		Router router = new RestBuilder(vertx)
 			                .injectWith(provider)
@@ -58,15 +58,14 @@ public class InjectionServiceProviderTest extends VertxTest {
 		final Async async = context.async();
 
 		client.get(PORT, HOST, "/getInstance/dummy").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
+                .send(context.succeeding(response -> context.verify(() -> {
 
-			context.assertEquals(200, response.statusCode());
+			assertEquals(200, response.statusCode());
 
-			response.bodyHandler(body -> {
-				context.assertEquals("I'm so dummy!", body.toString());
-				async.complete();
-			});
-		});
+
+				assertEquals("I'm so dummy!", response.body());
+				context.completeNow();
+			})));
 	}
 
 	@Test
@@ -77,15 +76,14 @@ public class InjectionServiceProviderTest extends VertxTest {
 		final Async async = context.async();
 
 		client.get(PORT, HOST, "/getInstance/other").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
+                .send(context.succeeding(response -> context.verify(() -> {
 
-			context.assertEquals(200, response.statusCode());
+			assertEquals(200, response.statusCode());
 
-			response.bodyHandler(body -> {
-				context.assertEquals("Oh yes I'm so dummy!", body.toString());
-				async.complete();
-			});
-		});
+
+				assertEquals("Oh yes I'm so dummy!", response.body());
+				context.completeNow();
+			})));
 	}
 
 	@Test
@@ -96,15 +94,14 @@ public class InjectionServiceProviderTest extends VertxTest {
 		final Async async = context.async();
 
 		client.get(PORT, HOST, "/getInstance/dummy").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
+                .send(context.succeeding(response -> context.verify(() -> {
 
-			context.assertEquals(200, response.statusCode());
+			assertEquals(200, response.statusCode());
 
-			response.bodyHandler(body -> {
-				context.assertEquals("I'm so dummy!", body.toString());
-				async.complete();
-			});
-		});
+
+				assertEquals("I'm so dummy!", response.body());
+				context.completeNow();
+			})));
 	}
 
 	@Test
@@ -115,15 +112,14 @@ public class InjectionServiceProviderTest extends VertxTest {
 		final Async async = context.async();
 
 		client.get(PORT, HOST, "/getInstance/other").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() ->
+                .send(context.succeeding(response -> context.verify(() -> {
 
-			context.assertEquals(200, response.statusCode());
+			assertEquals(200, response.statusCode());
 
-			response.bodyHandler(body -> {
-				context.assertEquals("Oh yes I'm so dummy!", body.toString());
-				async.complete();
-			});
-		});
+
+				assertEquals("Oh yes I'm so dummy!", response.body());
+				context.completeNow();
+			})));
 	}
 }
 */
