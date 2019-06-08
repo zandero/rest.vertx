@@ -5,7 +5,7 @@ import com.zandero.rest.test.TestStaticFileRest;
 import com.zandero.rest.test.handler.RestNotFoundHandler;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -18,11 +18,11 @@ import org.junit.runner.RunWith;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class StaticFileTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 
 		super.before();
 
@@ -38,17 +38,17 @@ public class StaticFileTest extends VertxTest {
 
 
 		vertx.createHttpServer(serverOptions)
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 	}
 
 	@Test
-	public void testGetIndex(TestContext context) {
+	public void testGetIndex(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/docs/index.html", response -> {
+
+		client.get(PORT, HOST, "/docs/index.html").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -65,12 +65,12 @@ public class StaticFileTest extends VertxTest {
 
 	@Ignore // todo: issue #26
 	@Test
-	public void fileNotFoundTest(TestContext context) {
+	public void fileNotFoundTest(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/docs/notExistent/file.html", response -> {
+
+		client.get(PORT, HOST, "/docs/notExistent/file.html").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(404, response.statusCode());
 

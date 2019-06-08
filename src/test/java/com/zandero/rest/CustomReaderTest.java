@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ExtendWith(VertxExtension.class)
 class CustomReaderTest extends VertxTest {
 
-    @BeforeAll
+    @BeforeEach
     static void start() {
 
         before();

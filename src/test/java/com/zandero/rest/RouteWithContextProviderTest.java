@@ -5,7 +5,7 @@ import com.zandero.rest.test.TestContextRest;
 import com.zandero.rest.test.data.TokenProvider;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -17,11 +17,11 @@ import org.junit.runner.RunWith;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteWithContextProviderTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 
 		super.before();
 
@@ -34,17 +34,17 @@ public class RouteWithContextProviderTest extends VertxTest {
 		RestRouter.addProvider(TokenProvider.class);
 
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 	}
 
 	@Test
-	public void pushContextTest(TestContext context) {
+	public void pushContextTest(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/context/custom", response -> {
+
+		client.get(PORT, HOST, "/context/custom").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -56,12 +56,12 @@ public class RouteWithContextProviderTest extends VertxTest {
 	}
 
 	@Test
-	public void pushContextTokenTest(TestContext context) {
+	public void pushContextTokenTest(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.get("/context/token", response -> {
+
+		client.get("/context/token").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -73,12 +73,12 @@ public class RouteWithContextProviderTest extends VertxTest {
 	}
 
 	@Test
-	public void noContextTokenTest(TestContext context) {
+	public void noContextTokenTest(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/context/token", response -> {
+
+		client.get(PORT, HOST, "/context/token").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(400, response.statusCode());
 
@@ -90,12 +90,12 @@ public class RouteWithContextProviderTest extends VertxTest {
 	}
 
 	@Test
-	public void readMethodContextTokenDummy(TestContext context) {
+	public void readMethodContextTokenDummy(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.get("/context/dummy", response -> {
+
+		client.get("/context/dummy").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -110,12 +110,12 @@ public class RouteWithContextProviderTest extends VertxTest {
 	}
 
 	@Test
-	public void readParamContextTokenDummy(TestContext context) {
+	public void readParamContextTokenDummy(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.get("/context/dummy-token", response -> {
+
+		client.get("/context/dummy-token").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 

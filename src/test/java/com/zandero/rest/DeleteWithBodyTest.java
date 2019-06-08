@@ -27,7 +27,7 @@ class DeleteWithBodyTest extends VertxTest {
         Router router = RestRouter.register(vertx, TestPostRest.class);
 
         vertx.createHttpServer()
-                .requestHandler(router::accept)
+                .requestHandler(router)
                 .listen(PORT);
     }
 

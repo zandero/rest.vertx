@@ -3,7 +3,7 @@ package com.zandero.rest;
 
 import com.zandero.rest.test.TestMatrixParamRest;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -15,26 +15,27 @@ import org.junit.runner.RunWith;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteWithMatrixTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 
 		super.before();
 
 		Router router = RestRouter.register(vertx, TestMatrixParamRest.class);
 		vertx.createHttpServer()
-		.requestHandler(router::accept)
+		.requestHandler(router)
 		.listen(PORT);
 	}
 
 	@Test
-	public void matrixExtractTest(TestContext context) {
+	public void matrixExtractTest(VertxTestContext context) {
 
 		final Async async = context.async();
 
-		client.getNow("/matrix/extract/result;one=1;two=2", response -> {
+		client.get(PORT, HOST, "/matrix/extract/result;one=1;two=2").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -46,11 +47,12 @@ public class RouteWithMatrixTest extends VertxTest {
 	}
 
 	@Test
-	public void matrixRegExTest(TestContext context) {
+	public void matrixRegExTest(VertxTestContext context) {
 
 		final Async async = context.async();
 
-		client.getNow("/matrix/direct/param;one=1;two=2", response -> {
+		client.get(PORT, HOST, "/matrix/direct/param;one=1;two=2").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			//context.assertEquals(200, response.statusCode());
 

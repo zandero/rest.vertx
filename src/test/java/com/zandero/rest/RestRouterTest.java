@@ -40,7 +40,7 @@ class RestRouterTest extends VertxTest {
 
         vertx.createHttpServer()
                 .requestHandler(router)
-                .listen(PORT, testContext.succeeding());
+                .listen(PORT, VertxTestContext.succeeding());
     }
 
     @Test

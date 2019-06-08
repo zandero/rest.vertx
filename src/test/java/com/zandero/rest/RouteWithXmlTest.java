@@ -5,7 +5,7 @@ import com.zandero.rest.test.TestWithXmlRest;
 import com.zandero.rest.test.json.User;
 import com.zandero.rest.writer.MyXmlWriter;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -17,29 +17,26 @@ import org.junit.runner.RunWith;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteWithXmlTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
-
-		super.before();
+	@BeforeAll
 
 		Router router = RestRouter.register(vertx, TestWithXmlRest.class);
 		RestRouter.getWriters().register(User.class, MyXmlWriter.class);
 
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 	}
 
 	@Test
-	public void textXml(TestContext context) {
+	public void textXml(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/xml/test", response -> {
+
+		client.get(PORT, HOST, "/xml/test").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -57,12 +54,12 @@ public class RouteWithXmlTest extends VertxTest {
 	}
 
 	@Test
-	public void textXmlWriterAddsHeader(TestContext context) {
+	public void textXmlWriterAddsHeader(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/xml/test2", response -> {
+
+		client.get(PORT, HOST, "/xml/test2").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 

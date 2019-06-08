@@ -9,7 +9,7 @@ import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Test;
@@ -20,10 +20,10 @@ import org.junit.runner.RunWith;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class GuicedInjectionTest extends VertxTest {
 
-	public void startWith(InjectionProvider provider, TestContext context) {
+	public void startWith(InjectionProvider provider, VertxTestContext context) {
 
 		super.before();
 
@@ -33,18 +33,19 @@ public class GuicedInjectionTest extends VertxTest {
 			                .build();
 
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 	}
 
 	@Test
-	public void guiceCallInjectedRestTest(TestContext context) {
+	public void guiceCallInjectedRestTest(VertxTestContext context) {
 
 		startWith(new GuiceInjectionProvider(), context);
 
 		final Async async = context.async();
 
-		client.getNow("/guice/A", response -> {
+		client.get(PORT, HOST, "/guice/A").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -57,13 +58,14 @@ public class GuicedInjectionTest extends VertxTest {
 	}
 
 	@Test
-	public void guiceCallGuicedRestTest(TestContext context) {
+	public void guiceCallGuicedRestTest(VertxTestContext context) {
 
 		startWith(new GuiceInjectionProvider(), context);
 
 		final Async async = context.async();
 
-		client.getNow("/guiceit", response -> {
+		client.get(PORT, HOST, "/guiceit").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -76,14 +78,15 @@ public class GuicedInjectionTest extends VertxTest {
 	}
 
 	@Test
-	public void guiceCallInjectedPost(TestContext context) {
+	public void guiceCallInjectedPost(VertxTestContext context) {
 
 		startWith(new GuiceInjectionProvider(), context);
 
 		final Async async = context.async();
 
 		Dummy json = new Dummy("test", "me");
-		client.post("/guice/json", response -> {
+		client.post("/guice/json").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 

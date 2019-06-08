@@ -26,7 +26,7 @@ class FormRestTest extends VertxTest {
         Router router = RestRouter.register(vertx, testRest);
 
         vertx.createHttpServer()
-                .requestHandler(router::accept)
+                .requestHandler(router)
                 .listen(PORT);
     }
 

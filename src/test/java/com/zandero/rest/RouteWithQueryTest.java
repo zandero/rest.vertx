@@ -5,7 +5,7 @@ import com.zandero.rest.test.TestQueryRest;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -17,11 +17,11 @@ import org.junit.runner.RunWith;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteWithQueryTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 
 		super.before();
 
@@ -30,34 +30,17 @@ public class RouteWithQueryTest extends VertxTest {
 		Router router = RestRouter.register(vertx, testRest);
 		router.mountSubRouter("/sub", router);
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 	}
 
 	@Test
-	public void testAdd(TestContext context) {
+	public void testAdd(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/query/add?one=1&two=2", response -> {
 
-			context.assertEquals(200, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("3", body.toString());
-				async.complete();
-			});
-		});
-	}
-
-	@Test
-	public void testSubAdd(TestContext context) {
-
-		// call and check response
-		final Async async = context.async();
-
-		client.getNow("/sub/query/add?one=1&two=2", response -> {
+		client.get(PORT, HOST, "/query/add?one=1&two=2").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -69,12 +52,29 @@ public class RouteWithQueryTest extends VertxTest {
 	}
 
 	@Test
-	public void additionalParametersTest(TestContext context) {
+	public void testSubAdd(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/query/add?one=3&two=5&three=3", response -> {
+
+		client.get(PORT, HOST, "/sub/query/add?one=1&two=2").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
+
+			context.assertEquals(200, response.statusCode());
+
+			response.bodyHandler(body -> {
+				context.assertEquals("3", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void additionalParametersTest(VertxTestContext context) {
+
+
+
+		client.get(PORT, HOST, "/query/add?one=3&two=5&three=3").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -86,12 +86,12 @@ public class RouteWithQueryTest extends VertxTest {
 	}
 
 	@Test
-	public void missingParametersTest(TestContext context) {
+	public void missingParametersTest(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/query/add?two=5&three=3", response -> {
+
+		client.get(PORT, HOST, "/query/add?two=5&three=3").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(400, response.statusCode());
 
@@ -103,11 +103,12 @@ public class RouteWithQueryTest extends VertxTest {
 	}
 
 	@Test
-	public void queryTypeMismatchTest(TestContext context) {
+	public void queryTypeMismatchTest(VertxTestContext context) {
 
 		final Async async = context.async();
 
-		client.getNow("/query/add?one=A&two=2", response -> {
+		client.get(PORT, HOST, "/query/add?one=A&two=2").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(400, response.statusCode());
 
@@ -120,11 +121,12 @@ public class RouteWithQueryTest extends VertxTest {
 	}
 
 	@Test
-	public void queryNegativeTest(TestContext context) {
+	public void queryNegativeTest(VertxTestContext context) {
 
 		final Async async = context.async();
 
-		client.getNow("/query/invert?negative=true&value=2.4", response -> {
+		client.get(PORT, HOST, "/query/invert?negative=true&value=2.4").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -136,11 +138,12 @@ public class RouteWithQueryTest extends VertxTest {
 	}
 
 	@Test
-	public void queryNegativeTest2(TestContext context) {
+	public void queryNegativeTest2(VertxTestContext context) {
 
 		final Async async = context.async();
 
-		client.getNow("/query/invert?negative=false&value=2.4", response -> {
+		client.get(PORT, HOST, "/query/invert?negative=false&value=2.4").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -152,13 +155,14 @@ public class RouteWithQueryTest extends VertxTest {
 	}
 
 	@Test
-	public void echoDummyJsonTest(TestContext context) {
+	public void echoDummyJsonTest(VertxTestContext context) {
 
 		final Async async = context.async();
 		Dummy dummy = new Dummy("one", "dude");
 		String json = JsonUtils.toJson(dummy);
 
-		client.getNow("/query/json?dummy=" + json, response -> {
+		client.get(PORT, HOST, "/query/json?dummy=" + json.as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -170,10 +174,11 @@ public class RouteWithQueryTest extends VertxTest {
 	}
 
 	@Test
-	public void emptyQueryParamTest(TestContext context) {
+	public void emptyQueryParamTest(VertxTestContext context) {
 
 		final Async async = context.async();
-		client.getNow("/query/empty?empty", response -> {
+		client.get(PORT, HOST, "/query/empty?empty").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -185,10 +190,11 @@ public class RouteWithQueryTest extends VertxTest {
 	}
 
 	@Test
-	public void emptyQueryParamMissingTest(TestContext context) {
+	public void emptyQueryParamMissingTest(VertxTestContext context) {
 
 		final Async async = context.async();
-		client.getNow("/query/empty", response -> {
+		client.get(PORT, HOST, "/query/empty").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -200,10 +206,11 @@ public class RouteWithQueryTest extends VertxTest {
 	}
 
 	@Test
-	public void decodeQueryParamMissingTest(TestContext context) {
+	public void decodeQueryParamMissingTest(VertxTestContext context) {
 
 		final Async async = context.async();
-		client.getNow("/query/decode?query=test+%7Bhello%7D", response -> {
+		client.get(PORT, HOST, "/query/decode?query=test+%7Bhello%7D").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -215,10 +222,11 @@ public class RouteWithQueryTest extends VertxTest {
 	}
 
 	@Test
-	public void decodeQueryWithPlus(TestContext context) {
+	public void decodeQueryWithPlus(VertxTestContext context) {
 
 		final Async async = context.async();
-		client.getNow("/query/decode?query=hello+world", response -> {
+		client.get(PORT, HOST, "/query/decode?query=hello+world").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -230,10 +238,11 @@ public class RouteWithQueryTest extends VertxTest {
 	}
 
 	@Test
-	public void rawQueryParamMissingTest(TestContext context) {
+	public void rawQueryParamMissingTest(VertxTestContext context) {
 
 		final Async async = context.async();
-		client.getNow("/query/decode?original=test+%7Bhello%7D", response -> {
+		client.get(PORT, HOST, "/query/decode?original=test+%7Bhello%7D").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 

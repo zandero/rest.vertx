@@ -3,7 +3,7 @@ package com.zandero.rest;
 
 import com.zandero.rest.test.TestRegExRest;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -15,11 +15,11 @@ import org.junit.runner.RunWith;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteWithRegExTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 
 		super.before();
 
@@ -28,17 +28,17 @@ public class RouteWithRegExTest extends VertxTest {
 		router = router.mountSubRouter("/sub", router);
 
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 	}
 
 	@Test
-	public void testSimpleRegEx(TestContext context) {
+	public void testSimpleRegEx(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/regEx/123", response -> {
+
+		client.get(PORT, HOST, "/regEx/123").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -50,13 +50,13 @@ public class RouteWithRegExTest extends VertxTest {
 	}
 
 	@Test
-	public void testSubSimpleRegEx(TestContext context) {
-
-		// call and check response
-		final Async async = context.async();
+	public void testSubSimpleRegEx(VertxTestContext context) {
 
 
-		client.getNow("/sub/regEx/231", response -> {
+
+
+		client.get(PORT, HOST, "/sub/regEx/231").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -68,12 +68,12 @@ public class RouteWithRegExTest extends VertxTest {
 	}
 
 	@Test
-	public void testRegEx(TestContext context) {
+	public void testRegEx(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/regEx/1/minus/2", response -> {
+
+		client.get(PORT, HOST, "/regEx/1/minus/2").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -85,12 +85,12 @@ public class RouteWithRegExTest extends VertxTest {
 	}
 
 	@Test
-	public void testSubRegEx(TestContext context) {
+	public void testSubRegEx(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/sub/regEx/2/minus/1", response -> {
+
+		client.get(PORT, HOST, "/sub/regEx/2/minus/1").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -102,29 +102,12 @@ public class RouteWithRegExTest extends VertxTest {
 	}
 
 	@Test
-	public void testSimpleRegExWithMultipleVariables(TestContext context) {
+	public void testSimpleRegExWithMultipleVariables(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/regEx/ena/2/tri", response -> {
 
-			context.assertEquals(200, response.statusCode());
-
-			response.bodyHandler(body -> {
-				context.assertEquals("{one=ena, two=2, three=tri}", body.toString());
-				async.complete();
-			});
-		});
-	}
-
-	@Test
-	public void testSubSimpleRegExWithMultipleVariables(TestContext context) {
-
-		// call and check response
-		final Async async = context.async();
-
-		client.getNow("/sub/regEx/ena/2/tri", response -> {
+		client.get(PORT, HOST, "/regEx/ena/2/tri").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -136,12 +119,29 @@ public class RouteWithRegExTest extends VertxTest {
 	}
 
 	@Test
-	public void testAllButApi(TestContext context) {
+	public void testSubSimpleRegExWithMultipleVariables(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/regEx/api/a", response -> {
+
+		client.get(PORT, HOST, "/sub/regEx/ena/2/tri").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
+
+			context.assertEquals(200, response.statusCode());
+
+			response.bodyHandler(body -> {
+				context.assertEquals("{one=ena, two=2, three=tri}", body.toString());
+				async.complete();
+			});
+		});
+	}
+
+	@Test
+	public void testAllButApi(VertxTestContext context) {
+
+
+
+		client.get(PORT, HOST, "/regEx/api/a").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals(200, response.statusCode());
@@ -152,12 +152,12 @@ public class RouteWithRegExTest extends VertxTest {
 	}
 
 	@Test
-	public void testAllButApi2(TestContext context) {
+	public void testAllButApi2(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/regEx/test", response -> {
+
+		client.get(PORT, HOST, "/regEx/test").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals(200, response.statusCode());

@@ -7,7 +7,7 @@ import com.zandero.utils.extra.JsonUtils;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -23,16 +23,16 @@ import static org.junit.Assert.assertTrue;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteWithEventsTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 		super.before();
 	}
 
 	@Test
-	public void testSimpleEvent(TestContext context) throws InterruptedException {
+	public void testSimpleEvent(VertxTestContext context) throws InterruptedException {
 
 		Router router = RestRouter.register(vertx, TestEventsRest.class);
 
@@ -45,13 +45,13 @@ public class RouteWithEventsTest extends VertxTest {
 		});
 
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/events/ok", response -> {
+
+		client.get(PORT, HOST, "/events/ok").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals(200, response.statusCode());
@@ -64,7 +64,7 @@ public class RouteWithEventsTest extends VertxTest {
 	}
 
 	@Test
-	public void testStatusEvent(TestContext context) throws InterruptedException {
+	public void testStatusEvent(VertxTestContext context) throws InterruptedException {
 
 		Router router = RestRouter.register(vertx, TestEventsRest.class);
 
@@ -77,13 +77,13 @@ public class RouteWithEventsTest extends VertxTest {
 		});
 
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/events/error/301", response -> {
+
+		client.get(PORT, HOST, "/events/error/301").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals(301, response.statusCode());
@@ -96,7 +96,7 @@ public class RouteWithEventsTest extends VertxTest {
 	}
 
 	@Test
-	public void testExceptionEvent(TestContext context) throws InterruptedException {
+	public void testExceptionEvent(VertxTestContext context) throws InterruptedException {
 
 		Router router = RestRouter.register(vertx, TestEventsRest.class);
 
@@ -109,13 +109,13 @@ public class RouteWithEventsTest extends VertxTest {
 		});
 
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/events/error/400", response -> {
+
+		client.get(PORT, HOST, "/events/error/400").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals(400, response.statusCode());

@@ -4,7 +4,7 @@ package com.zandero.rest;
 import com.zandero.rest.test.TestEchoRest;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -16,27 +16,27 @@ import org.junit.runner.RunWith;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteWithTraceTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 		super.before();
 	}
 
 	@Test
-	public void testTrace(TestContext context) {
+	public void testTrace(VertxTestContext context) {
 
 		Router router = RestRouter.register(vertx, TestEchoRest.class);
 
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 
-		// call and check response
-		final Async async = context.async();
 
-		client.request(HttpMethod.TRACE, "/rest/echo", response -> {
+
+		client.request(HttpMethod.TRACE, "/rest/echo").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("trace", body.toString()); // returns sorted list of unique words

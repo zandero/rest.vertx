@@ -7,7 +7,7 @@ import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -19,10 +19,10 @@ import static org.junit.Assert.*;
 /**
  *
  */
-public class RouteDefinitionTest {
+class RouteDefinitionTest {
 
 	@Test
-	public void getDefinitionTest() throws NoSuchMethodException {
+	void getDefinitionTest() throws NoSuchMethodException {
 
 		RouteDefinition base = new RouteDefinition(TestRest.class);
 
@@ -49,7 +49,7 @@ public class RouteDefinitionTest {
 	}
 
 	@Test
-	public void emptyRootPath() throws NoSuchMethodException {
+	void emptyRootPath() throws NoSuchMethodException {
 
 		RouteDefinition base = new RouteDefinition(TestEchoRest2.class);
 		assertEquals("/test", base.getPath());
@@ -61,7 +61,7 @@ public class RouteDefinitionTest {
 	}
 
 	@Test
-	public void getBodyParamTest() {
+	void getBodyParamTest() {
 
 		RouteDefinition base = new RouteDefinition(TestPostRest.class);
 
@@ -97,7 +97,7 @@ public class RouteDefinitionTest {
 	}
 
 	@Test
-	public void regExDefinitionTest() {
+	void regExDefinitionTest() {
 
 		RouteDefinition base = new RouteDefinition(TestRegExRest.class);
 
@@ -132,7 +132,7 @@ public class RouteDefinitionTest {
 	}
 
 	@Test
-	public void missingArgumentAnnotationTest() {
+	void missingArgumentAnnotationTest() {
 
 		try {
 			AnnotationProcessor.get(TestMissingAnnotationsRest.class);
@@ -144,7 +144,8 @@ public class RouteDefinitionTest {
 		}
 	}
 
-	@Test public void isAsyncTest() {
+	@Test
+	void isAsyncTest() {
 
 		Future<String> out = Future.future();
 		CompositeFuture out2 = CompositeFuture.all(out, out);

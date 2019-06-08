@@ -7,7 +7,7 @@ import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
 import com.zandero.rest.test.handler.MyExceptionHandler;
 import com.zandero.rest.test.handler.MyOtherExceptionHandler;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -19,13 +19,13 @@ import org.junit.runner.RunWith;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteErrorHandlerTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 
-		super.before();
+		before();
 
 		Router router = new RestBuilder(vertx)
 			                .register(ErrorThrowingRest.class, new ErrorThrowingRest2())
@@ -35,17 +35,17 @@ public class RouteErrorHandlerTest extends VertxTest {
 			                .build();
 
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 	}
 
 	@Test
-	public void throwUnhandledExceptionTest(TestContext context) {
+	public void throwUnhandledExceptionTest(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/throw/unhandled", response -> {
+
+		client.get(PORT, HOST, "/throw/unhandled").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("Huh this produced an error: 'KABUM!'", body.toString());
@@ -56,12 +56,12 @@ public class RouteErrorHandlerTest extends VertxTest {
 	}
 
 	@Test
-	public void throwUnhandledExceptionOne(TestContext context) {
+	public void throwUnhandledExceptionOne(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/throw/big/one", response -> {
+
+		client.get(PORT, HOST, "/throw/big/one").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("{\"message\":\"HTTP 405 Method Not Allowed\",\"code\":406}", body.toString());
@@ -72,13 +72,13 @@ public class RouteErrorHandlerTest extends VertxTest {
 	}
 
 	@Test
-	public void throwUnhandledExceptionTwo(TestContext context) {
+	public void throwUnhandledExceptionTwo(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
+
 
 		// JsonExceptionHandler will take over
-		client.getNow("/throw/big/two", response -> {
+		client.get(PORT, HOST, "/throw/big/two").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("{\"message\":\"Bang!\",\"code\":406}", body.toString());
@@ -89,13 +89,13 @@ public class RouteErrorHandlerTest extends VertxTest {
 	}
 
 	@Test
-	public void throwUnhandledExceptionThree(TestContext context) {
+	public void throwUnhandledExceptionThree(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
+
 
 		// JsonExceptionHandler
-		client.getNow("/throw/big/three", response -> {
+		client.get(PORT, HOST, "/throw/big/three").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("{\"message\":\"WHAT!\",\"code\":406}", body.toString());
@@ -106,13 +106,13 @@ public class RouteErrorHandlerTest extends VertxTest {
 	}
 
 	@Test
-	public void throwUnhandledExceptionFour(TestContext context) {
+	public void throwUnhandledExceptionFour(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
+
 
 		// FAIL MyExceptionHandler should handle this one
-		client.getNow("/throw/big/four", response -> {
+		client.get(PORT, HOST, "/throw/big/four").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("{\"message\":null,\"code\":406}", body.toString());
@@ -123,12 +123,12 @@ public class RouteErrorHandlerTest extends VertxTest {
 	}
 
 	@Test
-	public void throwHandledExceptionOne(TestContext context) {
+	public void throwHandledExceptionOne(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/throw/multi/one", response -> {
+
+		client.get(PORT, HOST, "/throw/multi/one").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			// MyOtherExceptionHandler should handle this
 			response.bodyHandler(body -> {
@@ -140,13 +140,13 @@ public class RouteErrorHandlerTest extends VertxTest {
 	}
 
 	@Test
-	public void throwHandledExceptionTwo(TestContext context) {
+	public void throwHandledExceptionTwo(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
+
 
 		// IllegalArgumentExceptionHandler should handle this one
-		client.getNow("/throw/multi/two", response -> {
+		client.get(PORT, HOST, "/throw/multi/two").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("Huh this produced an error: 'Bang!'", body.toString());
@@ -157,13 +157,13 @@ public class RouteErrorHandlerTest extends VertxTest {
 	}
 
 	@Test
-	public void throwHandledExceptionThree(TestContext context) {
+	public void throwHandledExceptionThree(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
+
 
 		// IllegalArgumentExceptionHandler should handle this one
-		client.getNow("/throw/multi/three", response -> {
+		client.get(PORT, HOST, "/throw/multi/three").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("Huh this produced an error: 'WHAT!'", body.toString());
@@ -174,13 +174,13 @@ public class RouteErrorHandlerTest extends VertxTest {
 	}
 
 	@Test
-	public void throwHandledExceptionFour(TestContext context) {
+	public void throwHandledExceptionFour(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
+
 
 		// MyExceptionHandler should handle this one
-		client.getNow("/throw/multi/four", response -> {
+		client.get(PORT, HOST, "/throw/multi/four").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("Exception: ADIOS!", body.toString());

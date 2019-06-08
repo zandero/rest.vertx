@@ -31,7 +31,7 @@ class GlobalErrorHandlerTest extends VertxTest {
         Router router = RestRouter.register(vertx, unhandled, handled);
 
         vertx.createHttpServer()
-                .requestHandler(router::accept)
+                .requestHandler(router)
                 .listen(PORT);
     }
 

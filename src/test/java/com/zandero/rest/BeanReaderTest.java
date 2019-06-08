@@ -7,21 +7,22 @@ import io.vertx.ext.web.Router;
 import io.vertx.junit5.VertxExtension;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-//@RunWith(VertxUnitRunner.class)
+//@ExtendWith(VertxExtension.class)
 @ExtendWith(VertxExtension.class)
 public class BeanReaderTest extends VertxTest {
 
-    @Before
-    public void startUp() {
+    @BeforeAll
+    static void startUp() {
 
 //        super.before();
 
         Router router = RestRouter.register(vertx, TestBeanReaderRest.class);
 
         vertx.createHttpServer()
-                .requestHandler(router::accept)
+                .requestHandler(router)
                 .listen(PORT);
     }
 
@@ -38,7 +39,8 @@ public class BeanReaderTest extends VertxTest {
                     // (we can check here if the server started or not)
                 });
 
-        client.post("/read/bean", response -> {
+        client.post("/read/bean").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
             context.assertEquals(200, response.statusCode());
 
@@ -50,7 +52,7 @@ public class BeanReaderTest extends VertxTest {
     }
 
     @Test
-    public void testCustomInputNew(TestContext context) {
+    public void testCustomInputNew(VertxTestContext context) {
 
         // call and check response
         final Async async = context.async();
@@ -64,7 +66,8 @@ public class BeanReaderTest extends VertxTest {
         IntStream intStream = "The quick brown fox jumps over the red dog!".chars();*//*
 
 
-        webClient.post(HOST, "/read/bean").sendStream(rs, response -> {
+        webClient.post(HOST, "/read/bean").sendStream(rs.as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
             context.assertTrue(response.succeeded(), response.cause().getMessage());
             HttpResponse<Buffer> buffer = response.result();

@@ -7,7 +7,7 @@ import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -19,30 +19,30 @@ import org.junit.runner.RunWith;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteWithPatchTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 
 		super.before();
 
 		Router router = RestRouter.register(vertx, TestPatchRest.class);
 
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 	}
 
 	@Test
-	public void testCustomInput(TestContext context) {
+	public void testCustomInput(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
+
 
 		Dummy json = new Dummy("test", "me");
 
-		client.request(HttpMethod.PATCH,"/patch/it", response -> {
+		client.request(HttpMethod.PATCH,"/patch/it").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 

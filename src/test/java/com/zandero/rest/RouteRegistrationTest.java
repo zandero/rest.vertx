@@ -8,7 +8,7 @@ import com.zandero.rest.test.TestRest;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.apache.http.HttpResponse;
@@ -27,11 +27,11 @@ import static org.junit.Assert.assertEquals;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteRegistrationTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 
 		super.before();
 
@@ -40,12 +40,12 @@ public class RouteRegistrationTest extends VertxTest {
 
 		Router router = RestRouter.register(vertx, testRest, testPostRest);
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 	}
 
 	@Test
-	public void registerTwoRoutesTest(TestContext context) throws IOException {
+	public void registerTwoRoutesTest(VertxTestContext context) throws IOException {
 
 		final Async async = context.async();
 
@@ -66,7 +66,7 @@ public class RouteRegistrationTest extends VertxTest {
 	}
 
 	@Test
-	public void registerTwoRoutesSeparate(TestContext context) throws IOException {
+	public void registerTwoRoutesSeparate(VertxTestContext context) throws IOException {
 
 		final Async async = context.async();
 

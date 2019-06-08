@@ -3,7 +3,7 @@ package com.zandero.rest;
 
 import com.zandero.rest.test.TestPathRest;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -17,11 +17,11 @@ import java.io.IOException;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteSubPathTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 
 		super.before();
 
@@ -31,16 +31,17 @@ public class RouteSubPathTest extends VertxTest {
 		router.mountSubRouter("/sub", router);
 
 		vertx.createHttpServer()
-			.requestHandler(router::accept)
+			.requestHandler(router)
 			.listen(PORT);
 	}
 
 	@Test
-	public void rootWithRootPathTest(TestContext context) throws IOException {
+	public void rootWithRootPathTest(VertxTestContext context) throws IOException {
 
 		final Async async = context.async();
 
-		client.getNow("/query/echo/this", response -> {
+		client.get(PORT, HOST, "/query/echo/this").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -51,7 +52,8 @@ public class RouteSubPathTest extends VertxTest {
 		});
 
 		final Async async2 = context.async();
-		client.getNow("/sub/query/echo/this", response -> {
+		client.get(PORT, HOST, "/sub/query/echo/this").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -63,11 +65,12 @@ public class RouteSubPathTest extends VertxTest {
 	}
 
 	@Test
-	public void rootWithRootPathTest2(TestContext context) throws IOException {
+	public void rootWithRootPathTest2(VertxTestContext context) throws IOException {
 
 		final Async async = context.async();
 
-		client.getNow("/this/echo/query", response -> {
+		client.get(PORT, HOST, "/this/echo/query").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -78,7 +81,8 @@ public class RouteSubPathTest extends VertxTest {
 		});
 
 		final Async async2 = context.async();
-		client.getNow("/sub/this/echo/query", response -> {
+		client.get(PORT, HOST, "/sub/this/echo/query").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -90,11 +94,12 @@ public class RouteSubPathTest extends VertxTest {
 	}
 
 	@Test
-	public void rootWithoutPathTest(TestContext context) throws IOException {
+	public void rootWithoutPathTest(VertxTestContext context) throws IOException {
 
 		final Async async = context.async();
 
-		client.getNow("/this", response -> {
+		client.get(PORT, HOST, "/this").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -105,7 +110,8 @@ public class RouteSubPathTest extends VertxTest {
 		});
 
 		final Async async2 = context.async();
-		client.getNow("/sub/this", response -> {
+		client.get(PORT, HOST, "/sub/this").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 

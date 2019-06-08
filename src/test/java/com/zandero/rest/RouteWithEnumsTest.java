@@ -3,7 +3,7 @@ package com.zandero.rest;
 
 import com.zandero.rest.test.TestEnumRest;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -15,26 +15,27 @@ import org.junit.runner.RunWith;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteWithEnumsTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 
 		super.before();
 
 		Router router = RestRouter.register(vertx, TestEnumRest.class);
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 	}
 
 	@Test
-	public void valueOfTest(TestContext context) {
+	public void valueOfTest(VertxTestContext context) {
 
 		final Async async = context.async();
 
-		client.getNow("/enum/simple/one", response -> {
+		client.get(PORT, HOST, "/enum/simple/one").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("one", body.toString());
@@ -45,11 +46,12 @@ public class RouteWithEnumsTest extends VertxTest {
 	}
 
 	@Test
-	public void fromStringTest(TestContext context) {
+	public void fromStringTest(VertxTestContext context) {
 
 		final Async async = context.async();
 
-		client.getNow("/enum/fromString/3", response -> {
+		client.get(PORT, HOST, "/enum/fromString/3").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("three", body.toString());

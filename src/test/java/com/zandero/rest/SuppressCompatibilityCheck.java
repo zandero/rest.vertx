@@ -4,7 +4,7 @@ package com.zandero.rest;
 import com.zandero.rest.test.TestEchoRest;
 import com.zandero.rest.writer.TestSuppressedWriter;
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -18,11 +18,11 @@ import static org.junit.Assert.fail;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class SuppressCompatibilityCheck extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 
 		super.before();
 
@@ -35,13 +35,13 @@ public class SuppressCompatibilityCheck extends VertxTest {
 		serverOptions.setCompressionSupported(true);
 
 		vertx.createHttpServer(serverOptions)
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 	}
 
 	// incompatible response / writer combination
 	@Test
-	public void testSuppressedCheck(TestContext context) {
+	public void testSuppressedCheck(VertxTestContext context) {
 		try {
 			new RestBuilder(vertx)
 				.writer(String.class, TestSuppressedWriter.class)

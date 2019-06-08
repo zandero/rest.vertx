@@ -7,8 +7,8 @@ import io.vertx.ext.web.client.WebClient;
 import io.vertx.junit5.VertxExtension;
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.HibernateValidatorConfiguration;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.validation.Validation;
@@ -16,20 +16,21 @@ import javax.validation.Validator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-//@RunWith(VertxUnitRunner.class)
+//@ExtendWith(VertxExtension.class)
 @ExtendWith(VertxExtension.class)
 public class ValidationTest extends VertxTest {
 
-    HibernateValidatorConfiguration configuration = Validation.byProvider(HibernateValidator.class)
-            .configure();
+    @BeforeAll
+    static void start() {
 
-    Validator validator = configuration.buildValidatorFactory()
-            .getValidator();
+        before();
 
-    @Before
-    public void start() {
+        HibernateValidatorConfiguration configuration = Validation.byProvider(HibernateValidator.class)
+                .configure();
 
-        super.before();
+        Validator validator = configuration.buildValidatorFactory()
+                .getValidator();
+
 
         Router router = new RestBuilder(vertx)
                 .register(TestValidRest.class)
@@ -38,7 +39,7 @@ public class ValidationTest extends VertxTest {
 
         vertx.createHttpServer()
                 .requestHandler(router)
-                .listen(PORT, testContext.completing());
+                .listen(PORT, VertxTestContext.completing());
     }
 
     @Test
@@ -54,13 +55,14 @@ public class ValidationTest extends VertxTest {
 
         client.post(PORT, HOST, "/check/dummy")
                 .putHeader("content-type", "application/json")
-                .sendBuffer(Buffer.buffer(content), testContext.succeeding(response -> testContext.verify(() -> {
+                .sendBuffer(Buffer.buffer(content), VertxTestContext.succeeding(response -> VertxTestContext.verify(() -> {
                     assertEquals(response.body().toString(), "Plop");
-                    testContext.completeNow();
+                    VertxTestContext.completeNow();
                 })));
 
 
-		/*client.post("/check/dummy", response -> {
+		/*client.post("/check/dummy").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("body ValidDummy.value: must not be null", body.toString());
@@ -73,13 +75,13 @@ public class ValidationTest extends VertxTest {
     }
 
 /*	@Test
-	public void testDummyViolationSize(TestContext context) {
+	public void testDummyViolationSize(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
+
 
 		String content = "{\"name\": \"test\", \"value\": \"test\", \"size\": 30}";
-		client.post("/check/dummy", response -> {
+		client.post("/check/dummy").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("body ValidDummy.size: must be less than or equal to 20", body.toString());
@@ -92,12 +94,12 @@ public class ValidationTest extends VertxTest {
 	}
 
 	@Test
-	public void testThatOne(TestContext context) {
+	public void testThatOne(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/check/that", response -> {
+
+		client.get(PORT, HOST, "/check/that").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("", body.toString());
@@ -108,12 +110,12 @@ public class ValidationTest extends VertxTest {
 	}
 
 	@Test
-	public void testThisOne(TestContext context) {
+	public void testThisOne(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/check/this", response -> {
+
+		client.get(PORT, HOST, "/check/this").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("@QueryParam(\"one\"): must not be null", body.toString());
@@ -125,12 +127,12 @@ public class ValidationTest extends VertxTest {
 	}
 
 	@Test
-	public void testTheOther(TestContext context) {
+	public void testTheOther(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/check/other?one=0&two=0&three=20", response -> {
+
+		client.get(PORT, HOST, "/check/other?one=0&two=0&three=20").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 
@@ -147,12 +149,12 @@ public class ValidationTest extends VertxTest {
 	}
 
 	@Test
-	public void testResult(TestContext context) {
+	public void testResult(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/check/result?one=1", response -> {
+
+		client.get(PORT, HOST, "/check/result?one=1").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 
@@ -163,12 +165,12 @@ public class ValidationTest extends VertxTest {
 	}
 
 	@Test
-	public void testResultInvalid(TestContext context) {
+	public void testResultInvalid(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/check/result?one=11", response -> {
+
+		client.get(PORT, HOST, "/check/result?one=11").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 
@@ -184,12 +186,12 @@ public class ValidationTest extends VertxTest {
 	}
 
 	@Test
-	public void testResultInvalidNull(TestContext context) {
+	public void testResultInvalidNull(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/check/result?one=A", response -> {
+
+		client.get(PORT, HOST, "/check/result?one=A").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 
@@ -205,12 +207,12 @@ public class ValidationTest extends VertxTest {
 	}
 
 	@Test
-	public void testEmptyMethod(TestContext context) {
+	public void testEmptyMethod(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/check/empty", response -> {
+
+		client.get(PORT, HOST, "/check/empty").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 

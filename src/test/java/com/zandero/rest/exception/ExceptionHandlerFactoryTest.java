@@ -6,6 +6,8 @@ import com.zandero.rest.test.exceptions.InheritedFromInheritedException;
 import com.zandero.rest.test.handler.*;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import javax.ws.rs.WebApplicationException;
 
@@ -16,9 +18,10 @@ import static org.junit.Assert.*;
  */
 public class ExceptionHandlerFactoryTest {
 
-	private ExceptionHandlerFactory factory;
+	static private ExceptionHandlerFactory factory;
 
-	@Before public void setUp() {
+	@BeforeEach
+	static void setUp() {
 		factory = new ExceptionHandlerFactory();
 	}
 

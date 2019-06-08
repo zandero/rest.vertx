@@ -6,7 +6,7 @@ import com.zandero.rest.test.handler.BaseExceptionHandler;
 import com.zandero.rest.test.handler.InheritedBaseExceptionHandler;
 import com.zandero.rest.test.handler.InheritedFromInheritedExceptionHandler;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -18,11 +18,11 @@ import org.junit.runner.RunWith;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteExceptionHandlerTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 
 		super.before();
 
@@ -34,17 +34,17 @@ public class RouteExceptionHandlerTest extends VertxTest {
 			                .build();
 
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 	}
 
 	@Test
-	public void throwOne(TestContext context) {
+	public void throwOne(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/throw/exception/one", response -> {
+
+		client.get(PORT, HOST, "/throw/exception/one").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("BaseExceptionHandler: BASE: first", body.toString());
@@ -55,12 +55,12 @@ public class RouteExceptionHandlerTest extends VertxTest {
 	}
 
 	@Test
-	public void throwTwo(TestContext context) {
+	public void throwTwo(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/throw/exception/two", response -> {
+
+		client.get(PORT, HOST, "/throw/exception/two").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 
 			response.bodyHandler(body -> {
@@ -72,12 +72,12 @@ public class RouteExceptionHandlerTest extends VertxTest {
 	}
 
 	@Test
-	public void throwThree(TestContext context) {
+	public void throwThree(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/throw/exception/three", response -> {
+
+		client.get(PORT, HOST, "/throw/exception/three").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 
 			response.bodyHandler(body -> {
@@ -89,12 +89,12 @@ public class RouteExceptionHandlerTest extends VertxTest {
 	}
 
 	@Test
-	public void throwFour(TestContext context) {
+	public void throwFour(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/throw/exception/four", response -> {
+
+		client.get(PORT, HOST, "/throw/exception/four").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("com.zandero.rest.test.handler.MyExceptionClass", body.toString());

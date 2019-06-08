@@ -5,7 +5,7 @@ import com.zandero.rest.test.TestHeaderRest;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -17,28 +17,29 @@ import org.junit.runner.RunWith;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteWithHeaderTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 
 		super.before();
 
 		Router router = RestRouter.register(vertx, TestHeaderRest.class);
 		vertx.createHttpServer()
-			.requestHandler(router::accept)
+			.requestHandler(router)
 			.listen(PORT);
 	}
 
 	@Test
-	public void echoDummyJsonTest(TestContext context) {
+	public void echoDummyJsonTest(VertxTestContext context) {
 
 		final Async async = context.async();
 		Dummy dummy = new Dummy("one", "dude");
 		String json = JsonUtils.toJson(dummy);
 
-		client.get("/header/dummy", response -> {
+		client.get("/header/dummy").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -50,14 +51,15 @@ public class RouteWithHeaderTest extends VertxTest {
 	}
 
 	@Test
-	public void echoPostHeaderTest(TestContext context) {
+	public void echoPostHeaderTest(VertxTestContext context) {
 
 		final Async async = context.async();
 		Dummy dummy = new Dummy("one", "dude");
 
 		String json = JsonUtils.toJson(dummy);
 
-		client.post("/header/dummy", response -> {
+		client.post("/header/dummy").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -69,11 +71,12 @@ public class RouteWithHeaderTest extends VertxTest {
 	}
 
 	@Test
-	public void npeReaderTest(TestContext context) {
+	public void npeReaderTest(VertxTestContext context) {
 
 		final Async async = context.async();
 
-		client.get("/header/npe", response -> {
+		client.get("/header/npe").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			response.bodyHandler(body -> {
 				context.assertEquals("OH SHIT!", body.toString());

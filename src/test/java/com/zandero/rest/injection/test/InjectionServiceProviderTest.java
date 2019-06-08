@@ -8,7 +8,7 @@ import com.zandero.rest.injection.GuiceInjectionProvider;
 import com.zandero.rest.injection.InjectedServicesRest;
 import com.zandero.rest.injection.InjectionProvider;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Test;
@@ -19,10 +19,10 @@ import org.junit.runner.RunWith;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class InjectionServiceProviderTest extends VertxTest {
 
-	public void startWith(InjectionProvider provider, TestContext context) {
+	public void startWith(InjectionProvider provider, VertxTestContext context) {
 
 		super.before();
 
@@ -32,11 +32,11 @@ public class InjectionServiceProviderTest extends VertxTest {
 			                .build();
 
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 	}
 
-	public void startWithClass(Class<? extends InjectionProvider> provider, TestContext context) {
+	public void startWithClass(Class<? extends InjectionProvider> provider, VertxTestContext context) {
 
 		super.before();
 
@@ -46,18 +46,19 @@ public class InjectionServiceProviderTest extends VertxTest {
 			                .build();
 
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 	}
 
 	@Test
-	public void guiceCallInjectedServiceRestTest(TestContext context) {
+	public void guiceCallInjectedServiceRestTest(VertxTestContext context) {
 
 		startWith(new GuiceInjectionProvider(), context);
 
 		final Async async = context.async();
 
-		client.getNow("/getInstance/dummy", response -> {
+		client.get(PORT, HOST, "/getInstance/dummy").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -69,13 +70,14 @@ public class InjectionServiceProviderTest extends VertxTest {
 	}
 
 	@Test
-	public void guiceCallInjectedServiceRestTest2(TestContext context) {
+	public void guiceCallInjectedServiceRestTest2(VertxTestContext context) {
 
 		startWithClass(GuiceInjectionProvider.class, context);
 
 		final Async async = context.async();
 
-		client.getNow("/getInstance/other", response -> {
+		client.get(PORT, HOST, "/getInstance/other").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -87,13 +89,14 @@ public class InjectionServiceProviderTest extends VertxTest {
 	}
 
 	@Test
-	public void featherCallInjectedServiceRestTest(TestContext context) {
+	public void featherCallInjectedServiceRestTest(VertxTestContext context) {
 
 		startWith(new FeatherInjectionProvider(), context);
 
 		final Async async = context.async();
 
-		client.getNow("/getInstance/dummy", response -> {
+		client.get(PORT, HOST, "/getInstance/dummy").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -105,13 +108,14 @@ public class InjectionServiceProviderTest extends VertxTest {
 	}
 
 	@Test
-	public void featherCallInjectedServiceRestTest2(TestContext context) {
+	public void featherCallInjectedServiceRestTest2(VertxTestContext context) {
 
 		startWithClass(FeatherInjectionProvider.class, context);
 
 		final Async async = context.async();
 
-		client.getNow("/getInstance/other", response -> {
+		client.get(PORT, HOST, "/getInstance/other").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 

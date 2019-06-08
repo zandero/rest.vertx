@@ -3,7 +3,7 @@ package com.zandero.rest;
 
 import com.zandero.rest.test.TestOrderRest;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -17,11 +17,11 @@ import java.io.IOException;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteOrderTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 
 		super.before();
 
@@ -29,16 +29,17 @@ public class RouteOrderTest extends VertxTest {
 
 		Router router = RestRouter.register(vertx, testRest);
 		vertx.createHttpServer()
-			.requestHandler(router::accept)
+			.requestHandler(router)
 			.listen(PORT);
 	}
 
 	@Test
-	public void rootWithRootPathTest(TestContext context) throws IOException {
+	public void rootWithRootPathTest(VertxTestContext context) throws IOException {
 
 		final Async async = context.async();
 
-		client.getNow("/order/test", response -> {
+		client.get(PORT, HOST, "/order/test").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 

@@ -5,7 +5,7 @@ import com.zandero.rest.test.TestMultiProducesRest;
 import com.zandero.rest.writer.TestJsonResponseWriter;
 import com.zandero.rest.writer.TestXmlResponseWriter;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Before;
@@ -19,11 +19,11 @@ import javax.ws.rs.core.MediaType;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteWithMultiProducesTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 
 		super.before();
 
@@ -35,15 +35,16 @@ public class RouteWithMultiProducesTest extends VertxTest {
 
 
 		vertx.createHttpServer()
-			.requestHandler(router::accept)
+			.requestHandler(router)
 			.listen(PORT);
 	}
 
 	@Test
-	public void echoXmlTest(TestContext context) {
+	public void echoXmlTest(VertxTestContext context) {
 
 		final Async async = context.async();
-		client.get("/multi/consume", response -> {
+		client.get("/multi/consume").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -55,10 +56,11 @@ public class RouteWithMultiProducesTest extends VertxTest {
 	}
 
 	@Test
-	public void echoJsonTest(TestContext context) {
+	public void echoJsonTest(VertxTestContext context) {
 
 		final Async async = context.async();
-		client.get("/multi/consume", response -> {
+		client.get("/multi/consume").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 

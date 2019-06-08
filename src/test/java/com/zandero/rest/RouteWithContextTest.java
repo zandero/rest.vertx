@@ -5,7 +5,7 @@ import com.zandero.rest.test.TestContextRest;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.Handler;
 import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -19,11 +19,11 @@ import org.junit.runner.RunWith;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteWithContextTest extends VertxTest {
 
-	@Before
-	public void start(TestContext context) {
+	@BeforeAll
+	static void start() {
 
 		super.before();
 
@@ -32,7 +32,7 @@ public class RouteWithContextTest extends VertxTest {
 
 		router = RestRouter.register(router, TestContextRest.class);
 		vertx.createHttpServer()
-		     .requestHandler(router::accept)
+		     .requestHandler(router)
 		     .listen(PORT);
 	}
 
@@ -45,12 +45,12 @@ public class RouteWithContextTest extends VertxTest {
 	}
 
 	@Test
-	public void testGetRouteContext(TestContext context) {
+	public void testGetRouteContext(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/context/route", response -> {
+
+		client.get(PORT, HOST, "/context/route").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -62,12 +62,12 @@ public class RouteWithContextTest extends VertxTest {
 	}
 
 	@Test
-	public void testGetRequestResponseContext(TestContext context) {
+	public void testGetRequestResponseContext(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/context/context", response -> {
+
+		client.get(PORT, HOST, "/context/context").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(201, response.statusCode());
 
@@ -79,12 +79,12 @@ public class RouteWithContextTest extends VertxTest {
 	}
 
 	@Test
-	public void testGetNonExistentContext(TestContext context) {
+	public void testGetNonExistentContext(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/context/unknown", response -> {
+
+		client.get(PORT, HOST, "/context/unknown").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(400, response.statusCode());
 
@@ -96,12 +96,12 @@ public class RouteWithContextTest extends VertxTest {
 	}
 
 	@Test
-	public void pushContextTest(TestContext context) {
+	public void pushContextTest(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/context/custom", response -> {
+
+		client.get(PORT, HOST, "/context/custom").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(200, response.statusCode());
 
@@ -113,12 +113,12 @@ public class RouteWithContextTest extends VertxTest {
 	}
 
 	@Test
-	public void testResponseContext(TestContext context) {
+	public void testResponseContext(VertxTestContext context) {
 
-		// call and check response
-		final Async async = context.async();
 
-		client.getNow("/context/login", response -> {
+
+		client.get(PORT, HOST, "/context/login").as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() ->
 
 			context.assertEquals(201, response.statusCode());
 			context.assertEquals("session", response.getHeader("X-SessionId"));

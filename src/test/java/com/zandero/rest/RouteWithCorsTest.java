@@ -6,7 +6,7 @@ import com.zandero.rest.test.TestEchoRest;
 import com.zandero.rest.test.handler.NotFoundHandler;
 import com.zandero.rest.test.handler.RestNotFoundHandler;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.VertxTestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import org.junit.Test;
@@ -20,11 +20,11 @@ import java.util.Set;
  *
  *//*
 
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
 public class RouteWithCorsTest extends VertxTest {
 
 	@Test
-	public void start(TestContext context) {
+	static void start() {
 
 		super.before();
 
