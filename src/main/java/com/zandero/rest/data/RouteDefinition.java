@@ -975,6 +975,15 @@ public class RouteDefinition {
     }
 
     /**
+     * Whether the REST method is a kotlin suspendable method?
+     *
+     * @return true if it is a kotlin suspendable method.
+     */
+    public boolean isSuspend() {
+        return isSuspend;
+    }
+
+    /**
      * Applies to executeBlocking only
      *
      * @return true to execute serially, false to execute parallel on worker pool (default false)
