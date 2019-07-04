@@ -13,59 +13,64 @@ import java.lang.reflect.Method;
  */
 public interface InjectionProvider {
 
-	Logger log = LoggerFactory.getLogger(InjectionProvider.class);
+    Logger log = LoggerFactory.getLogger(InjectionProvider.class);
 
-	String GUICE_INJECT = "com.google.inject.Inject";
-	String JAVA_INJECT = "javax.inject.Inject";
+    String GUICE_INJECT = "com.google.inject.Inject";
+    String JAVA_INJECT = "javax.inject.Inject";
 
-	<T> T getInstance(Class<T> clazz) throws Throwable;
+    <T> T getInstance(Class<T> clazz) throws Throwable;
 
-	static boolean hasInjection(Class<?> clazz) {
+    static boolean hasInjection(Class<?> clazz) {
 
-		// checks if any constructors are annotated with @Inject annotation
-		Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-		for (Constructor<?> constructor : constructors) {
+        // checks if any constructors are annotated with @Inject annotation
+        Constructor<?>[] constructors = clazz.getDeclaredConstructors();
 
-			Annotation found = findAnnotation(constructor.getAnnotations(), JAVA_INJECT, GUICE_INJECT);
-			if (found != null) {
-				return true;
-			}
-		}
+        if (constructors.length == 1) {
+            return true;
+        }
 
-		// check if any class members are injected
-		Field[] fields = clazz.getDeclaredFields();
-		for (Field field : fields) {
-			Annotation found = findAnnotation(field.getAnnotations(), JAVA_INJECT, GUICE_INJECT);
-			if (found != null) {
-				return true;
-			}
-		}
+        for (Constructor<?> constructor : constructors) {
 
-		// check methods if they need injection
-		Method[] methods = clazz.getDeclaredMethods();
-		for (Method method : methods) {
+            Annotation found = findAnnotation(constructor.getAnnotations(), JAVA_INJECT, GUICE_INJECT);
+            if (found != null) {
+                return true;
+            }
+        }
 
-			Annotation found = findAnnotation(method.getAnnotations(), JAVA_INJECT, GUICE_INJECT);
-			if (found != null) {
-				return true;
-			}
-		}
+        // check if any class members are injected
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            Annotation found = findAnnotation(field.getAnnotations(), JAVA_INJECT, GUICE_INJECT);
+            if (found != null) {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        // check methods if they need injection
+        Method[] methods = clazz.getDeclaredMethods();
+        for (Method method : methods) {
 
-	static Annotation findAnnotation(Annotation[] annotations, String... packages) {
+            Annotation found = findAnnotation(method.getAnnotations(), JAVA_INJECT, GUICE_INJECT);
+            if (found != null) {
+                return true;
+            }
+        }
 
-		if (annotations != null && annotations.length > 0) {
-			for (Annotation annotation : annotations) {
-				for (String name : packages) {
-					if (annotation.annotationType().getName().equals(name)) {
-						return annotation;
-					}
-				}
-			}
-		}
+        return false;
+    }
 
-		return null;
-	}
+    static Annotation findAnnotation(Annotation[] annotations, String... packages) {
+
+        if (annotations != null && annotations.length > 0) {
+            for (Annotation annotation : annotations) {
+                for (String name : packages) {
+                    if (annotation.annotationType().getName().equals(name)) {
+                        return annotation;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
 }
