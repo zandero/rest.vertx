@@ -30,6 +30,7 @@ public class RestEventExecutor {
 	 * @param definition route definition
 	 * @param context routing context
 	 * @param injectionProvider injection provider to instantiate event processor
+	 * @throws Throwable exception in case triggered event execution failed
 	 */
 	public void triggerEvents(Object result,
 	                          int responseCode,
@@ -40,7 +41,6 @@ public class RestEventExecutor {
 		if (definition.getEvents() == null) {
 			return;
 		}
-
 
 		for (Event event : definition.getEvents()) {
 			// status code match OR all

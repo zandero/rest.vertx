@@ -318,6 +318,7 @@ public class RestBuilder {
 
 	/**
 	 * Creates a provider that delivers type when needed
+	 * @param clazz to be provided
 	 * @param provider to be executed when needed
 	 * @param <T> provided object as argument
 	 * @return builder
@@ -336,7 +337,6 @@ public class RestBuilder {
 	 * @param <T> provided object as argument
 	 * @return builder
 	 */
-	@SuppressWarnings("unchecked")
 	public <T> RestBuilder addProvider(ContextProvider<T> provider) {
 
 		Assert.notNull(provider, "Missing context provider!");
@@ -346,6 +346,7 @@ public class RestBuilder {
 
 	/**
 	 * Creates a provider that delivers type when needed
+	 * @param clazz to be provided
 	 * @param provider to be executed when needed
 	 * @param <T> provided object as argument
 	 * @return builder
