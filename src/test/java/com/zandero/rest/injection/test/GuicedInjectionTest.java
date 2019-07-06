@@ -2,19 +2,23 @@ package com.zandero.rest.injection.test;
 
 
 import com.zandero.rest.RestBuilder;
+import com.zandero.rest.RestRouter;
 import com.zandero.rest.VertxTest;
 import com.zandero.rest.injection.GuiceInjectionProvider;
 import com.zandero.rest.injection.GuicedRest;
+import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
+import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import javax.validation.Validator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -34,6 +38,19 @@ class GuicedInjectionTest extends VertxTest {
         vertx.createHttpServer()
                 .requestHandler(router)
                 .listen(PORT);
+    }
+
+    @BeforeEach
+    void cleanUp() {
+        // clear all registered writers or reader and handlers
+        RestRouter.validateWith((Validator) null);
+        RestRouter.injectWith((InjectionProvider) null);
+    }
+
+    @AfterEach
+    void lastChecks(Vertx vertx) {
+        vertx.close(VertxTestContext.succeeding());
+        vertx.close();
     }
 
     @Test

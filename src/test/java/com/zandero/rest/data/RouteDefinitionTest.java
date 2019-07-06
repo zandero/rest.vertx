@@ -96,6 +96,8 @@ class RouteDefinitionTest {
 		assertNull(param.getDefaultValue());
 	}
 
+	// Test sometimes flaky as sorting of methods doesn't seem to work
+	// ...
 	@Test
 	void regExDefinitionTest() {
 

@@ -1,210 +1,165 @@
 package com.zandero.rest.injection.test;
-/*
 
 import com.zandero.rest.RestBuilder;
 import com.zandero.rest.VertxTest;
 import com.zandero.rest.injection.*;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.VertxTestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-*/
-/**
- *
- *//*
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(VertxExtension.class)
-public class InjectionProviderTest extends VertxTest {
+class InjectionProviderTest extends VertxTest {
 
-	public void startWith(InjectionProvider provider) {
+    @BeforeAll
+    static void start() {
+        before();
+    }
 
-before();
+    void startWith(InjectionProvider provider) {
 
-		Router router = new RestBuilder(vertx)
-			                .injectWith(provider)
-			                .register(InjectedRest.class)
-			                .build();
+        Router router = new RestBuilder(vertx)
+                .injectWith(provider)
+                .register(InjectedRest.class)
+                .build();
 
-		vertx.createHttpServer()
-		     .requestHandler(router)
-		     .listen(PORT);
-	}
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-	public void startWithClass(Class<? extends InjectionProvider> provider) {
+    void startWithClass(Class<? extends InjectionProvider> provider) {
 
-before();
+        Router router = new RestBuilder(vertx)
+                .injectWith(provider)
+                .register(InjectedRest.class)
+                .build();
 
-		Router router = new RestBuilder(vertx)
-			                .injectWith(provider)
-			                .register(InjectedRest.class)
-			                .build();
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(PORT);
+    }
 
-		vertx.createHttpServer()
-		     .requestHandler(router)
-		     .listen(PORT);
-	}
+    @Test
+    void testHasInjection() {
 
-	@Test
-	public void testHasInjection() {
+        assertTrue(InjectionProvider.hasInjection(GuiceInjectService.class));
+        assertTrue(InjectionProvider.hasInjection(OtherServiceImpl.class));
+        assertTrue(InjectionProvider.hasInjection(GuicedRest.class));
 
-before();
+        assertFalse(InjectionProvider.hasInjection(UserServiceImpl.class));
+    }
 
-		assertTrue(InjectionProvider.hasInjection(GuiceInjectService.class));
-		assertTrue(InjectionProvider.hasInjection(OtherServiceImpl.class));
-		assertTrue(InjectionProvider.hasInjection(GuicedRest.class));
+    @Test
+    void guiceCallInjectedRestTest(VertxTestContext context) {
 
-		assertFalse(InjectionProvider.hasInjection(UserServiceImpl.class));
-	}
+        startWith(new GuiceInjectionProvider());
 
-	@Test
-	public void guiceCallInjectedRestTest(VertxTestContext context) {
-
-		startWith(new GuiceInjectionProvider());
-
-		final Async async = context.async();
-		
-		client.get(PORT, HOST, "/injected/dummy").as(BodyCodec.string())
+        client.get(PORT, HOST, "/injected/dummy").as(BodyCodec.string())
                 .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("I'm so dummy!", response.body());
+                    context.completeNow();
+                })));
+    }
 
-			assertEquals(200, response.statusCode());
+    @Test
+    void guiceCallInjectedRestTest2(VertxTestContext context) {
 
+        startWith(new GuiceInjectionProvider());
 
-				assertEquals("I'm so dummy!", response.body());
-				context.completeNow();
-			})));
-	}
-
-	@Test
-	public void guiceCallInjectedRestTest2(VertxTestContext context) {
-
-		startWith(new GuiceInjectionProvider());
-
-		final Async async = context.async();
-
-		client.get(PORT, HOST, "/injected/other").as(BodyCodec.string())
+        client.get(PORT, HOST, "/injected/other").as(BodyCodec.string())
                 .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("Oh yes I'm so dummy!", response.body());
+                    context.completeNow();
+                })));
+    }
 
-			assertEquals(200, response.statusCode());
+    @Test
+    void featherCallInjectedRestTest(VertxTestContext context) {
 
+        startWith(new FeatherInjectionProvider());
 
-				assertEquals("Oh yes I'm so dummy!", response.body());
-				context.completeNow();
-			})));
-	}
-
-	@Test
-	public void featherCallInjectedRestTest(VertxTestContext context) {
-
-		startWith(new FeatherInjectionProvider());
-
-		final Async async = context.async();
-
-		client.get(PORT, HOST, "/injected/dummy").as(BodyCodec.string())
+        client.get(PORT, HOST, "/injected/dummy").as(BodyCodec.string())
                 .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("I'm so dummy!", response.body());
+                    context.completeNow();
+                })));
+    }
 
-			assertEquals(200, response.statusCode());
+    @Test
+    void featherCallInjectedRestTest2(VertxTestContext context) {
 
+        startWith(new FeatherInjectionProvider());
 
-				assertEquals("I'm so dummy!", response.body());
-				context.completeNow();
-			})));
-	}
-
-	@Test
-	public void featherCallInjectedRestTest2(VertxTestContext context) {
-
-		startWith(new FeatherInjectionProvider());
-
-		final Async async = context.async();
-
-		client.get(PORT, HOST, "/injected/other").as(BodyCodec.string())
+        client.get(PORT, HOST, "/injected/other").as(BodyCodec.string())
                 .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("Oh yes I'm so dummy!", response.body());
+                    context.completeNow();
+                })));
+    }
 
-			assertEquals(200, response.statusCode());
+    // class type tests
+    @Test
+    void guiceCallInjectedClassRestTest(VertxTestContext context) {
 
+        startWithClass(GuiceInjectionProvider.class);
 
-				assertEquals("Oh yes I'm so dummy!", response.body());
-				context.completeNow();
-			})));
-	}
-
-	// class type tests
-	@Test
-	public void guiceCallInjectedClassRestTest(VertxTestContext context) {
-
-		startWithClass(GuiceInjectionProvider.class);
-
-		final Async async = context.async();
-
-		client.get(PORT, HOST, "/injected/dummy").as(BodyCodec.string())
+        client.get(PORT, HOST, "/injected/dummy").as(BodyCodec.string())
                 .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("I'm so dummy!", response.body());
+                    context.completeNow();
+                })));
+    }
 
-			assertEquals(200, response.statusCode());
+    @Test
+    void guiceCallInjectedClassRestTest2(VertxTestContext context) {
 
+        startWithClass(GuiceInjectionProvider.class);
 
-				assertEquals("I'm so dummy!", response.body());
-				context.completeNow();
-			})));
-	}
-
-	@Test
-	public void guiceCallInjectedClassRestTest2(VertxTestContext context) {
-
-		startWithClass(GuiceInjectionProvider.class);
-
-		final Async async = context.async();
-
-		client.get(PORT, HOST, "/injected/other").as(BodyCodec.string())
+        client.get(PORT, HOST, "/injected/other").as(BodyCodec.string())
                 .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("Oh yes I'm so dummy!", response.body());
+                    context.completeNow();
+                })));
+    }
 
-			assertEquals(200, response.statusCode());
+    @Test
+    void featherCallInjectedClassRestTest(VertxTestContext context) {
 
+        startWithClass(FeatherInjectionProvider.class);
 
-				assertEquals("Oh yes I'm so dummy!", response.body());
-				context.completeNow();
-			})));
-	}
-
-	@Test
-	public void featherCallInjectedClassRestTest(VertxTestContext context) {
-
-		startWithClass(FeatherInjectionProvider.class);
-
-		final Async async = context.async();
-
-		client.get(PORT, HOST, "/injected/dummy").as(BodyCodec.string())
+        client.get(PORT, HOST, "/injected/dummy").as(BodyCodec.string())
                 .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("I'm so dummy!", response.body());
+                    context.completeNow();
+                })));
+    }
 
-			assertEquals(200, response.statusCode());
+    @Test
+    void featherCallInjectedClassRestTest2(VertxTestContext context) {
 
+        startWithClass(FeatherInjectionProvider.class);
 
-				assertEquals("I'm so dummy!", response.body());
-				context.completeNow();
-			})));
-	}
-
-	@Test
-	public void featherCallInjectedClassRestTest2(VertxTestContext context) {
-
-		startWithClass(FeatherInjectionProvider.class);
-
-		final Async async = context.async();
-
-		client.get(PORT, HOST, "/injected/other").as(BodyCodec.string())
+        client.get(PORT, HOST, "/injected/other").as(BodyCodec.string())
                 .send(context.succeeding(response -> context.verify(() -> {
-
-			assertEquals(200, response.statusCode());
-
-
-				assertEquals("Oh yes I'm so dummy!", response.body());
-				context.completeNow();
-			})));
-	}
+                    assertEquals(200, response.statusCode());
+                    assertEquals("Oh yes I'm so dummy!", response.body());
+                    context.completeNow();
+                })));
+    }
 }
-*/
+
