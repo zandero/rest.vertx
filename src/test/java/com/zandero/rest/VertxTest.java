@@ -38,6 +38,7 @@ public class VertxTest {
         RestRouter.getWriters().clear();
         RestRouter.getExceptionHandlers().clear();
         RestRouter.getContextProviders().clear();
+
         // clear
         RestRouter.validateWith((Validator) null);
         RestRouter.injectWith((InjectionProvider) null);

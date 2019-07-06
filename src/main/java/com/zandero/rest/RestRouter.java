@@ -775,6 +775,9 @@ public class RestRouter {
 		if (injectionProvider != null) {
 			log.info("Registered injection provider: " + injectionProvider.getClass().getName());
 		}
+		else {
+			log.warn("No injection provider specified!");
+		}
 	}
 
 	/**
@@ -804,6 +807,9 @@ public class RestRouter {
 		validator = provider;
 		if (validator != null) {
 			log.info("Registered validation provider: " + validator.getClass().getName());
+		}
+		else {
+			log.warn("No validation provider specified!");
 		}
 	}
 
