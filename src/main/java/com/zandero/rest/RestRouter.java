@@ -190,7 +190,7 @@ public class RestRouter {
 	// Check writer compatibility if possible
 	private static void checkWriterCompatibility(RouteDefinition definition) {
 		try { // no way to know the accept content at this point
-			getWriter(injectionProvider, definition.getReturnType(), definition, null, GenericResponseWriter.class);
+			getWriter(injectionProvider, definition.getReturnType(), definition, null);
 		}
 		catch (ClassFactoryException e) {
 			// ignoring instance creation ... but leaving Illegal argument exceptions to pass
@@ -373,8 +373,7 @@ public class RestRouter {
 	private static HttpResponseWriter getWriter(InjectionProvider injectionProvider,
 	                                            Class returnType,
 	                                            RouteDefinition definition,
-	                                            RoutingContext context,
-	                                            Class<? extends HttpResponseWriter> defaultTo) throws ClassFactoryException {
+	                                            RoutingContext context) throws ClassFactoryException {
 
 		if (returnType == null) {
 			returnType = definition.getReturnType();
@@ -388,8 +387,8 @@ public class RestRouter {
 		HttpResponseWriter writer = writers.getResponseWriter(returnType, definition, injectionProvider, context, acceptHeader);
 
 		if (writer == null) {
-			log.error("No writer could be provided. Falling back to " + defaultTo.getSimpleName() + " instead!");
-			return (HttpResponseWriter) ClassFactory.newInstanceOf(defaultTo);
+			log.error("No writer could be provided. Falling back to " + GenericResponseWriter.class.getSimpleName() + " instead!");
+			return (HttpResponseWriter) ClassFactory.newInstanceOf(GenericResponseWriter.class);
 		}
 
 		if (definition.checkCompatibility() &&
@@ -485,8 +484,7 @@ public class RestRouter {
 						HttpResponseWriter writer = getWriter(injectionProvider,
 						                                      returnType,
 						                                      definition,
-						                                      context,
-						                                      GenericResponseWriter.class);
+						                                      context);
 
 
 						validateResult(result, method, definition, validator, toInvoke);
@@ -528,8 +526,7 @@ public class RestRouter {
 									writer = getWriter(injectionProvider,
 									                   futureResult.getClass(),
 									                   definition,
-									                   context,
-									                   GenericResponseWriter.class);
+									                   context);
 								} else { // due to limitations of Java generics we can't tell the type if response is null
 									Class<?> writerClass = definition.getWriter() == null ? GenericResponseWriter.class : definition.getWriter();
 									writer = (HttpResponseWriter) WriterFactory.newInstanceOf(writerClass);
@@ -599,10 +596,8 @@ public class RestRouter {
 		};
 	}
 
-	@SuppressWarnings("unchecked")
 	private static void handleException(Throwable e, RoutingContext context, final RouteDefinition definition) {
 
-		log.error("Handling exception: ", e);
 		ExecuteException ex = getExecuteException(e);
 
 		// get appropriate exception handler/writer ...
@@ -635,6 +630,13 @@ public class RestRouter {
 			// fall back to generic ...
 			handler = new GenericExceptionHandler();
 			ex = new ExecuteException(500, contextException);
+		}
+
+		if (handler instanceof GenericExceptionHandler) {
+			log.error("Handling exception: ", e);
+		}
+		else {
+			log.debug("Handling exception, with: " + handler.getClass().getName(), e);
 		}
 
 		HttpServerResponse response = context.response();
