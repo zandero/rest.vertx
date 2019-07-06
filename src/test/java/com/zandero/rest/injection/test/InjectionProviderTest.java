@@ -54,7 +54,8 @@ class InjectionProviderTest extends VertxTest {
         assertTrue(InjectionProvider.hasInjection(OtherServiceImpl.class));
         assertTrue(InjectionProvider.hasInjection(GuicedRest.class));
 
-        assertFalse(InjectionProvider.hasInjection(UserServiceImpl.class));
+        assertTrue(InjectionProvider.hasInjection(UserServiceImpl.class));
+        assertTrue(InjectionProvider.hasInjection(OtherServiceImpl.class));
     }
 
     @Test
