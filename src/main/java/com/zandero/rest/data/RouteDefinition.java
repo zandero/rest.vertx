@@ -99,7 +99,7 @@ public class RouteDefinition {
     /**
      * Whether it is a kotlin suspendable operation.
      */
-    protected boolean isSuspend = false;
+    protected boolean isSuspendable = false;
 
     /**
      * Execute blocking parallel or serial
@@ -220,11 +220,11 @@ public class RouteDefinition {
             async = additional.async;
         }
 
-        if (!isSuspend) {
-            isSuspend = additional.isSuspend;
+        if (!isSuspendable) {
+            isSuspendable = additional.isSuspendable;
         }
 
-        if (!async && !isSuspend && !blockingOrdered) {
+        if (!async && !isSuspendable && !blockingOrdered) {
             blockingOrdered = additional.blockingOrdered;
         }
 
@@ -569,7 +569,7 @@ public class RouteDefinition {
         Annotation[][] annotations = method.getParameterAnnotations();
 
         async = isAsync(method.getReturnType());
-        isSuspend = isSuspend(method);
+        isSuspendable = isSuspendable(method);
         returnType = method.getReturnType();
 
         int index = 0;
@@ -577,7 +577,7 @@ public class RouteDefinition {
 
         for (Annotation[] ann : annotations) {
 
-            if (isSuspend && index == parameters.length - 1) { // If it is a kotlin suspend method, last parameter's type is Continuation which must be ignored.
+            if (isSuspendable && index == parameters.length - 1) { // If it is a kotlin suspend method, last parameter's type is Continuation which must be ignored.
                 break;
             }
 
@@ -706,7 +706,7 @@ public class RouteDefinition {
      * @param method REST method
      * @return true if is a kotlin suspendable operation, false otherwise
      */
-    static boolean isSuspend(Method method) {
+    static boolean isSuspendable(Method method) {
 
         Class<?>[] parameterTypes = method.getParameterTypes();
 
@@ -979,8 +979,8 @@ public class RouteDefinition {
      *
      * @return true if it is a kotlin suspendable method.
      */
-    public boolean isSuspend() {
-        return isSuspend;
+    public boolean isSuspendable() {
+        return isSuspendable;
     }
 
     /**
