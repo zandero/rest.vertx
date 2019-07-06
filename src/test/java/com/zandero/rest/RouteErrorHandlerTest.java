@@ -60,7 +60,6 @@ class RouteErrorHandlerTest extends VertxTest {
     @Test
     void throwUnhandledExceptionTwo(VertxTestContext context) {
 
-
         // JsonExceptionHandler will take over
         client.get(PORT, HOST, "/throw/big/two").as(BodyCodec.string())
                 .send(context.succeeding(response -> context.verify(() -> {
