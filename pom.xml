@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
 
     <name>Zandero REST Vert.X</name>
-    <description>JAX-RS REST annotation processor for vert.x verticals</description>
+    <description>JAX-RS REST annotation processor for vert.x verticles</description>
     <url>http://www.zandero.com</url>
     <inceptionYear>2017</inceptionYear>
 

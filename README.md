@@ -1,5 +1,5 @@
 # Rest.Vertx
-Lightweight JAX-RS (RestEasy) like annotation processor for vert.x verticals
+Lightweight JAX-RS (RestEasy) like annotation processor for vert.x verticles
 
 **Rest.Vertx** is still in beta, so please report any [issues](https://github.com/zandero/rest.vertx/issues) discovered.  
 You are highly encouraged to participate and improve upon the existing code.
