@@ -33,7 +33,6 @@ class RouteWithQueryTest extends VertxTest {
     @Test
     void testAdd(VertxTestContext context) {
 
-
         client.get(PORT, HOST, "/query/add?one=1&two=2")
                 .send(context.succeeding(response -> context.verify(() -> {
                     assertEquals(200, response.statusCode());

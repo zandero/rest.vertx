@@ -49,7 +49,7 @@ class GuicedInjectionTest extends VertxTest {
 
     @AfterEach
     void lastChecks(Vertx vertx) {
-        vertx.close(VertxTestContext.succeeding());
+        vertx.close(vertxTestContext.succeeding());
         vertx.close();
     }
 

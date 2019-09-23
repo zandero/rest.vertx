@@ -39,7 +39,7 @@ class ValidationTest extends VertxTest {
 
         vertx.createHttpServer()
                 .requestHandler(router)
-                .listen(PORT, VertxTestContext.completing());
+                .listen(PORT, vertxTestContext.completing());
     }
 
     @Test

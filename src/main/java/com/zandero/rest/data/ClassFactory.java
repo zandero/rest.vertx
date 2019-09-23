@@ -121,9 +121,10 @@ public abstract class ClassFactory<T> {
 
 		Object instance;
 
+		boolean canBeInjected = InjectionProvider.canBeInjected(clazz);
 		boolean hasInjection = InjectionProvider.hasInjection(clazz);
 
-		if (provider == null || !hasInjection) {
+		if (provider == null || (!hasInjection && !canBeInjected)) {
 
 			SuppressWarnings suppress = clazz.getAnnotation(SuppressWarnings.class);
 			if (hasInjection &&
@@ -132,7 +133,8 @@ public abstract class ClassFactory<T> {
 			}
 
 			instance = newInstanceOf(clazz);
-		} else {
+		}
+		else {
 
 			try {
 				instance = provider.getInstance(clazz);
@@ -145,7 +147,6 @@ public abstract class ClassFactory<T> {
 				throw new ClassFactoryException("Failed to getInstance class of type: " + clazz.getName() + ", with injector: " +
 				                                provider.getClass().getName() + "!", e);
 			}
-
 		}
 
 		if (ContextProviderFactory.hasContext(clazz)) {

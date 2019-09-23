@@ -20,14 +20,27 @@ public interface InjectionProvider {
 
     <T> T getInstance(Class<T> clazz) throws Throwable;
 
+    /**
+     * Class can potentially be injected if Injection provider is present
+     *
+     * @param clazz to be injected
+     * @return true if only one constructor present, false otherwise
+     */
+    static boolean canBeInjected(Class<?> clazz) {
+        Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+        return constructors.length == 1;
+    }
+
+    /**
+     * Class is annotated with @Inject annotation
+     *
+     * @param clazz to be injected
+     * @return true if injection is specified, false otherwise
+     */
     static boolean hasInjection(Class<?> clazz) {
 
         // checks if any constructors are annotated with @Inject annotation
         Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-
-        if (constructors.length == 1) {
-            return true;
-        }
 
         for (Constructor<?> constructor : constructors) {
 

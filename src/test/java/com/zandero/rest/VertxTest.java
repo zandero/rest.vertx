@@ -22,16 +22,14 @@ public class VertxTest {
 
     public static final String HOST = "localhost";
 
-    protected static final String ROOT_PATH = "http://" + HOST + ":" + PORT;
-
     protected static Vertx vertx = null;
-    protected static VertxTestContext VertxTestContext;
+    protected static VertxTestContext vertxTestContext;
     protected static WebClient client;
 
     public static void before() {
 
         vertx = Vertx.vertx();
-        VertxTestContext = new VertxTestContext();
+        vertxTestContext = new VertxTestContext();
 
         // clear all registered writers or reader and handlers
         RestRouter.getReaders().clear();
@@ -48,7 +46,7 @@ public class VertxTest {
 
     @AfterEach
     void lastChecks(Vertx vertx) {
-        vertx.close(VertxTestContext.succeeding());
+        vertx.close(vertxTestContext.succeeding());
     }
 
     @AfterAll

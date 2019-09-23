@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -54,8 +53,12 @@ class InjectionProviderTest extends VertxTest {
         assertTrue(InjectionProvider.hasInjection(OtherServiceImpl.class));
         assertTrue(InjectionProvider.hasInjection(GuicedRest.class));
 
-        assertTrue(InjectionProvider.hasInjection(UserServiceImpl.class));
         assertTrue(InjectionProvider.hasInjection(OtherServiceImpl.class));
+    }
+
+    @Test
+    void canBeInjected() {
+        assertTrue(InjectionProvider.canBeInjected(UserServiceImpl.class));
     }
 
     @Test

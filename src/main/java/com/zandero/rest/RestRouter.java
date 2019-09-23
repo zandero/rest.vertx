@@ -65,6 +65,7 @@ public class RestRouter {
 	private static final RestEventExecutor eventExecutor = new RestEventExecutor();
 
 	private static InjectionProvider injectionProvider;
+
 	private static Validator validator;
 
 	/**

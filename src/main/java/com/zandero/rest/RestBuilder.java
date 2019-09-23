@@ -415,8 +415,13 @@ public class RestBuilder {
 
 		Assert.notNullOrEmpty(apis, "No REST API given, register at least one! Use: .register(api) call!");
 
-		RestRouter.injectWith(injectionProvider);
-		RestRouter.validateWith(validator);
+		if (injectionProvider != null) { // prevent WARN log if no provider is given
+			RestRouter.injectWith(injectionProvider);
+		}
+
+		if (validator != null) { // prevent WARN log if no validator is given
+			RestRouter.validateWith(validator);
+		}
 
 		if (registeredProviders.size() > 0) {
 
