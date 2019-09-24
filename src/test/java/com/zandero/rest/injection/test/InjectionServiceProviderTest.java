@@ -33,8 +33,7 @@ class InjectionServiceProviderTest extends VertxTest {
     @BeforeEach
     void cleanUp() {
 
-        // clear all registered writers or reader and handlers
-        RestRouter.validateWith((Validator) null);
+        // clear registered injection provider
         RestRouter.injectWith((InjectionProvider) null);
     }
 

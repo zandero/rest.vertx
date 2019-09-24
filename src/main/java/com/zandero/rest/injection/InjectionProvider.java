@@ -43,7 +43,6 @@ public interface InjectionProvider {
         Constructor<?>[] constructors = clazz.getDeclaredConstructors();
 
         for (Constructor<?> constructor : constructors) {
-
             Annotation found = findAnnotation(constructor.getAnnotations(), JAVA_INJECT, GUICE_INJECT);
             if (found != null) {
                 return true;
@@ -62,7 +61,6 @@ public interface InjectionProvider {
         // check methods if they need injection
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
-
             Annotation found = findAnnotation(method.getAnnotations(), JAVA_INJECT, GUICE_INJECT);
             if (found != null) {
                 return true;
