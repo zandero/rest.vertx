@@ -252,7 +252,7 @@ public abstract class ClassFactory<T> {
 
 		if (checkCompatibility(clazz)) {
 			Type expected = getGenericType(clazz);
-			checkIfCompatibleTypes(aClass, expected, "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + clazz + "'!");
+			checkIfCompatibleType(aClass, expected, "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + clazz + "'!");
 		}
 
 		classTypes.put(aClass, clazz);
@@ -277,7 +277,7 @@ public abstract class ClassFactory<T> {
 
 		if (checkCompatibility(instance.getClass())) {
 			Type expected = getGenericType(instance.getClass());
-			checkIfCompatibleTypes(aClass,
+			checkIfCompatibleType(aClass,
 			                       expected,
 			                       "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + instance.getClass() + "'!");
 		}
@@ -368,14 +368,25 @@ public abstract class ClassFactory<T> {
 		return null;
 	}
 
-	public static void checkIfCompatibleTypes(Class<?> expected, Type actual, String message) {
+    static boolean checkIfCompatibleTypes(Class<?> expected, Type... actual) {
 
-		boolean compatibleTypes = checkIfCompatibleTypes(expected, actual);
+	    for (Type item: actual) {
+	        if (checkIfCompatibleType(expected, item)) {
+	            return true;
+            }
+        }
+
+	    return false;
+    }
+
+	public static void checkIfCompatibleType(Class<?> expected, Type actual, String message) {
+
+		boolean compatibleTypes = checkIfCompatibleType(expected, actual);
 		Assert.isTrue(compatibleTypes, message);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static boolean checkIfCompatibleTypes(Class<?> expected, Type actual) {
+	public static boolean checkIfCompatibleType(Class<?> expected, Type actual) {
 
 		if (expected == null) {
 			return false;

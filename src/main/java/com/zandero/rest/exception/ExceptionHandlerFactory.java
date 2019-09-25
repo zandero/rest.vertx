@@ -54,7 +54,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 			for (Class<? extends ExceptionHandler> handler: definitionExHandlers) {
 
 				Type type = getGenericType(handler);
-				if (checkIfCompatibleTypes(aClass, type)) {
+				if (checkIfCompatibleType(aClass, type)) {
 					found = handler;
 					log.info("Found matching exception handler: " + found.getName());
 					break;

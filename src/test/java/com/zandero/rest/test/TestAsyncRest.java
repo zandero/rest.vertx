@@ -5,9 +5,7 @@ import com.zandero.rest.test.handler.AsyncService;
 import com.zandero.rest.test.handler.DummyWriter;
 import com.zandero.rest.test.handler.FutureDummyWriter;
 import com.zandero.rest.test.json.Dummy;
-import io.vertx.core.Future;
-import io.vertx.core.Vertx;
-import io.vertx.core.WorkerExecutor;
+import io.vertx.core.*;
 import io.vertx.core.http.HttpServerResponse;
 
 import javax.ws.rs.GET;
@@ -23,103 +21,158 @@ import java.util.concurrent.CompletableFuture;
 @Path("async")
 public class TestAsyncRest {
 
-	private AsyncService spaceService = new AsyncService();
-	private WorkerExecutor executor = Vertx.vertx().createSharedWorkerExecutor("shared");
+    private AsyncService spaceService = new AsyncService();
+    private WorkerExecutor executor = Vertx.vertx().createSharedWorkerExecutor("shared");
 
-	@GET
-	@Path("call")
-	@Produces(MediaType.APPLICATION_JSON)
-	@ResponseWriter(DummyWriter.class)
-	public Future<Dummy> create(@Context Vertx vertx) throws InterruptedException {
+    @GET
+    @Path("call_future")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ResponseWriter(DummyWriter.class)
+    public Future<Dummy> createFuture(@Context Vertx vertx) {
 
-		System.out.println(Thread.currentThread().getName() + " REST invoked");
+        System.out.println(Thread.currentThread().getName() + " REST invoked");
 
-		Future<Dummy> res = Future.future();
-		spaceService.asyncCall(vertx, res);
-		System.out.println("Rest finished");
-		return res;
-	}
+        Future<Dummy> res = Future.future();
+        spaceService.asyncCallFuture(vertx, res);
+        System.out.println("Rest finished");
+        return res;
+    }
 
-	@GET
-	@Path("completable")
-	@Produces(MediaType.APPLICATION_JSON)
-	@ResponseWriter(FutureDummyWriter.class)
-	public CompletableFuture<Dummy> complete(@Context Vertx vertx, @Context HttpServerResponse response) throws InterruptedException {
+    @GET
+    @Path("call_promise")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ResponseWriter(DummyWriter.class)
+    public Promise<Dummy> createPromise(@Context Vertx vertx) {
 
-		System.out.println(Thread.currentThread().getName() + " REST invoked");
+        System.out.println(Thread.currentThread().getName() + " REST invoked");
 
-		CompletableFuture<Dummy> res = getFuture();
-		System.out.println("Rest finished");
-		return res;
-	}
+        Promise<Dummy> res = Promise.promise();
+        spaceService.asyncCallPromise(vertx, res);
+        System.out.println("Rest finished");
+        return res;
+    }
 
-	private CompletableFuture<Dummy> getFuture() throws InterruptedException {
+    @GET
+    @Path("completable")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ResponseWriter(FutureDummyWriter.class)
+    public CompletableFuture<Dummy> complete(@Context Vertx vertx, @Context HttpServerResponse response)
+            throws InterruptedException {
 
-		CompletableFuture<Dummy> future = new CompletableFuture<>();
-		future.complete(getDummy());
-		return future;
-	}
+        System.out.println(Thread.currentThread().getName() + " REST invoked");
 
-	private Dummy getDummy() throws InterruptedException {
-		Thread.sleep(1000);
-		return new Dummy("hello", "world");
-	}
+        CompletableFuture<Dummy> res = getFuture();
+        System.out.println("Rest finished");
+        return res;
+    }
 
-	@GET
-	@Path("executor")
-	@Produces(MediaType.APPLICATION_JSON)
-	@ResponseWriter(DummyWriter.class)
-	public Future<Dummy> executor(@Context Vertx vertx) throws InterruptedException {
+    private CompletableFuture<Dummy> getFuture() throws InterruptedException {
 
-		System.out.println(Thread.currentThread().getName() + " REST invoked");
+        CompletableFuture<Dummy> future = new CompletableFuture<>();
+        future.complete(getDummy());
+        return future;
+    }
 
-		Future<Dummy> res = Future.future();
-		spaceService.asyncExecutor(executor, res);
-		System.out.println("Rest finished");
-		return res;
-	}
+    private Dummy getDummy() throws InterruptedException {
+        Thread.sleep(1000);
+        return new Dummy("hello", "world");
+    }
 
-	@GET
-	@Path("empty")
-	@Produces(MediaType.APPLICATION_JSON)
-	@ResponseWriter(DummyWriter.class)
-	public Future<Dummy> empty(@Context Vertx vertx) throws InterruptedException {
+    @GET
+    @Path("executor_future")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ResponseWriter(DummyWriter.class)
+    public Future<Dummy> executorFuture(@Context Vertx vertx) {
 
-		System.out.println(Thread.currentThread().getName() + " REST invoked");
+        System.out.println(Thread.currentThread().getName() + " REST invoked");
 
-		Future<Dummy> res = Future.future();
-		spaceService.asyncCallReturnNUll(vertx, res);
-		System.out.println("Rest finished");
-		return res;
-	}
+        Future<Dummy> res = Future.future();
+        spaceService.asyncExecutorFuture(executor, res);
+        System.out.println("Rest finished");
+        return res;
+    }
 
-	@GET
-	@Path("null")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Future<Dummy> nullItIs(@Context Vertx vertx) throws InterruptedException {
+    @GET
+    @Path("executor_promise")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ResponseWriter(DummyWriter.class)
+    public Promise<Dummy> executorPromise(@Context Vertx vertx) {
 
-		System.out.println(Thread.currentThread().getName() + " REST invoked");
+        System.out.println(Thread.currentThread().getName() + " REST invoked");
 
-		Future<Dummy> res = Future.future();
-		spaceService.asyncCallReturnNUll(vertx, res);
-		System.out.println("Rest finished");
-		return res;
-	}
+        Promise<Dummy> res = Promise.promise();
+        spaceService.asyncExecutorPromise(executor, res);
+        System.out.println("Rest finished");
+        return res;
+    }
 
-	/*@GET
-	@Path("handler")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Handler<Dummy> nullHandler(@Context Vertx vertx) throws InterruptedException {
+    @GET
+    @Path("empty")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ResponseWriter(DummyWriter.class)
+    public Future<Dummy> empty(@Context Vertx vertx) {
 
-		System.out.println(Thread.currentThread().getName() + " REST invoked");
+        System.out.println(Thread.currentThread().getName() + " REST invoked");
 
-		Handler<Dummy> output = res -> {
-			res.value = res.value + "++";
-			res.name = res.name + "++";
-		};
+        Future<Dummy> res = Future.future();
+        spaceService.asyncCallReturnNullFuture(vertx, res);
+        System.out.println("Rest finished");
+        return res;
+    }
 
-		spaceService.asyncHandler(vertx, output);
-		System.out.println("Rest finished");
-		return output;
-	}*/
+    @GET
+    @Path("null")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Future<Dummy> nullItIs(@Context Vertx vertx) {
+
+        System.out.println(Thread.currentThread().getName() + " REST invoked");
+
+        Future<Dummy> res = Future.future();
+        spaceService.asyncCallReturnNullFuture(vertx, res);
+        System.out.println("Rest finished");
+        return res;
+    }
+
+    @GET
+    @Path("empty")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ResponseWriter(DummyWriter.class)
+    public Promise<Dummy> emptyPromise(@Context Vertx vertx) {
+
+        System.out.println(Thread.currentThread().getName() + " REST invoked");
+
+        Promise<Dummy> res = Promise.promise();
+        spaceService.asyncCallReturnNullPromise(vertx, res);
+        System.out.println("Rest finished");
+        return res;
+    }
+
+    @GET
+    @Path("null")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Promise<Dummy> nullItIsPromise(@Context Vertx vertx) {
+
+        System.out.println(Thread.currentThread().getName() + " REST invoked");
+
+        Promise<Dummy> res = Promise.promise();
+        spaceService.asyncCallReturnNullPromise(vertx, res);
+        System.out.println("Rest finished");
+        return res;
+    }
+
+    @GET
+    @Path("handler")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String nullHandler(@Context Vertx vertx) {
+
+        System.out.println(Thread.currentThread().getName() + " REST invoked");
+
+        Handler<Dummy> output = res -> {
+            res.value = res.value + "++";
+            res.name = res.name + "++";
+        };
+
+        spaceService.asyncHandler(output);
+        return "invoked";
+    }
 }

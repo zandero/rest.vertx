@@ -22,7 +22,5 @@ public class DummyWriter implements HttpResponseWriter<Dummy> {
 		else {
 			response.setStatusCode(204).end();
 		}
-
-
 	}
 }

@@ -26,9 +26,21 @@ class RouteAsyncTest extends VertxTest {
     }
 
     @Test
-    void testAsyncCallInsideRest(VertxTestContext context) {
+    void testAsyncCallFutureInsideRest(VertxTestContext context) {
 
-        client.get(PORT, HOST, "/async/call")
+        client.get(PORT, HOST, "/async/call_future")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("{\"name\": \"async\", \"value\": \"called\"}", response.body());
+                    context.completeNow();
+                })));
+    }
+
+    @Test
+    void testAsyncCallPromiseInsideRest(VertxTestContext context) {
+
+        client.get(PORT, HOST, "/async/call_promise")
                 .as(BodyCodec.string())
                 .send(context.succeeding(response -> context.verify(() -> {
                     assertEquals(200, response.statusCode());
@@ -51,9 +63,22 @@ class RouteAsyncTest extends VertxTest {
     }
 
     @Test
-    void testAsyncCallWithExecutorRest(VertxTestContext context) {
+    void testAsyncCallWithExecutorFutureRest(VertxTestContext context) {
 
-        client.get(PORT, HOST, "/async/executor")
+        client.get(PORT, HOST, "/async/executor_future")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+                    assertEquals(200, response.statusCode());
+                    assertEquals("{\"name\": \"async\", \"value\": \"called\"}", response.body());
+                    context.completeNow();
+                })));
+
+    }
+
+    @Test
+    void testAsyncCallWithExecutorPromiseRest(VertxTestContext context) {
+
+        client.get(PORT, HOST, "/async/executor_promise")
                 .as(BodyCodec.string())
                 .send(context.succeeding(response -> context.verify(() -> {
                     assertEquals(200, response.statusCode());
@@ -84,6 +109,21 @@ class RouteAsyncTest extends VertxTest {
                     assertEquals(200, response.statusCode());
                     context.completeNow();
                 })));
+    }
+
+    @Test
+    void testAsyncHanlder(VertxTestContext context) throws InterruptedException {
+
+        client.get(PORT, HOST, "/async/handler")
+                .as(BodyCodec.string())
+                .send(context.succeeding(response -> context.verify(() -> {
+
+                    assertEquals(200, response.statusCode());
+                    assertEquals("\"invoked\"", response.body());
+                    context.completeNow();
+                })));
+
+        Thread.sleep(2000); // wait until handler finished
     }
 }
 

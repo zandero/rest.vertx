@@ -10,6 +10,7 @@ import com.zandero.utils.ArrayUtils;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
 import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
@@ -678,7 +679,7 @@ public class RouteDefinition {
                 // set context provider from method annotation if fitting
                 if (contextValueProvider == null && contextProvider != null) {
                     Type generic = ClassFactory.getGenericType(contextProvider);
-                    if (ClassFactory.checkIfCompatibleTypes(parameterTypes[index], generic)) {
+                    if (ClassFactory.checkIfCompatibleType(parameterTypes[index], generic)) {
                         contextValueProvider = contextProvider;
                     }
                 }
@@ -699,7 +700,7 @@ public class RouteDefinition {
      */
     static boolean isAsync(Class<?> returnType) {
 
-        return ClassFactory.checkIfCompatibleTypes(returnType, Future.class);
+        return ClassFactory.checkIfCompatibleTypes(returnType, Future.class, Promise.class);
     }
 
     /**

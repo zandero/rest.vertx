@@ -45,7 +45,7 @@ class ClassFactoryTest {
 
         Type type = ClassFactory.getGenericType(NumberFormatException.class);
         try {
-            ClassFactory.checkIfCompatibleTypes(IllegalArgumentException.class, type, "Fail");
+            ClassFactory.checkIfCompatibleType(IllegalArgumentException.class, type, "Fail");
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -55,8 +55,8 @@ class ClassFactoryTest {
     void inheritedTypeAreCompatibleTest() {
 
         Type type = ClassFactory.getGenericType(WebApplicationExceptionHandler.class);
-        ClassFactory.checkIfCompatibleTypes(WebApplicationException.class, type, "Fail");
-        ClassFactory.checkIfCompatibleTypes(NotAllowedException.class, type, "Fail");
+        ClassFactory.checkIfCompatibleType(WebApplicationException.class, type, "Fail");
+        ClassFactory.checkIfCompatibleType(NotAllowedException.class, type, "Fail");
     }
 
     @Test
@@ -157,6 +157,6 @@ class ClassFactoryTest {
     @Test
     void checkIfCompatibleTypes() {
 
-        assertTrue(ClassFactory.checkIfCompatibleTypes(SimulatedUser.class, AbstractUser.class));
+        assertTrue(ClassFactory.checkIfCompatibleType(SimulatedUser.class, AbstractUser.class));
     }
 }

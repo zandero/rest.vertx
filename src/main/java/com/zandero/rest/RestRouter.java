@@ -13,10 +13,7 @@ import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.rest.writer.NotFoundResponseWriter;
 import com.zandero.rest.writer.WriterFactory;
 import com.zandero.utils.Assert;
-import io.vertx.core.CompositeFuture;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
+import io.vertx.core.*;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
@@ -364,7 +361,7 @@ public class RestRouter {
 			Type readerType = ClassFactory.getGenericType(bodyReader.getClass());
 			MethodParameter bodyParameter = definition.getBodyParameter();
 
-			ClassFactory.checkIfCompatibleTypes(bodyParameter.getDataType(), readerType,
+			ClassFactory.checkIfCompatibleType(bodyParameter.getDataType(), readerType,
 			                                    definition.toString().trim() + " - Parameter type: '" +
 			                                    bodyParameter.getDataType() + "' not matching reader type: '" +
 			                                    readerType + "' in: '" + bodyReader.getClass() + "'!");
@@ -396,7 +393,7 @@ public class RestRouter {
 		    ClassFactory.checkCompatibility(writer.getClass())) {
 
 			Type writerType = ClassFactory.getGenericType(writer.getClass());
-			ClassFactory.checkIfCompatibleTypes(returnType,
+			ClassFactory.checkIfCompatibleType(returnType,
 			                                    writerType,
 			                                    definition.toString().trim() + " - Response type: '" +
 			                                    returnType + "' not matching writer type: '" +
@@ -510,6 +507,12 @@ public class RestRouter {
 				validate(method, definition, validator, toInvoke, args);
 
 				Object result = method.invoke(toInvoke, args);
+
+				// get future from promise ...
+				if (result instanceof Promise) {
+					Promise<?> pro = (Promise) result;
+					result = pro.future();
+				}
 
 				if (result instanceof Future) {
 					Future<?> fut = (Future) result;
