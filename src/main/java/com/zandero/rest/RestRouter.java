@@ -323,7 +323,7 @@ public class RestRouter {
 	 * @param allowedHeaders       set of headers or null for none
 	 * @param methods              list of methods or empty for all
 	 */
-	public void enableCors(Router router,
+	public static void enableCors(Router router,
 	                       String allowedOriginPattern,
 	                       boolean allowCredentials,
 	                       int maxAge,
@@ -343,7 +343,7 @@ public class RestRouter {
 		}
 
 		handler.allowedHeaders(allowedHeaders);
-		router.route().handler(handler).order(ORDER_CORS_HANDLER);
+		router.route().order(ORDER_CORS_HANDLER).handler(handler);
 	}
 
 	private static void checkBodyReader(RouteDefinition definition) {

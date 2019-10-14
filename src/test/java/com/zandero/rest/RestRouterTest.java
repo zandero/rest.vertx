@@ -12,10 +12,14 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -197,4 +201,11 @@ class RestRouterTest extends VertxTest {
                     context.completeNow();
                 })));
     }
+
+	@Test
+	void enableCors_specifyOrderBeforeAppendingRequestHandler() {
+		Assertions.assertDoesNotThrow(()->{
+			RestRouter.enableCors(Router.router(vertx), "*", false, 1800, Collections.emptySet());
+		});
+	}
 }
