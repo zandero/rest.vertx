@@ -28,9 +28,13 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 	/**
 	 * Cache of classes that need or don't need context injection
 	 * If class needs context injection .. a list of Fields to inject is provided
-	 * If class doesn't need context injection the list of fields in empty (not null)
+	 * If class doesn't need context injection the list of fields is empty (not null)
+	 *
+	 * HashMap contains pairs by full class name
 	 */
 	private static HashMap<String, List<Field>> contextCache = new HashMap<>();
+
+	private static final String CONTEXT_DATA_KEY_PREFIX = "RestRouter-";
 
 	@Override
 	protected void init() {
@@ -134,7 +138,7 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 		// browse through context storage
 		if (context.data() != null && context.data().size() > 0) {
 
-			Object item = context.data().get(getContextKey(type));
+			Object item = context.data().get(getContextDataKey(type));
 			if (item != null) { // found in storage ... return
 				return item;
 			}
@@ -178,13 +182,13 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 		}
 	}
 
-	public static String getContextKey(Object object) {
+	public static String getContextDataKey(Object object) {
 
 		Assert.notNull(object, "Expected object but got null!");
 		if (object instanceof Class) {
-			return "RestRouter-" + ((Class) object).getName();
+			return CONTEXT_DATA_KEY_PREFIX + ((Class) object).getName();
 		}
 
-		return "RestRouter-" + object.getClass().getName();
+		return CONTEXT_DATA_KEY_PREFIX + object.getClass().getName();
 	}
 }

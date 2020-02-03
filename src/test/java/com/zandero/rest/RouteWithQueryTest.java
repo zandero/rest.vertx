@@ -172,7 +172,7 @@ class RouteWithQueryTest extends VertxTest {
         client.get(PORT, HOST, "/query/decode?original=test+%7Bhello%7D")
                 .send(context.succeeding(response -> context.verify(() -> {
                     assertEquals(200, response.statusCode());
-                    assertEquals("test%20%7Bhello%7D", response.bodyAsString());
+                    assertEquals("test+%7Bhello%7D", response.bodyAsString());
                     context.completeNow();
                 })));
     }

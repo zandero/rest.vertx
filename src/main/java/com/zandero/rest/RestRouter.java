@@ -233,7 +233,7 @@ public class RestRouter {
 					}
 
 					if (provided != null) { // push provided context into request data
-						context.data().put(ContextProviderFactory.getContextKey(provided), provided);
+						context.data().put(ContextProviderFactory.getContextDataKey(provided), provided);
 					}
 				}
 				catch (Throwable e) {
@@ -767,7 +767,7 @@ public class RestRouter {
 		Assert.notNull(context, "Missing context!");
 		Assert.notNull(object, "Can't push null into context!");
 
-		context.put(ContextProviderFactory.getContextKey(object), object);
+		context.put(ContextProviderFactory.getContextDataKey(object), object);
 	}
 
 	/**

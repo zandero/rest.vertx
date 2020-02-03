@@ -11,4 +11,5 @@
 */*.ipr
 */*.iws
 target/
-
+.vertx/
+file-uploads/

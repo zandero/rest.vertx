@@ -556,8 +556,7 @@ public abstract class ClassFactory<T> {
 
 		// Try to usse fromString before valueOf (enums have valueOf already defined) - in case we override fromString()
 		List<Method> methods = getMethods(type, "fromString", "valueOf");
-
-		if (methods != null && methods.size() > 0) {
+		if (methods.size() > 0) {
 
 			for (Method method : methods) {
 

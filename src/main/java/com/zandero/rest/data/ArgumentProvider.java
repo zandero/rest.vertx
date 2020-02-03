@@ -95,7 +95,7 @@ public class ArgumentProvider {
 							if (provider != null) {
 								Object result = provider.provide(context.request());
 								if (result != null) {
-									context.data().put(ContextProviderFactory.getContextKey(dataType), result);
+									context.data().put(ContextProviderFactory.getContextDataKey(dataType), result);
 								}
 							}
 
