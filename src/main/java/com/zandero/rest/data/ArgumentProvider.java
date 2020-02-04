@@ -10,8 +10,8 @@ import com.zandero.rest.reader.ValueReader;
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
 import com.zandero.utils.extra.UrlUtils;
-import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.Cookie;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,7 +172,7 @@ public class ArgumentProvider {
 		return args;
 	}
 
-	private static String getValue(RouteDefinition definition, MethodParameter param, RoutingContext context, String defaultValue) {
+	public static String getValue(RouteDefinition definition, MethodParameter param, RoutingContext context, String defaultValue) {
 
 		String value = getValue(definition, param, context);
 
@@ -183,7 +183,7 @@ public class ArgumentProvider {
 		return value;
 	}
 
-	public static String getValue(RouteDefinition definition, MethodParameter param, RoutingContext context) {
+	private static String getValue(RouteDefinition definition, MethodParameter param, RoutingContext context) {
 
 		switch (param.getType()) {
 			case path:
@@ -192,12 +192,7 @@ public class ArgumentProvider {
 				if (definition != null && definition.pathIsRegEx()) { // RegEx is special, params values are given by index
 					path = getParam(context.mountPoint(), context.request(), param.getPathIndex());
 				} else {
-					if (definition == null) {
-						path = context.request().path();
-					}
-					else {
-						path = context.request().getParam(param.getName());
-					}
+					path = context.request().getParam(param.getName());
 				}
 
 				// if @MatrixParams are present ... those need to be removed
@@ -235,13 +230,13 @@ public class ArgumentProvider {
 				return context.request().getFormAttribute(param.getName());
 
 			case matrix:
-				return getMatrixParam(context.request(), param.getName());
+				return getMatrixParam(context.request().path(), param.getName());
 
 			case header:
 				return context.request().getHeader(param.getName());
 
 			case body:
-				return context.getBodyAsString();
+				return StringUtils.trimToNull(context.getBodyAsString());
 
 			default:
 				return null;
@@ -318,16 +313,15 @@ public class ArgumentProvider {
 	}
 
 	/**
-	 * @param request to extract matrix parameter from (URL)
+	 * @param path to extract matrix parameter from (URL)
 	 * @param name    of desired matrix parameter
 	 * @return found parameter value or null if none found
 	 */
 	// TODO: this might be slow at times ... pre-parse matrix into hash map ... and store
-	public static String getMatrixParam(HttpServerRequest request, String name) {
+	private static String getMatrixParam(String path, String name) {
 
 		// get URL ... and find ;name=value pair
-		String url = request.uri();
-		String[] items = url.split(";");
+		String[] items = path.split(";");
 		for (String item : items) {
 			String[] nameValue = item.split("=");
 			if (nameValue.length == 2 && nameValue[0].equals(name)) {

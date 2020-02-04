@@ -452,6 +452,15 @@ public abstract class ClassFactory<T> {
 			return Double.valueOf(value);
 		}
 
+		if (dataType.isEnum()) {
+			Object[] constants = dataType.getEnumConstants();
+			for (Object constant: constants) {
+				if (StringUtils.equals(value, constant.toString(), true)) {
+					return constant;
+				}
+			}
+		}
+
 		return null;
 	}
 

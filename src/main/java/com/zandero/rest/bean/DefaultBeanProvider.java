@@ -32,7 +32,7 @@ public class DefaultBeanProvider implements BeanProvider {
 
             MethodParameter parameter = definition.get(field);
             if (parameter != null) {
-                String value = ArgumentProvider.getValue(null, parameter, context);
+                String value = ArgumentProvider.getValue(null, parameter, context, parameter.getDefaultValue());
 
                 // TODO: currently only basic primitive fields can be set
                 Object fieldValue = ClassFactory.stringToPrimitiveType(value, field.getType());

@@ -1,16 +1,15 @@
 package com.zandero.rest.bean;
 
-import com.zandero.rest.annotation.Header;
+import com.zandero.rest.annotation.BodyParam;
+import com.zandero.rest.annotation.ContextReader;
 import com.zandero.rest.annotation.Raw;
+import com.zandero.rest.annotation.RequestReader;
 import com.zandero.rest.data.MethodParameter;
 import com.zandero.rest.data.ParameterType;
 import com.zandero.utils.Assert;
-import com.zandero.utils.Pair;
 
-import javax.ws.rs.CookieParam;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -72,8 +71,17 @@ public class BeanDefinition {
                 parameter = getNewParameter(parameter, ParameterType.header, ((HeaderParam) annotation).value());
             }
 
+            if (annotation instanceof MatrixParam) {
+                parameter = getNewParameter(parameter, ParameterType.matrix, ((MatrixParam) annotation).value());
+            }
 
-            // TODO: add others
+            if (annotation instanceof BodyParam) {
+                parameter = getNewParameter(parameter, ParameterType.body, "body"); // TODO: check what we could do with value
+            }
+
+            if (annotation instanceof Context) {
+                parameter = getNewParameter(parameter, ParameterType.context, "context"); // TODO: check what we could do with value
+            }
         }
 
         // read in additional info if present
@@ -81,6 +89,18 @@ public class BeanDefinition {
             for (Annotation annotation : annotations) {
                 if (annotation instanceof Raw) {
                     parameter.setRaw();
+                }
+
+                if (annotation instanceof DefaultValue) {
+                    parameter.setDefaultValue(((DefaultValue) annotation).value());
+                }
+
+                if (annotation instanceof ContextReader) {
+                    //parameter.setContextProvider();
+                }
+
+                if (annotation instanceof RequestReader) {
+                    //parameter.setValueReader();
                 }
             }
         }
@@ -99,12 +119,4 @@ public class BeanDefinition {
         Assert.notNull(field, "Missing field to get parameter!");
         return parameters.get(field.getName());
     }
-
-    /*public Pair<ParameterType, String> get(Field field) {
-        return parameters.get(field.getName());
-    }*/
-/*
-    public Map<String, Map<ParameterType, Object>> getFieldValues() {
-        return fieldValues;
-    }*/
 }
