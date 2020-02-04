@@ -55,15 +55,9 @@ public enum ParameterType {
 	 */
 	context("@Context");
 
-	private final String description;
+	public final String description;
 
 	ParameterType(String value) {
-
 		description = value;
-	}
-
-	public String getDescription() {
-
-		return description;
 	}
 }

@@ -407,7 +407,7 @@ public abstract class ClassFactory<T> {
 		return expected.equals(actual) || expected.isInstance(actual) || ((Class) actual).isAssignableFrom(expected);
 	}
 
-	static Object stringToPrimitiveType(String value, Class<?> dataType) {
+	public static Object stringToPrimitiveType(String value, Class<?> dataType) {
 
 		if (value == null) {
 			return null;

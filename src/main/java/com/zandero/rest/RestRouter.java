@@ -1,5 +1,7 @@
 package com.zandero.rest;
 
+import com.zandero.rest.bean.BeanProvider;
+import com.zandero.rest.bean.DefaultBeanProvider;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.context.ContextProviderFactory;
 import com.zandero.rest.data.*;
@@ -23,7 +25,6 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.Session;
 import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.CookieHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +63,8 @@ public class RestRouter {
 	private static final RestEventExecutor eventExecutor = new RestEventExecutor();
 
 	private static InjectionProvider injectionProvider;
+
+	private static BeanProvider beanProvider = new DefaultBeanProvider();
 
 	private static Validator validator;
 
@@ -157,10 +160,11 @@ public class RestRouter {
 					route.handler(BodyHandler.create());
 				}
 
+				// TODO: Cookie handler is deprecated - remove
 				// add CookieHandler in case cookies are expected
-				if (definition.hasCookies()) {
+				/*if (definition.hasCookies()) {
 					route.handler(CookieHandler.create());
-				}
+				}*/
 
 				// add security check handler in front of regular route handler
 				if (definition.checkSecurity()) {
@@ -178,7 +182,7 @@ public class RestRouter {
 					handler = getHandler(api, definition, method);
 				}
 
-				route.handler(handler);
+ 				route.handler(handler);
 			}
 		}
 
@@ -427,6 +431,7 @@ public class RestRouter {
 			return false; // no user present ... can't check
 		}
 
+		// TODO: change ... Future is depricated
 		// check if given user is authorized for given role ...
 		List<Future> list = new ArrayList<>();
 
@@ -463,7 +468,7 @@ public class RestRouter {
 		return context -> context.vertx().executeBlocking(
 			fut -> {
 				try {
-					Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider);
+					Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider, beanProvider);
 					validate(method, definition, validator, toInvoke, args);
 
 					fut.complete(method.invoke(toInvoke, args));
@@ -503,7 +508,7 @@ public class RestRouter {
 		return context -> {
 
 			try {
-				Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider);
+				Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider, beanProvider);
 				validate(method, definition, validator, toInvoke, args);
 
 				Object result = method.invoke(toInvoke, args);
@@ -799,6 +804,40 @@ public class RestRouter {
 		}
 		catch (ClassFactoryException e) {
 			log.error("Failed to instantiate injection provider: ", e);
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+
+	/**
+	 * Provide an injector to getInstance classes where needed
+	 *
+	 * @param provider to create/inject classes
+	 */
+	public static void provideWith(BeanProvider provider) {
+
+		beanProvider = provider;
+		if (beanProvider != null) {
+			log.info("Registered bean provider: " + beanProvider.getClass().getName());
+		}
+		else {
+			log.warn("No bean provider specified!");
+		}
+	}
+
+	/**
+	 * Provide an injector to getInstance classes where needed
+	 *
+	 * @param provider class type
+	 */
+	public static void provideWith(Class<BeanProvider> provider) {
+
+		try {
+			beanProvider = (BeanProvider) ClassFactory.newInstanceOf(provider);
+			log.info("Registered bean provider: " + beanProvider.getClass().getName());
+		}
+		catch (ClassFactoryException e) {
+			log.error("Failed to instantiate bean provider: ", e);
 			throw new IllegalArgumentException(e);
 		}
 	}

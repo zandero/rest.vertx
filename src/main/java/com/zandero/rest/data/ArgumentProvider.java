@@ -1,5 +1,6 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.bean.BeanProvider;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.context.ContextProviderFactory;
 import com.zandero.rest.exception.ContextException;
@@ -10,11 +11,12 @@ import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
 import com.zandero.utils.extra.UrlUtils;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.ext.web.Cookie;
+import io.vertx.core.http.Cookie;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.MediaType;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -35,7 +37,8 @@ public class ArgumentProvider {
 	                                    RoutingContext context,
 	                                    ReaderFactory readers,
 	                                    ContextProviderFactory providerFactory,
-	                                    InjectionProvider injectionProvider) throws Throwable {
+	                                    InjectionProvider injectionProvider,
+										BeanProvider beanProvider) throws Throwable {
 
 		Assert.notNull(method, "Missing method to provide arguments for!");
 		Assert.notNull(definition, "Missing route definition!");
@@ -72,22 +75,26 @@ public class ArgumentProvider {
 				try {
 					switch (parameter.getType()) {
 
-						/*case bean :
+						case bean :
 
 							// TODO : initialize bean
-                            BeanProvider beanProvider = providerFactory.get(dataType, injectionProvider, context, null);
                             if (beanProvider != null) {
-                                Object result = beanProvider.provide(context.request());
-                                if (result != null) {
-                                    context.data().put(ContextProviderFactory.getContextKey(dataType), result);
-                                }
+                                Object result = beanProvider.provide(dataType, context, injectionProvider);
+
+                                args[parameter.getIndex()] = result;
+                                /*if (result != null) {
+                                    context.data().put(ContextProviderFactory.getContextDataKey(dataType), result);
+
+                                    // TODO: add valueReader that is capable of providing bean as needed
+                                }*/
                             }
 
-                            args[parameter.getIndex()] = ContextProviderFactory.provideContext(method.getParameterTypes()[parameter.getIndex()],
+                           /* args[parameter.getIndex()] = ContextProviderFactory.provideContext(method.getParameterTypes()[parameter.getIndex()],
                                     parameter.getDefaultValue(),
-                                    context);
+                                    context);*/
 
-							break;*//**/
+							break;
+
 						case context:
 
 							// check if providers need to be called to assure context
@@ -176,20 +183,27 @@ public class ArgumentProvider {
 		return value;
 	}
 
-	private static String getValue(RouteDefinition definition, MethodParameter param, RoutingContext context) {
+	public static String getValue(RouteDefinition definition, MethodParameter param, RoutingContext context) {
 
 		switch (param.getType()) {
 			case path:
 
 				String path;
-				if (definition.pathIsRegEx()) { // RegEx is special, params values are given by index
+				if (definition != null && definition.pathIsRegEx()) { // RegEx is special, params values are given by index
 					path = getParam(context.mountPoint(), context.request(), param.getPathIndex());
 				} else {
-					path = context.request().getParam(param.getName());
+					if (definition == null) {
+						path = context.request().path();
+					}
+					else {
+						path = context.request().getParam(param.getName());
+					}
 				}
 
 				// if @MatrixParams are present ... those need to be removed
-				path = removeMatrixFromPath(path, definition);
+				if (definition != null) {
+					path = removeMatrixFromPath(path, definition);
+				}
 				return path;
 
 			case query:
@@ -238,17 +252,20 @@ public class ArgumentProvider {
 	                                          MethodParameter parameter,
 	                                          RouteDefinition definition,
 	                                          RoutingContext context,
-	                                          ReaderFactory
-		                                          readers) {
+	                                          ReaderFactory readers) {
 
 		// get associated reader set in parameter
-		if (parameter.isBody()) {
-			return readers.get(parameter, parameter.getReader(), provider, context, definition.getConsumes());
-		} else {
-			return readers.get(parameter, parameter.getReader(), provider, context);
-		}
+		MediaType[] consumes = parameter.isBody() ? definition.getConsumes() : null;
+		return readers.get(parameter, provider, context, consumes);
 	}
 
+	/**
+	 * Parse param from path
+	 * @param mountPoint prefix
+	 * @param request http request
+	 * @param index param index
+	 * @return found param or null if none found
+	 */
 	private static String getParam(String mountPoint, HttpServerRequest request, int index) {
 
 		String param = request.getParam("param" + index); // default mount of params without name param0, param1 ...
@@ -265,6 +282,12 @@ public class ArgumentProvider {
 		return null;
 	}
 
+	/**
+	 * Removes path prefix from whole path
+	 * @param mountPoint prefix
+	 * @param path whole path
+	 * @return left over path
+	 */
 	private static String removeMountPoint(String mountPoint, String path) {
 
 		if (StringUtils.isNullOrEmptyTrimmed(mountPoint)) {
@@ -300,7 +323,7 @@ public class ArgumentProvider {
 	 * @return found parameter value or null if none found
 	 */
 	// TODO: this might be slow at times ... pre-parse matrix into hash map ... and store
-	private static String getMatrixParam(HttpServerRequest request, String name) {
+	public static String getMatrixParam(HttpServerRequest request, String name) {
 
 		// get URL ... and find ;name=value pair
 		String url = request.uri();

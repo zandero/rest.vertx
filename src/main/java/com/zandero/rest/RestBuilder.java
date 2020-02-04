@@ -1,5 +1,6 @@
 package com.zandero.rest;
 
+import com.zandero.rest.bean.BeanProvider;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.data.MediaTypeHelper;
@@ -56,6 +57,11 @@ public class RestBuilder {
 	 * Injected class provider
 	 */
 	private InjectionProvider injectionProvider = null;
+
+	/**
+	 * Bean provisioning
+	 */
+	private BeanProvider beanProvider = null;
 
 	/**
 	 * Validation
@@ -374,7 +380,7 @@ public class RestBuilder {
 	}
 
 	/**
-	 * Assosicate provider to getInstance members into REST classes, Reader, Writers ...
+	 * Associate provider to getInstance members into REST classes, Reader, Writers ...
 	 *
 	 * @param provider to do the injection
 	 * @return rest builder
@@ -384,6 +390,27 @@ public class RestBuilder {
 		return this;
 	}
 
+	/**
+	 * Associate provider to getInstance members into REST classes, Reader, Writers ...
+	 *
+	 * @param provider to do the injection
+	 * @return rest builder
+	 */
+	public RestBuilder provideWith(BeanProvider provider) {
+		beanProvider = provider;
+		return this;
+	}
+
+	public RestBuilder provideWith(Class<? extends BeanProvider> provider) {
+		try {
+			beanProvider = (BeanProvider) ClassFactory.newInstanceOf(provider);
+		}
+		catch (ClassFactoryException e) {
+			throw new IllegalArgumentException(e);
+		}
+
+		return this;
+	}
 
 	public RestBuilder validateWith(Validator provider) {
 		validator = provider;
@@ -417,6 +444,10 @@ public class RestBuilder {
 
 		if (injectionProvider != null) { // prevent WARN log if no provider is given
 			RestRouter.injectWith(injectionProvider);
+		}
+
+		if (beanProvider != null) {
+			RestRouter.provideWith(beanProvider);
 		}
 
 		if (validator != null) { // prevent WARN log if no validator is given

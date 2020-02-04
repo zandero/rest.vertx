@@ -1,11 +1,13 @@
 package com.zandero.rest;
 
 import com.zandero.rest.annotation.Header;
+import com.zandero.rest.bean.BeanDefinition;
 import com.zandero.rest.data.MethodParameter;
 import com.zandero.rest.data.ParameterType;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.utils.Assert;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -16,285 +18,287 @@ import java.util.*;
  */
 public final class AnnotationProcessor {
 
-	/**
-	 * Methods names of Object that will be ignored when binding RESTs
-	 */
-	private static final Set<String> OBJECT_METHODS;
-	static {
-		OBJECT_METHODS = new HashSet<>();
-		OBJECT_METHODS.add("equals");
-		OBJECT_METHODS.add("toString");
-		OBJECT_METHODS.add("wait");
-	}
+    /**
+     * Methods names of Object that will be ignored when binding RESTs
+     */
+    private static final Set<String> OBJECT_METHODS;
 
-	private AnnotationProcessor() {
-		// hide constructor
-	}
+    static {
+        OBJECT_METHODS = new HashSet<>();
+        OBJECT_METHODS.add("equals");
+        OBJECT_METHODS.add("toString");
+        OBJECT_METHODS.add("wait");
+    }
 
-	/**
-	 * Extracts all JAX-RS annotated methods from class and all its subclasses and interfaces
-	 * @param clazz to extract from
-	 * @return map of routeDefinition and class method to execute
-	 */
-	public static Map<RouteDefinition, Method> get(Class clazz) {
+    private AnnotationProcessor() {
+        // hide constructor
+    }
 
-		Map<RouteDefinition, Method> out = new HashMap<>();
+    /**
+     * Extracts all JAX-RS annotated methods from class and all its subclasses and interfaces
+     *
+     * @param clazz to extract from
+     * @return map of routeDefinition and class method to execute
+     */
+    public static Map<RouteDefinition, Method> get(Class clazz) {
 
-		Map<RouteDefinition, Method> candidates = collect(clazz);
-		// Final check if definitions are OK
-		for (RouteDefinition definition : candidates.keySet()) {
+        Map<RouteDefinition, Method> out = new HashMap<>();
 
-			if (definition.getMethod() == null) { // skip non REST methods
-				continue;
-			}
+        Map<RouteDefinition, Method> candidates = collect(clazz);
+        // Final check if definitions are OK
+        for (RouteDefinition definition : candidates.keySet()) {
 
-			Method method = candidates.get(definition);
-			Assert.notNull(definition.getRoutePath(), getClassMethod(clazz, method) + " - Missing route @Path!");
+            if (definition.getMethod() == null) { // skip non REST methods
+                continue;
+            }
 
-			int bodyParamCount = 0;
-			for (MethodParameter param : definition.getParameters()) {
-				if (bodyParamCount > 0 && (ParameterType.body.equals(param.getType()) || ParameterType.unknown.equals(param.getType()))) {
-					// OK we have to body params ...
-					throw new IllegalArgumentException(getClassMethod(clazz, method) + " - to many body arguments given. " +
-					                                   "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: " +
-					                                   param.getType() + " " + param.getName() + "!");
-				}
+            Method method = candidates.get(definition);
+            Assert.notNull(definition.getRoutePath(), getClassMethod(clazz, method) + " - Missing route @Path!");
 
-				if (ParameterType.unknown.equals(param.getType())) { // proclaim as body param
-					// check if method allows for a body param
-					Assert.isTrue(definition.requestHasBody(), getClassMethod(clazz, method) + " - " +
-					                                           "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: " +
-					                                           param.getName() + "!");
+            int bodyParamCount = 0;
+            for (MethodParameter param : definition.getParameters()) {
+                if (bodyParamCount > 0 && (ParameterType.body.equals(param.getType()) || ParameterType.unknown.equals(param.getType()))) {
+                    // OK we have to body params ...
+                    throw new IllegalArgumentException(getClassMethod(clazz, method) + " - to many body arguments given. " +
+                            "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: " +
+                            param.getType() + " " + param.getName() + "!");
+                }
 
-					param.setType(ParameterType.body);
-				}
+                if (ParameterType.unknown.equals(param.getType())) { // proclaim as body param
+                    // check if method allows for a body param
+                    Assert.isTrue(definition.requestHasBody(), getClassMethod(clazz, method) + " - " +
+                            "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: " +
+                            param.getName() + "!");
 
-				if (ParameterType.body.equals(param.getType())) {
-					bodyParamCount++;
-				}
-			}
+                    param.setType(ParameterType.body);
+                }
 
-			out.put(definition, method);
-		}
+                if (ParameterType.body.equals(param.getType())) {
+                    bodyParamCount++;
+                }
+            }
 
-		return out;
-	}
+            out.put(definition, method);
+        }
 
-	/**
-	 * Gets all route definitions for base class / interfaces and inherited / abstract classes
-	 *
-	 * @param clazz to inspect
-	 * @return collection of all definitions
-	 */
-	private static Map<RouteDefinition, Method> collect(Class clazz) {
+        return out;
+    }
 
-		Map<RouteDefinition, Method> out = getDefinitions(clazz);
-		for (Class inter : clazz.getInterfaces()) {
+    /**
+     * Gets all route definitions for base class / interfaces and inherited / abstract classes
+     *
+     * @param clazz to inspect
+     * @return collection of all definitions
+     */
+    private static Map<RouteDefinition, Method> collect(Class clazz) {
 
-			Map<RouteDefinition, Method> found = collect(inter);
-			out = join(out, found);
-		}
+        Map<RouteDefinition, Method> out = getDefinitions(clazz);
+        for (Class inter : clazz.getInterfaces()) {
 
-		Class superClass = clazz.getSuperclass();
-		if (superClass != Object.class && superClass != null) {
-			Map<RouteDefinition, Method> found = collect(superClass);
-			out = join(out, found);
-		}
+            Map<RouteDefinition, Method> found = collect(inter);
+            out = join(out, found);
+        }
 
-		return out;
-	}
+        Class superClass = clazz.getSuperclass();
+        if (superClass != Object.class && superClass != null) {
+            Map<RouteDefinition, Method> found = collect(superClass);
+            out = join(out, found);
+        }
 
-	/**
-	 * Joins additional data provided in subclass/ interfaces with base definition
-	 *
-	 * @param base base definition
-	 * @param add  additional definition
-	 * @return joined definition
-	 */
-	private static Map<RouteDefinition, Method> join(Map<RouteDefinition, Method> base, Map<RouteDefinition, Method> add) {
+        return out;
+    }
 
-		for (RouteDefinition definition : base.keySet()) {
-			Method method = base.get(definition);
+    /**
+     * Joins additional data provided in subclass/ interfaces with base definition
+     *
+     * @param base base definition
+     * @param add  additional definition
+     * @return joined definition
+     */
+    private static Map<RouteDefinition, Method> join(Map<RouteDefinition, Method> base, Map<RouteDefinition, Method> add) {
 
-			RouteDefinition additional = find(add, method);
-			definition.join(additional);
-		}
+        for (RouteDefinition definition : base.keySet()) {
+            Method method = base.get(definition);
 
-		return base;
-	}
+            RouteDefinition additional = find(add, method);
+            definition.join(additional);
+        }
 
-	/**
-	 * Find mathing definition for same method ...
-	 *
-	 * @param add        to search
-	 * @param method     base
-	 * @return found definition or null if no match found
-	 */
-	private static RouteDefinition find(Map<RouteDefinition, Method> add, Method method) {
+        return base;
+    }
 
-		if (add == null || add.size() == 0) {
-			return null;
-		}
+    /**
+     * Find mathing definition for same method ...
+     *
+     * @param add    to search
+     * @param method base
+     * @return found definition or null if no match found
+     */
+    private static RouteDefinition find(Map<RouteDefinition, Method> add, Method method) {
 
-		for (RouteDefinition additional : add.keySet()) {
-			Method match = add.get(additional);
+        if (add == null || add.size() == 0) {
+            return null;
+        }
 
-			if (isMatching(method, match)) {
-				return additional;
-			}
-		}
+        for (RouteDefinition additional : add.keySet()) {
+            Method match = add.get(additional);
 
-		return null;
-	}
+            if (isMatching(method, match)) {
+                return additional;
+            }
+        }
 
-	/**
-	 * Checks if methods in base and inherited/abstract class are the same method
-	 * @param base method
-	 * @param compare to compare
-	 * @return true if the same, false otherwise
-	 */
-	private static boolean isMatching(Method base, Method compare) {
+        return null;
+    }
 
-		// if names and argument types match ... then this are the same method
-		if (base.getName().equals(compare.getName()) &&
-		    base.getParameterCount() == compare.getParameterCount()) {
+    /**
+     * Checks if methods in base and inherited/abstract class are the same method
+     *
+     * @param base    method
+     * @param compare to compare
+     * @return true if the same, false otherwise
+     */
+    private static boolean isMatching(Method base, Method compare) {
 
-			Class<?>[] typeBase = base.getParameterTypes();
-			Class<?>[] typeCompare = compare.getParameterTypes();
+        // if names and argument types match ... then this are the same method
+        if (base.getName().equals(compare.getName()) &&
+                base.getParameterCount() == compare.getParameterCount()) {
 
-			for (int index = 0; index < typeBase.length; index++) {
-				Class clazzBase = typeBase[index];
-				Class clazzCompare = typeCompare[index];
-				if (!clazzBase.equals(clazzCompare)) {
-					return false;
-				}
-			}
+            Class<?>[] typeBase = base.getParameterTypes();
+            Class<?>[] typeCompare = compare.getParameterTypes();
 
-			return true;
-		}
+            for (int index = 0; index < typeBase.length; index++) {
+                Class clazzBase = typeBase[index];
+                Class clazzCompare = typeCompare[index];
+                if (!clazzBase.equals(clazzCompare)) {
+                    return false;
+                }
+            }
 
-		return false;
-	}
+            return true;
+        }
 
-
-	/**
-	 * Checks class for JAX-RS annotations and returns a list of route definitions to build routes upon
-	 *
-	 * @param clazz to be checked
-	 * @return list of definitions or empty list if none present
-	 */
-	private static Map<RouteDefinition, Method> getDefinitions(Class clazz) {
-
-		Assert.notNull(clazz, "Missing class with JAX-RS annotations!");
-
-		// base
-		RouteDefinition root = new RouteDefinition(clazz);
-
-		// go over methods ...
-		Map<RouteDefinition, Method> output = new LinkedHashMap<>();
-		for (Method method : clazz.getMethods()) {
-
-			if (isRestCompatible(method)) { // Path must be present
-
-				try {
-					RouteDefinition definition = new RouteDefinition(root, method);
-					output.put(definition, method);
-				}
-				catch (IllegalArgumentException e) {
-
-					throw new IllegalArgumentException(getClassMethod(clazz, method) + " - " + e.getMessage());
-				}
-			}
-		}
-
-		return output;
-	}
-
-	/**
-	 * @param method to check if REST compatible
-	 * @return true if REST method, false otherwise
-	 */
-	private static boolean isRestCompatible(Method method) {
-
-		return (!method.getDeclaringClass().isInstance(Object.class) &&
-		        !isNative(method) && !isObjectMethod(method) &&
-		        (isPublic(method) || isInterface(method) || isAbstract(method)));
-	}
-
-	private static boolean isObjectMethod(Method method) {
-		return OBJECT_METHODS.contains(method.getName());
-	}
-
-	private static boolean isNative(Method method) {
-		return ((method.getModifiers() & Modifier.NATIVE) != 0);
-	}
+        return false;
+    }
 
 
-	private static boolean isPublic(Method method) {
-		return ((method.getModifiers() & Modifier.PUBLIC) != 0);
-	}
+    /**
+     * Checks class for JAX-RS annotations and returns a list of route definitions to build routes upon
+     *
+     * @param clazz to be checked
+     * @return list of definitions or empty list if none present
+     */
+    private static Map<RouteDefinition, Method> getDefinitions(Class clazz) {
 
-	private static boolean isInterface(Method method) {
-		return ((method.getModifiers() & Modifier.INTERFACE) != 0);
-	}
+        Assert.notNull(clazz, "Missing class with JAX-RS annotations!");
 
-	private static boolean isAbstract(Method method) {
-		return ((method.getModifiers() & Modifier.ABSTRACT) != 0);
-	}
+        // base
+        RouteDefinition root = new RouteDefinition(clazz);
 
-	/**
-	 * Helper to convert class/method to String for reporting purposes
-	 * @param clazz holding method
-	 * @param method method in class
-	 * @return class.method(type arg0, type arg1 .. type argN)
-	 */
-	private static String getClassMethod(Class clazz, Method method) {
-		StringBuilder builder = new StringBuilder();
-		builder.append(clazz.getName()).append(".").append(method.getName());
-		builder.append("(");
-		if (method.getParameterCount() > 0) {
-			for (int i = 0; i < method.getParameterCount(); i++) {
-				Parameter param = method.getParameters()[i];
-				builder.append(param.getType().getSimpleName()).append(" ").append(param.getName());
+        // go over methods ...
+        Map<RouteDefinition, Method> output = new LinkedHashMap<>();
+        for (Method method : clazz.getMethods()) {
 
-				if (i + 1 < method.getParameterCount()) {
-					builder.append(", ");
-				}
-			}
-		}
-		builder.append(")");
-		return builder.toString();
-	}
+            if (isRestCompatible(method)) { // Path must be present
 
-	public static Map<String, String> getNameValuePairs(Header annotation) {
-		return getNameValuePairs(annotation != null ? ((Header)annotation).value() : null);
-	}
+                try {
+                    RouteDefinition definition = new RouteDefinition(root, method);
+                    output.put(definition, method);
+                } catch (IllegalArgumentException e) {
 
-	public static Map<String, String> getNameValuePairs(String[] values) {
-		if (values == null || values.length == 0) {
-			return null;
-		}
+                    throw new IllegalArgumentException(getClassMethod(clazz, method) + " - " + e.getMessage());
+                }
+            }
+        }
 
-		Map<String, String> output = new HashMap<>();
-		for (String item : values) {
+        return output;
+    }
 
-			// default if split point can not be found
-			String name = item;
-			String value = "";
+    /**
+     * @param method to check if REST compatible
+     * @return true if REST method, false otherwise
+     */
+    private static boolean isRestCompatible(Method method) {
 
-			int idx = item.indexOf(":");
-			if (idx <= 0) {
-				idx = item.indexOf(" ");
-			}
+        return (!method.getDeclaringClass().isInstance(Object.class) &&
+                !isNative(method) && !isObjectMethod(method) &&
+                (isPublic(method) || isInterface(method) || isAbstract(method)));
+    }
 
-			if (idx > 0) {
-				name = item.substring(0, idx).trim();
-				value = item.substring(idx + 1).trim();
-			}
+    private static boolean isObjectMethod(Method method) {
+        return OBJECT_METHODS.contains(method.getName());
+    }
 
-			output.put(name, value);
-		}
+    private static boolean isNative(Method method) {
+        return ((method.getModifiers() & Modifier.NATIVE) != 0);
+    }
 
-		return output;
-	}
+    private static boolean isPublic(Method method) {
+        return ((method.getModifiers() & Modifier.PUBLIC) != 0);
+    }
+
+    private static boolean isInterface(Method method) {
+        return ((method.getModifiers() & Modifier.INTERFACE) != 0);
+    }
+
+    private static boolean isAbstract(Method method) {
+        return ((method.getModifiers() & Modifier.ABSTRACT) != 0);
+    }
+
+    /**
+     * Helper to convert class/method to String for reporting purposes
+     *
+     * @param clazz  holding method
+     * @param method method in class
+     * @return class.method(type arg0, type arg1 .. type argN)
+     */
+    private static String getClassMethod(Class clazz, Method method) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(clazz.getName()).append(".").append(method.getName());
+        builder.append("(");
+        if (method.getParameterCount() > 0) {
+            for (int i = 0; i < method.getParameterCount(); i++) {
+                Parameter param = method.getParameters()[i];
+                builder.append(param.getType().getSimpleName()).append(" ").append(param.getName());
+
+                if (i + 1 < method.getParameterCount()) {
+                    builder.append(", ");
+                }
+            }
+        }
+        builder.append(")");
+        return builder.toString();
+    }
+
+    public static Map<String, String> getNameValuePairs(Header annotation) {
+        return getNameValuePairs(annotation != null ? ((Header) annotation).value() : null);
+    }
+
+    public static Map<String, String> getNameValuePairs(String[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
+
+        Map<String, String> output = new HashMap<>();
+        for (String item : values) {
+
+            // default if split point can not be found
+            String name = item;
+            String value = "";
+
+            int idx = item.indexOf(":");
+            if (idx <= 0) {
+                idx = item.indexOf(" ");
+            }
+
+            if (idx > 0) {
+                name = item.substring(0, idx).trim();
+                value = item.substring(idx + 1).trim();
+            }
+
+            output.put(name, value);
+        }
+
+        return output;
+    }
 }

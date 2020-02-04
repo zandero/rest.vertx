@@ -36,6 +36,14 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 		mediaTypes.put(MediaType.TEXT_PLAIN, GenericValueReader.class);
 	}
 
+	public ValueReader get(MethodParameter parameter,
+						   InjectionProvider provider,
+						   RoutingContext context,
+						   MediaType... mediaTypes) {
+
+		return get(parameter, parameter.getReader(), provider, context, mediaTypes);
+	}
+
 	/**
 	 * Step over all possibilities to provide desired reader
 	 *

@@ -242,9 +242,9 @@ public class MethodParameter {
 	@Override
 	public String toString() {
 		if (ParameterType.body.equals(type)) {
-			return type.getDescription();
+			return type.description;
 		}
 
-		return type.getDescription() + "(\"" + name + "\")";
+		return type.description + "(\"" + name + "\")";
 	}
 }
