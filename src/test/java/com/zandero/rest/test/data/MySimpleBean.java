@@ -15,13 +15,16 @@ public class MySimpleBean {
 
     @QueryParam("query")
     @Raw
-    private int query;
+    private String query;
 
     @CookieParam("chocolate")
     private String cookie;
 
     @MatrixParam("enum")
     private MyEnum enumValue;
+
+    @MatrixParam("one")
+    private int oneValue;
 
     @FormParam("form")
     private String form;
@@ -40,6 +43,8 @@ public class MySimpleBean {
                 ", Query: " + query +
                 ", Cookie: " + cookie +
                 ", Matrix: " + enumValue +
+                ", one: " + oneValue +
+
               //  ", Context: " + dummy.name + "/" + dummy.value +
                 ", Body: " + body;
     }

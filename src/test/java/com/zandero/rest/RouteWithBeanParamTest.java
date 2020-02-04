@@ -39,6 +39,7 @@ class RouteWithBeanParamTest extends VertxTest {
                             "Query: 1, " +
                             "Cookie: tasty, " +
                             "Matrix: two, " +
+                            "one: 1, " +
                             "Body: empty", response.body());
 
                     context.completeNow();
@@ -57,10 +58,11 @@ class RouteWithBeanParamTest extends VertxTest {
 
                     assertEquals(200, response.statusCode());
                     assertEquals("Header: true, " +
-                            "Path: result;one=1;enum=two, " +
+                            "Path: result;one=1;enum=one, " +
                             "Query: 10, " +
                             "Cookie: tasty, " +
                             "Matrix: one, " +
+                            "one: 1, " +
                             "Body: BLA", response.body());
 
                     context.completeNow();
@@ -70,7 +72,7 @@ class RouteWithBeanParamTest extends VertxTest {
     @Test
     void getBean(VertxTestContext context) {
 
-        client.get(PORT, HOST, "/bean/write/result;one=1;enum=two?query=1").as(BodyCodec.string())
+        client.get(PORT, HOST, "/bean/write/result;one=1;enum=two?query=one+two").as(BodyCodec.string())
                 .putHeader("MyHeader", "true")
                 .putHeader("Cookie", "chocolate=tasty")
                 .send(context.succeeding(response -> context.verify(() -> {
@@ -78,9 +80,10 @@ class RouteWithBeanParamTest extends VertxTest {
                     assertEquals(200, response.statusCode());
                     assertEquals("Header: true, " +
                             "Path: result;one=1;enum=two, " +
-                            "Query: 1, " +
+                            "Query: one+two, " +
                             "Cookie: tasty, " +
                             "Matrix: two, " +
+                            "one: 1, " +
                             "Body: empty", response.body());
 
                     context.completeNow();
