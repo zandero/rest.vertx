@@ -6,8 +6,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    ports:
-      - 4444:4444
+
+    container: ubuntu-latest
+      options: --dns 127.0.0.1
 
     steps:
     - uses: actions/checkout@v2
@@ -15,5 +16,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: Build with Maven
+
+      - name: Build with Maven
       run: mvn clean compile test
