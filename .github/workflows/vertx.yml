@@ -6,6 +6,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    ports:
+      - 4444:4444
 
     steps:
     - uses: actions/checkout@v2
