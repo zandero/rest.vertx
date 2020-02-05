@@ -3,12 +3,16 @@ name: Zandero Vert.X build
 on: [push]
 
 jobs:
+
   build:
-
     runs-on: ubuntu-latest
-
     container: ubuntu-latest
-      options: --dns 127.0.0.1
+    networks:
+      - internal
+    expose:
+      - '4444'
+    ports:
+      - "4444:4444"
 
     steps:
     - uses: actions/checkout@v2
