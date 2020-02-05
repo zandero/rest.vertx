@@ -13,7 +13,5 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: action-maven
-      uses: comchangs/action-maven@v0.4-beta
     - name: Build with Maven
-      run: ./mvn clean compile test
+      run: mvn clean compile test
