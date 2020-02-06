@@ -20,14 +20,26 @@ public class DefaultBeanProvider implements BeanProvider {
     @Override
     public Object provide(Class clazz, RoutingContext context, InjectionProvider injectionProvider) throws Throwable {
 
-        BeanDefinition definition = new BeanDefinition(clazz);
 
         // TODO: allow instatianation from various constructors if definition has enough data ..
         // for now leave it simple
+        BeanDefinition definition = new BeanDefinition(clazz);
         Object instance = ClassFactory.newInstanceOf(clazz, injectionProvider, context);
+        setFields(instance, context, definition);
 
-        //)
-        Field[] fields = clazz.getDeclaredFields();
+        return instance;
+    }
+
+    /**
+     * Sets object instance fields
+     * @param instance to set fields
+     * @param context routing context
+     * @param definition bean definition
+     * @throws IllegalAccessException should not be triggered
+     */
+    private void setFields(Object instance, RoutingContext context, BeanDefinition definition) throws IllegalAccessException {
+
+        Field[] fields = instance.getClass().getDeclaredFields();
         for (Field field : fields) {
 
             MethodParameter parameter = definition.get(field);
@@ -39,8 +51,6 @@ public class DefaultBeanProvider implements BeanProvider {
                 setField(instance, field, fieldValue);
             }
         }
-
-        return instance;
     }
 
     /**
