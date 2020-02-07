@@ -4,11 +4,14 @@ import com.zandero.rest.data.ArgumentProvider;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.data.MethodParameter;
 import com.zandero.rest.injection.InjectionProvider;
+import io.vertx.core.cli.impl.ReflectionUtils;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Create bean of type and fill internal variables from request / context
@@ -37,7 +40,8 @@ public class DefaultBeanProvider implements BeanProvider {
      * @param definition bean definition
      * @throws IllegalAccessException should not be triggered
      */
-    private void setFields(Object instance, RoutingContext context, BeanDefinition definition) throws IllegalAccessException {
+    private void setFields(Object instance, RoutingContext context, BeanDefinition definition)
+            throws IllegalAccessException, InvocationTargetException {
 
         Field[] fields = instance.getClass().getDeclaredFields();
         for (Field field : fields) {
@@ -49,6 +53,23 @@ public class DefaultBeanProvider implements BeanProvider {
                 // TODO: currently only basic primitive fields can be set
                 Object fieldValue = ClassFactory.stringToPrimitiveType(value, field.getType());
                 setField(instance, field, fieldValue);
+            }
+        }
+
+        Method[] methods = instance.getClass().getDeclaredMethods();
+        for (Method method: methods) {
+            if (ReflectionUtils.isSetter(method)) {
+                MethodParameter parameter = definition.get(method);
+                if (parameter != null) {
+                    String value = ArgumentProvider.getValue(null, parameter, context, parameter.getDefaultValue());
+                    Class<?>[] types = method.getParameterTypes();
+
+                    // TODO: proof of concept thus far
+                    if (types.length > 0) {
+                        Object methodValue = ClassFactory.stringToPrimitiveType(value, types[0]);
+                        method.invoke(instance, methodValue);
+                    }
+                }
             }
         }
     }

@@ -20,7 +20,7 @@ public class VertxTest {
 
     protected static final int PORT = 4444;
 
-    public static final String HOST = "0.0.0.0";
+    public static final String HOST = "localhost";
 
     protected static Vertx vertx = null;
     protected static VertxTestContext vertxTestContext;

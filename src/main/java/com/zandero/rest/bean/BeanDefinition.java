@@ -20,6 +20,9 @@ import static io.vertx.core.cli.impl.ReflectionUtils.isSetter;
 
 public class BeanDefinition {
 
+    private static final String METHOD_PREFIX = "m:";
+    private static final String FIELD_PREFIX = "p:";
+
     Map<String, MethodParameter> parameters = new HashMap<>();
 
     public BeanDefinition(Class clazz) {
@@ -29,14 +32,14 @@ public class BeanDefinition {
 
     private void init(Class clazz) {
         Field[] fields = clazz.getDeclaredFields();
-        Method[] methods = clazz.getMethods();
+        Method[] methods = clazz.getDeclaredMethods();
 
         for (Field field : fields) {
 
             MethodParameter paramValues = getValueFromAnnotations(field.getAnnotations());
 
             if (paramValues != null) {
-                parameters.put(field.getName(), paramValues);
+                parameters.put(FIELD_PREFIX + field.getName(), paramValues);
             }
         }
 
@@ -44,7 +47,7 @@ public class BeanDefinition {
             if (isSetter(method)) {
                 MethodParameter paramValues = getValueFromAnnotations(method.getAnnotations());
                 if (paramValues != null) {
-                    parameters.put(method.getName(), paramValues);
+                    parameters.put(METHOD_PREFIX + method.getName(), paramValues);
                 }
             }
         }
@@ -117,6 +120,11 @@ public class BeanDefinition {
 
     public MethodParameter get(Field field) {
         Assert.notNull(field, "Missing field to get parameter!");
-        return parameters.get(field.getName());
+        return parameters.get(FIELD_PREFIX + field.getName());
+    }
+
+    public MethodParameter get(Method method) {
+        Assert.notNull(method, "Missing method to get parameter!");
+        return parameters.get(METHOD_PREFIX + method.getName());
     }
 }
