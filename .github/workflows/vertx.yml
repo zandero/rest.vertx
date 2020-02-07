@@ -6,6 +6,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+
+      junit:
+        image: ubuntu
+        ports:
+          - 4444:4444
+
     steps:
     - uses: actions/checkout@v2
     - name: set up JDK 1.8
