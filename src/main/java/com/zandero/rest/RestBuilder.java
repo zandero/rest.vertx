@@ -371,7 +371,6 @@ public class RestBuilder {
 	 * @param <T> provided object as argument
 	 * @return builder
 	 */
-	@SuppressWarnings("unchecked")
 	public <T> RestBuilder addProvider(Class<? extends ContextProvider<T>> provider) {
 
 		Assert.notNull(provider, "Missing context provider!");

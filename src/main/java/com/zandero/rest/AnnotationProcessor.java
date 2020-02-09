@@ -1,13 +1,10 @@
 package com.zandero.rest;
 
-import com.zandero.rest.annotation.Header;
-import com.zandero.rest.bean.BeanDefinition;
 import com.zandero.rest.data.MethodParameter;
 import com.zandero.rest.data.ParameterType;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.utils.Assert;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -40,7 +37,7 @@ public final class AnnotationProcessor {
      * @param clazz to extract from
      * @return map of routeDefinition and class method to execute
      */
-    public static Map<RouteDefinition, Method> get(Class clazz) {
+    public static Map<RouteDefinition, Method> get(Class<?> clazz) {
 
         Map<RouteDefinition, Method> out = new HashMap<>();
 
@@ -90,19 +87,19 @@ public final class AnnotationProcessor {
      * @param clazz to inspect
      * @return collection of all definitions
      */
-    private static Map<RouteDefinition, Method> collect(Class clazz) {
+    private static Map<RouteDefinition, Method> collect(Class<?> clazz) {
 
         Map<RouteDefinition, Method> out = getDefinitions(clazz);
-        for (Class inter : clazz.getInterfaces()) {
+        for (Class<?> inter : clazz.getInterfaces()) {
 
             Map<RouteDefinition, Method> found = collect(inter);
-            out = join(out, found);
+            join(out, found);
         }
 
-        Class superClass = clazz.getSuperclass();
+        Class<?> superClass = clazz.getSuperclass();
         if (superClass != Object.class && superClass != null) {
             Map<RouteDefinition, Method> found = collect(superClass);
-            out = join(out, found);
+            join(out, found);
         }
 
         return out;
@@ -113,9 +110,8 @@ public final class AnnotationProcessor {
      *
      * @param base base definition
      * @param add  additional definition
-     * @return joined definition
      */
-    private static Map<RouteDefinition, Method> join(Map<RouteDefinition, Method> base, Map<RouteDefinition, Method> add) {
+    private static void join(Map<RouteDefinition, Method> base, Map<RouteDefinition, Method> add) {
 
         for (RouteDefinition definition : base.keySet()) {
             Method method = base.get(definition);
@@ -123,8 +119,6 @@ public final class AnnotationProcessor {
             RouteDefinition additional = find(add, method);
             definition.join(additional);
         }
-
-        return base;
     }
 
     /**
@@ -168,8 +162,8 @@ public final class AnnotationProcessor {
             Class<?>[] typeCompare = compare.getParameterTypes();
 
             for (int index = 0; index < typeBase.length; index++) {
-                Class clazzBase = typeBase[index];
-                Class clazzCompare = typeCompare[index];
+                Class<?> clazzBase = typeBase[index];
+                Class<?> clazzCompare = typeCompare[index];
                 if (!clazzBase.equals(clazzCompare)) {
                     return false;
                 }
@@ -188,7 +182,7 @@ public final class AnnotationProcessor {
      * @param clazz to be checked
      * @return list of definitions or empty list if none present
      */
-    private static Map<RouteDefinition, Method> getDefinitions(Class clazz) {
+    private static Map<RouteDefinition, Method> getDefinitions(Class<?> clazz) {
 
         Assert.notNull(clazz, "Missing class with JAX-RS annotations!");
 
@@ -252,7 +246,7 @@ public final class AnnotationProcessor {
      * @param method method in class
      * @return class.method(type arg0, type arg1 .. type argN)
      */
-    private static String getClassMethod(Class clazz, Method method) {
+    private static String getClassMethod(Class<?> clazz, Method method) {
         StringBuilder builder = new StringBuilder();
         builder.append(clazz.getName()).append(".").append(method.getName());
         builder.append("(");
@@ -268,10 +262,6 @@ public final class AnnotationProcessor {
         }
         builder.append(")");
         return builder.toString();
-    }
-
-    public static Map<String, String> getNameValuePairs(Header annotation) {
-        return getNameValuePairs(annotation != null ? ((Header) annotation).value() : null);
     }
 
     public static Map<String, String> getNameValuePairs(String[] values) {
