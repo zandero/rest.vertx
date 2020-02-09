@@ -33,15 +33,15 @@ public class RestBuilder {
 	private List<Object> apis = new ArrayList<>();
 
 	private List<Object> contextProviders = new ArrayList<>();
-	private Map<Class, Object> registeredProviders = new HashMap<>();
+	private Map<Class<?>, Object> registeredProviders = new HashMap<>();
 
 	private List<Object> exceptionHandlers = new ArrayList<>();
 
 	private Map<MediaType, Object> mediaTypeResponseWriters = new LinkedHashMap<>();
-	private Map<Class, Object> classResponseWriters = new LinkedHashMap<>();
+	private Map<Class<?>, Object> classResponseWriters = new LinkedHashMap<>();
 
 	private Map<MediaType, Object> mediaTypeValueReaders = new LinkedHashMap<>();
-	private Map<Class, Object> classValueReaders = new LinkedHashMap<>();
+	private Map<Class<?>, Object> classValueReaders = new LinkedHashMap<>();
 
 	/**
 	 * Map of path / not found handlers
@@ -181,7 +181,7 @@ public class RestBuilder {
 	 * @return builder
 	 */
 	@SafeVarargs
-	public final RestBuilder errorHandler(Class<? extends ExceptionHandler>... handlers) {
+	public final RestBuilder errorHandler(Class<? extends ExceptionHandler<?>>... handlers) {
 
 		Assert.notNullOrEmpty(handlers, "Missing exception handler(s)!");
 
@@ -202,7 +202,7 @@ public class RestBuilder {
 		return this;
 	}
 
-	public RestBuilder writer(Class<? extends HttpResponseWriter> writer) {
+	public RestBuilder writer(Class<? extends HttpResponseWriter<?>> writer) {
 
 		Assert.notNull(writer, "Missing response writer type class!");
 
@@ -210,7 +210,7 @@ public class RestBuilder {
 		return this;
 	}
 
-	public RestBuilder writer(HttpResponseWriter writer) {
+	public RestBuilder writer(HttpResponseWriter<?> writer) {
 
 		Assert.notNull(writer, "Missing response writer type class!");
 
@@ -218,7 +218,7 @@ public class RestBuilder {
 		return this;
 	}
 
-	public RestBuilder writer(Class<?> clazz, Class<? extends HttpResponseWriter> writer) {
+	public RestBuilder writer(Class<?> clazz, Class<? extends HttpResponseWriter<?>> writer) {
 
 		Assert.notNull(clazz, "Missing response class!");
 		Assert.notNull(writer, "Missing response writer type class!");
@@ -227,7 +227,7 @@ public class RestBuilder {
 		return this;
 	}
 
-	public RestBuilder writer(String mediaType, Class<? extends HttpResponseWriter> writer) {
+	public RestBuilder writer(String mediaType, Class<? extends HttpResponseWriter<?>> writer) {
 
 		Assert.notNullOrEmptyTrimmed(mediaType, "Missing media type!");
 		Assert.notNull(writer, "Missing response writer class!");
@@ -239,7 +239,7 @@ public class RestBuilder {
 		return this;
 	}
 
-	public RestBuilder writer(MediaType mediaType, Class<? extends HttpResponseWriter> writer) {
+	public RestBuilder writer(MediaType mediaType, Class<? extends HttpResponseWriter<?>> writer) {
 
 		Assert.notNull(mediaType, "Missing media type!");
 		Assert.notNull(writer, "Missing response writer class!");
@@ -248,7 +248,7 @@ public class RestBuilder {
 		return this;
 	}
 
-	public RestBuilder reader(Class<?> clazz, Class<? extends ValueReader> reader) {
+	public RestBuilder reader(Class<?> clazz, Class<? extends ValueReader<?>> reader) {
 
 		Assert.notNull(clazz, "Missing read in class!");
 		Assert.notNull(reader, "Missing request reader type class!");
@@ -257,7 +257,7 @@ public class RestBuilder {
 		return this;
 	}
 
-	public RestBuilder reader(String mediaType, Class<? extends ValueReader> reader) {
+	public RestBuilder reader(String mediaType, Class<? extends ValueReader<?>> reader) {
 
 		Assert.notNullOrEmptyTrimmed(mediaType, "Missing media type!");
 		Assert.notNull(reader, "Missing value reader class!");
@@ -269,7 +269,7 @@ public class RestBuilder {
 		return this;
 	}
 
-	public RestBuilder reader(MediaType mediaType, Class<? extends ValueReader> reader) {
+	public RestBuilder reader(MediaType mediaType, Class<? extends ValueReader<?>> reader) {
 
 		Assert.notNull(mediaType, "Missing media type!");
 		Assert.notNull(reader, "Missing value reader class!");
@@ -278,7 +278,7 @@ public class RestBuilder {
 		return this;
 	}
 
-	public RestBuilder reader(Class<? extends ValueReader> reader) {
+	public RestBuilder reader(Class<? extends ValueReader<?>> reader) {
 
 		Assert.notNull(reader, "Missing value reader class!");
 
@@ -286,7 +286,7 @@ public class RestBuilder {
 		return this;
 	}
 
-	public RestBuilder reader(ValueReader reader) {
+	public RestBuilder reader(ValueReader<?> reader) {
 
 		Assert.notNull(reader, "Missing value reader class!");
 
@@ -300,7 +300,7 @@ public class RestBuilder {
 	 * @param <T> provided object to insert into @Context
 	 * @return builder
 	 */
-	public <T> RestBuilder provide(ContextProvider provider) {
+	public <T> RestBuilder provide(ContextProvider<T> provider) {
 
 		Assert.notNull(provider, "Missing context provider!");
 
@@ -459,17 +459,17 @@ public class RestBuilder {
 
 				if (provider instanceof Class) {
 					if (clazz == null) {
-						RestRouter.addProvider((Class<? extends ContextProvider>) provider);
+						RestRouter.addProvider((Class<? extends ContextProvider<?>>) provider);
 					}
 					else {
-						RestRouter.addProvider(clazz, (Class<? extends ContextProvider>) provider);
+						RestRouter.addProvider(clazz, (Class<? extends ContextProvider<?>>) provider);
 					}
 				} else {
 					if (clazz == null) {
-						RestRouter.addProvider((ContextProvider) provider);
+						RestRouter.addProvider((ContextProvider<?>) provider);
 					}
 					else {
-						RestRouter.addProvider(clazz, (ContextProvider) provider);
+						RestRouter.addProvider(clazz, (ContextProvider<?>) provider);
 					}
 				}
 			});
@@ -488,7 +488,7 @@ public class RestBuilder {
 
 		contextProviders.forEach(provider -> {
 			if (provider instanceof Class) {
-				RestRouter.provide(output, (Class<? extends ContextProvider>) provider);
+				RestRouter.provide(output, (Class<? extends ContextProvider<?>>) provider);
 			} else {
 				RestRouter.provide(output, (ContextProvider<?>) provider);
 			}
@@ -499,17 +499,17 @@ public class RestBuilder {
 
 			if (reader instanceof Class) {
 				if (clazz == null) {
-					RestRouter.getReaders().register((Class<? extends ValueReader>) reader);
+					RestRouter.getReaders().register((Class<? extends ValueReader<?>>) reader);
 				}
 				else {
-					RestRouter.getReaders().register(clazz, (Class<? extends ValueReader>) reader);
+					RestRouter.getReaders().register(clazz, (Class<? extends ValueReader<?>>) reader);
 				}
 			} else {
 				if (clazz == null) {
-					RestRouter.getReaders().register((ValueReader) reader);
+					RestRouter.getReaders().register((ValueReader<?>) reader);
 				}
 				else {
-					RestRouter.getReaders().register(clazz, (ValueReader) reader);
+					RestRouter.getReaders().register(clazz, (ValueReader<?>) reader);
 				}
 			}
 		});
@@ -518,17 +518,17 @@ public class RestBuilder {
 
 			if (reader instanceof Class) {
 				if (type == null) {
-					RestRouter.getReaders().register((Class<? extends ValueReader>) reader);
+					RestRouter.getReaders().register((Class<? extends ValueReader<?>>) reader);
 				}
 				else {
-					RestRouter.getReaders().register(type, (Class<? extends ValueReader>) reader);
+					RestRouter.getReaders().register(type, (Class<? extends ValueReader<?>>) reader);
 				}
 			} else {
 				if (type == null) {
-					RestRouter.getReaders().register((ValueReader)reader);
+					RestRouter.getReaders().register((ValueReader<?>)reader);
 				}
 				else {
-					RestRouter.getReaders().register(type, (ValueReader) reader);
+					RestRouter.getReaders().register(type, (ValueReader<?>) reader);
 				}
 			}
 		});
@@ -538,16 +538,16 @@ public class RestBuilder {
 
 			if (writer instanceof Class) {
 				if (clazz == null) {
-					RestRouter.getWriters().register((Class<? extends HttpResponseWriter>) writer);
+					RestRouter.getWriters().register((Class<? extends HttpResponseWriter<?>>) writer);
 				}
 				else {
-					RestRouter.getWriters().register(clazz, (Class<? extends HttpResponseWriter>) writer);
+					RestRouter.getWriters().register(clazz, (Class<? extends HttpResponseWriter<?>>) writer);
 				}
 			} else {
 				if (clazz == null) {
-					RestRouter.getWriters().register((HttpResponseWriter) writer);
+					RestRouter.getWriters().register((HttpResponseWriter<?>) writer);
 				} else {
-					RestRouter.getWriters().register(clazz, (HttpResponseWriter) writer);
+					RestRouter.getWriters().register(clazz, (HttpResponseWriter<?>) writer);
 				}
 			}
 		});
@@ -555,10 +555,10 @@ public class RestBuilder {
 		mediaTypeResponseWriters.forEach((type, writer) -> {
 			if (writer instanceof Class) {
 				if (type == null) {
-					RestRouter.getWriters().register((Class<? extends HttpResponseWriter>) writer);
+					RestRouter.getWriters().register((Class<? extends HttpResponseWriter<?>>) writer);
 				}
 				else {
-					RestRouter.getWriters().register(type, (Class<? extends HttpResponseWriter>) writer);
+					RestRouter.getWriters().register(type, (Class<? extends HttpResponseWriter<?>>) writer);
 				}
 			} else {
 				if (type == null) {
@@ -573,9 +573,9 @@ public class RestBuilder {
 		// register exception handlers
 		exceptionHandlers.forEach(handler -> {
 			if (handler instanceof Class) {
-				RestRouter.getExceptionHandlers().register((Class<? extends ExceptionHandler>) handler);
+				RestRouter.getExceptionHandlers().register((Class<? extends ExceptionHandler<?>>) handler);
 			} else {
-				RestRouter.getExceptionHandlers().register((ExceptionHandler) handler);
+				RestRouter.getExceptionHandlers().register((ExceptionHandler<?>) handler);
 			}
 		});
 
