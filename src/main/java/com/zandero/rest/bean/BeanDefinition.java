@@ -11,6 +11,7 @@ import com.zandero.utils.Assert;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -22,22 +23,24 @@ public class BeanDefinition {
 
     private static final String METHOD_PREFIX = "m:";
     private static final String FIELD_PREFIX = "p:";
+    private static final String CONSTRUCTOR_SUFFIX = ":%d";
 
     Map<String, MethodParameter> parameters = new HashMap<>();
 
-    public BeanDefinition(Class clazz) {
-
+    public BeanDefinition(Class<?> clazz) {
         init(clazz);
     }
 
-    private void init(Class clazz) {
+    public BeanDefinition(Constructor<?> constructor) {
+        init(constructor);
+    }
+
+    private void init(Class<?> clazz) {
         Field[] fields = clazz.getDeclaredFields();
         Method[] methods = clazz.getDeclaredMethods();
 
         for (Field field : fields) {
-
-            MethodParameter paramValues = getValueFromAnnotations(field.getAnnotations());
-
+            MethodParameter paramValues = getValueFromAnnotations(field.getAnnotations(), field.getType(), 0);
             if (paramValues != null) {
                 parameters.put(FIELD_PREFIX + field.getName(), paramValues);
             }
@@ -45,7 +48,7 @@ public class BeanDefinition {
 
         for (Method method : methods) {
             if (isSetter(method)) {
-                MethodParameter paramValues = getValueFromAnnotations(method.getAnnotations());
+                MethodParameter paramValues = getValueFromAnnotations(method.getAnnotations(), method.getParameterTypes()[0], 0);
                 if (paramValues != null) {
                     parameters.put(METHOD_PREFIX + method.getName(), paramValues);
                 }
@@ -53,37 +56,54 @@ public class BeanDefinition {
         }
     }
 
-    private MethodParameter getValueFromAnnotations(Annotation[] annotations) {
+    private void init (Constructor<?> constructor) {
+        Annotation[][] paramAnnotations = constructor.getParameterAnnotations();
+        Class<?>[] types = constructor.getParameterTypes();
+
+        for (int index = 0; index < paramAnnotations.length; index ++) {
+            Annotation[] annotations = paramAnnotations[index];
+            Class<?> type = types[index];
+            MethodParameter paramValues = getValueFromAnnotations(annotations, type, index);
+            parameters.put(String.format(CONSTRUCTOR_SUFFIX, index), paramValues);
+        }
+    }
+
+    private MethodParameter getValueFromAnnotations(Annotation[] annotations, Class<?> dataType, int index) {
 
         MethodParameter parameter = null;
 
         for (Annotation annotation : annotations) {
             if (annotation instanceof PathParam) {
-                parameter = getNewParameter(parameter, ParameterType.path, ((PathParam) annotation).value());
+                String value = ((PathParam) annotation).value();
+                parameter = getNewParameter(parameter, ParameterType.path, value, dataType, index);
             }
 
             if (annotation instanceof QueryParam) {
-                parameter = getNewParameter(parameter, ParameterType.query, ((QueryParam) annotation).value());
+                String value = ((QueryParam) annotation).value();
+                parameter = getNewParameter(parameter, ParameterType.query, value, dataType, index);
             }
 
             if (annotation instanceof CookieParam) {
-                parameter = getNewParameter(parameter, ParameterType.cookie, ((CookieParam) annotation).value());
+                String value = ((CookieParam) annotation).value();
+                parameter = getNewParameter(parameter, ParameterType.cookie, value, dataType, index);
             }
 
             if (annotation instanceof HeaderParam) {
-                parameter = getNewParameter(parameter, ParameterType.header, ((HeaderParam) annotation).value());
+                String value = ((HeaderParam) annotation).value();
+                parameter = getNewParameter(parameter, ParameterType.header, value, dataType, index);
             }
 
             if (annotation instanceof MatrixParam) {
-                parameter = getNewParameter(parameter, ParameterType.matrix, ((MatrixParam) annotation).value());
+                String value =  ((MatrixParam) annotation).value();
+                parameter = getNewParameter(parameter, ParameterType.matrix, value, dataType, index);
             }
 
             if (annotation instanceof BodyParam) {
-                parameter = getNewParameter(parameter, ParameterType.body, "body"); // TODO: check what we could do with value
+                parameter = getNewParameter(parameter, ParameterType.body, "body", dataType, index); // TODO: check what we could do with value
             }
 
             if (annotation instanceof Context) {
-                parameter = getNewParameter(parameter, ParameterType.context, "context"); // TODO: check what we could do with value
+                parameter = getNewParameter(parameter, ParameterType.context, "context", dataType, index); // TODO: check what we could do with value
             }
         }
 
@@ -111,11 +131,15 @@ public class BeanDefinition {
         return parameter;
     }
 
-    private MethodParameter getNewParameter(MethodParameter parameter, ParameterType type, String value) {
+    private MethodParameter getNewParameter(MethodParameter parameter,
+                                            ParameterType type,
+                                            String value,
+                                            Class<?> dataType,
+                                            int index) {
         if (parameter != null) {
             throw new IllegalArgumentException("Parameter: " + parameter.getName() +"  already defined with: " + parameter.getType());
         }
-        return new MethodParameter(type, value);
+        return new MethodParameter(type, value, dataType, index);
     }
 
     public MethodParameter get(Field field) {
@@ -127,4 +151,13 @@ public class BeanDefinition {
         Assert.notNull(method, "Missing method to get parameter!");
         return parameters.get(METHOD_PREFIX + method.getName());
     }
+
+    public MethodParameter get(int index) {
+        return parameters.get(String.format(CONSTRUCTOR_SUFFIX, index));
+    }
+
+    public int size() {
+        return parameters.size();
+    }
+
 }

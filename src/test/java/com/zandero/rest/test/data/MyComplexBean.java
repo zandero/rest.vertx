@@ -1,13 +1,11 @@
 package com.zandero.rest.test.data;
 
 import com.zandero.rest.annotation.Raw;
-import com.zandero.rest.test.json.Dummy;
 
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 
 public class MyComplexBean {
 
@@ -19,19 +17,15 @@ public class MyComplexBean {
 
     private String cookie;
 
-    private Dummy context;
-
     public MyComplexBean(@PathParam("path") String path,
                          @HeaderParam("MyHeader") boolean header,
                          @QueryParam("query") @Raw int query,
-                         @CookieParam("chocolate") String cookie,
-                         @Context Dummy object) {
+                         @CookieParam("chocolate") String cookie) {
 
         this.path = path;
         this.header = header;
         this.query = query;
         this.cookie = cookie;
-        this.context = object;
     }
 
     @Override
@@ -39,7 +33,6 @@ public class MyComplexBean {
         return "Header: " + header +
                 ", Path: " + path +
                 ", Query: " + query +
-                ", Cookie: " + cookie +
-                ", Context: " + context.name + ", " + context.value;
+                ", Cookie: " + cookie;
     }
 }

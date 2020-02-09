@@ -77,21 +77,10 @@ public class ArgumentProvider {
 
 						case bean :
 
-							// TODO : initialize bean
                             if (beanProvider != null) {
                                 Object result = beanProvider.provide(dataType, context, injectionProvider);
-
                                 args[parameter.getIndex()] = result;
-                                /*if (result != null) {
-                                    context.data().put(ContextProviderFactory.getContextDataKey(dataType), result);
-
-                                    // TODO: add valueReader that is capable of providing bean as needed
-                                }*/
                             }
-
-                           /* args[parameter.getIndex()] = ContextProviderFactory.provideContext(method.getParameterTypes()[parameter.getIndex()],
-                                    parameter.getDefaultValue(),
-                                    context);*/
 
 							break;
 
@@ -223,7 +212,7 @@ public class ArgumentProvider {
 				return value;
 
 			case cookie:
-				Cookie cookie = context.getCookie(param.getName());
+				Cookie cookie = context.request().getCookie(param.getName());
 				return cookie == null ? null : cookie.getValue();
 
 			case form:

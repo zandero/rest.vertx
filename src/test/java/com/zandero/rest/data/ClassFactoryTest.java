@@ -4,15 +4,16 @@ import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.WebApplicationExceptionHandler;
 import com.zandero.rest.reader.DummyBodyReader;
 import com.zandero.rest.reader.IntegerBodyReader;
-import com.zandero.rest.test.data.IntegerHolder;
-import com.zandero.rest.test.data.MyEnum;
-import com.zandero.rest.test.data.MyOtherEnum;
-import com.zandero.rest.test.data.SimulatedUser;
+import com.zandero.rest.test.data.*;
 import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.Pair;
+import io.vertx.core.http.Cookie;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.auth.AbstractUser;
+import io.vertx.ext.web.RoutingContext;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import javax.ws.rs.NotAllowedException;
 import javax.ws.rs.WebApplicationException;
@@ -158,5 +159,22 @@ class ClassFactoryTest {
     void checkIfCompatibleTypes() {
 
         assertTrue(ClassFactory.checkIfCompatibleType(SimulatedUser.class, AbstractUser.class));
+    }
+
+    @Test
+    void constructViaContext() throws ClassFactoryException {
+
+        RoutingContext context = Mockito.mock(RoutingContext.class);
+        HttpServerRequest request = Mockito.mock(HttpServerRequest.class);
+
+        Mockito.when(context.request()).thenReturn(request);
+        Mockito.when(request.getParam("path")).thenReturn("SomePath");
+        Mockito.when(request.getHeader("MyHeader")).thenReturn("true");
+        Mockito.when(request.query()).thenReturn("query=1");
+        Mockito.when(request.getCookie("chocolate")).thenReturn(Cookie.cookie("chocolate", "tasty"));
+
+        MyComplexBean instance = (MyComplexBean)ClassFactory.newInstanceOf(MyComplexBean.class, context);
+        assertNotNull(instance);
+        assertEquals("Header: true, Path: SomePath, Query: 1, Cookie: tasty", instance.toString());
     }
 }

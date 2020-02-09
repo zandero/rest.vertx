@@ -19,7 +19,7 @@ import java.util.Set;
 class RouteWithCorsTest extends VertxTest {
 
     @BeforeAll
-            static void start() {
+    static void start() {
 
         before();
     }
@@ -44,7 +44,7 @@ class RouteWithCorsTest extends VertxTest {
                 .notFound(NotFoundHandler.class) // last resort 404 page
                 .build();
 
-        // TODO:
+        // TODO: create some test checking this
 
         context.completeNow();
     }

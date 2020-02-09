@@ -201,6 +201,13 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${version.mockito-all}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Dependecy injection frameworks ... to test injection providers -->
         <dependency>
             <groupId>com.google.inject</groupId>

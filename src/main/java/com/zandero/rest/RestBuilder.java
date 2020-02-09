@@ -300,7 +300,7 @@ public class RestBuilder {
 	 * @param <T> provided object to insert into @Context
 	 * @return builder
 	 */
-	public <T> RestBuilder provide(ContextProvider<T> provider) {
+	public <T> RestBuilder provide(ContextProvider provider) {
 
 		Assert.notNull(provider, "Missing context provider!");
 

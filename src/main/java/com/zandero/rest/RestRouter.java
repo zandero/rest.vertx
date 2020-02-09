@@ -160,12 +160,6 @@ public class RestRouter {
 					route.handler(BodyHandler.create());
 				}
 
-				// TODO: Cookie handler is deprecated - remove
-				// add CookieHandler in case cookies are expected
-				/*if (definition.hasCookies()) {
-					route.handler(CookieHandler.create());
-				}*/
-
 				// add security check handler in front of regular route handler
 				if (definition.checkSecurity()) {
 					route.handler(getSecurityHandler(definition));
@@ -220,7 +214,7 @@ public class RestRouter {
 		output.route().order(ORDER_PROVIDER_HANDLER).handler(getContextHandler(provider));
 	}
 
-	private static Handler<RoutingContext> getContextHandler(ContextProvider instance) {
+	private static Handler<RoutingContext> getContextHandler(ContextProvider<?> instance) {
 
 		return context -> {
 
@@ -431,7 +425,8 @@ public class RestRouter {
 			return false; // no user present ... can't check
 		}
 
-		// TODO: change ... Future is depricated
+		// TODO: change from vert.x 3 -> 4
+		// User the methods isAuthorized is deprecated (authorization should be performed by the AuthorizationProvider
 		// check if given user is authorized for given role ...
 		List<Future> list = new ArrayList<>();
 

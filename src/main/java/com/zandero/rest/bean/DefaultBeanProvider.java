@@ -35,8 +35,9 @@ public class DefaultBeanProvider implements BeanProvider {
 
     /**
      * Sets object instance fields
-     * @param instance to set fields
-     * @param context routing context
+     *
+     * @param instance   to set fields
+     * @param context    routing context
      * @param definition bean definition
      * @throws IllegalAccessException should not be triggered
      */
@@ -57,18 +58,13 @@ public class DefaultBeanProvider implements BeanProvider {
         }
 
         Method[] methods = instance.getClass().getDeclaredMethods();
-        for (Method method: methods) {
+        for (Method method : methods) {
             if (ReflectionUtils.isSetter(method)) {
                 MethodParameter parameter = definition.get(method);
                 if (parameter != null) {
                     String value = ArgumentProvider.getValue(null, parameter, context, parameter.getDefaultValue());
-                    Class<?>[] types = method.getParameterTypes();
-
-                    // TODO: proof of concept thus far
-                    if (types.length > 0) {
-                        Object methodValue = ClassFactory.stringToPrimitiveType(value, types[0]);
-                        method.invoke(instance, methodValue);
-                    }
+                    Object methodValue = ClassFactory.stringToPrimitiveType(value, parameter.getDataType());
+                    method.invoke(instance, methodValue);
                 }
             }
         }

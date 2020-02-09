@@ -2,6 +2,7 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.annotation.NoCache;
 import com.zandero.rest.annotation.SuppressCheck;
+import com.zandero.rest.bean.BeanDefinition;
 import com.zandero.rest.context.ContextProviderFactory;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.ContextException;
@@ -132,7 +133,7 @@ public abstract class ClassFactory<T> {
 				log.warn(clazz.getName() + " uses @Inject but no InjectionProvider registered!");
 			}
 
-			instance = newInstanceOf(clazz);
+			instance = newInstanceOf(clazz, context);
 		}
 		else {
 
@@ -173,7 +174,7 @@ public abstract class ClassFactory<T> {
 		return false;
 	}
 
-	public static Object newInstanceOf(Class<?> clazz) throws ClassFactoryException {
+	public static Object newInstanceOf(Class<?> clazz, RoutingContext context) throws ClassFactoryException {
 
 		if (clazz == null) {
 			return null;
@@ -181,10 +182,26 @@ public abstract class ClassFactory<T> {
 
 		try {
 			for (Constructor<?> c : clazz.getDeclaredConstructors()) {
-				c.setAccessible(true);
+				boolean isAccessible = c.isAccessible();
+
+				if (!isAccessible) {
+					c.setAccessible(true);
+				}
 				// initialize with empty constructor
-				if (c.getParameterCount() == 0) { // TODO: try to initialize class from context if arguments fit
-					return c.newInstance();
+				Object instance;
+				if (c.getParameterCount() == 0) {
+					instance = c.newInstance();
+				}
+				else {
+					instance = constructWithContext(c, context);
+				}
+
+				if (!isAccessible) {
+					c.setAccessible(false);
+				}
+
+				if (instance != null) { // managed to create new object instance ...
+					return instance;
 				}
 			}
 		}
@@ -194,6 +211,48 @@ public abstract class ClassFactory<T> {
 		}
 
 		throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", null);
+	}
+
+	/**
+	 * Creates new instance of object using context as provider for contructor parameters
+	 *
+	 * @param constructor to be used
+	 * @param context to extract parameters from
+	 * @return instance or null;
+	 */
+	private static Object constructWithContext(Constructor<?> constructor, RoutingContext context) {
+		// Try to initialize class from context if arguments fit
+		if (context != null) {
+			BeanDefinition definition = new BeanDefinition(constructor);
+			if (definition.size() == constructor.getParameterCount()) {
+				Object[] params = new Object[definition.size()];
+
+				for (int index = 0; index < params.length; index++) {
+					MethodParameter parameter = definition.get(index);
+					String value = ArgumentProvider.getValue(null, parameter, context, parameter.getDefaultValue());
+					params[index] = ClassFactory.stringToPrimitiveType(value, parameter.getDataType());
+				}
+
+				try {
+					// TODO: log params before invoking
+					return constructor.newInstance(params);
+				}
+				// TODO: handle ... add logs so end user knows what going on
+				catch (IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (InstantiationException e) {
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static Object newInstanceOf(Class<?> clazz) throws ClassFactoryException {
+		return newInstanceOf(clazz, null);
 	}
 
 	protected void register(String mediaType, Class<? extends T> clazz) {
@@ -219,7 +278,6 @@ public abstract class ClassFactory<T> {
 		String key = MediaTypeHelper.getKey(type);
 		cache.put(key, clazz);
 	}
-
 
 	protected void register(MediaType mediaType, Class<? extends T> clazz) {
 
@@ -343,7 +401,7 @@ public abstract class ClassFactory<T> {
 			return null;
 		}
 		// try to find appropriate class if mapped (by type)
-		for (Class key : classTypes.keySet()) {
+		for (Class<?> key : classTypes.keySet()) {
 			if (key.isInstance(type) || key.isAssignableFrom(type)) {
 				return classTypes.get(key);
 			}

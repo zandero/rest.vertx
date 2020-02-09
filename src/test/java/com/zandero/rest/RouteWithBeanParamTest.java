@@ -90,5 +90,22 @@ class RouteWithBeanParamTest extends VertxTest {
                 })));
     }
 
+    @Test
+    void postBeanComplex(VertxTestContext context) {
 
+        client.post(PORT, HOST, "/bean/complex/read/result;one=1;enum=two?query=1").as(BodyCodec.string())
+                .putHeader("MyHeader", "true")
+                .putHeader("Cookie", "chocolate=tasty")
+                .send(context.succeeding(response -> context.verify(() -> {
+
+                    assertEquals(200, response.statusCode());
+                    assertEquals("Header: true, " +
+                                    "Path: result;one=1;enum=two, " +
+                                    "Query: 1, " +
+                                    "Cookie: tasty",
+                            response.body());
+
+                    context.completeNow();
+                })));
+    }
 }

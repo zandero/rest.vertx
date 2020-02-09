@@ -3,7 +3,7 @@ package com.zandero.rest.bean;
 import com.zandero.rest.injection.InjectionProvider;
 import io.vertx.ext.web.RoutingContext;
 
-public interface BeanProvider<T> {
+public interface BeanProvider {
 
     /**
      * @param clazz             to be provided
@@ -12,5 +12,5 @@ public interface BeanProvider<T> {
      * @return object initialized from request / context
      * @throws Throwable exception in case context can't be provided
      */
-    T provide(Class<T> clazz, RoutingContext context, InjectionProvider injectionProvider) throws Throwable;
+    <T> T provide(Class<T> clazz, RoutingContext context, InjectionProvider injectionProvider) throws Throwable;
 }

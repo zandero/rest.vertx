@@ -1,5 +1,6 @@
 package com.zandero.rest.test;
 
+import com.zandero.rest.test.data.MyComplexBean;
 import com.zandero.rest.test.data.MySimpleBean;
 
 import javax.ws.rs.BeanParam;
@@ -22,6 +23,12 @@ public class TestBeanReaderRest {
     @GET
     @Path("/write/{param}")
     public String write(@BeanParam MySimpleBean bean) {
+        return bean.toString();
+    }
+
+    @POST
+    @Path("/complex/read/{path}")
+    public String complexRead(@BeanParam MyComplexBean bean) {
         return bean.toString();
     }
 }
