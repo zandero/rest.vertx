@@ -112,7 +112,7 @@ public class RestRouter {
 			// check if api is an instance of a class or a class type
 			if (api instanceof Class) {
 
-				Class inspectApi = (Class) api;
+				Class<?> inspectApi = (Class<?>) api;
 
 				try {
 					api = ClassFactory.newInstanceOf(inspectApi, injectionProvider, null);
@@ -193,11 +193,11 @@ public class RestRouter {
 		}
 	}
 
-	public static void provide(Router output, Class<? extends ContextProvider> provider) {
+	public static void provide(Router output, Class<? extends ContextProvider<?>> provider) {
 
 		try {
-			Class clazz = (Class) ClassFactory.getGenericType(provider);
-			ContextProvider instance = getContextProviders().getContextProvider(injectionProvider,
+			Class<?> clazz = (Class<?>) ClassFactory.getGenericType(provider);
+			ContextProvider<?> instance = getContextProviders().getContextProvider(injectionProvider,
 			                                                                    clazz,
 			                                                                    provider,
 			                                                                    null);
@@ -350,7 +350,7 @@ public class RestRouter {
 			return;
 		}
 
-		ValueReader bodyReader = readers.get(definition.getBodyParameter(), definition.getReader(), injectionProvider,
+		ValueReader<?> bodyReader = readers.get(definition.getBodyParameter(), definition.getReader(), injectionProvider,
 		                                     null,
 		                                     definition.getConsumes());
 
@@ -366,8 +366,8 @@ public class RestRouter {
 		}
 	}
 
-	private static HttpResponseWriter getWriter(InjectionProvider injectionProvider,
-	                                            Class returnType,
+	private static HttpResponseWriter<?> getWriter(InjectionProvider injectionProvider,
+	                                            Class<?> returnType,
 	                                            RouteDefinition definition,
 	                                            RoutingContext context) throws ClassFactoryException {
 
@@ -380,11 +380,11 @@ public class RestRouter {
 			acceptHeader = MediaTypeHelper.valueOf(context.getAcceptableContentType());
 		}
 
-		HttpResponseWriter writer = writers.getResponseWriter(returnType, definition, injectionProvider, context, acceptHeader);
+		HttpResponseWriter<?> writer = writers.getResponseWriter(returnType, definition, injectionProvider, context, acceptHeader);
 
 		if (writer == null) {
 			log.error("No writer could be provided. Falling back to " + GenericResponseWriter.class.getSimpleName() + " instead!");
-			return (HttpResponseWriter) ClassFactory.newInstanceOf(GenericResponseWriter.class);
+			return (HttpResponseWriter<?>) ClassFactory.newInstanceOf(GenericResponseWriter.class);
 		}
 
 		if (definition.checkCompatibility() &&
@@ -414,6 +414,9 @@ public class RestRouter {
 		};
 	}
 
+	// TODO: change from vert.x 3 -> 4
+	// User the methods isAuthorized is deprecated (authorization should be performed by the AuthorizationProvider
+	// check if given user is authorized for given role ...
 	private static boolean isAllowed(User user, RouteDefinition definition) {
 
 		if (definition.getPermitAll() != null) {
@@ -425,9 +428,6 @@ public class RestRouter {
 			return false; // no user present ... can't check
 		}
 
-		// TODO: change from vert.x 3 -> 4
-		// User the methods isAuthorized is deprecated (authorization should be performed by the AuthorizationProvider
-		// check if given user is authorized for given role ...
 		List<Future> list = new ArrayList<>();
 
 		for (String role : definition.getRoles()) {
@@ -585,11 +585,11 @@ public class RestRouter {
 				// fill up definition (response headers) from request
 				RouteDefinition definition = new RouteDefinition(context);
 
-				HttpResponseWriter writer;
+				HttpResponseWriter<?> writer;
 				if (notFoundWriter instanceof Class) {
-					writer = writers.getClassInstance((Class<? extends HttpResponseWriter>) notFoundWriter, injectionProvider, context);
+					writer = writers.getClassInstance((Class<? extends HttpResponseWriter<?>>) notFoundWriter, injectionProvider, context);
 				} else {
-					writer = (HttpResponseWriter) notFoundWriter;
+					writer = (HttpResponseWriter<?>) notFoundWriter;
 				}
 
 				produceResponse(null, context, definition,  writer);

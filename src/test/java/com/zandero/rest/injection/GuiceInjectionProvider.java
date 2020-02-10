@@ -40,10 +40,15 @@ public class GuiceInjectionProvider extends AbstractModule implements InjectionP
 
 		return settings;
 	}
+/*
+	@Override
+	public Object getInstance(Class<Object> clazz) {
+
+		return injector.getInstance(clazz);
+	}*/
 
 	@Override
-	public Object getInstance(Class clazz) {
-
+	public <T> T getInstance(Class<T> clazz)  {
 		return injector.getInstance(clazz);
 	}
 }

@@ -38,7 +38,7 @@ public class RestEventExecutor {
 	                          RoutingContext context,
 	                          InjectionProvider injectionProvider) throws Throwable {
 
-		if (definition.getEvents() == null) {
+		if (definition == null || definition.getEvents() == null) {
 			return;
 		}
 

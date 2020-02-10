@@ -7,6 +7,8 @@ import com.zandero.rest.annotation.RequestReader;
 import com.zandero.rest.data.MethodParameter;
 import com.zandero.rest.data.ParameterType;
 import com.zandero.utils.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -20,6 +22,8 @@ import java.util.Map;
 import static io.vertx.core.cli.impl.ReflectionUtils.isSetter;
 
 public class BeanDefinition {
+
+    private final static Logger log = LoggerFactory.getLogger(BeanDefinition.class);
 
     private static final String METHOD_PREFIX = "m:";
     private static final String FIELD_PREFIX = "p:";
@@ -119,11 +123,11 @@ public class BeanDefinition {
                 }
 
                 if (annotation instanceof ContextReader) {
-                    //parameter.setContextProvider();
+                    log.warn("Can't provision " + parameter.getName() +" as ContextReader to: '" + dataType.getTypeName() + "'");
                 }
 
                 if (annotation instanceof RequestReader) {
-                    //parameter.setValueReader();
+                    log.warn("Can't provision " + parameter.getName() +" as RequestReader to: '" + dataType.getTypeName() + "'");
                 }
             }
         }
@@ -159,5 +163,4 @@ public class BeanDefinition {
     public int size() {
         return parameters.size();
     }
-
 }

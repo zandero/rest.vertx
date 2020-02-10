@@ -61,7 +61,7 @@ class ClassFactoryTest {
     }
 
     @Test
-    void convertPrimitiveTypes() {
+    void convertPrimitiveTypes() throws ClassFactoryException {
 
         assertEquals(1, ClassFactory.stringToPrimitiveType("1", int.class));
         assertEquals(false, ClassFactory.stringToPrimitiveType("FALSE", boolean.class));
@@ -73,7 +73,7 @@ class ClassFactoryTest {
     }
 
     @Test
-    void convertNullableTypes() {
+    void convertNullableTypes() throws ClassFactoryException {
 
         assertEquals(1, ClassFactory.stringToPrimitiveType("1", Integer.class));
         assertEquals(false, ClassFactory.stringToPrimitiveType("FALSE", Boolean.class));
@@ -82,6 +82,14 @@ class ClassFactoryTest {
         assertEquals(100_100_100L, ClassFactory.stringToPrimitiveType("100100100", Long.class));
         assertEquals((float) 100100.98, ClassFactory.stringToPrimitiveType("100100.98", Float.class));
         assertEquals(100100.987, ClassFactory.stringToPrimitiveType("100100.987", Double.class));
+    }
+
+    @Test
+    void convertFail() {
+
+        ClassFactoryException e = assertThrows(ClassFactoryException.class,
+                () -> ClassFactory.stringToPrimitiveType("A", Integer.class));
+        assertEquals("Failed to convert value: 'A', to primitive type: java.lang.Integer", e.getMessage());
     }
 
     @Test
@@ -176,5 +184,24 @@ class ClassFactoryTest {
         MyComplexBean instance = (MyComplexBean)ClassFactory.newInstanceOf(MyComplexBean.class, context);
         assertNotNull(instance);
         assertEquals("Header: true, Path: SomePath, Query: 1, Cookie: tasty", instance.toString());
+    }
+
+    @Test
+    void constructViaContextFail() throws ClassFactoryException {
+
+        RoutingContext context = Mockito.mock(RoutingContext.class);
+        HttpServerRequest request = Mockito.mock(HttpServerRequest.class);
+
+        Mockito.when(context.request()).thenReturn(request);
+        Mockito.when(request.getParam("path")).thenReturn("SomePath");
+        Mockito.when(request.getHeader("MyHeader")).thenReturn("BLA"); // invalid type
+        Mockito.when(request.query()).thenReturn("query=A"); // invalid type
+        Mockito.when(request.getCookie("chocolate")).thenReturn(Cookie.cookie("chocolate", "tasty"));
+
+        ClassFactoryException ex = assertThrows(ClassFactoryException.class, () -> ClassFactory.newInstanceOf(MyComplexBean.class, context));
+        assertEquals("Failed to instantiate class, with constructor: " +
+                        "com.zandero.rest.test.data.MyComplexBean(String arg0=SomePath, boolean arg1=BLA, int arg2=A, String arg3=tasty). " +
+                        "Failed to convert value: 'A', to primitive type: int",
+                ex.getMessage());
     }
 }

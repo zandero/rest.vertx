@@ -4,7 +4,6 @@ import com.zandero.rest.test.TestQueryRest;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.codec.BodyCodec;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import org.junit.jupiter.api.BeforeAll;
@@ -80,7 +79,10 @@ class RouteWithQueryTest extends VertxTest {
         client.get(PORT, HOST, "/query/add?one=A&two=2")
                 .send(context.succeeding(response -> context.verify(() -> {
                     assertEquals(400, response.statusCode());
-                    assertEquals("Invalid parameter type for: @QueryParam(\"one\") for: /query/add, expected: int, but got: String -> java.lang.NumberFormatException: For input string: \"A\"",
+                    assertEquals("Invalid parameter type for: @QueryParam(\"one\") " +
+                                    "for: /query/add, expected: int, but got: " +
+                                    "String -> java.lang.IllegalArgumentException: " +
+                                    "Failed to convert value: 'A', to primitive type: int",
                             response.bodyAsString());
                     context.completeNow();
                 })));

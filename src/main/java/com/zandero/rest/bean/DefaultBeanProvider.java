@@ -3,6 +3,7 @@ package com.zandero.rest.bean;
 import com.zandero.rest.data.ArgumentProvider;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.data.MethodParameter;
+import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.injection.InjectionProvider;
 import io.vertx.core.cli.impl.ReflectionUtils;
 import io.vertx.ext.web.RoutingContext;
@@ -23,13 +24,12 @@ public class DefaultBeanProvider implements BeanProvider {
     @Override
     public Object provide(Class clazz, RoutingContext context, InjectionProvider injectionProvider) throws Throwable {
 
-
-        // TODO: allow instatianation from various constructors if definition has enough data ..
-        // for now leave it simple
+        log.info("Provisioning bean: '" + clazz.getTypeName() + "'");
         BeanDefinition definition = new BeanDefinition(clazz);
         Object instance = ClassFactory.newInstanceOf(clazz, injectionProvider, context);
         setFields(instance, context, definition);
 
+        log.info("Successfully created new instance of: '" + clazz.getTypeName()  + "'");
         return instance;
     }
 
@@ -39,19 +39,17 @@ public class DefaultBeanProvider implements BeanProvider {
      * @param instance   to set fields
      * @param context    routing context
      * @param definition bean definition
-     * @throws IllegalAccessException should not be triggered
      */
     private void setFields(Object instance, RoutingContext context, BeanDefinition definition)
-            throws IllegalAccessException, InvocationTargetException {
+            throws ClassFactoryException {
 
+        // TODO: currently only basic primitive fields and setters can be set/invoked
         Field[] fields = instance.getClass().getDeclaredFields();
         for (Field field : fields) {
 
             MethodParameter parameter = definition.get(field);
             if (parameter != null) {
                 String value = ArgumentProvider.getValue(null, parameter, context, parameter.getDefaultValue());
-
-                // TODO: currently only basic primitive fields can be set
                 Object fieldValue = ClassFactory.stringToPrimitiveType(value, field.getType());
                 setField(instance, field, fieldValue);
             }
@@ -64,30 +62,70 @@ public class DefaultBeanProvider implements BeanProvider {
                 if (parameter != null) {
                     String value = ArgumentProvider.getValue(null, parameter, context, parameter.getDefaultValue());
                     Object methodValue = ClassFactory.stringToPrimitiveType(value, parameter.getDataType());
-                    method.invoke(instance, methodValue);
+                    invokeMethod(instance, method, parameter, methodValue);
                 }
             }
         }
     }
 
     /**
-     * Set field
+     * Invokes simple setter method - setField(fieldValue)
      *
      * @param instance of object holding field
      * @param field    to be set
      * @param value    of field
-     * @throws IllegalAccessException should not be triggered
      */
-    private void setField(Object instance, Field field, Object value) throws IllegalAccessException {
+    private void setField(Object instance, Field field, Object value) throws ClassFactoryException {
+
+        ClassFactory.checkIfCompatibleType(field.getType(), value.getClass(),
+                "Can't set field: '" + field.getName() + "', value to: " + value);
+
         boolean isAccessible = field.isAccessible();
         if (!isAccessible) {
             field.setAccessible(true);
         }
 
-        field.set(instance, value);
+        try {
+            field.set(instance, value);
+        } catch (IllegalAccessException e) {
+            throw new ClassFactoryException("Can't access field: '" + field.getName() + "'!", e);
+        }
 
         if (!isAccessible) {
             field.setAccessible(false);
+        }
+    }
+
+    /**
+     * Invokes simple setter method with one argument
+     *
+     * @param instance    class instance
+     * @param method      method to be invoked
+     * @param parameter   to check if compatible with method
+     * @param methodValue single argument value
+     */
+    private void invokeMethod(Object instance,
+                              Method method,
+                              MethodParameter parameter,
+                              Object methodValue) throws ClassFactoryException {
+
+        ClassFactory.checkIfCompatibleType(parameter.getDataType(), methodValue.getClass(),
+                "Can't set field: '" + parameter.getName() + "', value to: " + methodValue);
+
+        boolean isAccessible = method.isAccessible();
+        if (!isAccessible) {
+            method.setAccessible(true);
+        }
+        try {
+            method.invoke(instance, methodValue);
+        } catch (IllegalAccessException e) {
+            throw new ClassFactoryException("Can't access method: '" + method.getName() + "'!", e);
+        } catch (InvocationTargetException e) {
+            throw new ClassFactoryException("Can't invoke method: '" + method.getName() + "'!", e);
+        }
+
+        if (!isAccessible) {
+            method.setAccessible(false);
         }
     }
 }

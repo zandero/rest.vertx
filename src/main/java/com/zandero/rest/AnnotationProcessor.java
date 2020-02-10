@@ -122,7 +122,7 @@ public final class AnnotationProcessor {
     }
 
     /**
-     * Find mathing definition for same method ...
+     * Find matching definition for same method ...
      *
      * @param add    to search
      * @param method base
