@@ -102,7 +102,8 @@ class RouteWithBeanParamTest extends VertxTest {
                     assertEquals("Header: true, " +
                                     "Path: result;one=1;enum=two, " +
                                     "Query: 1, " +
-                                    "Cookie: tasty",
+                                    "Cookie: tasty, " +
+                                    "Matrix: two",
                             response.body());
 
                     context.completeNow();

@@ -15,7 +15,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * Create bean of type and fill internal variables from request / context
+ * Create bean of type and fill internal variables from request / context,
+ * NOTE: supports beans with primitive type fields only!
  */
 public class DefaultBeanProvider implements BeanProvider {
 
@@ -43,7 +44,6 @@ public class DefaultBeanProvider implements BeanProvider {
     private void setFields(Object instance, RoutingContext context, BeanDefinition definition)
             throws ClassFactoryException {
 
-        // TODO: currently only basic primitive fields and setters can be set/invoked
         Field[] fields = instance.getClass().getDeclaredFields();
         for (Field field : fields) {
 

@@ -2,20 +2,20 @@ package com.zandero.rest.test.data;
 
 import com.zandero.rest.annotation.Raw;
 
-import javax.ws.rs.CookieParam;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 
 public class MyComplexBean {
 
-    private boolean header;
+    private final boolean header;
 
-    private String path;
+    private final String path;
 
-    private int query;
+    private final int query;
 
-    private String cookie;
+    private final String cookie;
+
+    @MatrixParam("enum")
+    private MyEnum enumValue;
 
     public MyComplexBean(@PathParam("path") String path,
                          @HeaderParam("MyHeader") boolean header,
@@ -33,6 +33,7 @@ public class MyComplexBean {
         return "Header: " + header +
                 ", Path: " + path +
                 ", Query: " + query +
-                ", Cookie: " + cookie;
+                ", Cookie: " + cookie +
+                ", Matrix: " + enumValue;
     }
 }

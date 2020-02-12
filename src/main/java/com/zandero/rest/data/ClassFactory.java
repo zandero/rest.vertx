@@ -27,10 +27,13 @@ public abstract class ClassFactory<T> {
 
     private final static Logger log = LoggerFactory.getLogger(ClassFactory.class);
 
+    private static Set<String> INJECTION_ANNOTATIONS = new HashSet<>(Arrays.asList("Inject", "Injection", "InjectionProvider"));
+
     /**
      * map of nullable to primitive type
      */
     private static Map<String, Class<?>> NULLABLE_PRIMITIVE;
+
     static {
         NULLABLE_PRIMITIVE = new HashMap<>();
         NULLABLE_PRIMITIVE.put(Boolean.class.getTypeName(), boolean.class);
@@ -142,6 +145,13 @@ public abstract class ClassFactory<T> {
         boolean hasInjection = InjectionProvider.hasInjection(clazz);
 
         if (provider == null || (!hasInjection && !canBeInjected)) {
+
+            SuppressCheck suppress = clazz.getAnnotation(SuppressCheck.class);
+            if (hasInjection &&
+                    (suppress == null || !INJECTION_ANNOTATIONS.contains(suppress.value()))) {
+                log.warn(clazz.getName() + " uses @Inject but no InjectionProvider registered!");
+            }
+
             instance = newInstanceOf(clazz, context);
         } else {
 
@@ -164,17 +174,15 @@ public abstract class ClassFactory<T> {
         return instance;
     }
 
-    private static boolean contain(String[] value, String... text) {
+    private static boolean contain(String value, String... text) {
 
-        if (value.length == 0 || text.length == 0) {
+        if (StringUtils.isNullOrEmptyTrimmed(value)) {
             return false;
         }
 
         for (String search : text) {
-            for (String item : value) {
-                if (StringUtils.equals(search, item, true)) {
-                    return true;
-                }
+            if (StringUtils.equals(search, value, true)) {
+                return true;
             }
         }
 
@@ -235,24 +243,24 @@ public abstract class ClassFactory<T> {
 
                 try {
                     for (int index = 0; index < params.length; index++) {
-						MethodParameter parameter = definition.get(index);
-						values[index] = ArgumentProvider.getValue(null, parameter, context, parameter.getDefaultValue());
+                        MethodParameter parameter = definition.get(index);
+                        values[index] = ArgumentProvider.getValue(null, parameter, context, parameter.getDefaultValue());
                     }
 
-					for (int index = 0; index < params.length; index++) {
+                    for (int index = 0; index < params.length; index++) {
                         MethodParameter parameter = definition.get(index);
-						params[index] = ClassFactory.stringToPrimitiveType(values[index], parameter.getDataType());
-					}
+                        params[index] = ClassFactory.stringToPrimitiveType(values[index], parameter.getDataType());
+                    }
 
                     // TODO: log params before invoking
-					log.info("Invoking: " + describeConstructor(constructor, values));
+                    log.info("Invoking: " + describeConstructor(constructor, values));
                     return constructor.newInstance(params);
                 } catch (IllegalAccessException | InstantiationException | InvocationTargetException | ClassFactoryException e) {
-					String error = "Failed to instantiate class, with constructor: " +
-							describeConstructor(constructor, values) + ". " + e.getMessage();
-					log.error(error, e);
+                    String error = "Failed to instantiate class, with constructor: " +
+                            describeConstructor(constructor, values) + ". " + e.getMessage();
+                    log.error(error, e);
 
-					throw new ClassFactoryException(error, e);
+                    throw new ClassFactoryException(error, e);
                 }
             }
         }
@@ -262,31 +270,31 @@ public abstract class ClassFactory<T> {
 
     private static String describeConstructor(Constructor<?> constructor, Object[] params) {
 
-    	assert constructor != null;
-		StringBuilder builder = new StringBuilder();
-		builder.append(constructor.getName())
-				.append("(");
+        assert constructor != null;
+        StringBuilder builder = new StringBuilder();
+        builder.append(constructor.getName())
+                .append("(");
 
-		if (constructor.getParameterCount() > 0) {
-			for (int i = 0; i < constructor.getParameterCount(); i++) {
+        if (constructor.getParameterCount() > 0) {
+            for (int i = 0; i < constructor.getParameterCount(); i++) {
 
-				Object paramValue = params.length > i ? params[i] : null;
+                Object paramValue = params.length > i ? params[i] : null;
 
-				Parameter param = constructor.getParameters()[i];
-				builder.append(param.getType().getSimpleName())
-						.append(" ")
-						.append(param.getName())
-						.append("=")
-						.append(paramValue);
+                Parameter param = constructor.getParameters()[i];
+                builder.append(param.getType().getSimpleName())
+                        .append(" ")
+                        .append(param.getName())
+                        .append("=")
+                        .append(paramValue);
 
-				if (i + 1 < constructor.getParameterCount()) {
-					builder.append(", ");
-				}
-			}
-		}
-		builder.append(")");
-		return builder.toString();
-	}
+                if (i + 1 < constructor.getParameterCount()) {
+                    builder.append(", ");
+                }
+            }
+        }
+        builder.append(")");
+        return builder.toString();
+    }
 
     public static Object newInstanceOf(Class<?> clazz) throws ClassFactoryException {
         return newInstanceOf(clazz, null);
@@ -506,6 +514,7 @@ public abstract class ClassFactory<T> {
 
     /**
      * Converts type to primitive type if possible
+     *
      * @param type to convert
      * @return primitive type or original if no conversion possible
      */
@@ -515,7 +524,7 @@ public abstract class ClassFactory<T> {
             return type;
         }
 
-        for (String typeName: NULLABLE_PRIMITIVE.keySet()) {
+        for (String typeName : NULLABLE_PRIMITIVE.keySet()) {
             if (type.getTypeName().equals(typeName)) {
                 return NULLABLE_PRIMITIVE.get(typeName);
             }
