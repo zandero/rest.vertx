@@ -521,7 +521,7 @@ public class RouteDefinition {
         Assert.notNullOrEmpty(value, "Missing '@Consumes' definition!");
 
         MediaType[] values = MediaTypeHelper.getMediaTypes(value);
-        if (!MediaTypeHelper.isDefaultMediaType(values)) {
+        if (MediaTypeHelper.notDefaultMediaType(values)) {
             consumes = values;
         }
         return this;
@@ -531,7 +531,7 @@ public class RouteDefinition {
 
         Assert.notNullOrEmpty(value, "Missing '@Produces' definition!");
         MediaType[] values = MediaTypeHelper.getMediaTypes(value);
-        if (!MediaTypeHelper.isDefaultMediaType(values)) {
+        if (MediaTypeHelper.notDefaultMediaType(values)) {
             produces = MediaTypeHelper.getMediaTypes(value);
         }
         return this;

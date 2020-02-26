@@ -282,6 +282,8 @@ Basic (primitive) types are converted from string to given type - if conversion 
  
 Complex java objects are converted according to **@Consumes** annotation or **@RequestReader** _request body reader_ associated.
 
+Complex java object annotated with **@BeanParam** annotation holding fields annotated with @PathParam, @QueryParam ...  
+
 **Option 1** - The **@Consumes** annotation **mime/type** defines the reader to be used when converting request body.  
 In this case a build in JSON converter is applied.
 ```java
@@ -365,6 +367,55 @@ First appropriate reader is assigned searching in following order:
 1. use class type specific ValueReader
 1. use mime type assigned ValueReader
 1. use general purpose ValueReader
+
+**Option 5** - **@BeanParam** argument is constructed via vert.x RoutingContext.
+>since version 0.9.0 or later
+
+```java
+    @POST
+    @Path("/read/{param}")
+    public String read(@BeanParam BeanClazz bean) {
+        ...
+    }
+```  
+
+```java
+public class BeanClazz {
+    @PathParam("param")
+    private String path;
+
+    @QueryParam("query")
+    @Raw
+    private String query;
+
+    @HeaderParam("x-token")
+    private String token;
+
+    @CookieParam("chocolate")
+    private String cookie;
+
+    @MatrixParam("enum")
+    private MyEnum enumValue;
+
+    @FormParam("form")
+    private String form;
+
+    @BodyParam
+    @DefaultValue("empty")
+    private String body;
+}
+```
+
+OR via constructor
+```java
+public BeanClazz(@PathParam("param") String path,
+                  @HeaderParam("x-token") boolean xToken,
+                  @QueryParam("query") @Raw int query,
+                  @CookieParam("chocolate") String cookie) {
+    ...
+}
+```
+
 
 #### Missing ValueReader?
 

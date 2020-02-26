@@ -9,4 +9,14 @@ import io.vertx.ext.web.RoutingContext;
 public interface RestEvent<T> {
 
 	void execute(T entity, RoutingContext context) throws Throwable;
+
+	/**
+	 * This is a placeholder exception for RestEvent default exception annotation
+	 * this exception should never be triggered as it is considered a NOOP exception
+	 */
+	class NoRestException extends Exception {
+		private NoRestException() {
+			super("Exception place holder!");
+		}
+	}
 }

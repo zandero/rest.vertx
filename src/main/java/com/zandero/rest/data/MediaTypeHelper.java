@@ -141,6 +141,10 @@ public final class MediaTypeHelper {
 		return builder.toString();
 	}
 
+	public static boolean notDefaultMediaType(MediaType[] values) {
+		return !isDefaultMediaType(values);
+	}
+
 	public static boolean isDefaultMediaType(MediaType[] values) {
 		return values != null &&
 		       values.length == 1 &&

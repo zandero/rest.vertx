@@ -183,7 +183,7 @@ class ClassFactoryTest {
 
         MyComplexBean instance = (MyComplexBean)ClassFactory.newInstanceOf(MyComplexBean.class, context);
         assertNotNull(instance);
-        assertEquals("Header: true, Path: SomePath, Query: 1, Cookie: tasty", instance.toString());
+        assertEquals("Header: true, Path: SomePath, Query: 1, Cookie: tasty, Matrix: null", instance.toString());
     }
 
     @Test

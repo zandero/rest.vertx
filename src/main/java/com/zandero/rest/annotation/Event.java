@@ -1,6 +1,5 @@
 package com.zandero.rest.annotation;
 
-import com.zandero.rest.events.NoRestException;
 import com.zandero.rest.events.RestEvent;
 
 import java.lang.annotation.*;
@@ -32,5 +31,5 @@ public @interface Event {
 	 * exception to react upon if any
 	 * @return exception error to bind event to
 	 */
-	Class<? extends Throwable> exception() default NoRestException.class; // default to a "not" exception (same as null)
+	Class<? extends Throwable> exception() default RestEvent.NoRestException.class; // default to a "not" exception (same as null)
 }

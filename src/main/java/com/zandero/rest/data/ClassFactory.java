@@ -7,6 +7,7 @@ import com.zandero.rest.context.ContextProviderFactory;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.ContextException;
 import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.utils.ArrayUtils;
 import com.zandero.utils.Assert;
 import com.zandero.utils.Pair;
 import com.zandero.utils.StringUtils;
@@ -27,7 +28,7 @@ public abstract class ClassFactory<T> {
 
     private final static Logger log = LoggerFactory.getLogger(ClassFactory.class);
 
-    private static Set<String> INJECTION_ANNOTATIONS = new HashSet<>(Arrays.asList("Inject", "Injection", "InjectionProvider"));
+    private static Set<String> INJECTION_ANNOTATIONS = ArrayUtils.toSet("Inject", "Injection", "InjectionProvider");
 
     /**
      * map of nullable to primitive type

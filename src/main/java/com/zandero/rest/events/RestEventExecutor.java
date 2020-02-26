@@ -73,7 +73,7 @@ public class RestEventExecutor {
 			return false;
 		}
 
-		if (event.exception() == NoRestException.class) {
+		if (event.exception() == RestEvent.NoRestException.class) {
 			Type type = ClassFactory.getGenericType(event.value());
 			return ClassFactory.checkIfCompatibleType(result.getClass(), type);
 		}
