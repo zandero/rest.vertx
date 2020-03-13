@@ -365,25 +365,25 @@ public class RouteDefinition {
             }
 
             if (annotation instanceof GET ||
-                    annotation instanceof POST ||
-                    annotation instanceof PUT ||
-                    annotation instanceof DELETE ||
-                    annotation instanceof HEAD ||
-                    annotation instanceof OPTIONS ||
-                    annotation instanceof PATCH) {
+                annotation instanceof POST ||
+                annotation instanceof PUT ||
+                annotation instanceof DELETE ||
+                annotation instanceof HEAD ||
+                annotation instanceof OPTIONS ||
+                annotation instanceof PATCH) {
                 method(annotation.annotationType().getSimpleName());
             }
 
             // Custom rest.vertx method, path, consumes and produces combination
             if (annotation instanceof Get ||
-                    annotation instanceof Post ||
-                    annotation instanceof Put ||
-                    annotation instanceof Delete ||
-                    annotation instanceof Head ||
-                    annotation instanceof Options ||
-                    annotation instanceof Patch ||
-                    annotation instanceof Trace ||
-                    annotation instanceof Connect) {
+                annotation instanceof Post ||
+                annotation instanceof Put ||
+                annotation instanceof Delete ||
+                annotation instanceof Head ||
+                annotation instanceof Options ||
+                annotation instanceof Patch ||
+                annotation instanceof Trace ||
+                annotation instanceof Connect) {
 
                 method(annotation.annotationType().getSimpleName());
 
@@ -435,7 +435,7 @@ public class RouteDefinition {
 
             if (annotation instanceof CatchWith) {
                 exceptionHandlers =
-                        ArrayUtils.join(((CatchWith) annotation).value(), exceptionHandlers); // method handler is applied before class handler
+                ArrayUtils.join(((CatchWith) annotation).value(), exceptionHandlers); // method handler is applied before class handler
             }
 
             if (annotation instanceof SuppressCheck) {
@@ -718,7 +718,7 @@ public class RouteDefinition {
         String lastParameterType = parameterTypes[parameterTypes.length - 1].getName();
 
         return lastParameterType.equals(CONTINUATION_CLASS)
-                || lastParameterType.equals(CONTINUATION_EXPERIMENTAL_CLASS);
+               || lastParameterType.equals(CONTINUATION_EXPERIMENTAL_CLASS);
     }
 
     private void setUsedArguments(Map<String, MethodParameter> arguments) {
@@ -773,7 +773,7 @@ public class RouteDefinition {
 
 
         Assert.notNull(type,
-                "Argument: " + name + " (" + parameterType + ") can't be provided with Vert.x request, check and annotate method arguments!");
+        "Argument: " + name + " (" + parameterType + ") can't be provided with Vert.x request, check and annotate method arguments!");
 
         if (ParameterType.path.equals(type)) {
             MethodParameter found = params.get(name); // parameter should exist
@@ -885,10 +885,10 @@ public class RouteDefinition {
         // also see:
         // https://www.owasp.org/index.php/Test_HTTP_Methods_(OTG-CONFIG-006)
         return HttpMethod.DELETE.equals(method) ||
-                HttpMethod.POST.equals(method) ||
-                HttpMethod.PUT.equals(method) ||
-                HttpMethod.PATCH.equals(method) ||
-                HttpMethod.TRACE.equals(method);
+               HttpMethod.POST.equals(method) ||
+               HttpMethod.PUT.equals(method) ||
+               HttpMethod.PATCH.equals(method) ||
+               HttpMethod.TRACE.equals(method);
     }
 
     public boolean hasBodyParameter() {

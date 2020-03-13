@@ -1,9 +1,6 @@
 package com.zandero.rest.injection;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Provides;
+import com.google.inject.*;
 
 /**
  *
@@ -17,6 +14,10 @@ public class GuiceInjectionProvider extends AbstractModule implements InjectionP
 	public GuiceInjectionProvider() {
 
 		injector = Guice.createInjector(this);
+	}
+
+	public GuiceInjectionProvider(Module[] modules) {
+		injector = Guice.createInjector(modules);
 	}
 
 	@Override

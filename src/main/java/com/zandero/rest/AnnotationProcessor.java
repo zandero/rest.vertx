@@ -89,9 +89,13 @@ public final class AnnotationProcessor {
      */
     private static Map<RouteDefinition, Method> collect(Class<?> clazz) {
 
+        // Addressing issue #55, where Guice alters annotations
+        if (clazz.getName().contains("$$EnhancerByGuice$$")) { // Skip Guice enhanced clazz and go to "original"
+            clazz = clazz.getSuperclass();
+        }
+
         Map<RouteDefinition, Method> out = getDefinitions(clazz);
         for (Class<?> inter : clazz.getInterfaces()) {
-
             Map<RouteDefinition, Method> found = collect(inter);
             join(out, found);
         }
@@ -192,14 +196,11 @@ public final class AnnotationProcessor {
         // go over methods ...
         Map<RouteDefinition, Method> output = new LinkedHashMap<>();
         for (Method method : clazz.getMethods()) {
-
-            if (isRestCompatible(method)) { // Path must be present
-
+            if (isRestCompatible(method)) {
                 try {
                     RouteDefinition definition = new RouteDefinition(root, method);
                     output.put(definition, method);
                 } catch (IllegalArgumentException e) {
-
                     throw new IllegalArgumentException(getClassMethod(clazz, method) + " - " + e.getMessage());
                 }
             }
