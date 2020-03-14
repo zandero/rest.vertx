@@ -36,13 +36,13 @@ public interface HttpResponseWriter<T> {
 			// 2. add REST produces
 			headers = join(headers, definition.getProduces());
 
-			// 3. add writer headers
+			// 3. add / override Writer headers
 			Header writerHeader = this.getClass().getAnnotation(Header.class);
 			if (writerHeader != null && writerHeader.value().length > 0) {
 				headers = join(headers, AnnotationProcessor.getNameValuePairs(writerHeader.value()));
 			}
 
-			// 4. add Writer produces
+			// 4. add / override with Writer produces
 			Produces writerProduces = this.getClass().getAnnotation(Produces.class);
 			if (writerProduces != null && writerProduces.value().length > 0) {
 				headers = join(headers, MediaTypeHelper.getMediaTypes(writerProduces.value()));
@@ -71,10 +71,8 @@ public interface HttpResponseWriter<T> {
 	}
 
 	default Map<String, String> join(Map<String, String> original, MediaType[] additional) {
-		if (additional != null && additional.length > 0) {
-			for (MediaType produces : additional) {
-				original.put(HttpHeaders.CONTENT_TYPE.toString(), MediaTypeHelper.toString(produces));
-			}
+		if (additional != null && additional.length > 0) {	// take first produces media type ..
+			original.put(HttpHeaders.CONTENT_TYPE.toString(), MediaTypeHelper.toString(additional[0]));
 		}
 
 		return original;

@@ -12,7 +12,6 @@ import com.zandero.rest.test.TestRestWithNonRestMethod;
 import io.vertx.core.http.HttpMethod;
 import org.junit.jupiter.api.Test;
 
-
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +42,9 @@ class AnnotationProcessorTest {
 
 				assertEquals(HttpMethod.GET, definition.getMethod());
 				assertNotNull(definition.getProduces());
-				assertEquals(1, definition.getProduces().length);
+				assertEquals(2, definition.getProduces().length);
 				assertEquals("text/html", MediaTypeHelper.toString(definition.getProduces()[0]));
+				assertEquals("application/json", MediaTypeHelper.toString(definition.getProduces()[1]));
 
 				assertEquals("echo", method.getName());
 				count++;
@@ -127,7 +127,6 @@ class AnnotationProcessorTest {
 	void getInheritedDefinition() {
 
 		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(ImplementationRest.class);
-
 		assertEquals(2, definitions.size());
 
 		int count = 0;
@@ -135,14 +134,13 @@ class AnnotationProcessorTest {
 
 			if (definition.getPath().equals("/implementation/echo")) {
 
-				//Method method = definitions.get(definition);
-
 				assertEquals(HttpMethod.GET, definition.getMethod());
 				assertNotNull(definition.getProduces());
 				assertEquals(2, definition.getProduces().length);
 				assertEquals("html/text", MediaTypeHelper.toString(definition.getProduces()[0]));
 				assertEquals("application/json", MediaTypeHelper.toString(definition.getProduces()[1]));
 
+				assertNotNull(definition.getConsumes());
 				assertEquals(1, definition.getConsumes().length);
 				assertEquals("application/json", MediaTypeHelper.toString(definition.getConsumes()[0]));
 
@@ -159,14 +157,14 @@ class AnnotationProcessorTest {
 
 			if (definition.getPath().equals("/implementation/get/{id}")) {
 
-				//Method method = definitions.get(definition);
-
 				assertEquals(HttpMethod.GET, definition.getMethod());
-				assertNotNull(definition.getProduces());
+
+				assertNotNull(definition.getConsumes());
 				assertEquals(2, definition.getConsumes().length);
 				assertEquals("html/text", MediaTypeHelper.toString(definition.getConsumes()[0]));
 				assertEquals("application/json", MediaTypeHelper.toString(definition.getConsumes()[1]));
 
+				assertNotNull(definition.getProduces());
 				assertEquals(1, definition.getProduces().length);
 				assertEquals("application/json", MediaTypeHelper.toString(definition.getProduces()[0]));
 

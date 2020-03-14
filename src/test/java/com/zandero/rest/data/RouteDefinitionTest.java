@@ -7,11 +7,13 @@ import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.*;
@@ -108,26 +110,25 @@ class RouteDefinitionTest {
 		methods.sort(Comparator.comparing(Method::getName));
 
 
-		Method method = TestRegExRest.class.getMethods()[0];
+		Method method = methods.get(0);
 		RouteDefinition def = new RouteDefinition(base, method);
 		assertEquals("/regEx/{one:\\w+}/{two:\\d+}/{three:\\w+}", def.getPath());
 		assertEquals("/regEx/\\w+/\\d+/\\w+", def.getRoutePath());
 		assertTrue(def.pathIsRegEx());
 
-		method = TestRegExRest.class.getMethods()[1];
+		method = methods.get(1);
 		def = new RouteDefinition(base, method);
 		assertEquals("/regEx/:one:\\d+", def.getPath());
 		assertEquals("/regEx/\\d+", def.getRoutePath());
 		assertTrue(def.pathIsRegEx());
 
-
-		method = TestRegExRest.class.getMethods()[2];
+		method = methods.get(2);
 		def = new RouteDefinition(base, method);
 		assertTrue(def.pathIsRegEx());
 		assertEquals("/regEx/:one:\\d+/minus/:two:\\d+", def.getPath());
 		assertEquals("/regEx/\\d+/minus/\\d+", def.getRoutePath());
 
-		method = TestRegExRest.class.getMethods()[3];
+		method = methods.get(3);
 		def = new RouteDefinition(base, method);
 		assertTrue(def.pathIsRegEx());
 

@@ -40,7 +40,6 @@ class InheritedRouteTest extends VertxTest {
     @Test
     void getTest(VertxTestContext context) {
 
-
         client.get(PORT, HOST, "/implementation/get/test?additional=it")
                 .as(BodyCodec.string())
                 .send(context.succeeding(response -> context.verify(() -> {

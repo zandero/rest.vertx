@@ -330,9 +330,39 @@ public class RouteDefinition {
 
         Set<MediaType> baseSet = new LinkedHashSet<>(Arrays.asList(base));
         Set<MediaType> addSet = new LinkedHashSet<>(Arrays.asList(additional));
-        baseSet.addAll(addSet);
 
-        return baseSet.toArray(new MediaType[]{});
+       /* baseSet.addAll(addSet);
+
+        return baseSet.toArray(new MediaType[]{});*/
+
+        Set<MediaType> joinedSet = new LinkedHashSet<>();
+        for (MediaType baseItem : baseSet) {
+
+            MediaType found = null;
+            for (MediaType addItem : addSet) {
+                if (baseItem.getType().equals(addItem.getType()) && baseItem.getSubtype().equals(addItem.getSubtype())) {
+                    // join parameters
+                    for (String key: addItem.getParameters().keySet()) {
+                        String value = addItem.getParameters().get(key);
+                        baseItem.getParameters().putIfAbsent(key, value);
+                    }
+
+                    found = addItem;
+                    break;
+                }
+            }
+
+            if (found != null) {
+                addSet.remove(found);
+            }
+
+            joinedSet.add(baseItem);
+        }
+
+        // add remaining from addSet
+        joinedSet.addAll(addSet);
+
+        return joinedSet.toArray(new MediaType[]{});
     }
 
     /**
@@ -365,25 +395,25 @@ public class RouteDefinition {
             }
 
             if (annotation instanceof GET ||
-                annotation instanceof POST ||
-                annotation instanceof PUT ||
-                annotation instanceof DELETE ||
-                annotation instanceof HEAD ||
-                annotation instanceof OPTIONS ||
-                annotation instanceof PATCH) {
+                    annotation instanceof POST ||
+                    annotation instanceof PUT ||
+                    annotation instanceof DELETE ||
+                    annotation instanceof HEAD ||
+                    annotation instanceof OPTIONS ||
+                    annotation instanceof PATCH) {
                 method(annotation.annotationType().getSimpleName());
             }
 
             // Custom rest.vertx method, path, consumes and produces combination
             if (annotation instanceof Get ||
-                annotation instanceof Post ||
-                annotation instanceof Put ||
-                annotation instanceof Delete ||
-                annotation instanceof Head ||
-                annotation instanceof Options ||
-                annotation instanceof Patch ||
-                annotation instanceof Trace ||
-                annotation instanceof Connect) {
+                    annotation instanceof Post ||
+                    annotation instanceof Put ||
+                    annotation instanceof Delete ||
+                    annotation instanceof Head ||
+                    annotation instanceof Options ||
+                    annotation instanceof Patch ||
+                    annotation instanceof Trace ||
+                    annotation instanceof Connect) {
 
                 method(annotation.annotationType().getSimpleName());
 
@@ -435,7 +465,7 @@ public class RouteDefinition {
 
             if (annotation instanceof CatchWith) {
                 exceptionHandlers =
-                ArrayUtils.join(((CatchWith) annotation).value(), exceptionHandlers); // method handler is applied before class handler
+                    ArrayUtils.join(((CatchWith) annotation).value(), exceptionHandlers); // method handler is applied before class handler
             }
 
             if (annotation instanceof SuppressCheck) {
@@ -718,7 +748,7 @@ public class RouteDefinition {
         String lastParameterType = parameterTypes[parameterTypes.length - 1].getName();
 
         return lastParameterType.equals(CONTINUATION_CLASS)
-               || lastParameterType.equals(CONTINUATION_EXPERIMENTAL_CLASS);
+                   || lastParameterType.equals(CONTINUATION_EXPERIMENTAL_CLASS);
     }
 
     private void setUsedArguments(Map<String, MethodParameter> arguments) {
@@ -773,7 +803,7 @@ public class RouteDefinition {
 
 
         Assert.notNull(type,
-        "Argument: " + name + " (" + parameterType + ") can't be provided with Vert.x request, check and annotate method arguments!");
+                       "Argument: " + name + " (" + parameterType + ") can't be provided with Vert.x request, check and annotate method arguments!");
 
         if (ParameterType.path.equals(type)) {
             MethodParameter found = params.get(name); // parameter should exist
@@ -885,10 +915,10 @@ public class RouteDefinition {
         // also see:
         // https://www.owasp.org/index.php/Test_HTTP_Methods_(OTG-CONFIG-006)
         return HttpMethod.DELETE.equals(method) ||
-               HttpMethod.POST.equals(method) ||
-               HttpMethod.PUT.equals(method) ||
-               HttpMethod.PATCH.equals(method) ||
-               HttpMethod.TRACE.equals(method);
+                   HttpMethod.POST.equals(method) ||
+                   HttpMethod.PUT.equals(method) ||
+                   HttpMethod.PATCH.equals(method) ||
+                   HttpMethod.TRACE.equals(method);
     }
 
     public boolean hasBodyParameter() {

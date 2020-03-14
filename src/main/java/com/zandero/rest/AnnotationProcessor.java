@@ -40,12 +40,14 @@ public final class AnnotationProcessor {
     public static Map<RouteDefinition, Method> get(Class<?> clazz) {
 
         Map<RouteDefinition, Method> out = new HashMap<>();
-
         Map<RouteDefinition, Method> candidates = collect(clazz);
+
         // Final check if definitions are OK
+        RouteDefinition classDefinition = null;
         for (RouteDefinition definition : candidates.keySet()) {
 
-            if (definition.getMethod() == null) { // skip non REST methods
+            if (definition.getMethod() == null) { // skip if class definition
+                classDefinition = definition;
                 continue;
             }
 
@@ -57,15 +59,15 @@ public final class AnnotationProcessor {
                 if (bodyParamCount > 0 && (ParameterType.body.equals(param.getType()) || ParameterType.unknown.equals(param.getType()))) {
                     // OK we have to body params ...
                     throw new IllegalArgumentException(getClassMethod(clazz, method) + " - to many body arguments given. " +
-                            "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: " +
-                            param.getType() + " " + param.getName() + "!");
+                                                           "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: " +
+                                                           param.getType() + " " + param.getName() + "!");
                 }
 
                 if (ParameterType.unknown.equals(param.getType())) { // proclaim as body param
                     // check if method allows for a body param
                     Assert.isTrue(definition.requestHasBody(), getClassMethod(clazz, method) + " - " +
-                            "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: " +
-                            param.getName() + "!");
+                                                                   "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: " +
+                                                                   param.getName() + "!");
 
                     param.setType(ParameterType.body);
                 }
@@ -78,6 +80,7 @@ public final class AnnotationProcessor {
             out.put(definition, method);
         }
 
+        join(out, classDefinition);
         return out;
     }
 
@@ -95,18 +98,43 @@ public final class AnnotationProcessor {
         }
 
         Map<RouteDefinition, Method> out = getDefinitions(clazz);
+        RouteDefinition classDefinition = getClassDefinition(out);
+
         for (Class<?> inter : clazz.getInterfaces()) {
             Map<RouteDefinition, Method> found = collect(inter);
+
+            RouteDefinition interfaceClassDefinition = getClassDefinition(found);
+            if (classDefinition != null) {
+                classDefinition.join(interfaceClassDefinition);
+            }
+
             join(out, found);
         }
 
         Class<?> superClass = clazz.getSuperclass();
         if (superClass != Object.class && superClass != null) {
             Map<RouteDefinition, Method> found = collect(superClass);
+
+            RouteDefinition superClassDefinition = getClassDefinition(found);
+            if (classDefinition != null) {
+                classDefinition.join(superClassDefinition);
+            }
+
             join(out, found);
         }
 
+        //
+        out.put(classDefinition, null);
         return out;
+    }
+
+    private static RouteDefinition getClassDefinition(Map<RouteDefinition, Method> out) {
+        for (RouteDefinition def: out.keySet()) {
+            if (out.get(def) == null) {
+                return def;
+            }
+        }
+        return null;
     }
 
     /**
@@ -122,6 +150,13 @@ public final class AnnotationProcessor {
 
             RouteDefinition additional = find(add, method);
             definition.join(additional);
+        }
+    }
+
+    private static void join(Map<RouteDefinition, Method> base, RouteDefinition classDefinition) {
+
+        for (RouteDefinition definition : base.keySet()) {
+            definition.join(classDefinition);
         }
     }
 
@@ -141,6 +176,11 @@ public final class AnnotationProcessor {
         for (RouteDefinition additional : add.keySet()) {
             Method match = add.get(additional);
 
+            if (match == null) {
+                // root / class definition ...
+                continue;
+            }
+
             if (isMatching(method, match)) {
                 return additional;
             }
@@ -157,6 +197,14 @@ public final class AnnotationProcessor {
      * @return true if the same, false otherwise
      */
     private static boolean isMatching(Method base, Method compare) {
+
+        if (base == null && compare == null) {
+            return true;
+        }
+
+        if (base == null || compare == null) {
+            return false;
+        }
 
         // if names and argument types match ... then this are the same method
         if (base.getName().equals(compare.getName()) &&
@@ -190,11 +238,13 @@ public final class AnnotationProcessor {
 
         Assert.notNull(clazz, "Missing class with JAX-RS annotations!");
 
+        Map<RouteDefinition, Method> output = new LinkedHashMap<>();
+
         // base
         RouteDefinition root = new RouteDefinition(clazz);
+        output.put(root, null); // add class definition
 
         // go over methods ...
-        Map<RouteDefinition, Method> output = new LinkedHashMap<>();
         for (Method method : clazz.getMethods()) {
             if (isRestCompatible(method)) {
                 try {
@@ -216,8 +266,8 @@ public final class AnnotationProcessor {
     private static boolean isRestCompatible(Method method) {
 
         return (!method.getDeclaringClass().isInstance(Object.class) &&
-                !isNative(method) && !isObjectMethod(method) &&
-                (isPublic(method) || isInterface(method) || isAbstract(method)));
+                    !isNative(method) && !isObjectMethod(method) &&
+                    (isPublic(method) || isInterface(method) || isAbstract(method)));
     }
 
     private static boolean isObjectMethod(Method method) {
