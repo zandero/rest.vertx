@@ -342,7 +342,7 @@ public class RouteDefinition {
             for (MediaType addItem : addSet) {
                 if (baseItem.getType().equals(addItem.getType()) && baseItem.getSubtype().equals(addItem.getSubtype())) {
                     // join parameters
-                    for (String key: addItem.getParameters().keySet()) {
+                    for (String key : addItem.getParameters().keySet()) {
                         String value = addItem.getParameters().get(key);
                         baseItem.getParameters().putIfAbsent(key, value);
                     }
