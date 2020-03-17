@@ -122,7 +122,12 @@ public class RestRouter {
 				}
 			}
 
-			Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(api.getClass());
+			Map<RouteDefinition, Method> definitions = null;
+			if (api.getClass().getSuperclass() == Object.class) {
+				definitions = AnnotationProcessor.get(api.getClass());
+			} else {
+				definitions = AnnotationProcessor.get(api.getClass().getSuperclass());
+			}
 
 			for (RouteDefinition definition : definitions.keySet()) {
 
