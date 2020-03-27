@@ -9,6 +9,7 @@ import com.zandero.rest.test.ImplementationRest;
 import com.zandero.rest.test.TestReaderRest;
 import com.zandero.rest.test.TestRest;
 import com.zandero.rest.test.TestRestWithNonRestMethod;
+import com.zandero.utils.StringUtils;
 import io.vertx.core.http.HttpMethod;
 import org.junit.jupiter.api.Test;
 
@@ -46,6 +47,8 @@ class AnnotationProcessorTest {
 				assertEquals("text/html", MediaTypeHelper.toString(definition.getProduces()[0]));
 				assertEquals("application/json", MediaTypeHelper.toString(definition.getProduces()[1]));
 
+				assertEquals("", StringUtils.join(definition.getRoles(), ", "));
+
 				assertEquals("echo", method.getName());
 				count++;
 			}
@@ -58,6 +61,8 @@ class AnnotationProcessorTest {
 				assertNotNull(definition.getProduces());
 				assertEquals(1, definition.getProduces().length);
 				assertEquals("application/json", MediaTypeHelper.toString(definition.getProduces()[0]));
+
+				assertEquals("", StringUtils.join(definition.getRoles(), ", "));
 
 				assertEquals("jax", method.getName());
 				count++;
@@ -86,6 +91,9 @@ class AnnotationProcessorTest {
 				assertEquals(ParameterType.path, param.getType());
 				assertEquals(1, param.getIndex());
 				assertEquals(String.class, param.getDataType());
+
+				assertEquals("", StringUtils.join(definition.getRoles(), ", "));
+
 				count++;
 			}
 		}
@@ -127,10 +135,15 @@ class AnnotationProcessorTest {
 	void getInheritedDefinition() {
 
 		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(ImplementationRest.class);
-		assertEquals(2, definitions.size());
+		assertEquals(3, definitions.size());
 
 		int count = 0;
 		for (RouteDefinition definition : definitions.keySet()) {
+
+			if (definition.getPath().equals("/implementation/other")) {
+				assertEquals("", StringUtils.join(definition.getRoles(), ", "));
+				count++;
+			}
 
 			if (definition.getPath().equals("/implementation/echo")) {
 
@@ -152,6 +165,7 @@ class AnnotationProcessorTest {
 				assertEquals(-1, param.getRegExIndex());
 				assertEquals(ParameterType.query, param.getType());
 
+				assertEquals("admin", StringUtils.join(definition.getRoles(), ", "));
 				count++;
 			}
 
@@ -185,11 +199,12 @@ class AnnotationProcessorTest {
 				assertEquals(1, param.getIndex());
 				assertEquals(-1, param.getRegExIndex());
 
+				assertEquals("test", StringUtils.join(definition.getRoles(), ", "));
 				count++;
 			}
 		}
 
-		assertEquals(2, count);
+		assertEquals(3, count);
 	}
 
 	@Test

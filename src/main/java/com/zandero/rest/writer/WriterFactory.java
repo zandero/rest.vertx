@@ -36,7 +36,11 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
 		classTypes.put(HttpServerResponse.class, VertxResponseWriter.class);
 
 		mediaTypes.put(MediaType.APPLICATION_JSON, JsonResponseWriter.class);
-		mediaTypes.put(MediaType.TEXT_PLAIN, GenericResponseWriter.class);
+		mediaTypes.put(MediaType.TEXT_HTML, GenericResponseWriter.class);
+
+		// if not found ... default to simple toString() writer
+		mediaTypes.put(MediaType.TEXT_PLAIN, PlainResponseWriter.class);
+		mediaTypes.put(MediaType.WILDCARD, PlainResponseWriter.class);
 	}
 
 	/**

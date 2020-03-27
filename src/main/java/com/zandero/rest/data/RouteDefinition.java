@@ -208,11 +208,11 @@ public class RouteDefinition {
             suppressCheck = additional.suppressCheck;
         }
 
-        if (roles == null) {
+        if (roles == null && permitAll == null) {
             roles = additional.roles;
         }
 
-        if (permitAll == null) {
+        if (permitAll == null && roles == null) {
             permitAll = additional.permitAll;
             roles = null;
         }

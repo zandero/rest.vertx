@@ -51,6 +51,7 @@ class RestRouterTest extends VertxTest {
         client.get(PORT, HOST, "/test/echo").as(BodyCodec.string())
             .putHeader("Accept", "text/html")
             .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals("text/html", response.getHeader("Content-Type"));
                 assertEquals("Hello world!", response.body());
                 context.completeNow();
             })));
@@ -63,7 +64,8 @@ class RestRouterTest extends VertxTest {
             .as(BodyCodec.string())
             .putHeader("Accept", "application/json")
             .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals("Hello world!", response.body());
+                assertEquals("application/json", response.getHeader("Content-Type"));
+                assertEquals("\"Hello world!\"", response.body());
                 context.completeNow();
             })));
     }
@@ -155,6 +157,7 @@ class RestRouterTest extends VertxTest {
             .as(BodyCodec.string())
             .send(context.succeeding(response -> context.verify(() -> {
 
+                assertEquals("text/plain", response.getHeader("Content-Type"));
                 assertEquals(200, response.statusCode());
                 assertEquals("http://localhost:4444/test/context/path", response.body());
                 context.completeNow();

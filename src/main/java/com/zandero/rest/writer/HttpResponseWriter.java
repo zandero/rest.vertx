@@ -70,9 +70,14 @@ public interface HttpResponseWriter<T> {
 		return original;
 	}
 
+	// TODO: fix this ...
+	//  only one produces is relevant (depending on incoming content-type and writer assigned)
 	default Map<String, String> join(Map<String, String> original, MediaType[] additional) {
-		if (additional != null && additional.length > 0) {	// take first produces media type ..
-			original.put(HttpHeaders.CONTENT_TYPE.toString(), MediaTypeHelper.toString(additional[0]));
+		if (additional != null && additional.length > 0) {
+			for (MediaType produces : additional) {
+				original.put(HttpHeaders.CONTENT_TYPE.toString(), MediaTypeHelper.toString(produces));
+				break;
+			}
 		}
 
 		return original;
