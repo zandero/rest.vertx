@@ -896,6 +896,9 @@ public class RouteDefinition {
                    HttpMethod.PUT.equals(method) ||
                    HttpMethod.PATCH.equals(method) ||
                    HttpMethod.TRACE.equals(method);
+        // in theory supported but probably not a good idea to use GET requests with body
+        // many servers/clients don't support this - Issue #59
+                   //||  HttpMethod.GET.equals(method);
     }
 
     public boolean hasBodyParameter() {
