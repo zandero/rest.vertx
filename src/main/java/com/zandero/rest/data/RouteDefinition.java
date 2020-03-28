@@ -48,6 +48,11 @@ public class RouteDefinition {
     protected String methodPath = null;
 
     /**
+     *
+     */
+    protected String applicationPath = null;
+
+    /**
      * Original path as given in annotation
      */
     protected String path = DELIMITER;
@@ -130,11 +135,16 @@ public class RouteDefinition {
     public RouteDefinition(Class clazz) {
 
         init(clazz.getAnnotations());
+        evaluatePath();
     }
 
     public RouteDefinition(RouteDefinition base, Method classMethod) {
 
         // copy base route
+        if (base.getApplicationPath() != null) {
+            applicationPath(base.getApplicationPath());
+        }
+
         path(base.getPath());
 
         consumes = base.getConsumes();
@@ -162,6 +172,7 @@ public class RouteDefinition {
         params = join(params, pathParams);
 
         setArguments(classMethod);
+        evaluatePath();
     }
 
     public RouteDefinition(RoutingContext context) {
@@ -180,6 +191,8 @@ public class RouteDefinition {
         if (accept != null) {
             produces = new MediaType[]{accept};
         }
+
+        evaluatePath();
     }
 
     public RouteDefinition join(RouteDefinition additional) {
@@ -235,6 +248,11 @@ public class RouteDefinition {
 
         // path change
         boolean pathChange = false;
+
+        if (applicationPath == null && additional.applicationPath != null) {
+            applicationPath = additional.applicationPath;
+        }
+
         if (classPath == null && additional.classPath != null) {
             pathChange = true;
             classPath = additional.classPath;
@@ -247,7 +265,6 @@ public class RouteDefinition {
 
         if (pathChange) { // reset and re-evaluate path
             path = DELIMITER;
-            routePath = null;
 
             path(classPath);
             path(methodPath);
@@ -259,7 +276,7 @@ public class RouteDefinition {
 
         // join collected params to base params
         params = join(params, additional.params);
-        return this;
+        return evaluatePath();
     }
 
 
@@ -334,6 +351,10 @@ public class RouteDefinition {
 
             if (annotation instanceof RouteOrder) {
                 order(((RouteOrder) annotation).value());
+            }
+
+            if (annotation instanceof ApplicationPath) {
+                applicationPath(((ApplicationPath) annotation).value());
             }
 
             if (annotation instanceof Path) {
@@ -471,6 +492,12 @@ public class RouteDefinition {
         return this;
     }
 
+    private RouteDefinition applicationPath(String appPath) {
+        Assert.notNullOrEmptyTrimmed(appPath, "Missing or empty application path '@ApplicationPath'!");
+        applicationPath = PathConverter.clean(DELIMITER + appPath);
+        return this;
+    }
+
     public RouteDefinition path(String subPath) {
 
         Assert.notNullOrEmptyTrimmed(subPath, "Missing or empty route '@Path'!");
@@ -498,11 +525,19 @@ public class RouteDefinition {
             methodPath = subPath;
         }
 
-        // convert path to Vert.X format
-        routePath = PathConverter.convert(path);
         return this;
     }
 
+    private RouteDefinition evaluatePath() {
+        String pathToConvert = path;
+        if (applicationPath != null && !applicationPath.equals(DELIMITER)) {
+            pathToConvert = applicationPath + path;
+        }
+
+        // convert path to Vert.X format
+        routePath = PathConverter.convert(pathToConvert);
+        return this;
+    }
 
     public RouteDefinition consumes(String[] value) {
 
@@ -787,46 +822,31 @@ public class RouteDefinition {
         return newParam;
     }
 
-    public String getPath() {
+    public String getApplicationPath() {
+        return applicationPath;
+    }
 
+    public String getPath() {
         return path;
     }
 
     public String getRoutePath() {
-
-		/*if (pathIsRegEx()) {
-			return regExPathEscape(routePath);
-		}*/
-
         return routePath;
     }
 
-    private String regExPathEscape(String path) {
-
-        if (path == null) {
-            return null;
-        }
-
-        return path.replaceAll("/", "\\\\/");
-    }
-
     public MediaType[] getConsumes() {
-
         return consumes;
     }
 
     public MediaType[] getProduces() {
-
         return produces;
     }
 
     public HttpMethod getMethod() {
-
         return method;
     }
 
     public int getOrder() {
-
         return order;
     }
 
@@ -852,7 +872,6 @@ public class RouteDefinition {
     }
 
     public Class<?> getReturnType() {
-
         return returnType;
     }
 
@@ -934,7 +953,6 @@ public class RouteDefinition {
      * @return true - permit all, false - deny all, null - check roles
      */
     public Boolean getPermitAll() {
-
         return permitAll;
     }
 
@@ -942,7 +960,6 @@ public class RouteDefinition {
      * @return null - no roles defined, or array of allowed roles
      */
     public String[] getRoles() {
-
         return roles;
     }
 
@@ -950,7 +967,6 @@ public class RouteDefinition {
      * @return true to check if User is in given role, false otherwise
      */
     public boolean checkSecurity() {
-
         return permitAll != null || (roles != null && roles.length > 0);
     }
 

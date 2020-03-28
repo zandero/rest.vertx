@@ -5,10 +5,7 @@ import com.zandero.rest.data.MethodParameter;
 import com.zandero.rest.data.ParameterType;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.reader.CustomWordListReader;
-import com.zandero.rest.test.ImplementationRest;
-import com.zandero.rest.test.TestReaderRest;
-import com.zandero.rest.test.TestRest;
-import com.zandero.rest.test.TestRestWithNonRestMethod;
+import com.zandero.rest.test.*;
 import com.zandero.utils.StringUtils;
 import io.vertx.core.http.HttpMethod;
 import org.junit.jupiter.api.Test;
@@ -205,6 +202,24 @@ class AnnotationProcessorTest {
 		}
 
 		assertEquals(3, count);
+	}
+
+	@Test
+	void getApplicationPathRest() {
+		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(TestApplicationV1PathRest.class);
+		assertEquals(1, definitions.size());
+
+		int count = 0;
+		for (RouteDefinition definition : definitions.keySet()) {
+			if (definition.getRoutePath().equals("/v1/application/echo/:param")) {
+
+				assertEquals("/v1", definition.getApplicationPath());
+				assertEquals("/application/echo/{param}", definition.getPath());
+				count ++;
+			}
+		}
+
+		assertEquals(1, count);
 	}
 
 	@Test

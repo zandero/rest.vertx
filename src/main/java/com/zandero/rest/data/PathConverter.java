@@ -109,7 +109,8 @@ public final class PathConverter {
 		paths = paths.stream().map(PathConverter::convertSub).collect(Collectors.toList());
 
 		// 3. join back together into single path
-		return StringUtils.join(paths, "/");
+		String joined = StringUtils.join(paths, "/");
+		return StringUtils.trimToNull(joined);
 	}
 
 	private static MethodParameter getParamFromPath(String path, int regExIndex, int pathIndex) {
