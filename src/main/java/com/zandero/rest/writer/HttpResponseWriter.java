@@ -7,6 +7,8 @@ import com.zandero.rest.data.RouteDefinition;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -20,11 +22,19 @@ import java.util.Map;
  */
 public interface HttpResponseWriter<T> {
 
+	Logger log = LoggerFactory.getLogger(HttpResponseWriter.class);
+
 	void write(T result, HttpServerRequest request, HttpServerResponse response) throws Throwable;
 
-	default void addResponseHeaders(RouteDefinition definition, HttpServerResponse response) {
+	/**
+	 * @param definition route definition
+	 * @param requestMediaType client requested media type .. accept header or null for all
+	 * @param response response to add response headers
+	 */
+	default void addResponseHeaders(RouteDefinition definition, MediaType requestMediaType, HttpServerResponse response) {
 
 		if (!response.ended()) {
+
 
 			Map<String, String> headers = new HashMap<>();
 
@@ -34,7 +44,7 @@ public interface HttpResponseWriter<T> {
 			headers = join(headers, definition.getHeaders());
 
 			// 2. add REST produces
-			headers = join(headers, definition.getProduces());
+			headers = join(headers, requestMediaType, definition.getProduces());
 
 			// 3. add / override Writer headers
 			Header writerHeader = this.getClass().getAnnotation(Header.class);
@@ -45,12 +55,20 @@ public interface HttpResponseWriter<T> {
 			// 4. add / override with Writer produces
 			Produces writerProduces = this.getClass().getAnnotation(Produces.class);
 			if (writerProduces != null && writerProduces.value().length > 0) {
-				headers = join(headers, MediaTypeHelper.getMediaTypes(writerProduces.value()));
+				headers = join(headers, requestMediaType, MediaTypeHelper.getMediaTypes(writerProduces.value()));
 			}
 
 			// 5. add wildcard if no content-type present
 			if (!headers.containsKey(HttpHeaders.CONTENT_TYPE.toString())) {
 				headers.put(HttpHeaders.CONTENT_TYPE.toString(), MediaType.WILDCARD);
+			}
+
+			String selectedContentType = headers.get(HttpHeaders.CONTENT_TYPE.toString());
+			if (requestMediaType == null) {
+				log.trace("No 'Accept' header present in request using first @Produces Content-Type='" + selectedContentType + "', for: " + definition.getPath());
+			}
+			else {
+				log.trace("Selected Content-Type='" + selectedContentType + "', for: " + definition.getPath());
 			}
 
 			// add all headers not present in response
@@ -67,17 +85,32 @@ public interface HttpResponseWriter<T> {
 			original.putAll(additional);
 		}
 
+		original.remove(HttpHeaders.CONTENT_TYPE.toString()); // remove content-type headers from output
 		return original;
 	}
 
-	// TODO: fix this ...
-	//  only one produces is relevant (depending on incoming content-type and writer assigned)
-	default Map<String, String> join(Map<String, String> original, MediaType[] additional) {
+	default Map<String, String> join(Map<String, String> original, MediaType contentMediaType, MediaType[] additional) {
+		if (contentMediaType == null) {
+			contentMediaType = MediaType.WILDCARD_TYPE;
+		}
+
+		MediaType first = null; // to be used in case no content type matches requested content type
 		if (additional != null && additional.length > 0) {
+
 			for (MediaType produces : additional) {
-				original.put(HttpHeaders.CONTENT_TYPE.toString(), MediaTypeHelper.toString(produces));
-				break;
+				if (first == null) {
+					first = produces;
+				}
+
+				if (MediaTypeHelper.matches(contentMediaType, produces)) {
+					original.put(HttpHeaders.CONTENT_TYPE.toString(), MediaTypeHelper.toString(produces));
+					break;
+				}
 			}
+		}
+
+		if (original.get(HttpHeaders.CONTENT_TYPE.toString()) == null && first != null) {
+			original.put(HttpHeaders.CONTENT_TYPE.toString(), MediaTypeHelper.toString(first));
 		}
 
 		return original;

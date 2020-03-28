@@ -788,7 +788,7 @@ public class RestRouter {
 			log.info("Registered injection provider: " + injectionProvider.getClass().getName());
 		}
 		else {
-			log.warn("No injection provider specified!");
+			log.info("No injection provider specified!");
 		}
 	}
 
@@ -822,7 +822,7 @@ public class RestRouter {
 			log.info("Registered bean provider: " + beanProvider.getClass().getName());
 		}
 		else {
-			log.warn("No bean provider specified!");
+			log.info("No bean provider specified!");
 		}
 	}
 
@@ -855,7 +855,7 @@ public class RestRouter {
 			log.info("Registered validation provider: " + validator.getClass().getName());
 		}
 		else {
-			log.warn("No validation provider specified!");
+			log.info("No validation provider specified!");
 		}
 	}
 

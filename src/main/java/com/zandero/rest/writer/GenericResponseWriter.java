@@ -4,7 +4,6 @@ import com.zandero.rest.RestRouter;
 import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.exception.ContextException;
-import com.zandero.utils.StringUtils;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
@@ -30,10 +29,11 @@ public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
 	@Override
 	public void write(T result, HttpServerRequest request, HttpServerResponse response) throws Throwable {
 
-		String mediaType = request.headers().get(HttpHeaders.ACCEPT);
-		if (StringUtils.isNullOrEmptyTrimmed(mediaType)) {
-			mediaType = response.headers().get(HttpHeaders.CONTENT_TYPE);
-			log.debug("No 'Accept' header present in request using first @Consumes instead: '" + mediaType + "'");
+		// Content-Type header is filled by HttpResponseWriter.addResponseHeaders() call
+		String mediaType = response.headers().get(HttpHeaders.CONTENT_TYPE);
+		if (mediaType == null) {
+			log.trace("No Content-Type selected, defaulting to Content-Type='*/*'");
+			mediaType = MediaType.WILDCARD;
 		}
 
 		HttpResponseWriter writer;
