@@ -16,6 +16,7 @@ import com.zandero.rest.writer.NotFoundResponseWriter;
 import com.zandero.rest.writer.WriterFactory;
 import com.zandero.utils.Assert;
 import io.vertx.core.*;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
@@ -645,10 +646,14 @@ public class RestRouter {
 
 		HttpServerResponse response = context.response();
 		response.setStatusCode(ex.getStatusCode());
-		handler.addResponseHeaders(definition, response);
+
+		HttpServerRequest request = context.request();
+		MediaType accept = MediaTypeHelper.valueOf(request.getHeader(HttpHeaders.ACCEPT));
+
+		handler.addResponseHeaders(definition, accept, response);
 
 		try {
-			handler.write(ex.getCause(), context.request(), context.response());
+			handler.write(ex.getCause(), request, response);
 
 			eventExecutor.triggerEvents(ex.getCause(), response.getStatusCode(), definition, context, injectionProvider);
 		}
@@ -693,9 +698,10 @@ public class RestRouter {
 
 		HttpServerResponse response = context.response();
 		HttpServerRequest request = context.request();
+		MediaType accept = MediaTypeHelper.valueOf(request.getHeader(HttpHeaders.ACCEPT));
 
 		// add default response headers per definition (or from writer definition)
-		writer.addResponseHeaders(definition, response);
+		writer.addResponseHeaders(definition, accept, response);
 		writer.write(result, request, response);
 
 		// find and trigger events from // result / response

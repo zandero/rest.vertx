@@ -320,49 +320,7 @@ public class RouteDefinition {
 
     private static MediaType[] join(MediaType[] base, MediaType[] additional) {
 
-        if (additional == null || additional.length == 0) {
-            return base;
-        }
-
-        if (base == null) {
-            return additional;
-        }
-
-        Set<MediaType> baseSet = new LinkedHashSet<>(Arrays.asList(base));
-        Set<MediaType> addSet = new LinkedHashSet<>(Arrays.asList(additional));
-
-       /* baseSet.addAll(addSet);
-
-        return baseSet.toArray(new MediaType[]{});*/
-
-        Set<MediaType> joinedSet = new LinkedHashSet<>();
-        for (MediaType baseItem : baseSet) {
-
-            MediaType found = null;
-            for (MediaType addItem : addSet) {
-                if (baseItem.getType().equals(addItem.getType()) && baseItem.getSubtype().equals(addItem.getSubtype())) {
-                    // join parameters
-                    for (String key : addItem.getParameters().keySet()) {
-                        String value = addItem.getParameters().get(key);
-                        baseItem.getParameters().putIfAbsent(key, value);
-                    }
-
-                    found = addItem;
-                    break;
-                }
-            }
-
-            if (found != null) {
-                addSet.remove(found);
-            }
-
-            joinedSet.add(baseItem);
-        }
-
-        // add remaining from addSet
-        joinedSet.addAll(addSet);
-
-        return joinedSet.toArray(new MediaType[]{});
+        return MediaTypeHelper.join(base, additional);
     }
 
     /**
