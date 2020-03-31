@@ -12,7 +12,7 @@ If this project help you reduce time to develop? Keep it running and donate for 
 <dependency>      
      <groupId>com.zandero</groupId>      
      <artifactId>rest.vertx</artifactId>      
-     <version>0.8.9</version>      
+     <version>0.9.0</version>      
 </dependency>
 ```
 
@@ -1683,6 +1683,3 @@ or even:
 @Get(value = "/test", consumes = "application/json", produces = "application/json")
 public String method() { ... }
 ```
-
-
-
