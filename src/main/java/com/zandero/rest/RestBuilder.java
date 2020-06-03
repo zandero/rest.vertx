@@ -15,6 +15,7 @@ import com.zandero.utils.Assert;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 
 import javax.validation.Validator;
@@ -54,6 +55,11 @@ public class RestBuilder {
 	private CorsHandler corsHandler = null;
 
 	/**
+	 * Body handler if desired
+	 */
+	private BodyHandler bodyHandler = null;
+
+	/**
 	 * Injected class provider
 	 */
 	private InjectionProvider injectionProvider = null;
@@ -67,6 +73,9 @@ public class RestBuilder {
 	 * Validation
 	 */
 	private Validator validator = null;
+
+
+
 
 	public RestBuilder(Router router) {
 
@@ -171,6 +180,11 @@ public class RestBuilder {
 			corsHandler.allowedHeaders(allowedHeaders);
 		}
 
+		return this;
+	}
+
+	private RestBuilder bodyHandler(BodyHandler handler) {
+		bodyHandler = handler;
 		return this;
 	}
 
@@ -481,9 +495,12 @@ public class RestBuilder {
 			handlers = new Object[]{corsHandler};
 		}
 
-		Object[] joined = ArrayUtils.join(handlers, apis.toArray());
+		if (bodyHandler != null) {
+			RestRouter.setBodyHandler(bodyHandler);
+		}
 
 		// register all handlers and APIs
+		Object[] joined = ArrayUtils.join(handlers, apis.toArray());
 		Router output = getRouter(joined);
 
 		contextProviders.forEach(provider -> {

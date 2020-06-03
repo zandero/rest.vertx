@@ -132,7 +132,7 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 
 		// internal context / reflection of route definition
 		if (type.isAssignableFrom(RouteDefinition.class)) {
-			// TODO: fix this ... we need original RouteDefinition not evaluated one
+			// TODO: fix this (issue #60) ... we need original RouteDefinition not evaluated one
 			return new RouteDefinition(context);
 		}
 

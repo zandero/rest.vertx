@@ -69,6 +69,8 @@ public class RestRouter {
 
 	private static Validator validator;
 
+	private static BodyHandler bodyHandler;
+
 	/**
 	 * Searches for annotations to register routes ...
 	 *
@@ -158,7 +160,14 @@ public class RestRouter {
 
 				// add BodyHandler in case request has a body ...
 				if (definition.requestHasBody()) {
-					route.handler(BodyHandler.create());
+					if (bodyHandler == null) {
+						route.handler(BodyHandler.create());
+						log.debug("Adding default body handler to route!");
+					}
+					else {
+						route.handler(bodyHandler);
+						log.debug("Adding provided body handler to route!");
+					}
 				}
 
 				// add security check handler in front of regular route handler
@@ -874,5 +883,16 @@ public class RestRouter {
 			log.error("Failed to instantiate validation provider: ", e);
 			throw new IllegalArgumentException(e);
 		}
+	}
+
+	public static void setBodyHandler(BodyHandler handler) {
+
+		if (bodyHandler != null) {
+			log.error("Body handler already defined, set body handler before any routes!");
+			return;
+		}
+
+		Assert.notNull(handler, "Missing body handler!");
+		bodyHandler = handler;
 	}
 }
