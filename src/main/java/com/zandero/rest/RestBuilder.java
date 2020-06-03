@@ -74,9 +74,6 @@ public class RestBuilder {
 	 */
 	private Validator validator = null;
 
-
-
-
 	public RestBuilder(Router router) {
 
 		Assert.notNull(router, "Missing vertx router!");
@@ -183,7 +180,7 @@ public class RestBuilder {
 		return this;
 	}
 
-	private RestBuilder bodyHandler(BodyHandler handler) {
+	public RestBuilder bodyHandler(BodyHandler handler) {
 		bodyHandler = handler;
 		return this;
 	}

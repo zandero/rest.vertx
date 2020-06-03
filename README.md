@@ -665,6 +665,29 @@ A custom context reader can be applied to a @Context annotated variable to overr
 ```
 
  
+## Body handler
+> version 0.9.1 or later
+
+In case needed a custom body handler can be provided for all body handling requests.
+
+```java
+    BodyHandler bodyHandler = BodyHandler.create("my_upload_folder");
+    RestRouter.setBodyHandler(bodyHandler);
+
+    Router router = RestRouter.register(vertx, UploadFileRest.class);
+```
+
+or
+
+```java
+    BodyHandler handler = BodyHandler.create("my_upload_folder");
+
+    Router router = new RestBuilder(vertx)
+        .bodyHandler(handler)
+        .register(UploadFileRest.class)
+        .build();
+
+```
 
 ## Response building
 

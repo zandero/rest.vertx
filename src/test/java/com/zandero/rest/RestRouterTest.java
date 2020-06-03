@@ -10,6 +10,7 @@ import com.zandero.utils.extra.JsonUtils;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import org.junit.jupiter.api.Assertions;
@@ -36,9 +37,12 @@ class RestRouterTest extends VertxTest {
 
         TestRest testRest = new TestRest();
 
+        BodyHandler bodyHandler = BodyHandler.create("my_upload_folder");
+        RestRouter.setBodyHandler(bodyHandler);
+
         Router router = RestRouter.register(vertx,
-                                            testRest,
-                                            TestRestWithNonRestMethod.class);
+                                      testRest,
+                                      TestRestWithNonRestMethod.class);
 
         vertx.createHttpServer()
             .requestHandler(router)
