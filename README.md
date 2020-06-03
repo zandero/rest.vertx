@@ -1683,3 +1683,7 @@ or even:
 @Get(value = "/test", consumes = "application/json", produces = "application/json")
 public String method() { ... }
 ```
+
+# Request/Response rest.vertx lifecycle
+
+TODO: describe request/response lifecycle

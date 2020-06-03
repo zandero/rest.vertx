@@ -180,6 +180,7 @@
         </dependency>
 
         <!-- Response and ResponseBuilder implementation -->
+        <!-- include this dependency if you need a Response API implementation -->
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-common</artifactId>
