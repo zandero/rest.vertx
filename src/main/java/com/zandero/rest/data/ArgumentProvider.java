@@ -116,7 +116,7 @@ public class ArgumentProvider {
 					if (e instanceof IllegalArgumentException) {
 
 						MethodParameter paramDefinition = definition.findParameter(parameter.getIndex());
-						String providedType = value != null ? value.getClass().getSimpleName() : "null";
+
 						String expectedType = method.getParameterTypes()[parameter.getIndex()].getTypeName();
 
 						String error;
@@ -129,13 +129,12 @@ public class ArgumentProvider {
 								expectedType;
 						}
 
-						if (!StringUtils.equals(expectedType, providedType, false)) {
-							error = error + ", but got: " + providedType;
+						if (value == null) {
+							error = error + ", but got: null";
 						}
 
-						error = error + " -> " + e;
-
-						throw new IllegalArgumentException(error, e);
+						error = error + " -> " + e.getMessage();
+						log.error(error);
 					}
 
 					throw e;

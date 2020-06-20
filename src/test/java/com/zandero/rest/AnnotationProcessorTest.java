@@ -102,7 +102,7 @@ class AnnotationProcessorTest {
 	void getReaderDefinitions() {
 
 		Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(TestReaderRest.class);
-		assertEquals(4, definitions.size());
+		assertEquals(5, definitions.size());
 
 		int count = 0;
 		// check

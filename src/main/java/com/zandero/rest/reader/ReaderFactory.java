@@ -110,6 +110,8 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
 			registered = true;
 		}
 
+		//register(reader.gereader);
+
 		Assert.isTrue(registered,
 		              "Failed to register reader: '" + reader.getName() + "', missing @Consumes annotation!");
 	}

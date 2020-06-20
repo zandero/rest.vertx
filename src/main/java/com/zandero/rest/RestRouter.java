@@ -71,6 +71,9 @@ public class RestRouter {
 
 	private static BodyHandler bodyHandler;
 
+	// Tries to improve exceptions with additional information
+	private static boolean improveExceptionMessages = true;
+
 	/**
 	 * Searches for annotations to register routes ...
 	 *

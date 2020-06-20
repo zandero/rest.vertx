@@ -4,11 +4,11 @@ import com.zandero.rest.annotation.RequestReader;
 import com.zandero.rest.reader.CustomWordListReader;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.rest.test.json.ExtendedDummy;
+import com.zandero.utils.InstantTimeUtils;
 import com.zandero.utils.StringUtils;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -63,5 +63,12 @@ public class TestReaderRest {
 	public String getExtendedDummy(ExtendedDummy dummy) {
 
 		return dummy.name + "=" + dummy.value + " (" + dummy.type + ")";
+	}
+
+	@GET
+	@Path("/time")
+	public String getInstant(@QueryParam("is") Instant time) {
+
+		return InstantTimeUtils.formatDateTime(time);
 	}
 }

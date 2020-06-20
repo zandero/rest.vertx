@@ -684,15 +684,15 @@ public class RouteDefinition {
                     Assert.isNull(param.getDataType(), "Duplicate argument type given: " + parameters[index].getName());
                     param.argument(parameterTypes[index], index); // set missing argument type and index
                 } else {
+                    name = parameters[index].getName();
+                    type = ParameterType.unknown;
 
+                    // Body reader only .... (as we don't know param name we assume it is the body)
                     if (valueReader == null) {
                         valueReader = reader; // take reader from method / class definition
                     } else {
                         reader = valueReader; // set body reader from field
                     }
-
-                    name = parameters[index].getName();
-                    type = ParameterType.unknown;
                 }
             }
 

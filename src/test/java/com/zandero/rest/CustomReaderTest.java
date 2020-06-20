@@ -1,9 +1,6 @@
 package com.zandero.rest;
 
-import com.zandero.rest.reader.CustomWordListReader;
-import com.zandero.rest.reader.DummyBodyReader;
-import com.zandero.rest.reader.ExtendedDummyBodyReader;
-import com.zandero.rest.reader.IntegerBodyReader;
+import com.zandero.rest.reader.*;
 import com.zandero.rest.test.TestPostRest;
 import com.zandero.rest.test.TestReaderRest;
 import com.zandero.rest.test.json.Dummy;
@@ -20,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,8 +38,8 @@ class CustomReaderTest extends VertxTest {
         Router router = RestRouter.register(vertx, TestReaderRest.class);
 
         vertx.createHttpServer()
-                .requestHandler(router)
-                .listen(PORT);
+            .requestHandler(router)
+            .listen(PORT);
     }
 
     @BeforeEach
@@ -57,8 +55,8 @@ class CustomReaderTest extends VertxTest {
     void testCustomInput(VertxTestContext context) {
 
         client.post(PORT, HOST, "/read/custom")
-                .as(BodyCodec.string())
-                .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
+            .as(BodyCodec.string())
+            .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
                         context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("brown,dog,fox,jumps,over,quick,red,the", response.body()); // returns sorted list of unique words
@@ -70,8 +68,8 @@ class CustomReaderTest extends VertxTest {
     void testCustomInput_WithBuilder(VertxTestContext context) {
 
         client.post(PORT, HOST, "/read/custom")
-                .as(BodyCodec.string())
-                .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
+            .as(BodyCodec.string())
+            .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
                         context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("brown,dog,fox,jumps,over,quick,red,the", response.body()); // returns sorted list of unique words
@@ -83,11 +81,11 @@ class CustomReaderTest extends VertxTest {
     void testCustomInput_2(VertxTestContext context) {
 
         RestRouter.getReaders()
-                .register(List.class, CustomWordListReader.class); // all arguments that are List<> go through this reader ... (reader returns List<String> as output)
+            .register(List.class, CustomWordListReader.class); // all arguments that are List<> go through this reader ... (reader returns List<String> as output)
 
         client.post(PORT, HOST, "/read/registered")
-                .as(BodyCodec.string())
-                .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
+            .as(BodyCodec.string())
+            .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
                         context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("brown,dog,fox,jumps,over,quick,red,the", response.body()); // returns sorted list of unique words
@@ -104,9 +102,9 @@ class CustomReaderTest extends VertxTest {
         // check if correct reader is used
 
         client.post(PORT, HOST, "/read/normal/dummy")
-                .as(BodyCodec.string())
-                .putHeader("Content-Type", "application/json")
-                .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
+            .as(BodyCodec.string())
+            .putHeader("Content-Type", "application/json")
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
                         context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("one=dummy", response.body()); // returns sorted list of unique words
@@ -115,9 +113,9 @@ class CustomReaderTest extends VertxTest {
 
         // 2nd send extended dummy to same REST
         client.post(PORT, HOST, "/read/normal/dummy")
-                .as(BodyCodec.string())
-                .putHeader("Content-Type", "application/json")
-                .sendBuffer(Buffer.buffer(JsonUtils.toJson(new ExtendedDummy("one", "dummy", "extra"))),
+            .as(BodyCodec.string())
+            .putHeader("Content-Type", "application/json")
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new ExtendedDummy("one", "dummy", "extra"))),
                         context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("one=dummy", response.body()); // returns sorted list of unique words
@@ -126,9 +124,9 @@ class CustomReaderTest extends VertxTest {
 
         // 3rd send extended dummy to extended REST
         client.post(PORT, HOST, "/read/extended/dummy")
-                .as(BodyCodec.string())
-                .putHeader("Content-Type", "application/json")
-                .sendBuffer(Buffer.buffer(JsonUtils.toJson(new ExtendedDummy("one", "dummy", "extra"))),
+            .as(BodyCodec.string())
+            .putHeader("Content-Type", "application/json")
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new ExtendedDummy("one", "dummy", "extra"))),
                         context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("one=dummy (extra)", response.body()); // returns sorted list of unique words
@@ -138,9 +136,9 @@ class CustomReaderTest extends VertxTest {
 
         // 4th send normal dummy to extended REST
         client.post(PORT, HOST, "/read/extended/dummy")
-                .as(BodyCodec.string())
-                .putHeader("Content-Type", "application/json")
-                .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
+            .as(BodyCodec.string())
+            .putHeader("Content-Type", "application/json")
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
                         context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("one=dummy (null)", response.body()); // returns sorted list of unique words
@@ -154,9 +152,9 @@ class CustomReaderTest extends VertxTest {
         RestRouter.getReaders().register(Dummy.class, DummyBodyReader.class);
 
         client.post(PORT, HOST, "/read/normal/dummy")
-                .as(BodyCodec.string())
-                .putHeader("Content-Type", "application/json;charset=UTF-8")
-                .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
+            .as(BodyCodec.string())
+            .putHeader("Content-Type", "application/json;charset=UTF-8")
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
                         context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("one=dummy", response.body()); // returns sorted list of unique words
@@ -171,9 +169,9 @@ class CustomReaderTest extends VertxTest {
         RestRouter.getReaders().register("application/json", DummyBodyReader.class);
 
         client.post(PORT, HOST, "/read/normal/dummy")
-                .as(BodyCodec.string())
-                .putHeader("Content-Type", "application/json")
-                .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
+            .as(BodyCodec.string())
+            .putHeader("Content-Type", "application/json")
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
                         context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("one=dummy", response.body()); // returns sorted list of unique words
@@ -188,9 +186,9 @@ class CustomReaderTest extends VertxTest {
         RestRouter.getReaders().register(DummyBodyReader.class);
 
         client.post(PORT, HOST, "/read/normal/dummy")
-                .as(BodyCodec.string())
-                .putHeader("Content-Type", "application/json")
-                .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
+            .as(BodyCodec.string())
+            .putHeader("Content-Type", "application/json")
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
                         context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("one=dummy", response.body()); // returns sorted list of unique words
@@ -206,11 +204,11 @@ class CustomReaderTest extends VertxTest {
 
         // bind rest that consumes application/json
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> RestRouter.register(vertx, TestPostRest.class));
+                                                  () -> RestRouter.register(vertx, TestPostRest.class));
         assertEquals(
-                "POST /post/json - Parameter type: 'class com.zandero.rest.test.json.Dummy' not matching reader type: " +
-                        "'class java.lang.Integer' in: 'class com.zandero.rest.reader.IntegerBodyReader'!",
-                e.getMessage());
+            "POST /post/json - Parameter type: 'class com.zandero.rest.test.json.Dummy' not matching reader type: " +
+                "'class java.lang.Integer' in: 'class com.zandero.rest.reader.IntegerBodyReader'!",
+            e.getMessage());
     }
 
     @Test
@@ -221,10 +219,41 @@ class CustomReaderTest extends VertxTest {
 
         // bind rest that consumes application/json
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> RestRouter.register(vertx, TestPostRest.class));
+                                                  () -> RestRouter.register(vertx, TestPostRest.class));
         assertEquals(
-                "POST /post/json - Response type: 'class com.zandero.rest.test.json.Dummy' not matching writer type: " +
-                        "'class java.lang.String' in: 'class com.zandero.rest.writer.TestCustomWriter'!",
-                e.getMessage());
+            "POST /post/json - Response type: 'class com.zandero.rest.test.json.Dummy' not matching writer type: " +
+                "'class java.lang.String' in: 'class com.zandero.rest.writer.TestCustomWriter'!",
+            e.getMessage());
+    }
+
+    @Test
+    void readTimeFromQuery(VertxTestContext context) {
+        RestRouter.getReaders().register(Instant.class, InstantReader.class);
+
+        client.get(PORT, HOST, "/read/time")
+            .setQueryParam("is", "2020-08-19")
+            .as(BodyCodec.string())
+            .send(context.succeeding(response -> context.verify(() -> {
+
+                assertEquals(200, response.statusCode());
+                assertEquals("2020-08-19 00:00:00 +0000", response.body());
+                context.completeNow();
+            })));
+    }
+
+    @Test
+    void failToReadTimeFromQuery(VertxTestContext context) {
+        RestRouter.getReaders().register(Instant.class, InstantReader.class);
+
+        client.get(PORT, HOST, "/read/time")
+            .setQueryParam("is", "2020-08-XX")
+            .as(BodyCodec.string())
+            .send(context.succeeding(response -> context.verify(() -> {
+
+                assertEquals(400, response.statusCode());
+                assertEquals("Invalid time stamp: '2020-08-XX', expected format: yyyy-MM-dd'T'hh:mm:ss",
+                             response.body());
+                context.completeNow();
+            })));
     }
 }
