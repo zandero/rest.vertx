@@ -12,7 +12,7 @@ If this project help you reduce time to develop? Keep it running and donate for 
 <dependency>      
      <groupId>com.zandero</groupId>      
      <artifactId>rest.vertx</artifactId>      
-     <version>0.9.0</version>      
+     <version>0.9.1</version>      
 </dependency>
 ```
 
