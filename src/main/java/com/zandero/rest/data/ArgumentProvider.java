@@ -110,6 +110,7 @@ public class ArgumentProvider {
 				catch (Throwable e) {
 
 					if (e instanceof ContextException) {
+						log.error(e.getMessage());
 						throw new IllegalArgumentException(e.getMessage());
 					}
 
@@ -135,6 +136,9 @@ public class ArgumentProvider {
 
 						error = error + " -> " + e.getMessage();
 						log.error(error);
+					}
+					else {
+						log.error(e.getMessage());
 					}
 
 					throw e;

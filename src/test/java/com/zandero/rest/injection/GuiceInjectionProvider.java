@@ -12,7 +12,6 @@ public class GuiceInjectionProvider extends AbstractModule implements InjectionP
 	private Settings settings;
 
 	public GuiceInjectionProvider() {
-
 		injector = Guice.createInjector(this);
 	}
 
@@ -41,12 +40,6 @@ public class GuiceInjectionProvider extends AbstractModule implements InjectionP
 
 		return settings;
 	}
-/*
-	@Override
-	public Object getInstance(Class<Object> clazz) {
-
-		return injector.getInstance(clazz);
-	}*/
 
 	@Override
 	public <T> T getInstance(Class<T> clazz)  {
