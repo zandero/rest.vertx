@@ -117,7 +117,6 @@ public class ArgumentProvider {
 					if (e instanceof IllegalArgumentException) {
 
 						MethodParameter paramDefinition = definition.findParameter(parameter.getIndex());
-
 						String expectedType = method.getParameterTypes()[parameter.getIndex()].getTypeName();
 
 						String error;
