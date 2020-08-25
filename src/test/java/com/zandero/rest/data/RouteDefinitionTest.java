@@ -6,7 +6,6 @@ import com.zandero.rest.test.*;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
-import io.vertx.core.Promise;
 import io.vertx.core.http.HttpMethod;
 import org.junit.jupiter.api.Test;
 
@@ -153,14 +152,13 @@ class RouteDefinitionTest {
 	@Test
 	void isAsyncTest() {
 
-		Promise<String> out = Promise.promise();
-		Future<String> out2 = out.future();
-		CompositeFuture out3 = CompositeFuture.all(out2, out2);
+		Future<String> out = Future.future();
+		CompositeFuture out2 = CompositeFuture.all(out, out);
 
 		CompletableFuture<String> complete = new CompletableFuture<>();
 
+		assertTrue(RouteDefinition.isAsync(out.getClass()));
 		assertTrue(RouteDefinition.isAsync(out2.getClass()));
-		assertTrue(RouteDefinition.isAsync(out3.getClass()));
 
 		assertFalse(RouteDefinition.isAsync(complete.getClass()));
 		assertFalse(RouteDefinition.isAsync(String.class));
