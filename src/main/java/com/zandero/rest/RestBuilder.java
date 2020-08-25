@@ -14,6 +14,8 @@ import com.zandero.utils.ArrayUtils;
 import com.zandero.utils.Assert;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.ext.auth.AuthProvider;
+import io.vertx.ext.auth.authorization.AuthorizationProvider;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
@@ -58,6 +60,11 @@ public class RestBuilder {
 	 * Body handler if desired
 	 */
 	private BodyHandler bodyHandler = null;
+
+	/**
+	 * Auth provider
+	 */
+	private AuthorizationProvider authProvider = null;
 
 	/**
 	 * Injected class provider
@@ -142,7 +149,7 @@ public class RestBuilder {
 		allowedHeaders.add("Access-Control-Request-Headers");
 		//allowedHeaders.add("Access-Control-Max-Age");
 		allowedHeaders.add("Origin");
-		return enableCors("*", false, -1, allowedHeaders);
+		return enableCors("*", false, -1, allowedHeaders, null);
 	}
 
 	/**
@@ -159,13 +166,13 @@ public class RestBuilder {
 	                              boolean allowCredentials,
 	                              int maxAge,
 	                              Set<String> allowedHeaders,
-	                              HttpMethod... methods) {
+	                              List<HttpMethod> methods) {
 
 		corsHandler = CorsHandler.create(allowedOriginPattern)
 		                         .allowCredentials(allowCredentials)
 		                         .maxAgeSeconds(maxAge);
 
-		if (methods == null || methods.length == 0) { // if not given than all
+		if (methods == null || methods.size() == 0) { // if not given than all
 			methods = HttpMethod.values();
 		}
 
@@ -438,6 +445,11 @@ public class RestBuilder {
 		return this;
 	}
 
+	public RestBuilder setAuthProvider(AuthorizationProvider provider) {
+		authProvider = provider;
+		return this;
+	}
+
 	private Router getRouter(Object... handlers) {
 
 		if (vertx == null) {
@@ -494,6 +506,10 @@ public class RestBuilder {
 
 		if (bodyHandler != null) {
 			RestRouter.setBodyHandler(bodyHandler);
+		}
+
+		if (authProvider != null) {
+			RestRouter.setAuthProvider(authProvider);
 		}
 
 		// register all handlers and APIs

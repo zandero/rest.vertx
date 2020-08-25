@@ -20,7 +20,9 @@ import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.User;
+import io.vertx.ext.auth.authorization.AuthorizationProvider;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -42,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+//import io.vertx.ext.auth.AuthorizationProvider;
 
 /**
  * Builds up a vert.x route based on JAX-RS annotation provided in given class
@@ -70,6 +73,11 @@ public class RestRouter {
     private static Validator validator;
 
     private static BodyHandler bodyHandler;
+
+    /**
+     * Authentication provider
+     */
+    private static AuthorizationProvider authProvider;
 
     /**
      * Searches for annotations to register routes ...
@@ -168,6 +176,7 @@ public class RestRouter {
                     }
                 }
 
+              //  AuthProvider authenticationProvider;
                 // add security check handler in front of regular route handler
                 if (definition.checkSecurity()) {
                     route.handler(getSecurityHandler(definition));
@@ -330,13 +339,13 @@ public class RestRouter {
                                   boolean allowCredentials,
                                   int maxAge,
                                   Set<String> allowedHeaders,
-                                  HttpMethod... methods) {
+                                  List<HttpMethod> methods) {
 
         CorsHandler handler = CorsHandler.create(allowedOriginPattern)
                                   .allowCredentials(allowCredentials)
                                   .maxAgeSeconds(maxAge);
 
-        if (methods == null || methods.length == 0) { // if not given than all
+        if (methods == null || methods.size() == 0) { // if not given than all
             methods = HttpMethod.values();
         }
 
@@ -405,23 +414,50 @@ public class RestRouter {
         return writer;
     }
 
+    public static void setAuthProvider(AuthorizationProvider provider) {
+        Assert.notNull(provider, "Missing authentication provider");
+        authProvider = provider;
+    }
+
+
     private static Handler<RoutingContext> getSecurityHandler(final RouteDefinition definition) {
+
 
         return context -> {
 
+            if (authProvider != null) {
+               // JsonObject authInfo = new JsonObject().put("username", "tim").put("password", "mypassword");
+                authProvider.getAuthorizations(context.user());
+                /*authProvider.authenticate(authInfo, res -> {
+                    if (res.succeeded()) {
+
+                        User user = res.result();
+                        user.isAuthorised()
+
+                        System.out.println("User " + user.principal() + " is now authenticated");
+
+                    } else {
+                        res.cause().printStackTrace();
+                    }
+                });*/
+            }
+
+/*
             boolean allowed = isAllowed(context.user(), definition);
             if (allowed) {
                 context.next();
             } else {
                 handleException(new ExecuteException(Response.Status.UNAUTHORIZED.getStatusCode(), "HTTP 401 Unauthorized"), context, definition);
-            }
+            }*/
         };
     }
+
+
 
     // TODO: change from vert.x 3 -> 4
     // User the methods isAuthorized is deprecated (authorization should be performed by the AuthorizationProvider
     // check if given user is authorized for given role ...
-    private static boolean isAllowed(User user, RouteDefinition definition) {
+   /* private static boolean isAllowed(User user, RouteDefinition definition) {
 
         if (definition.getPermitAll() != null) {
             // allow all or deny all
@@ -460,7 +496,7 @@ public class RestRouter {
         }
 
         return false;
-    }
+    }*/
 
     private static Handler<RoutingContext> getHandler(final Object toInvoke, final RouteDefinition definition, final Method method) {
 
@@ -519,8 +555,10 @@ public class RestRouter {
                 if (result instanceof Future) {
                     Future<?> fut = (Future) result;
 
+                    // TODO: maybe better have handlers onSuccess / onFailure ?
+
                     // wait for future to complete ... don't block vertx event bus in the mean time
-                    fut.setHandler(handler -> {
+                    fut.onComplete(handler -> {
 
                         if (fut.succeeded()) {
 
