@@ -12,9 +12,11 @@ import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.rest.writer.NotFoundResponseWriter;
 import com.zandero.utils.ArrayUtils;
 import com.zandero.utils.Assert;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 
@@ -37,6 +39,9 @@ public class RestBuilder {
 	private Map<Class<?>, Object> registeredProviders = new HashMap<>();
 
 	private List<Object> exceptionHandlers = new ArrayList<>();
+
+	private List<Handler<RoutingContext>> routeHandlers = new ArrayList<>();
+	private List<Class<? extends Handler<RoutingContext>>> routeClassHandlers = new ArrayList<>();
 
 	private Map<MediaType, Object> mediaTypeResponseWriters = new LinkedHashMap<>();
 	private Map<Class<?>, Object> classResponseWriters = new LinkedHashMap<>();
@@ -105,6 +110,18 @@ public class RestBuilder {
 
 		// TODO finds REST APIs on given class namespaces ...
 
+		return this;
+	}
+
+	public RestBuilder routeHandler(Handler<RoutingContext> handler) {
+		Assert.notNull(handler, "Missing route handler!");
+		routeHandlers.add(handler);
+		return this;
+	}
+
+	public RestBuilder routeHandler(Class<? extends Handler<RoutingContext>> handler) {
+		Assert.notNull(handler, "Missing route handler!");
+		routeClassHandlers.add(handler);
 		return this;
 	}
 
@@ -464,7 +481,7 @@ public class RestBuilder {
 			RestRouter.validateWith(validator);
 		}
 
-		if (registeredProviders.size() > 0) {
+		//if (!registeredProviders.isEmpty()) {
 
 			registeredProviders.forEach((clazz, provider) -> {
 
@@ -484,12 +501,21 @@ public class RestBuilder {
 					}
 				}
 			});
-		}
+		//}
 
 		// put CORS handler in front of other handlers
 		Object[] handlers = null;
 		if (corsHandler != null) {
 			handlers = new Object[]{corsHandler};
+		}
+
+		// route handlers
+		if (!routeHandlers.isEmpty()) {
+			handlers = ArrayUtils.join(handlers, routeHandlers.toArray());
+		}
+
+		if (!routeClassHandlers.isEmpty()) {
+			handlers = ArrayUtils.join(handlers, routeClassHandlers.toArray());
 		}
 
 		if (bodyHandler != null) {
@@ -500,6 +526,7 @@ public class RestBuilder {
 		Object[] joined = ArrayUtils.join(handlers, apis.toArray());
 		Router output = getRouter(joined);
 
+		// context
 		contextProviders.forEach(provider -> {
 			if (provider instanceof Class) {
 				RestRouter.provide(output, (Class<? extends ContextProvider<?>>) provider);

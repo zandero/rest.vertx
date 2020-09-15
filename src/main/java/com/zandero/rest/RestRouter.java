@@ -105,13 +105,6 @@ public class RestRouter {
                 continue;
             }
 
-            if (api instanceof Handler) {
-
-                Handler<RoutingContext> handler = (Handler<RoutingContext>) api;
-                router.route().handler(handler);
-                continue;
-            }
-
             // check if api is an instance of a class or a class type
             if (api instanceof Class) {
 
@@ -124,6 +117,13 @@ public class RestRouter {
                 }
             }
 
+            // if handler than only register and move on
+            if (api instanceof Handler) {
+                handler(router, (Handler<RoutingContext>) api);
+                continue;
+            }
+
+            // REST endpoints
             Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(api.getClass());
 
             for (RouteDefinition definition : definitions.keySet()) {
@@ -257,6 +257,10 @@ public class RestRouter {
         } catch (ClassFactoryException | ContextException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
+    }
+
+    public static void handler(Router output, Handler<RoutingContext> handler) {
+        output.route().handler(handler);
     }
 
     /**
