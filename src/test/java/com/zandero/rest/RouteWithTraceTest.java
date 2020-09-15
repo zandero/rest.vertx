@@ -22,19 +22,19 @@ class RouteWithTraceTest extends VertxTest {
         Router router = RestRouter.register(vertx, TestEchoRest.class);
 
         vertx.createHttpServer()
-                .requestHandler(router)
-                .listen(PORT);
+            .requestHandler(router)
+            .listen(PORT);
     }
 
     @Test
     void testTrace(VertxTestContext context) {
 
         client.request(HttpMethod.TRACE, PORT, HOST, "/rest/echo").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() -> {
-                    assertEquals("trace", response.body()); // returns sorted list of unique words
-                    assertEquals(200, response.statusCode());
-                    context.completeNow();
-                })));
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals("trace", response.body()); // returns sorted list of unique words
+                assertEquals(200, response.statusCode());
+                context.completeNow();
+            })));
     }
 }
 

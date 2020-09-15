@@ -1,16 +1,11 @@
 package com.zandero.rest.test;
 
 import com.zandero.utils.StringUtils;
-import io.vertx.ext.web.FileUpload;
-import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.*;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Path("/upload")
 public class UploadFileRest {

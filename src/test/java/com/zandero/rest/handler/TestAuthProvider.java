@@ -1,10 +1,8 @@
 package com.zandero.rest.handler;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.auth.AuthProvider;
-import io.vertx.ext.auth.User;
+import io.vertx.ext.auth.*;
 
 public class TestAuthProvider implements AuthProvider {
 

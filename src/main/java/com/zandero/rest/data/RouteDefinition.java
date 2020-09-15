@@ -6,22 +6,16 @@ import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.rest.writer.HttpResponseWriter;
-import com.zandero.utils.ArrayUtils;
-import com.zandero.utils.Assert;
-import com.zandero.utils.StringUtils;
-import io.vertx.core.Future;
-import io.vertx.core.Promise;
+import com.zandero.utils.*;
+import io.vertx.core.*;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
-import javax.annotation.security.DenyAll;
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
@@ -898,7 +892,7 @@ public class RouteDefinition {
                    HttpMethod.TRACE.equals(method);
         // in theory supported but probably not a good idea to use GET requests with body
         // many servers/clients don't support this - Issue #59
-                   //||  HttpMethod.GET.equals(method);
+        //||  HttpMethod.GET.equals(method);
     }
 
     public boolean hasBodyParameter() {

@@ -31,9 +31,9 @@ public class MyComplexBean {
     @Override
     public String toString() {
         return "Header: " + header +
-                ", Path: " + path +
-                ", Query: " + query +
-                ", Cookie: " + cookie +
-                ", Matrix: " + enumValue;
+                   ", Path: " + path +
+                   ", Query: " + query +
+                   ", Cookie: " + cookie +
+                   ", Matrix: " + enumValue;
     }
 }

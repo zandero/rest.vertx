@@ -4,10 +4,8 @@ import com.zandero.rest.test.TestFormRest;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import io.vertx.junit5.*;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,8 +24,8 @@ class FormRestTest extends VertxTest {
         Router router = RestRouter.register(vertx, testRest);
 
         vertx.createHttpServer()
-                .requestHandler(router)
-                .listen(PORT);
+            .requestHandler(router)
+            .listen(PORT);
     }
 
     @Test
@@ -36,13 +34,13 @@ class FormRestTest extends VertxTest {
         String content = "username=value&password=another";
 
         client.post(PORT, HOST, "/form/login")
-                .as(BodyCodec.string())
-                .putHeader("content-type", "application/x-www-form-urlencoded")
-                .sendBuffer(Buffer.buffer(content), context.succeeding(response -> context.verify(() -> {
-                    assertEquals(200, response.statusCode());
-                    assertEquals("value:another", response.body());
-                    context.completeNow();
-                })));
+            .as(BodyCodec.string())
+            .putHeader("content-type", "application/x-www-form-urlencoded")
+            .sendBuffer(Buffer.buffer(content), context.succeeding(response -> context.verify(() -> {
+                assertEquals(200, response.statusCode());
+                assertEquals("value:another", response.body());
+                context.completeNow();
+            })));
     }
 
     @Test
@@ -51,25 +49,25 @@ class FormRestTest extends VertxTest {
         String content = "username=value&password=another";
 
         client.post(PORT, HOST, "/form/login")
-                .as(BodyCodec.string())
-                .putHeader("content-type", "multipart/form-data")
-                .sendBuffer(Buffer.buffer(content), context.succeeding(response -> context.verify(() -> {
-                    assertEquals(200, response.statusCode());
-                    assertEquals("value:another", response.body());
-                    context.completeNow();
-                })));
+            .as(BodyCodec.string())
+            .putHeader("content-type", "multipart/form-data")
+            .sendBuffer(Buffer.buffer(content), context.succeeding(response -> context.verify(() -> {
+                assertEquals(200, response.statusCode());
+                assertEquals("value:another", response.body());
+                context.completeNow();
+            })));
     }
 
     @Test
     void sendCookieTest(VertxTestContext context) {
 
         client.post(PORT, HOST, "/form/cookie")
-                .as(BodyCodec.string())
-                .putHeader("Cookie", "username=blabla")
-                .send(context.succeeding(response -> context.verify(() -> {
-                    assertEquals(200, response.statusCode());
-                    assertEquals("blabla", response.body());
-                    context.completeNow();
-                })));
+            .as(BodyCodec.string())
+            .putHeader("Cookie", "username=blabla")
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(200, response.statusCode());
+                assertEquals("blabla", response.body());
+                context.completeNow();
+            })));
     }
 }

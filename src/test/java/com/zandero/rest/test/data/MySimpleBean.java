@@ -1,7 +1,6 @@
 package com.zandero.rest.test.data;
 
-import com.zandero.rest.annotation.BodyParam;
-import com.zandero.rest.annotation.Raw;
+import com.zandero.rest.annotation.*;
 
 import javax.ws.rs.*;
 
@@ -39,13 +38,13 @@ public class MySimpleBean {
     @Override
     public String toString() {
         return "Header: " + header +
-                ", Path: " + path +
-                ", Query: " + query +
-                ", Cookie: " + cookie +
-                ", Matrix: " + enumValue +
-                ", one: " + oneValue +
+                   ", Path: " + path +
+                   ", Query: " + query +
+                   ", Cookie: " + cookie +
+                   ", Matrix: " + enumValue +
+                   ", one: " + oneValue +
 
-              //  ", Context: " + dummy.name + "/" + dummy.value +
-                ", Body: " + body;
+                   //  ", Context: " + dummy.name + "/" + dummy.value +
+                   ", Body: " + body;
     }
 }

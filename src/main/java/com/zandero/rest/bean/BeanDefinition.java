@@ -1,23 +1,15 @@
 package com.zandero.rest.bean;
 
-import com.zandero.rest.annotation.BodyParam;
-import com.zandero.rest.annotation.ContextReader;
-import com.zandero.rest.annotation.Raw;
-import com.zandero.rest.annotation.RequestReader;
-import com.zandero.rest.data.MethodParameter;
-import com.zandero.rest.data.ParameterType;
+import com.zandero.rest.annotation.*;
+import com.zandero.rest.data.*;
 import com.zandero.utils.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.*;
+import java.util.*;
 
 import static io.vertx.core.cli.impl.ReflectionUtils.isSetter;
 
@@ -60,11 +52,11 @@ public class BeanDefinition {
         }
     }
 
-    private void init (Constructor<?> constructor) {
+    private void init(Constructor<?> constructor) {
         Annotation[][] paramAnnotations = constructor.getParameterAnnotations();
         Class<?>[] types = constructor.getParameterTypes();
 
-        for (int index = 0; index < paramAnnotations.length; index ++) {
+        for (int index = 0; index < paramAnnotations.length; index++) {
             Annotation[] annotations = paramAnnotations[index];
             Class<?> type = types[index];
             MethodParameter paramValues = getValueFromAnnotations(annotations, type, index);
@@ -98,7 +90,7 @@ public class BeanDefinition {
             }
 
             if (annotation instanceof MatrixParam) {
-                String value =  ((MatrixParam) annotation).value();
+                String value = ((MatrixParam) annotation).value();
                 parameter = getNewParameter(parameter, ParameterType.matrix, value, dataType, index);
             }
 
@@ -123,11 +115,11 @@ public class BeanDefinition {
                 }
 
                 if (annotation instanceof ContextReader) {
-                    log.warn("Can't provision " + parameter.getName() +" as ContextReader to: '" + dataType.getTypeName() + "'");
+                    log.warn("Can't provision " + parameter.getName() + " as ContextReader to: '" + dataType.getTypeName() + "'");
                 }
 
                 if (annotation instanceof RequestReader) {
-                    log.warn("Can't provision " + parameter.getName() +" as RequestReader to: '" + dataType.getTypeName() + "'");
+                    log.warn("Can't provision " + parameter.getName() + " as RequestReader to: '" + dataType.getTypeName() + "'");
                 }
             }
         }
@@ -141,7 +133,7 @@ public class BeanDefinition {
                                             Class<?> dataType,
                                             int index) {
         if (parameter != null) {
-            throw new IllegalArgumentException("Parameter: " + parameter.getName() +"  already defined with: " + parameter.getType());
+            throw new IllegalArgumentException("Parameter: " + parameter.getName() + "  already defined with: " + parameter.getType());
         }
         return new MethodParameter(type, value, dataType, index);
     }

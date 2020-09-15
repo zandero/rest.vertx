@@ -1,26 +1,21 @@
 package com.zandero.rest.data;
 
-import com.zandero.rest.exception.ClassFactoryException;
-import com.zandero.rest.exception.WebApplicationExceptionHandler;
-import com.zandero.rest.reader.DummyBodyReader;
-import com.zandero.rest.reader.IntegerBodyReader;
+import com.zandero.rest.exception.*;
+import com.zandero.rest.reader.*;
 import com.zandero.rest.test.data.*;
 import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.Pair;
-import io.vertx.core.http.Cookie;
-import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.*;
 import io.vertx.ext.auth.AbstractUser;
 import io.vertx.ext.web.RoutingContext;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import javax.ws.rs.NotAllowedException;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import java.lang.reflect.Type;
 
-import static com.zandero.rest.data.ClassFactory.constructViaConstructor;
-import static com.zandero.rest.data.ClassFactory.constructViaMethod;
+import static com.zandero.rest.data.ClassFactory.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -88,7 +83,7 @@ class ClassFactoryTest {
     void convertFail() {
 
         ClassFactoryException e = assertThrows(ClassFactoryException.class,
-                () -> ClassFactory.stringToPrimitiveType("A", Integer.class));
+                                               () -> ClassFactory.stringToPrimitiveType("A", Integer.class));
         assertEquals("Failed to convert value: 'A', to primitive type: java.lang.Integer", e.getMessage());
     }
 
@@ -181,7 +176,7 @@ class ClassFactoryTest {
         Mockito.when(request.query()).thenReturn("query=1");
         Mockito.when(request.getCookie("chocolate")).thenReturn(Cookie.cookie("chocolate", "tasty"));
 
-        MyComplexBean instance = (MyComplexBean)ClassFactory.newInstanceOf(MyComplexBean.class, context);
+        MyComplexBean instance = (MyComplexBean) ClassFactory.newInstanceOf(MyComplexBean.class, context);
         assertNotNull(instance);
         assertEquals("Header: true, Path: SomePath, Query: 1, Cookie: tasty, Matrix: null", instance.toString());
     }
@@ -200,8 +195,8 @@ class ClassFactoryTest {
 
         ClassFactoryException ex = assertThrows(ClassFactoryException.class, () -> ClassFactory.newInstanceOf(MyComplexBean.class, context));
         assertEquals("Failed to instantiate class, with constructor: " +
-                        "com.zandero.rest.test.data.MyComplexBean(String arg0=SomePath, boolean arg1=BLA, int arg2=A, String arg3=tasty). " +
-                        "Failed to convert value: 'A', to primitive type: int",
-                ex.getMessage());
+                         "com.zandero.rest.test.data.MyComplexBean(String arg0=SomePath, boolean arg1=BLA, int arg2=A, String arg3=tasty). " +
+                         "Failed to convert value: 'A', to primitive type: int",
+                     ex.getMessage());
     }
 }

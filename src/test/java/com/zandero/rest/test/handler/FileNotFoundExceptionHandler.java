@@ -1,10 +1,7 @@
 package com.zandero.rest.test.handler;
 
 import com.zandero.rest.exception.ExceptionHandler;
-import com.zandero.rest.test.exceptions.InheritedBaseException;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.http.*;
 
 import java.io.FileNotFoundException;
 

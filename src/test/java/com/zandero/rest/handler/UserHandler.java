@@ -12,18 +12,18 @@ import javax.inject.Inject;
  */
 public class UserHandler implements ContextProvider<User> {
 
-	@Inject
-	UserService users;
+    @Inject
+    UserService users;
 
-	@Override
-	public User provide(HttpServerRequest request) {
-		String token = request.getHeader("X-Token");
+    @Override
+    public User provide(HttpServerRequest request) {
+        String token = request.getHeader("X-Token");
 
-		// set user ...
-		if (token != null) {
-			return users.getUser(token);
-		}
+        // set user ...
+        if (token != null) {
+            return users.getUser(token);
+        }
 
-		return null;
-	}
+        return null;
+    }
 }

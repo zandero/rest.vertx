@@ -6,10 +6,8 @@ import com.zandero.utils.extra.JsonUtils;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import io.vertx.junit5.*;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,8 +22,8 @@ class RouteWithHeaderTest extends VertxTest {
 
         Router router = RestRouter.register(vertx, TestHeaderRest.class);
         vertx.createHttpServer()
-                .requestHandler(router)
-                .listen(PORT);
+            .requestHandler(router)
+            .listen(PORT);
     }
 
     @Test
@@ -35,12 +33,12 @@ class RouteWithHeaderTest extends VertxTest {
         String json = JsonUtils.toJson(dummy);
 
         client.get(PORT, HOST, "/header/dummy").as(BodyCodec.string())
-                .putHeader("dummy", json)
-                .send(context.succeeding(response -> context.verify(() -> {
-                    assertEquals(200, response.statusCode());
-                    assertEquals("one=dude", response.body());
-                    context.completeNow();
-                })));
+            .putHeader("dummy", json)
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(200, response.statusCode());
+                assertEquals("one=dude", response.body());
+                context.completeNow();
+            })));
     }
 
     @Test
@@ -50,25 +48,25 @@ class RouteWithHeaderTest extends VertxTest {
 
         String json = JsonUtils.toJson(dummy);
 
-        client.post(PORT, HOST,"/header/dummy").as(BodyCodec.string())
-                .putHeader("token", "doing")
-                .putHeader("other", "things")
-                .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)), context.succeeding(response -> context.verify(() -> {
-                    assertEquals(200, response.statusCode());
-                    assertEquals("one=dude, doing things", response.body());
-                    context.completeNow();
-                })));
+        client.post(PORT, HOST, "/header/dummy").as(BodyCodec.string())
+            .putHeader("token", "doing")
+            .putHeader("other", "things")
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)), context.succeeding(response -> context.verify(() -> {
+                assertEquals(200, response.statusCode());
+                assertEquals("one=dude, doing things", response.body());
+                context.completeNow();
+            })));
     }
 
     @Test
     void npeReaderTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/header/npe").as(BodyCodec.string())
-                .putHeader("dummy", "")
-                .send(context.succeeding(response -> context.verify(() -> {
-                    assertEquals("OH SHIT!", response.body());
-                    assertEquals(500, response.statusCode());
-                    context.completeNow();
-                })));
+            .putHeader("dummy", "")
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals("OH SHIT!", response.body());
+                assertEquals(500, response.statusCode());
+                context.completeNow();
+            })));
     }
 }

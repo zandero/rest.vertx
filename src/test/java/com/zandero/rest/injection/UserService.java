@@ -7,5 +7,5 @@ import com.zandero.rest.test.data.SimulatedUser;
  */
 public interface UserService {
 
-	SimulatedUser getUser(String token);
+    SimulatedUser getUser(String token);
 }

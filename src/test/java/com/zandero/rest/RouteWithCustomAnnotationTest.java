@@ -1,17 +1,14 @@
 package com.zandero.rest;
 
 import com.google.inject.Module;
-import com.zandero.rest.injection.GuiceAdminModule;
-import com.zandero.rest.injection.GuiceInjectionProvider;
+import com.zandero.rest.injection.*;
 import com.zandero.rest.test.TestIssue55Rest;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.codec.BodyCodec;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import io.vertx.junit5.*;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

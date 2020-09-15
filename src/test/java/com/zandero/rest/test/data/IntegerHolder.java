@@ -5,10 +5,10 @@ package com.zandero.rest.test.data;
  */
 public class IntegerHolder {
 
-	public int value;
+    public int value;
 
-	public IntegerHolder(int value) {
+    public IntegerHolder(int value) {
 
-		this.value = value;
-	}
+        this.value = value;
+    }
 }

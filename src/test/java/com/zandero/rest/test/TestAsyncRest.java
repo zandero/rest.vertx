@@ -1,18 +1,14 @@
 package com.zandero.rest.test;
 
 import com.zandero.rest.annotation.ResponseWriter;
-import com.zandero.rest.test.handler.AsyncService;
-import com.zandero.rest.test.handler.DummyWriter;
-import com.zandero.rest.test.handler.FutureDummyWriter;
+import com.zandero.rest.test.handler.*;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.*;
 import io.vertx.core.http.HttpServerResponse;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -21,8 +17,8 @@ import java.util.concurrent.CompletableFuture;
 @Path("async")
 public class TestAsyncRest {
 
-    private AsyncService spaceService = new AsyncService();
-    private WorkerExecutor executor = Vertx.vertx().createSharedWorkerExecutor("shared");
+    private final AsyncService spaceService = new AsyncService();
+    private final WorkerExecutor executor = Vertx.vertx().createSharedWorkerExecutor("shared");
 
     @GET
     @Path("call_future")
@@ -57,7 +53,7 @@ public class TestAsyncRest {
     @Produces(MediaType.APPLICATION_JSON)
     @ResponseWriter(FutureDummyWriter.class)
     public CompletableFuture<Dummy> complete(@Context Vertx vertx, @Context HttpServerResponse response)
-            throws InterruptedException {
+        throws InterruptedException {
 
         System.out.println(Thread.currentThread().getName() + " REST invoked");
 

@@ -2,10 +2,7 @@ package com.zandero.rest.test;
 
 import com.zandero.rest.annotation.AuditLog;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 @Path("/system/user")

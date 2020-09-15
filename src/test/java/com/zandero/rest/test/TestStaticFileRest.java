@@ -3,9 +3,7 @@ package com.zandero.rest.test;
 import com.zandero.rest.annotation.ResponseWriter;
 import com.zandero.rest.writer.FileResponseWriter;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 
 /**
  *
@@ -13,11 +11,11 @@ import javax.ws.rs.PathParam;
 @Path("docs")
 public class TestStaticFileRest {
 
-	@GET
-	@Path("/{path:.*}")
-	@ResponseWriter(FileResponseWriter.class)
-	public String serveDocFile(@PathParam("path") String path) {
+    @GET
+    @Path("/{path:.*}")
+    @ResponseWriter(FileResponseWriter.class)
+    public String serveDocFile(@PathParam("path") String path) {
 
-		return "html/" + path;
-	}
+        return "html/" + path;
+    }
 }

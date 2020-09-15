@@ -1,12 +1,8 @@
 package com.zandero.rest.exception;
 
-import com.zandero.rest.test.exceptions.BaseException;
-import com.zandero.rest.test.exceptions.InheritedBaseException;
-import com.zandero.rest.test.exceptions.InheritedFromInheritedException;
+import com.zandero.rest.test.exceptions.*;
 import com.zandero.rest.test.handler.*;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import javax.ws.rs.WebApplicationException;
 
@@ -97,8 +93,8 @@ class ExceptionHandlerFactoryTest {
     void findMatchingInheritedInheritedInstanceHandler() throws Exception {
 
         factory.register(new InheritedFromInheritedExceptionHandler(),
-                new InheritedBaseExceptionHandler(),
-                new BaseExceptionHandler());
+                         new InheritedBaseExceptionHandler(),
+                         new BaseExceptionHandler());
 
         // find it
         ExceptionHandler found = factory.getExceptionHandler(BaseException.class, null, null, null);
@@ -118,8 +114,8 @@ class ExceptionHandlerFactoryTest {
     void findMatchingHandlerWithDefinition() throws Exception {
 
         factory.register(new InheritedFromInheritedExceptionHandler(),
-                new InheritedBaseExceptionHandler(),
-                new BaseExceptionHandler());
+                         new InheritedBaseExceptionHandler(),
+                         new BaseExceptionHandler());
 
         // definition should take over
         Class<? extends ExceptionHandler>[] defined = new Class[1];
@@ -155,7 +151,7 @@ class ExceptionHandlerFactoryTest {
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> factory.register(new MyExceptionHandler()));
         assertEquals("Exception handler for: com.zandero.rest.test.handler.MyExceptionClass " +
-                "already registered with: com.zandero.rest.test.handler.MyExceptionHandler", e.getMessage());
+                         "already registered with: com.zandero.rest.test.handler.MyExceptionHandler", e.getMessage());
     }
 
     @Test
@@ -164,7 +160,7 @@ class ExceptionHandlerFactoryTest {
         factory.register(new MyExceptionHandler());
         Exception e = assertThrows(IllegalArgumentException.class, () -> factory.register(MyExceptionHandler.class));
         assertEquals("Exception handler for: com.zandero.rest.test.handler.MyExceptionClass " +
-                "already registered with: com.zandero.rest.test.handler.MyExceptionHandler", e.getMessage());
+                         "already registered with: com.zandero.rest.test.handler.MyExceptionHandler", e.getMessage());
     }
 
     @Test
@@ -173,7 +169,7 @@ class ExceptionHandlerFactoryTest {
         factory.register(new IllegalArgumentExceptionHandler());
         Exception e = assertThrows(IllegalArgumentException.class, () -> factory.register(ContextExceptionHandler.class));
         assertEquals("Exception handler for: java.lang.IllegalArgumentException " +
-                "already registered with: com.zandero.rest.test.handler.IllegalArgumentExceptionHandler", e.getMessage());
+                         "already registered with: com.zandero.rest.test.handler.IllegalArgumentExceptionHandler", e.getMessage());
     }
 
     @Test
@@ -182,6 +178,6 @@ class ExceptionHandlerFactoryTest {
         factory.register(ContextExceptionHandler.class);
         Exception e = assertThrows(IllegalArgumentException.class, () -> factory.register(new IllegalArgumentExceptionHandler()));
         assertEquals("Exception handler for: java.lang.IllegalArgumentException " +
-                "already registered with: com.zandero.rest.test.handler.ContextExceptionHandler", e.getMessage());
+                         "already registered with: com.zandero.rest.test.handler.ContextExceptionHandler", e.getMessage());
     }
 }

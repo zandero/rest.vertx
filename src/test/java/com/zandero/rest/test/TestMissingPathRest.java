@@ -7,9 +7,9 @@ import javax.ws.rs.GET;
  */
 public class TestMissingPathRest {
 
-	@GET
-	public String echo() {
+    @GET
+    public String echo() {
 
-		return "not possible";
-	}
+        return "not possible";
+    }
 }

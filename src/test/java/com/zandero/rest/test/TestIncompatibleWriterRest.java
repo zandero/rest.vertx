@@ -3,8 +3,7 @@ package com.zandero.rest.test;
 import com.zandero.rest.annotation.ResponseWriter;
 import com.zandero.rest.writer.TestDummyWriter;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
 
 /**
  *
@@ -12,11 +11,11 @@ import javax.ws.rs.Path;
 @Path("/incompatible")
 public class TestIncompatibleWriterRest {
 
-	@GET
-	@Path("ouch")
-	@ResponseWriter(TestDummyWriter.class)
-	public String returnOuch() {
+    @GET
+    @Path("ouch")
+    @ResponseWriter(TestDummyWriter.class)
+    public String returnOuch() {
 
-		return "should not work!";
-	}
+        return "should not work!";
+    }
 }

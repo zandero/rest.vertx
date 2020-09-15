@@ -7,17 +7,13 @@ import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import io.vertx.junit5.*;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(VertxExtension.class)
 class RouteWithEventsTest extends VertxTest {
@@ -32,8 +28,8 @@ class RouteWithEventsTest extends VertxTest {
         Router router = RestRouter.register(vertx, TestEventsRest.class);
 
         vertx.createHttpServer()
-                .requestHandler(router)
-                .listen(PORT);
+            .requestHandler(router)
+            .listen(PORT);
     }
 
     @Test
@@ -48,10 +44,10 @@ class RouteWithEventsTest extends VertxTest {
         });
 
         client.get(PORT, HOST, "/events/ok").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() -> {
-                    assertEquals(200, response.statusCode());
-                    context.completeNow();
-                })));
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(200, response.statusCode());
+                context.completeNow();
+            })));
 
         Thread.sleep(1000);
         assertTrue(messageHasBeenSend.get());
@@ -66,10 +62,10 @@ class RouteWithEventsTest extends VertxTest {
         });
 
         client.get(PORT, HOST, "/events/error/301").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() -> {
-                    assertEquals(301, response.statusCode());
-                    context.completeNow();
-                })));
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(301, response.statusCode());
+                context.completeNow();
+            })));
 
         Thread.sleep(1000);
         assertTrue(messageHasBeenSend.get());
@@ -84,10 +80,10 @@ class RouteWithEventsTest extends VertxTest {
         });
 
         client.get(PORT, HOST, "/events/error/400").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() -> {
-                    assertEquals(400, response.statusCode());
-                    context.completeNow();
-                })));
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(400, response.statusCode());
+                context.completeNow();
+            })));
 
         Thread.sleep(1000);
         assertTrue(messageHasBeenSend.get());

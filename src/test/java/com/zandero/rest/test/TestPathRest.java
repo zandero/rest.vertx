@@ -1,8 +1,6 @@
 package com.zandero.rest.test;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 
 /**
  *
@@ -10,17 +8,17 @@ import javax.ws.rs.PathParam;
 @Path("/{root}")
 public class TestPathRest {
 
-	@Path("/echo/{param}")
-	@GET
-	public String echo(@PathParam("root") String rootPath, @PathParam("param") String param) {
+    @Path("/echo/{param}")
+    @GET
+    public String echo(@PathParam("root") String rootPath, @PathParam("param") String param) {
 
-		return rootPath + param;
-	}
+        return rootPath + param;
+    }
 
-	// Root only
-	@GET
-	public String echoRoot(@PathParam("root") String rootPath) {
+    // Root only
+    @GET
+    public String echoRoot(@PathParam("root") String rootPath) {
 
-		return rootPath;
-	}
+        return rootPath;
+    }
 }

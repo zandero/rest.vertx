@@ -3,15 +3,9 @@ package com.zandero.rest.test;
 import com.zandero.rest.annotation.RouteOrder;
 import io.vertx.ext.auth.User;
 
-import javax.annotation.security.DenyAll;
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
+import javax.annotation.security.*;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 
 /**
  * Test access based on User context / roles
@@ -19,59 +13,59 @@ import javax.ws.rs.core.MediaType;
 @Path("/private")
 public class TestAuthorizationRest {
 
-	@GET
-	@Path("/all")
-	@Produces(MediaType.TEXT_PLAIN)
-	@PermitAll()
-	public String all() {
+    @GET
+    @Path("/all")
+    @Produces(MediaType.TEXT_PLAIN)
+    @PermitAll()
+    public String all() {
 
-		return "all";
-	}
+        return "all";
+    }
 
-	@GET
-	@Path("/nobody")
-	@Produces(MediaType.TEXT_PLAIN)
-	@DenyAll()
-	public String nobody() {
+    @GET
+    @Path("/nobody")
+    @Produces(MediaType.TEXT_PLAIN)
+    @DenyAll()
+    public String nobody() {
 
-		return "nobody";
-	}
+        return "nobody";
+    }
 
-	@GET
-	@Path("/user")
-	@Produces(MediaType.TEXT_PLAIN)
-	@RolesAllowed("user")
-	public String user() {
+    @GET
+    @Path("/user")
+    @Produces(MediaType.TEXT_PLAIN)
+    @RolesAllowed("user")
+    public String user() {
 
-		return "user";
-	}
+        return "user";
+    }
 
-	@POST
-	@Path("/user")
-	@Produces(MediaType.TEXT_PLAIN)
-	@RolesAllowed("user")
-	//@RouteOrder(10)
-	public String setTest(String test) {
+    @POST
+    @Path("/user")
+    @Produces(MediaType.TEXT_PLAIN)
+    @RolesAllowed("user")
+    //@RouteOrder(10)
+    public String setTest(String test) {
 
-		return test;
-	}
+        return test;
+    }
 
-	@GET
-	@Path("/admin")
-	@Produces(MediaType.TEXT_PLAIN)
-	@RolesAllowed("admin")
-	@RouteOrder(20)
-	public String admin() {
+    @GET
+    @Path("/admin")
+    @Produces(MediaType.TEXT_PLAIN)
+    @RolesAllowed("admin")
+    @RouteOrder(20)
+    public String admin() {
 
-		return "admin";
-	}
+        return "admin";
+    }
 
-	@GET
-	@Path("/other")
-	@Produces(MediaType.TEXT_PLAIN)
-	@RolesAllowed({"one", "two"})
-	public String oneOrTwo(@Context User user) {
+    @GET
+    @Path("/other")
+    @Produces(MediaType.TEXT_PLAIN)
+    @RolesAllowed({"one", "two"})
+    public String oneOrTwo(@Context User user) {
 
-		return user.principal().encode();
-	}
+        return user.principal().encode();
+    }
 }

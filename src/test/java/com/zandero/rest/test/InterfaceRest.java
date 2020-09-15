@@ -11,8 +11,8 @@ import javax.ws.rs.*;
 @PermitAll
 public interface InterfaceRest {
 
-	@GET
-	@Consumes("application/json")
-	@Path("echo")
-	String echo(@QueryParam("name") String name);
+    @GET
+    @Consumes("application/json")
+    @Path("echo")
+    String echo(@QueryParam("name") String name);
 }

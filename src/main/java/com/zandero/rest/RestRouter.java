@@ -1,47 +1,27 @@
 package com.zandero.rest;
 
-import com.zandero.rest.bean.BeanProvider;
-import com.zandero.rest.bean.DefaultBeanProvider;
-import com.zandero.rest.context.ContextProvider;
-import com.zandero.rest.context.ContextProviderFactory;
+import com.zandero.rest.bean.*;
+import com.zandero.rest.context.*;
 import com.zandero.rest.data.*;
 import com.zandero.rest.events.RestEventExecutor;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
-import com.zandero.rest.reader.ReaderFactory;
-import com.zandero.rest.reader.ValueReader;
-import com.zandero.rest.writer.GenericResponseWriter;
-import com.zandero.rest.writer.HttpResponseWriter;
-import com.zandero.rest.writer.NotFoundResponseWriter;
-import com.zandero.rest.writer.WriterFactory;
+import com.zandero.rest.reader.*;
+import com.zandero.rest.writer.*;
 import com.zandero.utils.Assert;
 import io.vertx.core.*;
 import io.vertx.core.http.HttpHeaders;
-import io.vertx.core.http.HttpMethod;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.http.*;
 import io.vertx.ext.auth.User;
-import io.vertx.ext.web.Route;
-import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.Session;
-import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.CorsHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.vertx.ext.web.*;
+import io.vertx.ext.web.handler.*;
+import org.slf4j.*;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
+import javax.validation.*;
 import javax.validation.executable.ExecutableValidator;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import javax.ws.rs.core.*;
+import java.lang.reflect.*;
+import java.util.*;
 
 /**
  * Builds up a vert.x route based on JAX-RS annotation provided in given class

@@ -6,10 +6,8 @@ import com.zandero.utils.extra.JsonUtils;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import io.vertx.junit5.*;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,8 +23,8 @@ class RouteWithDeleteTest extends VertxTest {
         Router router = RestRouter.register(vertx, TestDeleteRest.class);
 
         vertx.createHttpServer()
-                .requestHandler(router)
-                .listen(PORT);
+            .requestHandler(router)
+            .listen(PORT);
     }
 
     @Test
@@ -34,11 +32,11 @@ class RouteWithDeleteTest extends VertxTest {
 
         Dummy json = new Dummy("test", "me");
         client.delete(PORT, HOST, "/delete/it/123").as(BodyCodec.string())
-                .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)), context.succeeding(response -> context.verify(() -> {
-                    assertEquals(200, response.statusCode());
-                    assertEquals("<custom>Received-test=Received-me</custom>", response.body());
-                    context.completeNow();
-                })));
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)), context.succeeding(response -> context.verify(() -> {
+                assertEquals(200, response.statusCode());
+                assertEquals("<custom>Received-test=Received-me</custom>", response.body());
+                context.completeNow();
+            })));
     }
 
     @Test

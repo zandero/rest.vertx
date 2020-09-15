@@ -8,13 +8,13 @@ import com.zandero.rest.exception.ClassFactoryException;
  */
 public class GenericValueReader implements ValueReader<Object> {
 
-	@Override
-	public Object read(String value, Class<Object> type) {
+    @Override
+    public Object read(String value, Class<Object> type) {
 
-		try {
-			return ClassFactory.constructType(type, value);
-		} catch (ClassFactoryException e) {
-			throw new IllegalArgumentException(e.getMessage());
-		}
-	}
+        try {
+            return ClassFactory.constructType(type, value);
+        } catch (ClassFactoryException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
 }

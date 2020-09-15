@@ -1,25 +1,19 @@
 package com.zandero.rest;
 
 import com.zandero.rest.reader.DummyBodyReader;
-import com.zandero.rest.test.TestPostRest;
-import com.zandero.rest.test.TestRegExRest;
-import com.zandero.rest.test.TestRest;
+import com.zandero.rest.test.*;
 import com.zandero.rest.test.data.TokenProvider;
-import com.zandero.rest.test.handler.ContextExceptionHandler;
-import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
-import com.zandero.rest.test.handler.MyExceptionHandler;
+import com.zandero.rest.test.handler.*;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.rest.writer.TestCustomWriter;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.junit5.VertxExtension;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.MediaType;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(VertxExtension.class)
 public class RestBuilderTest extends VertxTest {

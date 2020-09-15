@@ -1,11 +1,8 @@
 package com.zandero.rest.test;
 
-import com.zandero.rest.test.data.MyEnum;
-import com.zandero.rest.test.data.MyOtherEnum;
+import com.zandero.rest.test.data.*;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 
 /**
  *

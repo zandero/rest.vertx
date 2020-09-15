@@ -6,10 +6,8 @@ import com.zandero.utils.extra.JsonUtils;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import io.vertx.junit5.*;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,8 +25,8 @@ class DeleteWithBodyTest extends VertxTest {
         Router router = RestRouter.register(vertx, TestPostRest.class);
 
         vertx.createHttpServer()
-                .requestHandler(router)
-                .listen(PORT);
+            .requestHandler(router)
+            .listen(PORT);
     }
 
     @Test
@@ -39,13 +37,13 @@ class DeleteWithBodyTest extends VertxTest {
         String json = JsonUtils.toJson(dummy);
 
         client.delete(PORT, HOST, "/post/json")
-                .as(BodyCodec.string())
-                .putHeader("Content-Type", "application/json")
-                .sendBuffer(Buffer.buffer(json), context.succeeding(response -> context.verify(() -> {
-                    assertEquals(200, response.statusCode());
-                    assertEquals("application/json", response.getHeader("Content-Type"));
-                    assertEquals("<custom>Received-hello=Received-world</custom>", response.body());
-                    context.completeNow();
-                })));
+            .as(BodyCodec.string())
+            .putHeader("Content-Type", "application/json")
+            .sendBuffer(Buffer.buffer(json), context.succeeding(response -> context.verify(() -> {
+                assertEquals(200, response.statusCode());
+                assertEquals("application/json", response.getHeader("Content-Type"));
+                assertEquals("<custom>Received-hello=Received-world</custom>", response.body());
+                context.completeNow();
+            })));
     }
 }

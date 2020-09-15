@@ -1,13 +1,9 @@
 package com.zandero.rest;
 
-import com.zandero.rest.data.MethodParameter;
-import com.zandero.rest.data.ParameterType;
-import com.zandero.rest.data.RouteDefinition;
+import com.zandero.rest.data.*;
 import com.zandero.utils.Assert;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -129,7 +125,7 @@ public final class AnnotationProcessor {
     }
 
     private static RouteDefinition getClassDefinition(Map<RouteDefinition, Method> out) {
-        for (RouteDefinition def: out.keySet()) {
+        for (RouteDefinition def : out.keySet()) {
             if (out.get(def) == null) {
                 return def;
             }

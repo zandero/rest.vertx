@@ -3,10 +3,8 @@ package com.zandero.rest;
 import com.zandero.rest.test.TestOrderRest;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import io.vertx.junit5.*;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,18 +21,18 @@ class RouteOrderTest extends VertxTest {
 
         Router router = RestRouter.register(vertx, testRest);
         vertx.createHttpServer()
-                .requestHandler(router)
-                .listen(PORT);
+            .requestHandler(router)
+            .listen(PORT);
     }
 
     @Test
     void rootWithRootPathTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/order/test").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() -> {
-                    assertEquals(200, response.statusCode());
-                    assertEquals("first", response.body());
-                    context.completeNow();
-                })));
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(200, response.statusCode());
+                assertEquals("first", response.body());
+                context.completeNow();
+            })));
     }
 }

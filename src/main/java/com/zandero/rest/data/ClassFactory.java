@@ -1,21 +1,14 @@
 package com.zandero.rest.data;
 
-import com.zandero.rest.annotation.NoCache;
-import com.zandero.rest.annotation.SuppressCheck;
+import com.zandero.rest.annotation.*;
 import com.zandero.rest.bean.BeanDefinition;
 import com.zandero.rest.context.ContextProviderFactory;
-import com.zandero.rest.exception.ClassFactoryException;
-import com.zandero.rest.exception.ContextException;
+import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
-import com.zandero.utils.ArrayUtils;
-import com.zandero.utils.Assert;
-import com.zandero.utils.Pair;
-import com.zandero.utils.StringUtils;
+import com.zandero.utils.*;
 import io.vertx.ext.web.RoutingContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
-import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
+import org.slf4j.*;
+import sun.reflect.generics.reflectiveObjects.*;
 
 import javax.ws.rs.core.MediaType;
 import java.lang.reflect.*;
@@ -28,12 +21,12 @@ public abstract class ClassFactory<T> {
 
     private final static Logger log = LoggerFactory.getLogger(ClassFactory.class);
 
-    private static Set<String> INJECTION_ANNOTATIONS = ArrayUtils.toSet("Inject", "Injection", "InjectionProvider");
+    private static final Set<String> INJECTION_ANNOTATIONS = ArrayUtils.toSet("Inject", "Injection", "InjectionProvider");
 
     /**
      * map of nullable to primitive type
      */
-    private static Map<String, Class<?>> NULLABLE_PRIMITIVE;
+    private static final Map<String, Class<?>> NULLABLE_PRIMITIVE;
 
     static {
         NULLABLE_PRIMITIVE = new HashMap<>();
@@ -51,22 +44,22 @@ public abstract class ClassFactory<T> {
      * map of media type associated with class type (to be instantiated)
      */
     protected Map<String, Class<? extends T>> mediaTypes = new LinkedHashMap<>();
-    private static Class<?>[] SIMPLE_TYPE = new Class[]{
-            String.class,
-            int.class, Integer.class,
-            boolean.class, Boolean.class,
-            byte.class, Byte.class,
-            char.class, Character.class,
-            short.class, Short.class,
-            long.class, Long.class,
-            float.class, Float.class,
-            double.class, Double.class
+    private static final Class<?>[] SIMPLE_TYPE = new Class[]{
+        String.class,
+        int.class, Integer.class,
+        boolean.class, Boolean.class,
+        byte.class, Byte.class,
+        char.class, Character.class,
+        short.class, Short.class,
+        long.class, Long.class,
+        float.class, Float.class,
+        double.class, Double.class
     };
 
     /**
      * Cache of class instances
      */
-    private Map<String, T> cache = new HashMap<>();
+    private final Map<String, T> cache = new HashMap<>();
 
     /**
      * map of class associated with class type (to be instantiated)
@@ -105,7 +98,7 @@ public abstract class ClassFactory<T> {
     public T getClassInstance(Class<? extends T> clazz,
                               InjectionProvider provider,
                               RoutingContext context) throws ClassFactoryException,
-            ContextException {
+                                                                 ContextException {
 
         if (clazz == null) {
             return null;
@@ -160,11 +153,11 @@ public abstract class ClassFactory<T> {
                 instance = provider.getInstance(clazz);
                 if (instance == null) {
                     throw new ClassFactoryException("Failed to getInstance class of type: " + clazz.getName() + ", with injector: " +
-                            provider.getClass().getName() + "!", null);
+                                                        provider.getClass().getName() + "!", null);
                 }
             } catch (Throwable e) {
                 throw new ClassFactoryException("Failed to getInstance class of type: " + clazz.getName() + ", with injector: " +
-                        provider.getClass().getName() + "!", e);
+                                                    provider.getClass().getName() + "!", e);
             }
         }
 
@@ -258,7 +251,7 @@ public abstract class ClassFactory<T> {
                     return constructor.newInstance(params);
                 } catch (IllegalAccessException | InstantiationException | InvocationTargetException | ClassFactoryException e) {
                     String error = "Failed to instantiate class, with constructor: " +
-                            describeConstructor(constructor, values) + ". " + e.getMessage();
+                                       describeConstructor(constructor, values) + ". " + e.getMessage();
                     log.error(error, e);
 
                     throw new ClassFactoryException(error, e);
@@ -274,7 +267,7 @@ public abstract class ClassFactory<T> {
         assert constructor != null;
         StringBuilder builder = new StringBuilder();
         builder.append(constructor.getName())
-                .append("(");
+            .append("(");
 
         if (constructor.getParameterCount() > 0) {
             for (int i = 0; i < constructor.getParameterCount(); i++) {
@@ -283,10 +276,10 @@ public abstract class ClassFactory<T> {
 
                 Parameter param = constructor.getParameters()[i];
                 builder.append(param.getType().getSimpleName())
-                        .append(" ")
-                        .append(param.getName())
-                        .append("=")
-                        .append(paramValue);
+                    .append(" ")
+                    .append(param.getName())
+                    .append("=")
+                    .append(paramValue);
 
                 if (i + 1 < constructor.getParameterCount()) {
                     builder.append(", ");
@@ -382,8 +375,8 @@ public abstract class ClassFactory<T> {
         if (checkCompatibility(instance.getClass())) {
             Type expected = getGenericType(instance.getClass());
             checkIfCompatibleType(aClass,
-                    expected,
-                    "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + instance.getClass() + "'!");
+                                  expected,
+                                  "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + instance.getClass() + "'!");
         }
 
         cache.put(aClass.getName(), instance);
@@ -395,7 +388,7 @@ public abstract class ClassFactory<T> {
                     InjectionProvider provider,
                     RoutingContext routeContext,
                     MediaType[] mediaTypes) throws ClassFactoryException,
-            ContextException {
+                                                       ContextException {
 
         Class<? extends T> clazz = byDefinition;
 
@@ -434,7 +427,7 @@ public abstract class ClassFactory<T> {
     }
 
     public T get(String mediaType, RoutingContext routeContext) throws ClassFactoryException,
-            ContextException {
+                                                                           ContextException {
 
         Class<? extends T> clazz = get(MediaTypeHelper.valueOf(mediaType));
         return getClassInstance(clazz, null, routeContext);
@@ -639,8 +632,8 @@ public abstract class ClassFactory<T> {
 
 
         throw new ClassFactoryException("Could not construct: " + type + " with default value: '" + fromValue + "', " +
-                "must provide String only or primitive type constructor, " +
-                "static fromString() or valueOf() methods!", null);
+                                            "must provide String only or primitive type constructor, " +
+                                            "static fromString() or valueOf() methods!", null);
     }
 
     private static <T> boolean isSimpleType(Class<T> type) {

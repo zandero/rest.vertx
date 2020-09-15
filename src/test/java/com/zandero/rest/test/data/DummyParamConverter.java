@@ -10,14 +10,14 @@ import javax.ws.rs.ext.ParamConverter;
  */
 public class DummyParamConverter implements ParamConverter<Dummy> {
 
-	@Override
-	public Dummy fromString(String value) {
+    @Override
+    public Dummy fromString(String value) {
 
-		return JsonUtils.convert(value, Dummy.class);
-	}
+        return JsonUtils.convert(value, Dummy.class);
+    }
 
-	@Override
-	public String toString(Dummy value) {
-		return value.toString();
-	}
+    @Override
+    public String toString(Dummy value) {
+        return value.toString();
+    }
 }

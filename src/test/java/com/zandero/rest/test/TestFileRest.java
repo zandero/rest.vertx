@@ -1,8 +1,6 @@
 package com.zandero.rest.test;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 
 /**
  * Test REST serving static files
@@ -10,9 +8,9 @@ import javax.ws.rs.PathParam;
 @Path("/")
 public class TestFileRest {
 
-	@GET
-	@Path("{file}")
-	public String serveFile(@PathParam("file") String file) {
-		return file;
-	}
+    @GET
+    @Path("{file}")
+    public String serveFile(@PathParam("file") String file) {
+        return file;
+    }
 }

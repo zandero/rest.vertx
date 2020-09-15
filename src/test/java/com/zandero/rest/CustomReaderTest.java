@@ -1,27 +1,21 @@
 package com.zandero.rest;
 
 import com.zandero.rest.reader.*;
-import com.zandero.rest.test.TestPostRest;
-import com.zandero.rest.test.TestReaderRest;
-import com.zandero.rest.test.json.Dummy;
-import com.zandero.rest.test.json.ExtendedDummy;
+import com.zandero.rest.test.*;
+import com.zandero.rest.test.json.*;
 import com.zandero.rest.writer.TestCustomWriter;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import io.vertx.junit5.*;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Instant;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *

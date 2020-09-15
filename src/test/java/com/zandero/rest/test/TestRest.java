@@ -6,9 +6,7 @@ import com.zandero.rest.writer.TestCustomWriter;
 import io.vertx.core.http.HttpServerRequest;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 
 /**
  * Simple REST to test annotation processing
@@ -17,86 +15,86 @@ import javax.ws.rs.core.Response;
 @Path("/test")
 public class TestRest {
 
-	@GET
-	@Path("/echo")
-	@Produces(MediaType.TEXT_HTML)
-	public String echo() {
+    @GET
+    @Path("/echo")
+    @Produces(MediaType.TEXT_HTML)
+    public String echo() {
 
-		System.out.println("HELLO");
-		return "Hello world!";
-	}
+        System.out.println("HELLO");
+        return "Hello world!";
+    }
 
-	@GET
-	@Path("/custom")
-	@ResponseWriter(TestCustomWriter.class) // use custom writer for output
-	public String custom() {
+    @GET
+    @Path("/custom")
+    @ResponseWriter(TestCustomWriter.class) // use custom writer for output
+    public String custom() {
 
-		return "CUSTOM";
-	}
+        return "CUSTOM";
+    }
 
-	@GET
-	@Path("/jax")
-	public Response jax() {
+    @GET
+    @Path("/jax")
+    public Response jax() {
 
-		return Response
-			.accepted("Hello")
-			.header("X-Test", "Test")
-			.build();
-	}
+        return Response
+                   .accepted("Hello")
+                   .header("X-Test", "Test")
+                   .build();
+    }
 
-	@GET
-	@Path("/match/{this}/{that}")
-	public Response match(@PathParam("this") String thisParam, @PathParam("that") String thatParam) {
+    @GET
+    @Path("/match/{this}/{that}")
+    public Response match(@PathParam("this") String thisParam, @PathParam("that") String thatParam) {
 
-		return Response.ok(thisParam + "/" + thatParam).build();
-	}
+        return Response.ok(thisParam + "/" + thatParam).build();
+    }
 
-	@GET
-	@Path("/match2/:this/{that}")
-	public Response matchTwo(@PathParam("this") String thisParam, @PathParam("that") String thatParam) {
+    @GET
+    @Path("/match2/:this/{that}")
+    public Response matchTwo(@PathParam("this") String thisParam, @PathParam("that") String thatParam) {
 
-		return Response.ok(thisParam + "/" + thatParam).build();
-	}
+        return Response.ok(thisParam + "/" + thatParam).build();
+    }
 
-	@GET
-	@Path("/mix/:integer/{boolean}")
-	public Response mixParams(@PathParam("integer") int intParam, @PathParam("boolean") boolean boolParam) {
+    @GET
+    @Path("/mix/:integer/{boolean}")
+    public Response mixParams(@PathParam("integer") int intParam, @PathParam("boolean") boolean boolParam) {
 
-		return Response.ok(intParam + "/" + boolParam).build();
-	}
+        return Response.ok(intParam + "/" + boolParam).build();
+    }
 
-	@GET
-	@Path("/mix2/:Integer/{char}")
-	public Response mixParams2(@PathParam("Integer") Integer intParam, @PathParam("char") char charParam) {
+    @GET
+    @Path("/mix2/:Integer/{char}")
+    public Response mixParams2(@PathParam("Integer") Integer intParam, @PathParam("char") char charParam) {
 
-		return Response.ok(intParam + "/" + charParam).build();
-	}
+        return Response.ok(intParam + "/" + charParam).build();
+    }
 
-	@POST
-	@Path("/json/post")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Dummy echoJsonPost(Dummy postParam) {
+    @POST
+    @Path("/json/post")
+    @Produces("application/json")
+    @Consumes("application/json")
+    public Dummy echoJsonPost(Dummy postParam) {
 
-		postParam.name = "Received-" + postParam.name;
-		postParam.value = "Received-" + postParam.value;
+        postParam.name = "Received-" + postParam.name;
+        postParam.value = "Received-" + postParam.value;
 
-		return postParam;
-	}
+        return postParam;
+    }
 
-	@GET
-	@Path("/context/path")
-	@Produces("text/plain")
-	public String getRoutePath(@Context HttpServerRequest request) {
+    @GET
+    @Path("/context/path")
+    @Produces("text/plain")
+    public String getRoutePath(@Context HttpServerRequest request) {
 
-		return request.absoluteURI();
-	}
+        return request.absoluteURI();
+    }
 
-	@GET
-	@Path("/context/null")
-	@Produces("text/plain")
-	public String getNull() {
+    @GET
+    @Path("/context/null")
+    @Produces("text/plain")
+    public String getNull() {
 
-		return null;
-	}
+        return null;
+    }
 }

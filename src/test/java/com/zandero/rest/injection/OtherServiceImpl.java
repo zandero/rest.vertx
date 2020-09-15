@@ -7,19 +7,19 @@ import javax.inject.Inject;
  */
 public class OtherServiceImpl implements OtherService {
 
-	protected OtherServiceImpl() {
+    protected OtherServiceImpl() {
 
-	}
+    }
 
-	public OtherServiceImpl(DummyService service) {
-		dummyService = service;
-	}
+    public OtherServiceImpl(DummyService service) {
+        dummyService = service;
+    }
 
-	@Inject
-	DummyService dummyService;
+    @Inject
+    DummyService dummyService;
 
-	@Override
-	public String other() {
-		return "Oh yes " + dummyService.get();
-	}
+    @Override
+    public String other() {
+        return "Oh yes " + dummyService.get();
+    }
 }

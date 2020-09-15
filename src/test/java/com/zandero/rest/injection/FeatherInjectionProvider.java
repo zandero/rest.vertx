@@ -7,18 +7,18 @@ import org.codejargon.feather.Feather;
  */
 public class FeatherInjectionProvider implements InjectionProvider {
 
-	private Feather injector;
+    private final Feather injector;
 
-	public FeatherInjectionProvider() {
-		injector = Feather.with(new FeatherModule());
-	}
+    public FeatherInjectionProvider() {
+        injector = Feather.with(new FeatherModule());
+    }
 
-	@Override
-	public Object getInstance(Class clazz) {
+    @Override
+    public Object getInstance(Class clazz) {
 
-		Object instance = injector.instance(clazz);
-		injector.injectFields(instance);
+        Object instance = injector.instance(clazz);
+        injector.injectFields(instance);
 
-		return instance;
-	}
+        return instance;
+    }
 }

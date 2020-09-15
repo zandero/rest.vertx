@@ -9,8 +9,8 @@ import io.vertx.core.http.HttpServerRequest;
  */
 public class DummyProvider implements ContextProvider<Dummy> {
 
-	@Override
-	public Dummy provide(HttpServerRequest request) throws Throwable {
-		return new Dummy(request.getHeader("X-dummy-name"), request.getHeader("X-dummy-value"));
-	}
+    @Override
+    public Dummy provide(HttpServerRequest request) throws Throwable {
+        return new Dummy(request.getHeader("X-dummy-name"), request.getHeader("X-dummy-value"));
+    }
 }

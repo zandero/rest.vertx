@@ -6,10 +6,8 @@ import com.zandero.utils.extra.JsonUtils;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import io.vertx.junit5.*;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,8 +23,8 @@ class RouteWithPatchTest extends VertxTest {
         Router router = RestRouter.register(vertx, TestPatchRest.class);
 
         vertx.createHttpServer()
-                .requestHandler(router)
-                .listen(PORT);
+            .requestHandler(router)
+            .listen(PORT);
     }
 
     @Test
@@ -34,13 +32,13 @@ class RouteWithPatchTest extends VertxTest {
 
         Dummy json = new Dummy("test", "me");
         client.patch(PORT, HOST, "/patch/it").as(BodyCodec.string())
-                .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)), context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)), context.succeeding(response -> context.verify(() -> {
 
-                    assertEquals(200, response.statusCode());
+                assertEquals(200, response.statusCode());
 
 
-                    assertEquals("<custom>Received-test=Received-me</custom>", response.body()); // returns sorted list of unique words
-                    context.completeNow();
-                })));
+                assertEquals("<custom>Received-test=Received-me</custom>", response.body()); // returns sorted list of unique words
+                context.completeNow();
+            })));
     }
 }

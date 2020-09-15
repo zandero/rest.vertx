@@ -1482,7 +1482,7 @@ Following is a simple implementation of a Guice injection provider.
 ```java
 public class GuiceInjectionProvider implements InjectionProvider {
 
-	private Injector injector;
+	private final Injector injector;
 
 	public GuiceInjectionProvider(Module[] modules) {
 		injector = Guice.createInjector(modules);

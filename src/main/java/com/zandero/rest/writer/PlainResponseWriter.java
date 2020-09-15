@@ -1,10 +1,7 @@
 package com.zandero.rest.writer;
 
-import io.vertx.core.http.HttpHeaders;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.HttpServerResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.vertx.core.http.*;
+import org.slf4j.*;
 
 /**
  * Returns toString() output

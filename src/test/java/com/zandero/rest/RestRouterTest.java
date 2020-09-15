@@ -1,25 +1,18 @@
 package com.zandero.rest;
 
 import com.zandero.rest.reader.IntegerBodyReader;
-import com.zandero.rest.test.TestIncompatibleReaderRest;
-import com.zandero.rest.test.TestIncompatibleWriterRest;
-import com.zandero.rest.test.TestRest;
-import com.zandero.rest.test.TestRestWithNonRestMethod;
+import com.zandero.rest.test.*;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
 import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import io.vertx.junit5.*;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,8 +34,8 @@ class RestRouterTest extends VertxTest {
         RestRouter.setBodyHandler(bodyHandler);
 
         Router router = RestRouter.register(vertx,
-                                      testRest,
-                                      TestRestWithNonRestMethod.class);
+                                            testRest,
+                                            TestRestWithNonRestMethod.class);
 
         vertx.createHttpServer()
             .requestHandler(router)

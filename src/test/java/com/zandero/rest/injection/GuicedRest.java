@@ -1,12 +1,9 @@
 package com.zandero.rest.injection;
 
-import com.zandero.rest.annotation.RequestReader;
-import com.zandero.rest.annotation.ResponseWriter;
+import com.zandero.rest.annotation.*;
 import com.zandero.rest.test.json.Dummy;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
+import javax.inject.*;
 import javax.ws.rs.*;
 
 /**
@@ -15,41 +12,41 @@ import javax.ws.rs.*;
 @Singleton
 public class GuicedRest {
 
-	private final Provider<Settings> settings;
-	private final GuiceInjectService service;
+    private final Provider<Settings> settings;
+    private final GuiceInjectService service;
 
-	@Inject
-	public GuicedRest(Provider<Settings> someSettings, GuiceInjectService guicedService) {
+    @Inject
+    public GuicedRest(Provider<Settings> someSettings, GuiceInjectService guicedService) {
 
-		settings = someSettings;
-		service = guicedService;
-	}
+        settings = someSettings;
+        service = guicedService;
+    }
 
-	@GET
-	@Path("guice/{name}")
-	@ResponseWriter(GuicedResponseWriter.class)
-	public String get(@PathParam("name") String name) {
+    @GET
+    @Path("guice/{name}")
+    @ResponseWriter(GuicedResponseWriter.class)
+    public String get(@PathParam("name") String name) {
 
-		return settings.get().get(name);
-	}
+        return settings.get().get(name);
+    }
 
-	@GET
-	@Path("guiceit")
-	public String doubleGuice() {
+    @GET
+    @Path("guiceit")
+    public String doubleGuice() {
 
-		return service.getOther();
-	}
+        return service.getOther();
+    }
 
-	@POST
-	@Path("guice/json")
-	@Consumes("application/json; charset=utf-8")
-	@Produces("application/json; charset=utf-8")
-	@RequestReader(GuicedRequestReader.class)
-	public Dummy echoJsonPost(Dummy postParam) {
+    @POST
+    @Path("guice/json")
+    @Consumes("application/json; charset=utf-8")
+    @Produces("application/json; charset=utf-8")
+    @RequestReader(GuicedRequestReader.class)
+    public Dummy echoJsonPost(Dummy postParam) {
 
-		postParam.name = "Received-" + postParam.name;
-		postParam.value = "Received-" + postParam.value;
+        postParam.name = "Received-" + postParam.name;
+        postParam.value = "Received-" + postParam.value;
 
-		return postParam;
-	}
+        return postParam;
+    }
 }

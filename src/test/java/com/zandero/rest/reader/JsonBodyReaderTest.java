@@ -4,27 +4,26 @@ import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
  */
 public class JsonBodyReaderTest {
 
-	@Test
-	public void convertToJson() {
+    @Test
+    public void convertToJson() {
 
-		Dummy test = new Dummy("Hello", "World");
-		String value = JsonUtils.toJson(test);
+        Dummy test = new Dummy("Hello", "World");
+        String value = JsonUtils.toJson(test);
 
-		JsonValueReader reader = new JsonValueReader();
-		Object item = reader.read(value, Dummy.class);
+        JsonValueReader reader = new JsonValueReader();
+        Object item = reader.read(value, Dummy.class);
 
-		assertTrue(item instanceof Dummy);
+        assertTrue(item instanceof Dummy);
 
-		Dummy dummy = (Dummy)item;
-		assertEquals("Hello", dummy.name);
-		assertEquals("World", dummy.value);
-	}
+        Dummy dummy = (Dummy) item;
+        assertEquals("Hello", dummy.name);
+        assertEquals("World", dummy.value);
+    }
 }

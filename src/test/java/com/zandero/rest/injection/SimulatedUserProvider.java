@@ -12,18 +12,20 @@ import javax.inject.Inject;
  */
 public class SimulatedUserProvider implements ContextProvider<SimulatedUser> {
 
-	private final UserService users;
+    private final UserService users;
 
-	@Inject SimulatedUserProvider(UserService service) {
-		users = service;
-	}
+    @Inject
+    SimulatedUserProvider(UserService service) {
+        users = service;
+    }
 
-	@Override public SimulatedUser provide(HttpServerRequest request) throws MyExceptionClass {
+    @Override
+    public SimulatedUser provide(HttpServerRequest request) throws MyExceptionClass {
 
-		String token = request.getHeader("X-Token");
-		if (token == null) {
-			throw new MyExceptionClass("No user present!", 404);
-		}
-		return users.getUser(token);
-	}
+        String token = request.getHeader("X-Token");
+        if (token == null) {
+            throw new MyExceptionClass("No user present!", 404);
+        }
+        return users.getUser(token);
+    }
 }

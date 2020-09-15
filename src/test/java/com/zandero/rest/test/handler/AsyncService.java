@@ -11,56 +11,56 @@ public class AsyncService {
     public void asyncExecutorFuture(WorkerExecutor executor, Future<Dummy> value) {
 
         executor.executeBlocking(fut -> {
-                    System.out.println("Process started!");
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        value.fail("Fail");
-                    }
-                    value.complete(new Dummy("async", "called"));
-                    fut.complete();
-                },
-                false,
-                fut -> {
-                    System.out.println("Process finished!");
-                });
+                                     System.out.println("Process started!");
+                                     try {
+                                         Thread.sleep(1000);
+                                     } catch (InterruptedException e) {
+                                         value.fail("Fail");
+                                     }
+                                     value.complete(new Dummy("async", "called"));
+                                     fut.complete();
+                                 },
+                                 false,
+                                 fut -> {
+                                     System.out.println("Process finished!");
+                                 });
     }
 
-	public void asyncExecutorPromise(WorkerExecutor executor, Promise<Dummy> value) {
+    public void asyncExecutorPromise(WorkerExecutor executor, Promise<Dummy> value) {
 
-		executor.executeBlocking(fut -> {
-					System.out.println("Process started!");
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						value.fail("Fail");
-					}
-					value.complete(new Dummy("async", "called"));
-					fut.complete();
-				},
-				false,
-				fut -> {
-					System.out.println("Process finished!");
-				});
-	}
+        executor.executeBlocking(fut -> {
+                                     System.out.println("Process started!");
+                                     try {
+                                         Thread.sleep(1000);
+                                     } catch (InterruptedException e) {
+                                         value.fail("Fail");
+                                     }
+                                     value.complete(new Dummy("async", "called"));
+                                     fut.complete();
+                                 },
+                                 false,
+                                 fut -> {
+                                     System.out.println("Process finished!");
+                                 });
+    }
 
     public void asyncCallFuture(Vertx vertx, Future<Dummy> value) {
 
         vertx.executeBlocking(
-                fut -> {
-                    System.out.println("Process started!");
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        value.fail("Fail");
-                    }
-                    value.complete(new Dummy("async", "called"));
-                    System.out.println("Process finished!");
-                    fut.complete();
-                },
-                false,
-                fut -> {
+            fut -> {
+                System.out.println("Process started!");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    value.fail("Fail");
                 }
+                value.complete(new Dummy("async", "called"));
+                System.out.println("Process finished!");
+                fut.complete();
+            },
+            false,
+            fut -> {
+            }
         );
 
         System.out.println("I'm finished!");
@@ -69,20 +69,20 @@ public class AsyncService {
     public void asyncCallPromise(Vertx vertx, Promise<Dummy> value) {
 
         vertx.executeBlocking(
-                fut -> {
-                    System.out.println("Process started!");
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        value.fail("Fail");
-                    }
-                    value.complete(new Dummy("async", "called"));
-                    System.out.println("Process finished!");
-                    fut.complete();
-                },
-                false,
-                fut -> {
+            fut -> {
+                System.out.println("Process started!");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    value.fail("Fail");
                 }
+                value.complete(new Dummy("async", "called"));
+                System.out.println("Process finished!");
+                fut.complete();
+            },
+            false,
+            fut -> {
+            }
         );
 
         System.out.println("I'm finished!");
@@ -91,20 +91,20 @@ public class AsyncService {
     public void asyncCallReturnNullFuture(Vertx vertx, Future<Dummy> value) {
 
         vertx.executeBlocking(
-                fut -> {
-                    System.out.println("Process started!");
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        value.fail("Fail");
-                    }
-                    value.complete(null);
-                    System.out.println("Process finished!");
-                    fut.complete();
-                },
-                false,
-                fut -> {
+            fut -> {
+                System.out.println("Process started!");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    value.fail("Fail");
                 }
+                value.complete(null);
+                System.out.println("Process finished!");
+                fut.complete();
+            },
+            false,
+            fut -> {
+            }
         );
 
         System.out.println("I'm finished!");
@@ -113,20 +113,20 @@ public class AsyncService {
     public void asyncCallReturnNullPromise(Vertx vertx, Promise<Dummy> value) {
 
         vertx.executeBlocking(
-                fut -> {
-                    System.out.println("Process started!");
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        value.fail("Fail");
-                    }
-                    value.complete(null);
-                    System.out.println("Process finished!");
-                    fut.complete();
-                },
-                false,
-                fut -> {
+            fut -> {
+                System.out.println("Process started!");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    value.fail("Fail");
                 }
+                value.complete(null);
+                System.out.println("Process finished!");
+                fut.complete();
+            },
+            false,
+            fut -> {
+            }
         );
 
         System.out.println("I'm finished!");

@@ -7,5 +7,5 @@ public enum MyEnum {
 
 	one,
 	two,
-	three;
+	three
 }

@@ -9,17 +9,17 @@ import javax.inject.Singleton;
  */
 public class FeatherModule {
 
-	@Provides
-	@Singleton
-	public DummyService dummyService() {
+    @Provides
+    @Singleton
+    public DummyService dummyService() {
 
-		return new DummyServiceImpl();
-	}
+        return new DummyServiceImpl();
+    }
 
-	@Provides
-	@Singleton
-	public OtherService otherService() {
+    @Provides
+    @Singleton
+    public OtherService otherService() {
 
-		return new OtherServiceImpl(dummyService());
-	}
+        return new OtherServiceImpl(dummyService());
+    }
 }

@@ -1,19 +1,13 @@
 package com.zandero.rest;
 
-import com.zandero.rest.test.TestDoubleBodyParamRest;
-import com.zandero.rest.test.TestInvalidMethodRest;
-import com.zandero.rest.test.TestMissingPathRest;
-import com.zandero.rest.test.TestPathRest;
+import com.zandero.rest.test.*;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import io.vertx.junit5.*;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(VertxExtension.class)
 class RoutePathTest extends VertxTest {
@@ -27,41 +21,41 @@ class RoutePathTest extends VertxTest {
 
         Router router = RestRouter.register(vertx, testRest);
         vertx.createHttpServer()
-                .requestHandler(router)
-                .listen(PORT);
+            .requestHandler(router)
+            .listen(PORT);
     }
 
     @Test
     void rootWithRootPathTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/query/echo/this").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() -> {
-                    assertEquals(200, response.statusCode());
-                    assertEquals("querythis", response.body());
-                    context.completeNow();
-                })));
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(200, response.statusCode());
+                assertEquals("querythis", response.body());
+                context.completeNow();
+            })));
     }
 
     @Test
     void rootWithRootPathTest2(VertxTestContext context) {
 
         client.get(PORT, HOST, "/this/echo/query").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() -> {
-                    assertEquals(200, response.statusCode());
-                    assertEquals("thisquery", response.body());
-                    context.completeNow();
-                })));
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(200, response.statusCode());
+                assertEquals("thisquery", response.body());
+                context.completeNow();
+            })));
     }
 
     @Test
     void rootWithoutPathTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/this").as(BodyCodec.string())
-                .send(context.succeeding(response -> context.verify(() -> {
-                    assertEquals(200, response.statusCode());
-                    assertEquals("this", response.body());
-                    context.completeNow();
-                })));
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(200, response.statusCode());
+                assertEquals("this", response.body());
+                context.completeNow();
+            })));
     }
 
     @Test
@@ -76,8 +70,8 @@ class RoutePathTest extends VertxTest {
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> RestRouter.register(vertx, TestDoubleBodyParamRest.class));
         assertEquals("com.zandero.rest.test.TestDoubleBodyParamRest.echo(String arg0, String arg1) - to many body arguments given. " +
-                        "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: unknown arg1!",
-                e.getMessage());
+                         "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: unknown arg1!",
+                     e.getMessage());
     }
 
     @Test

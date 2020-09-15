@@ -1,18 +1,13 @@
 package com.zandero.rest.bean;
 
-import com.zandero.rest.data.ArgumentProvider;
-import com.zandero.rest.data.ClassFactory;
-import com.zandero.rest.data.MethodParameter;
+import com.zandero.rest.data.*;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.injection.InjectionProvider;
 import io.vertx.core.cli.impl.ReflectionUtils;
 import io.vertx.ext.web.RoutingContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 
 /**
  * Create bean of type and fill internal variables from request / context,
@@ -30,7 +25,7 @@ public class DefaultBeanProvider implements BeanProvider {
         Object instance = ClassFactory.newInstanceOf(clazz, injectionProvider, context);
         setFields(instance, context, definition);
 
-        log.info("Successfully created new instance of: '" + clazz.getTypeName()  + "'");
+        log.info("Successfully created new instance of: '" + clazz.getTypeName() + "'");
         return instance;
     }
 
@@ -42,7 +37,7 @@ public class DefaultBeanProvider implements BeanProvider {
      * @param definition bean definition
      */
     private void setFields(Object instance, RoutingContext context, BeanDefinition definition)
-            throws ClassFactoryException {
+        throws ClassFactoryException {
 
         Field[] fields = instance.getClass().getDeclaredFields();
         for (Field field : fields) {
@@ -78,7 +73,7 @@ public class DefaultBeanProvider implements BeanProvider {
     private void setField(Object instance, Field field, Object value) throws ClassFactoryException {
 
         ClassFactory.checkIfCompatibleType(field.getType(), value.getClass(),
-                "Can't set field: '" + field.getName() + "', value to: " + value);
+                                           "Can't set field: '" + field.getName() + "', value to: " + value);
 
         boolean isAccessible = field.isAccessible();
         if (!isAccessible) {
@@ -110,7 +105,7 @@ public class DefaultBeanProvider implements BeanProvider {
                               Object methodValue) throws ClassFactoryException {
 
         ClassFactory.checkIfCompatibleType(parameter.getDataType(), methodValue.getClass(),
-                "Can't set field: '" + parameter.getName() + "', value to: " + methodValue);
+                                           "Can't set field: '" + parameter.getName() + "', value to: " + methodValue);
 
         boolean isAccessible = method.isAccessible();
         if (!isAccessible) {

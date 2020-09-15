@@ -1,12 +1,8 @@
 package com.zandero.rest.test;
 
-import com.zandero.rest.test.data.MyComplexBean;
-import com.zandero.rest.test.data.MySimpleBean;
+import com.zandero.rest.test.data.*;
 
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
 
 /**
  *

@@ -1,10 +1,7 @@
 package com.zandero.rest.data;
 
-import com.zandero.utils.Assert;
-import com.zandero.utils.Pair;
-import com.zandero.utils.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.zandero.utils.*;
+import org.slf4j.*;
 
 import javax.ws.rs.core.MediaType;
 import java.util.*;
@@ -205,7 +202,7 @@ public final class MediaTypeHelper {
         }
 
         // add remaining from addSet
-        for (MediaType addItem: addSet) {
+        for (MediaType addItem : addSet) {
             joinedSet.put(addItem.getType() + "/" + addItem.getSubtype(), addItem);
         }
 

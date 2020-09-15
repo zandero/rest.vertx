@@ -10,10 +10,10 @@ import io.vertx.ext.web.RoutingContext;
  */
 public class SimpleEvent implements RestEvent<Dummy> {
 
-	@Override
-	public void execute(Dummy entity, RoutingContext context) {
+    @Override
+    public void execute(Dummy entity, RoutingContext context) {
 
-		System.out.println("Event triggered: " + entity.name + ": " + entity.value);
-		context.vertx().eventBus().send("rest.vertx.testing", JsonUtils.toJson(entity)); // send as JSON to event bus ...
-	}
+        System.out.println("Event triggered: " + entity.name + ": " + entity.value);
+        context.vertx().eventBus().send("rest.vertx.testing", JsonUtils.toJson(entity)); // send as JSON to event bus ...
+    }
 }

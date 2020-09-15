@@ -8,13 +8,13 @@ import io.vertx.core.http.HttpServerRequest;
  */
 public class NewTokenProvider implements ContextProvider<Token> {
 
-	@Override
-	public Token provide(HttpServerRequest request) {
-		String token = request.getHeader("X-Token");
-		if (token != null) {
-			return new Token("***" + token + "***");
-		}
+    @Override
+    public Token provide(HttpServerRequest request) {
+        String token = request.getHeader("X-Token");
+        if (token != null) {
+            return new Token("***" + token + "***");
+        }
 
-		return null;
-	}
+        return null;
+    }
 }

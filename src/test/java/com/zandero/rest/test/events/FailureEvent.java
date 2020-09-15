@@ -9,10 +9,10 @@ import io.vertx.ext.web.RoutingContext;
  */
 public class FailureEvent implements RestEvent<Exception> {
 
-	@Override
-	public void execute(Exception entity, RoutingContext context) throws Throwable {
+    @Override
+    public void execute(Exception entity, RoutingContext context) throws Throwable {
 
-		System.out.println("Exception triggering event: " + entity.getMessage());
-		context.vertx().eventBus().send("rest.vertx.testing", JsonUtils.toJson(entity)); // send as JSON to event bus ...
-	}
+        System.out.println("Exception triggering event: " + entity.getMessage());
+        context.vertx().eventBus().send("rest.vertx.testing", JsonUtils.toJson(entity)); // send as JSON to event bus ...
+    }
 }

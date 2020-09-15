@@ -1,15 +1,12 @@
 package com.zandero.rest;
 
-import com.zandero.rest.test.TestPostRest;
-import com.zandero.rest.test.TestRest;
+import com.zandero.rest.test.*;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.Router;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import io.vertx.junit5.*;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,8 +24,8 @@ class RouteRegistrationTest extends VertxTest {
 
         Router router = RestRouter.register(vertx, testRest, testPostRest);
         vertx.createHttpServer()
-                .requestHandler(router)
-                .listen(PORT);
+            .requestHandler(router)
+            .listen(PORT);
     }
 
     @Test
@@ -39,8 +36,8 @@ class RouteRegistrationTest extends VertxTest {
 
         // 2nd REST
         client.post(PORT, HOST, "/post/json")
-                .putHeader("content-type", "application/json")
-                .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)),
+            .putHeader("content-type", "application/json")
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)),
                         context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("{\"name\":\"Received-test\",\"value\":\"Received-me\"}", response.bodyAsString());
@@ -55,8 +52,8 @@ class RouteRegistrationTest extends VertxTest {
         Dummy json = new Dummy("test", "me");
 
         client.post(PORT, HOST, "/test/json/post")
-                .putHeader("content-type", "application/json")
-                .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)),
+            .putHeader("content-type", "application/json")
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)),
                         context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("{\"name\":\"Received-test\",\"value\":\"Received-me\"}", response.bodyAsString());
@@ -65,8 +62,8 @@ class RouteRegistrationTest extends VertxTest {
 
         // 2nd REST
         client.post(PORT, HOST, "/post/json")
-                .putHeader("content-type", "application/json")
-                .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)),
+            .putHeader("content-type", "application/json")
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)),
                         context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("{\"name\":\"Received-test\",\"value\":\"Received-me\"}", response.bodyAsString());

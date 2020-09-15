@@ -2,11 +2,8 @@ package com.zandero.rest.test;
 
 import com.zandero.rest.test.data.ItemDto;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import java.util.Arrays;
-import java.util.List;
+import javax.ws.rs.*;
+import java.util.*;
 
 @Produces("application/json")
 @Path("/write")

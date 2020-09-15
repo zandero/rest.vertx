@@ -3,13 +3,10 @@ package com.zandero.rest;
 import com.zandero.rest.test.ImplementationRest;
 import com.zandero.rest.test.data.SimulatedUser;
 import io.vertx.core.Handler;
-import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.*;
 import io.vertx.ext.web.codec.BodyCodec;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import io.vertx.junit5.*;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
