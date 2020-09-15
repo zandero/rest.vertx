@@ -24,7 +24,7 @@ class RouteAuthorizationWithClassHandlerTest extends VertxTest {
 
         before();
 
-        // 2. REST with @RolesAllowed annotations
+        // REST with @RolesAllowed annotations
         TestAuthorizationRest testRest = new TestAuthorizationRest();
         Router router = new RestBuilder(vertx)
             .routeHandler(MyUserHandler.class)
@@ -34,22 +34,6 @@ class RouteAuthorizationWithClassHandlerTest extends VertxTest {
         vertx.createHttpServer()
                 .requestHandler(router)
                 .listen(PORT);
-    }
-
-    private static Handler<RoutingContext> getUserHandler() {
-
-        return context -> {
-
-            // read header ... if present ... create user with given value
-            String token = context.request().getHeader("X-Token");
-
-            // set user ...
-            if (token != null) {
-                context.setUser(new SimulatedUser(token));
-            }
-
-            context.next();
-        };
     }
 
     @Test

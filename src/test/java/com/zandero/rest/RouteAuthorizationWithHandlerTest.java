@@ -24,7 +24,7 @@ class RouteAuthorizationWithHandlerTest extends VertxTest {
 
         before();
 
-        // 2. REST with @RolesAllowed annotations
+        // REST with @RolesAllowed annotations
         TestAuthorizationRest testRest = new TestAuthorizationRest();
         Router router = new RestBuilder(vertx)
             .routeHandler(getUserHandler())
