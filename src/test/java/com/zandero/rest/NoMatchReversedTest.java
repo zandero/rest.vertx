@@ -15,17 +15,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 
 @ExtendWith(VertxExtension.class)
-public class NoMatchTest extends VertxTest {
+public class NoMatchReversedTest extends VertxTest {
 
     @BeforeAll
     static void start() {
         before();
 
         Router router = new RestBuilder(vertx)
-                            .register(TestEchoRest.class)
+                            .notFound(NotFoundHandler.class)
                             .notFound(".*\\/other/?.*", OtherNotFoundHandler.class)
                             .notFound("/rest/.*", RestNotFoundHandler.class)
-                            .notFound(NotFoundHandler.class)
+                            .register(TestEchoRest.class)
                             .build();
 
         vertx.createHttpServer()

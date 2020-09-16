@@ -46,6 +46,7 @@ public class RestBuilder {
      * Map of path / not found handlers
      */
     private final Map<String, Object> notFound = new LinkedHashMap<>();
+    private Class<? extends NotFoundResponseWriter> defaultNotFound = null;
 
     /**
      * CORS handler if desired
@@ -131,7 +132,7 @@ public class RestBuilder {
 
         Assert.notNull(writer, "Missing not fount response writer!");
 
-        notFound.put(null, writer); // default ... handles all
+        defaultNotFound = writer; // default ... handles all (last in line)
         return this;
     }
 
@@ -608,6 +609,11 @@ public class RestBuilder {
                 RestRouter.getExceptionHandlers().register((ExceptionHandler<?>) handler);
             }
         });
+
+        // not found handlers are last in line
+        if (defaultNotFound != null) {
+            notFound.put(null, defaultNotFound);
+        }
 
         for (String path : notFound.keySet()) {
             Object notFoundHandler = notFound.get(path);
