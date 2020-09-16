@@ -334,7 +334,7 @@ public class RestRouter {
 
     private static void checkBodyReader(RouteDefinition definition) {
 
-        if (!definition.requestHasBody() || !definition.hasBodyParameter()) {
+        if (!definition.requestCanHaveBody() || !definition.hasBodyParameter()) {
             return;
         }
 

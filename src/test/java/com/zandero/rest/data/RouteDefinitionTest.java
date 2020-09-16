@@ -6,7 +6,7 @@ import com.zandero.rest.test.*;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.*;
 import io.vertx.core.http.HttpMethod;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -132,6 +132,7 @@ class RouteDefinitionTest {
         assertEquals("/regEx/(?!api\\/).*", def.getRoutePath());
     }
 
+    @Disabled // issue #59 get requests can have a body
     @Test
     void missingArgumentAnnotationTest() {
 

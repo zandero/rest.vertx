@@ -2,7 +2,7 @@ package com.zandero.rest.test;
 
 import com.zandero.rest.annotation.*;
 
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
 
 /**
  *
@@ -20,5 +20,11 @@ public class TestEchoRest {
     @Trace("echo")
     public String trace() {
         return "trace";
+    }
+
+    @GET
+    @Path("echo/body")
+    public String echoBody(String body) {
+        return body;
     }
 }

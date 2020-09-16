@@ -29,6 +29,16 @@ public class RouteDefinition {
     private static final String CONTINUATION_CLASS = "kotlin.coroutines.Continuation";
     private static final String CONTINUATION_EXPERIMENTAL_CLASS = "kotlin.coroutines.experimental.Continuation";
 
+    private static final Set<ParameterType> BODY_HANDLER_PARAMS;
+
+    static {
+        BODY_HANDLER_PARAMS = new HashSet<>();
+        BODY_HANDLER_PARAMS.add(ParameterType.body);
+        BODY_HANDLER_PARAMS.add(ParameterType.bean);
+        BODY_HANDLER_PARAMS.add(ParameterType.form);
+    }
+
+
     private final String DELIMITER = "/";
 
     /**
@@ -624,6 +634,10 @@ public class RouteDefinition {
                     raw = true;
                 }
 
+               /* if (annotation instanceof BodyParam) {
+                    type = ParameterType.body;
+                }*/
+
                 if (annotation instanceof FormParam) {
                     type = ParameterType.form;
                     name = ((FormParam) annotation).value();
@@ -880,19 +894,20 @@ public class RouteDefinition {
         return list;
     }
 
-    public boolean requestHasBody() {
+    public boolean requestCanHaveBody() {
 
-        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/
-        // also see:
-        // https://www.owasp.org/index.php/Test_HTTP_Methods_(OTG-CONFIG-006)
-        return HttpMethod.DELETE.equals(method) ||
+        return HttpMethod.GET.equals(method) ||
+                   HttpMethod.DELETE.equals(method) ||
                    HttpMethod.POST.equals(method) ||
                    HttpMethod.PUT.equals(method) ||
                    HttpMethod.PATCH.equals(method) ||
                    HttpMethod.TRACE.equals(method);
-        // in theory supported but probably not a good idea to use GET requests with body
-        // many servers/clients don't support this - Issue #59
-        //||  HttpMethod.GET.equals(method);
+    }
+
+    public boolean requestHasBody() {
+        return requestCanHaveBody() &&
+                   params.values().stream().filter(param -> BODY_HANDLER_PARAMS.contains(param.getType()))
+                       .findFirst().orElse(null) != null;
     }
 
     public boolean hasBodyParameter() {
@@ -906,7 +921,8 @@ public class RouteDefinition {
             return null;
         }
 
-        return params.values().stream().filter(param -> ParameterType.body.equals(param.getType())).findFirst().orElse(null);
+        return params.values().stream().filter(param -> ParameterType.body.equals(param.getType()))
+                   .findFirst().orElse(null);
     }
 
     public boolean hasCookies() {

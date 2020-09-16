@@ -61,7 +61,7 @@ public final class AnnotationProcessor {
 
                 if (ParameterType.unknown.equals(param.getType())) { // proclaim as body param
                     // check if method allows for a body param
-                    Assert.isTrue(definition.requestHasBody(), getClassMethod(clazz, method) + " - " +
+                    Assert.isTrue(definition.requestCanHaveBody(), getClassMethod(clazz, method) + " - " +
                                                                    "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: " +
                                                                    param.getName() + "!");
 

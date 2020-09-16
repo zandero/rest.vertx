@@ -232,4 +232,22 @@ class AnnotationProcessorTest {
 
         assertEquals(1, count);
     }
+
+    @Test
+    void echoWithBody() {
+        Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(TestEchoRest.class);
+        assertEquals(3, definitions.size());
+
+        int count = 0;
+        for (RouteDefinition definition : definitions.keySet()) {
+            if (definition.getPath().equals("/rest/echo")) {
+                count++;
+            }
+            if (definition.getPath().equals("/rest/echo/body")) {
+                count++;
+            }
+        }
+
+        assertEquals(3, count);
+    }
 }

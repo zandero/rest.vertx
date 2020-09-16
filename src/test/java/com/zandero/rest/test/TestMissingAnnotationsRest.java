@@ -1,5 +1,7 @@
 package com.zandero.rest.test;
 
+import org.junit.jupiter.api.Disabled;
+
 import javax.ws.rs.*;
 
 /**
