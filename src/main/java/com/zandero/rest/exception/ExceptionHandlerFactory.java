@@ -22,7 +22,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
     // classType list holds list of exception handlers and order how they are considered
     // cache holds handler instances once initialized
 
-    static Map<Class, Class<? extends ExceptionHandler>> defaultHandlers;
+    static Map<Class<?>, Class<? extends ExceptionHandler<?>>> defaultHandlers;
 
     {
         defaultHandlers = new LinkedHashMap<>();
@@ -122,7 +122,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
         }
     }
 
-    private void checkIfAlreadyRegistered(Class clazz) {
+    private void checkIfAlreadyRegistered(Class<?> clazz) {
 
         // check if already registered
         Class<? extends ExceptionHandler> found = classTypes.get(clazz);

@@ -397,7 +397,10 @@ public class RestRouter {
             if (allowed) {
                 context.next();
             } else {
-                handleException(new ExecuteException(Response.Status.UNAUTHORIZED.getStatusCode(), "HTTP 401 Unauthorized"), context, definition);
+                // issue #64 ... provide specific exception so registered handler can to handle this
+                handleException(new UnauthorizedException(context.user()),
+                                context,
+                                definition);
             }
         };
     }
