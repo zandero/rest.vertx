@@ -132,7 +132,7 @@ class RouteDefinitionTest {
         assertEquals("/regEx/(?!api\\/).*", def.getRoutePath());
     }
 
-    @Disabled // issue #59 get requests can have a body
+    /*@Disabled // issue #59 get requests can have a body
     @Test
     void missingArgumentAnnotationTest() {
 
@@ -144,7 +144,7 @@ class RouteDefinitionTest {
                              "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: arg0!",
                          e.getMessage());
         }
-    }
+    }*/
 
     @Test
     void isAsyncTest() {
