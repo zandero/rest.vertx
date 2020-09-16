@@ -241,9 +241,11 @@ class AnnotationProcessorTest {
         int count = 0;
         for (RouteDefinition definition : definitions.keySet()) {
             if (definition.getPath().equals("/rest/echo")) {
+                assertFalse(definition.requestHasBody());
                 count++;
             }
             if (definition.getPath().equals("/rest/echo/body")) {
+                assertTrue(definition.requestHasBody());
                 count++;
             }
         }
