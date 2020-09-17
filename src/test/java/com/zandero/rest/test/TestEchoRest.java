@@ -24,7 +24,13 @@ public class TestEchoRest {
 
     @GET
     @Path("echo/body")
-    public String echoBody(String body) {
+    public String echoBody(@BodyParam String body) {
         return body;
+    }
+
+    @GET
+    @Path("echo/simple/body")
+    public String echoSimpleBody(String body) {
+        return "Simple: " + body;
     }
 }

@@ -12,7 +12,6 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 /**
  *
  */
@@ -236,7 +235,7 @@ class AnnotationProcessorTest {
     @Test
     void echoWithBody() {
         Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(TestEchoRest.class);
-        assertEquals(3, definitions.size());
+        assertEquals(4, definitions.size());
 
         int count = 0;
         for (RouteDefinition definition : definitions.keySet()) {
@@ -248,8 +247,12 @@ class AnnotationProcessorTest {
                 assertTrue(definition.requestHasBody());
                 count++;
             }
+            if (definition.getPath().equals("/rest/echo/simple/body")) {
+                assertTrue(definition.requestHasBody());
+                count++;
+            }
         }
 
-        assertEquals(3, count);
+        assertEquals(4, count);
     }
 }

@@ -29,15 +29,16 @@ public class RouteDefinition {
     private static final String CONTINUATION_CLASS = "kotlin.coroutines.Continuation";
     private static final String CONTINUATION_EXPERIMENTAL_CLASS = "kotlin.coroutines.experimental.Continuation";
 
-    private static final Set<ParameterType> BODY_HANDLER_PARAMS;
+    private static final Set<ParameterType> BODY_HANDLER_PARAMS = ArrayUtils.toSet(ParameterType.body,
+                                                                                   ParameterType.bean,
+                                                                                   ParameterType.form);
 
-    static {
-        BODY_HANDLER_PARAMS = new HashSet<>();
-        BODY_HANDLER_PARAMS.add(ParameterType.body);
-        BODY_HANDLER_PARAMS.add(ParameterType.bean);
-        BODY_HANDLER_PARAMS.add(ParameterType.form);
-    }
-
+    private static final Set<HttpMethod> BODY_METHODS = ArrayUtils.toSet(HttpMethod.GET,
+                                                                         HttpMethod.DELETE,
+                                                                         HttpMethod.POST,
+                                                                         HttpMethod.PUT,
+                                                                         HttpMethod.PATCH,
+                                                                         HttpMethod.TRACE);
 
     private final String DELIMITER = "/";
 
@@ -634,9 +635,9 @@ public class RouteDefinition {
                     raw = true;
                 }
 
-               /* if (annotation instanceof BodyParam) {
+                if (annotation instanceof BodyParam) {
                     type = ParameterType.body;
-                }*/
+                }
 
                 if (annotation instanceof FormParam) {
                     type = ParameterType.form;
@@ -895,13 +896,7 @@ public class RouteDefinition {
     }
 
     public boolean requestCanHaveBody() {
-
-        return HttpMethod.GET.equals(method) ||
-                   HttpMethod.DELETE.equals(method) ||
-                   HttpMethod.POST.equals(method) ||
-                   HttpMethod.PUT.equals(method) ||
-                   HttpMethod.PATCH.equals(method) ||
-                   HttpMethod.TRACE.equals(method);
+        return BODY_METHODS.contains(method);
     }
 
     public boolean requestHasBody() {
@@ -911,7 +906,6 @@ public class RouteDefinition {
     }
 
     public boolean hasBodyParameter() {
-
         return getBodyParameter() != null;
     }
 

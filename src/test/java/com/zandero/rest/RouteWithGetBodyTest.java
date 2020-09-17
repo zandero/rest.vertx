@@ -53,4 +53,17 @@ class RouteWithGetBodyTest extends VertxTest {
                             context.completeNow();
                         })));
     }
+
+    @Test
+    void testSimpleEchoBody(VertxTestContext context) {
+
+        client.get(PORT, HOST, "/rest/echo/simple/body")
+            .as(BodyCodec.string())
+            .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
+                        context.succeeding(response -> context.verify(() -> {
+                            assertEquals(200, response.statusCode());
+                            assertEquals("Simple: The quick brown fox jumps over the red dog!", response.body()); // returns sorted list of unique words
+                            context.completeNow();
+                        })));
+    }
 }
