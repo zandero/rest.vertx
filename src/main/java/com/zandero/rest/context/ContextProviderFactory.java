@@ -96,6 +96,7 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
      */
     public static Object provideContext(Class<?> type,
                                         String defaultValue,
+                                        RouteDefinition definition,
                                         RoutingContext context) throws ContextException {
 
         // vert.x context
@@ -128,7 +129,8 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
         // internal context / reflection of route definition
         if (type.isAssignableFrom(RouteDefinition.class)) {
             // TODO: fix this (issue #60) ... we need original RouteDefinition not evaluated one
-            return new RouteDefinition(context);
+            return definition;
+            //return new RouteDefinition(context);
         }
 
         // browse through context storage
@@ -165,7 +167,7 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
             Annotation found = field.getAnnotation(Context.class);
             if (found != null) {
 
-                Object context = provideContext(field.getType(), null, routeContext);
+                Object context = provideContext(field.getType(), null, null, routeContext);
                 try {
                     field.setAccessible(true);
                     field.set(instance, context);
