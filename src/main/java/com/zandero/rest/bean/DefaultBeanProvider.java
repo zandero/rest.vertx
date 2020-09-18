@@ -9,6 +9,8 @@ import org.slf4j.*;
 
 import java.lang.reflect.*;
 
+import static com.zandero.rest.data.ClassUtils.*;
+
 /**
  * Create bean of type and fill internal variables from request / context,
  * NOTE: supports beans with primitive type fields only!
@@ -45,7 +47,7 @@ public class DefaultBeanProvider implements BeanProvider {
             MethodParameter parameter = definition.get(field);
             if (parameter != null) {
                 String value = ArgumentProvider.getValue(null, parameter, context, parameter.getDefaultValue());
-                Object fieldValue = ClassFactory.stringToPrimitiveType(value, field.getType());
+                Object fieldValue = stringToPrimitiveType(value, field.getType());
                 setField(instance, field, fieldValue);
             }
         }
@@ -56,7 +58,7 @@ public class DefaultBeanProvider implements BeanProvider {
                 MethodParameter parameter = definition.get(method);
                 if (parameter != null) {
                     String value = ArgumentProvider.getValue(null, parameter, context, parameter.getDefaultValue());
-                    Object methodValue = ClassFactory.stringToPrimitiveType(value, parameter.getDataType());
+                    Object methodValue = stringToPrimitiveType(value, parameter.getDataType());
                     invokeMethod(instance, method, parameter, methodValue);
                 }
             }
@@ -72,8 +74,8 @@ public class DefaultBeanProvider implements BeanProvider {
      */
     private void setField(Object instance, Field field, Object value) throws ClassFactoryException {
 
-        ClassFactory.checkIfCompatibleType(field.getType(), value.getClass(),
-                                           "Can't set field: '" + field.getName() + "', value to: " + value);
+        checkIfCompatibleType(field.getType(), value.getClass(),
+                              "Can't set field: '" + field.getName() + "', value to: " + value);
 
         boolean isAccessible = field.isAccessible();
         if (!isAccessible) {
@@ -104,8 +106,8 @@ public class DefaultBeanProvider implements BeanProvider {
                               MethodParameter parameter,
                               Object methodValue) throws ClassFactoryException {
 
-        ClassFactory.checkIfCompatibleType(parameter.getDataType(), methodValue.getClass(),
-                                           "Can't set field: '" + parameter.getName() + "', value to: " + methodValue);
+        checkIfCompatibleType(parameter.getDataType(), methodValue.getClass(),
+                              "Can't set field: '" + parameter.getName() + "', value to: " + methodValue);
 
         boolean isAccessible = method.isAccessible();
         if (!isAccessible) {

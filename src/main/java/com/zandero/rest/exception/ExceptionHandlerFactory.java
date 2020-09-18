@@ -11,6 +11,8 @@ import javax.ws.rs.WebApplicationException;
 import java.lang.reflect.Type;
 import java.util.*;
 
+import static com.zandero.rest.data.ClassUtils.*;
+
 /**
  *
  */
@@ -36,7 +38,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 
         // register handlers from specific to general ...
         // when searching we go over handlers ... first match is returned
-        classTypes = new LinkedHashMap<>();
+        classCache.classTypes = new LinkedHashMap<>();
     }
 
     public ExceptionHandler getExceptionHandler(Class<? extends Throwable> aClass,
@@ -63,7 +65,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 
         // get by exception type from classTypes list
         if (found == null) {
-            found = super.get(aClass);
+            found = classCache.get(aClass);
 
             if (found != null) {
                 log.info("Found matching class type exception handler: " + found.getName());
@@ -96,7 +98,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 
             checkIfAlreadyRegistered((Class) type);
 
-            classTypes.put((Class) type, handler);
+            classCache.classTypes.put((Class) type, handler);
         }
     }
 
@@ -115,17 +117,17 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
             checkIfAlreadyRegistered((Class) generic);
 
             // register
-            classTypes.put((Class) generic, handler.getClass());
+            classCache.classTypes.put((Class) generic, handler.getClass());
 
             // cache instance by handler class type
-            super.register(handler);
+            classCache.register(handler);
         }
     }
 
     private void checkIfAlreadyRegistered(Class<?> clazz) {
 
         // check if already registered
-        Class<? extends ExceptionHandler> found = classTypes.get(clazz);
+        Class<? extends ExceptionHandler> found = classCache.classTypes.get(clazz);
         if (found != null) {
             throw new IllegalArgumentException("Exception handler for: " + clazz.getName() + " already registered with: " + found.getName());
         }

@@ -25,11 +25,11 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
     @Override
     protected void init() {
 
-        classTypes.put(String.class, GenericValueReader.class);
+        classCache.classTypes.put(String.class, GenericValueReader.class);
 
         // pre fill with most generic implementation
-        mediaTypes.put(MediaType.APPLICATION_JSON, JsonValueReader.class);
-        mediaTypes.put(MediaType.TEXT_PLAIN, GenericValueReader.class);
+        classCache.mediaTypes.put(MediaType.APPLICATION_JSON, JsonValueReader.class);
+        classCache.mediaTypes.put(MediaType.TEXT_PLAIN, GenericValueReader.class);
     }
 
     public ValueReader get(MethodParameter parameter,
@@ -140,7 +140,7 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
         Assert.notNull(reader, "Missing request reader type class!");
 
         log.info("Registering '" + clazz.getName() + "' reader '" + reader.getName() + "'");
-        super.register(clazz, reader);
+        classCache.register(clazz, reader);
     }
 
     public void register(Class<?> clazz, ValueReader reader) {
@@ -149,7 +149,7 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
         Assert.notNull(reader, "Missing request reader!");
 
         log.info("Registering '" + clazz.getName() + "' reader '" + reader.getClass().getName() + "'");
-        super.register(clazz, reader);
+        classCache.register(clazz, reader);
     }
 
     public void register(String mediaType, Class<? extends ValueReader> clazz) {
@@ -158,7 +158,7 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
         Assert.notNull(clazz, "Missing value reader!");
 
         log.info("Registering '" + mediaType + "' reader '" + clazz.getName() + "'");
-        super.register(mediaType, clazz);
+        classCache.register(mediaType, clazz);
     }
 
     public void register(String mediaType, ValueReader clazz) {
@@ -167,7 +167,7 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
         Assert.notNull(clazz, "Missing value reader!");
 
         log.info("Registering '" + mediaType + "' reader '" + clazz.getClass().getName() + "'");
-        super.register(mediaType, clazz);
+        classCache.register(mediaType, clazz);
     }
 
     public void register(MediaType mediaType, Class<? extends ValueReader> clazz) {
@@ -176,7 +176,7 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
         Assert.notNull(clazz, "Missing value reader!");
 
         log.info("Registering '" + MediaTypeHelper.toString(mediaType) + "' reader '" + clazz.getName() + "'");
-        super.register(mediaType, clazz);
+        classCache.register(mediaType, clazz);
     }
 
     public void register(MediaType mediaType, ValueReader clazz) {
@@ -185,6 +185,6 @@ public class ReaderFactory extends ClassFactory<ValueReader> {
         Assert.notNull(clazz, "Missing value reader!");
 
         log.info("Registering '" + MediaTypeHelper.toString(mediaType) + "' reader '" + clazz.getClass().getName() + "'");
-        super.register(mediaType, clazz);
+        classCache.register(mediaType, clazz);
     }
 }

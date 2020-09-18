@@ -20,6 +20,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
+import static com.zandero.rest.data.ClassUtils.*;
+
 /**
  * Holds definition of a route as defined with annotations
  */
@@ -710,8 +712,8 @@ public class RouteDefinition {
 
                 // set context provider from method annotation if fitting
                 if (contextValueProvider == null && contextProvider != null) {
-                    Type generic = ClassFactory.getGenericType(contextProvider);
-                    if (ClassFactory.checkIfCompatibleType(parameterTypes[index], generic)) {
+                    Type generic = getGenericType(contextProvider);
+                    if (checkIfCompatibleType(parameterTypes[index], generic)) {
                         contextValueProvider = contextProvider;
                     }
                 }
@@ -732,7 +734,7 @@ public class RouteDefinition {
      */
     static boolean isAsync(Class<?> returnType) {
 
-        return ClassFactory.checkIfCompatibleTypes(returnType, Future.class, Promise.class);
+        return checkIfCompatibleTypes(returnType, Future.class, Promise.class);
     }
 
     /**

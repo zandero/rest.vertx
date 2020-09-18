@@ -47,11 +47,11 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
     }
 
     public void register(Class<?> aClass, Class<? extends ContextProvider> clazz) {
-        super.register(aClass, clazz);
+        classCache.register(aClass, clazz);
     }
 
     public void register(Class<?> aClass, ContextProvider instance) {
-        super.register(aClass, instance);
+        classCache.register(aClass, instance);
     }
 
     private static List<Field> checkForContext(Class<?> clazz) {
@@ -128,9 +128,7 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 
         // internal context / reflection of route definition
         if (type.isAssignableFrom(RouteDefinition.class)) {
-            // TODO: fix this (issue #60) ... we need original RouteDefinition not evaluated one
             return definition;
-            //return new RouteDefinition(context);
         }
 
         // browse through context storage
@@ -155,6 +153,7 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
         throw new ContextException("Can't provide @Context of type: " + type);
     }
 
+    // TODO: this must not be a static method we need access to providers stored in factory
     public static void injectContext(Object instance, RoutingContext routeContext) throws ContextException {
 
         if (instance == null) {

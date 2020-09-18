@@ -9,6 +9,8 @@ import org.slf4j.*;
 
 import java.lang.reflect.Type;
 
+import static com.zandero.rest.data.ClassUtils.*;
+
 /**
  *
  */
@@ -70,11 +72,11 @@ public class RestEventExecutor {
         }
 
         if (event.exception() == RestEvent.NoRestException.class) {
-            Type type = ClassFactory.getGenericType(event.value());
-            return ClassFactory.checkIfCompatibleType(result.getClass(), type);
+            Type type = getGenericType(event.value());
+            return checkIfCompatibleType(result.getClass(), type);
         }
 
-        return ClassFactory.checkIfCompatibleType(result.getClass(), event.exception());
+        return checkIfCompatibleType(result.getClass(), event.exception());
     }
 
 }

@@ -10,7 +10,6 @@ import com.zandero.rest.reader.*;
 import com.zandero.rest.writer.*;
 import com.zandero.utils.Assert;
 import io.vertx.core.*;
-import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.*;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.web.*;
@@ -19,9 +18,11 @@ import org.slf4j.*;
 
 import javax.validation.*;
 import javax.validation.executable.ExecutableValidator;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.MediaType;
 import java.lang.reflect.*;
 import java.util.*;
+
+import static com.zandero.rest.data.ClassUtils.*;
 
 /**
  * Builds up a vert.x route based on JAX-RS annotation provided in given class
@@ -183,7 +184,7 @@ public class RestRouter {
     public static void provide(Router output, Class<? extends ContextProvider<?>> provider) {
 
         try {
-            Class<?> clazz = (Class<?>) ClassFactory.getGenericType(provider);
+            Class<?> clazz = (Class<?>) getGenericType(provider);
             ContextProvider<?> instance = getContextProviders().getContextProvider(injectionProvider,
                                                                                    clazz,
                                                                                    provider,
@@ -344,13 +345,13 @@ public class RestRouter {
 
         if (bodyReader != null && definition.checkCompatibility()) {
 
-            Type readerType = ClassFactory.getGenericType(bodyReader.getClass());
+            Type readerType = getGenericType(bodyReader.getClass());
             MethodParameter bodyParameter = definition.getBodyParameter();
 
-            ClassFactory.checkIfCompatibleType(bodyParameter.getDataType(), readerType,
-                                               definition.toString().trim() + " - Parameter type: '" +
-                                                   bodyParameter.getDataType() + "' not matching reader type: '" +
-                                                   readerType + "' in: '" + bodyReader.getClass() + "'!");
+            checkIfCompatibleType(bodyParameter.getDataType(), readerType,
+                                  definition.toString().trim() + " - Parameter type: '" +
+                                      bodyParameter.getDataType() + "' not matching reader type: '" +
+                                      readerType + "' in: '" + bodyReader.getClass() + "'!");
         }
     }
 
@@ -376,14 +377,14 @@ public class RestRouter {
         }
 
         if (definition.checkCompatibility() &&
-                ClassFactory.checkCompatibility(writer.getClass())) {
+                checkCompatibility(writer.getClass())) {
 
-            Type writerType = ClassFactory.getGenericType(writer.getClass());
-            ClassFactory.checkIfCompatibleType(returnType,
-                                               writerType,
-                                               definition.toString().trim() + " - Response type: '" +
-                                                   returnType + "' not matching writer type: '" +
-                                                   writerType + "' in: '" + writer.getClass() + "'!");
+            Type writerType = getGenericType(writer.getClass());
+            checkIfCompatibleType(returnType,
+                                  writerType,
+                                  definition.toString().trim() + " - Response type: '" +
+                                      returnType + "' not matching writer type: '" +
+                                      writerType + "' in: '" + writer.getClass() + "'!");
         }
 
         return writer;
@@ -717,7 +718,7 @@ public class RestRouter {
      */
     public static void addProvider(Class<? extends ContextProvider<?>> provider) {
 
-        Class<?> clazz = (Class<?>) ClassFactory.getGenericType(provider);
+        Class<?> clazz = (Class<?>) getGenericType(provider);
         addProvider(clazz, provider);
     }
 
@@ -732,7 +733,7 @@ public class RestRouter {
 
     public static void addProvider(ContextProvider<?> provider) {
 
-        Class<?> clazz = (Class<?>) ClassFactory.getGenericType(provider.getClass());
+        Class<?> clazz = (Class<?>) getGenericType(provider.getClass());
         addProvider(clazz, provider);
     }
 
