@@ -1,11 +1,8 @@
 package com.zandero.rest.writer;
 
 import com.zandero.rest.data.*;
-import com.zandero.rest.exception.*;
-import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
 import javax.ws.rs.Produces;
@@ -46,7 +43,7 @@ public class WriterFactory extends ClassCache<HttpResponseWriter> {
      * @param routeContext routing context
      * @param accept       accept media type header
      * @return writer to be used to produce response, or {@link GenericResponseWriter} in case no suitable writer could be found
-     */
+     *//*
     public HttpResponseWriter getResponseWriter(Class returnType,
                                                 RouteDefinition definition,
                                                 InjectionProvider provider,
@@ -73,7 +70,7 @@ public class WriterFactory extends ClassCache<HttpResponseWriter> {
                           ", falling back to GenericResponseWriter() instead!");
             return new GenericResponseWriter();
         }
-    }
+    }*/
 
     public void register(Class<? extends HttpResponseWriter> writer) {
 

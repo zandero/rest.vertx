@@ -34,7 +34,7 @@ public class RestRouter {
 
     private final static Logger log = LoggerFactory.getLogger(RestRouter.class);
 
-    private static final WriterFactory writers = new WriterFactory();
+    private static final ClassForge forge = new ClassForge();
 
     private static final ReaderFactory readers = new ReaderFactory();
 
@@ -172,10 +172,9 @@ public class RestRouter {
         return router;
     }
 
-    // Check writer compatibility if possible
     private static void checkWriterCompatibility(RouteDefinition definition) {
         try { // no way to know the accept content at this point
-            getWriter(injectionProvider, definition.getReturnType(), definition, null);
+            forge.getWriter(definition.getReturnType(), definition, null);
         } catch (ClassFactoryException e) {
             // ignoring instance creation ... but leaving Illegal argument exceptions to pass
         }
@@ -355,41 +354,6 @@ public class RestRouter {
         }
     }
 
-    private static HttpResponseWriter<?> getWriter(InjectionProvider injectionProvider,
-                                                   Class<?> returnType,
-                                                   RouteDefinition definition,
-                                                   RoutingContext context) throws ClassFactoryException {
-
-        if (returnType == null) {
-            returnType = definition.getReturnType();
-        }
-
-        MediaType acceptHeader = null;
-        if (context != null) {
-            acceptHeader = MediaTypeHelper.valueOf(context.getAcceptableContentType());
-        }
-
-        HttpResponseWriter<?> writer = writers.getResponseWriter(returnType, definition, injectionProvider, context, acceptHeader);
-
-        if (writer == null) {
-            log.error("No writer could be provided. Falling back to " + GenericResponseWriter.class.getSimpleName() + " instead!");
-            return (HttpResponseWriter<?>) ClassFactory.newInstanceOf(GenericResponseWriter.class);
-        }
-
-        if (definition.checkCompatibility() &&
-                checkCompatibility(writer.getClass())) {
-
-            Type writerType = getGenericType(writer.getClass());
-            checkIfCompatibleType(returnType,
-                                  writerType,
-                                  definition.toString().trim() + " - Response type: '" +
-                                      returnType + "' not matching writer type: '" +
-                                      writerType + "' in: '" + writer.getClass() + "'!");
-        }
-
-        return writer;
-    }
-
     private static Handler<RoutingContext> getSecurityHandler(final RouteDefinition definition) {
 
         return context -> {
@@ -471,10 +435,9 @@ public class RestRouter {
 
                         Class returnType = result != null ? result.getClass() : definition.getReturnType();
 
-                        HttpResponseWriter writer = getWriter(injectionProvider,
-                                                              returnType,
-                                                              definition,
-                                                              context);
+                        HttpResponseWriter writer = forge.getWriter(returnType,
+                                                                    definition,
+                                                                    context);
 
                         validateResult(result, method, definition, validator, toInvoke);
                         produceResponse(result, context, definition, writer);
@@ -517,10 +480,9 @@ public class RestRouter {
 
                                 HttpResponseWriter writer;
                                 if (futureResult != null) { // get writer from result type otherwise we don't know
-                                    writer = getWriter(injectionProvider,
-                                                       futureResult.getClass(),
-                                                       definition,
-                                                       context);
+                                    writer = forge.getWriter(futureResult.getClass(),
+                                                             definition,
+                                                             context);
                                 } else { // due to limitations of Java generics we can't tell the type if response is null
                                     Class<?> writerClass = definition.getWriter() == null ? GenericResponseWriter.class : definition.getWriter();
                                     writer = (HttpResponseWriter) ClassFactory.newInstanceOf(writerClass);
@@ -575,7 +537,7 @@ public class RestRouter {
 
                 HttpResponseWriter<?> writer;
                 if (notFoundWriter instanceof Class) {
-                    writer = (HttpResponseWriter<?>) ClassFactory.getClassInstance((Class<? extends HttpResponseWriter<?>>) notFoundWriter, writers, injectionProvider, context);
+                    writer = (HttpResponseWriter<?>) ClassFactory.getClassInstance((Class<? extends HttpResponseWriter<?>>) notFoundWriter, forge.getWriters(), injectionProvider, context);
                 } else {
                     writer = (HttpResponseWriter<?>) notFoundWriter;
                 }
@@ -697,8 +659,7 @@ public class RestRouter {
     }
 
     public static WriterFactory getWriters() {
-
-        return writers;
+        return forge.getWriters();
     }
 
     public static ReaderFactory getReaders() {
@@ -766,6 +727,7 @@ public class RestRouter {
     public static void injectWith(InjectionProvider provider) {
 
         injectionProvider = provider;
+        forge.setInjectionProvider(provider);
         if (injectionProvider != null) {
             log.info("Registered injection provider: " + injectionProvider.getClass().getName());
         } else {
