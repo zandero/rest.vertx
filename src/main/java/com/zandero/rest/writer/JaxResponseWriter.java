@@ -1,6 +1,7 @@
 package com.zandero.rest.writer;
 
 import com.zandero.rest.RestRouter;
+import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.exception.*;
 import com.zandero.utils.Assert;
 import io.vertx.core.http.HttpHeaders;
@@ -34,7 +35,7 @@ public class JaxResponseWriter implements HttpResponseWriter<Response> {
 
             HttpResponseWriter writer;
             try {
-                writer = RestRouter.getWriters().get(mediaType, context);
+                writer = (HttpResponseWriter) ClassFactory.get(mediaType, RestRouter.getWriters(), context);
             } catch (ClassFactoryException | ContextException e) {
                 writer = null;
             }

@@ -1,7 +1,7 @@
 package com.zandero.rest.exception;
 
 import com.zandero.rest.context.ContextProviderFactory;
-import com.zandero.rest.data.ClassFactory;
+import com.zandero.rest.data.*;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
 import io.vertx.ext.web.RoutingContext;
@@ -16,7 +16,7 @@ import static com.zandero.rest.data.ClassUtils.*;
 /**
  *
  */
-public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
+public class ExceptionHandlerFactory extends ClassCache<ExceptionHandler> {
 
     private final static Logger log = LoggerFactory.getLogger(ExceptionHandlerFactory.class);
 
@@ -33,12 +33,16 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
         defaultHandlers.put(Throwable.class, GenericExceptionHandler.class);
     }
 
-    @Override
-    protected void init() {
+    public ExceptionHandlerFactory() {
 
         // register handlers from specific to general ...
         // when searching we go over handlers ... first match is returned
-        classCache.classTypes = new LinkedHashMap<>();
+        setDefaults();
+    }
+
+    @Override
+    protected void setDefaults() {
+        classTypes = new LinkedHashMap<>();
     }
 
     public ExceptionHandler getExceptionHandler(Class<? extends Throwable> aClass,
@@ -65,7 +69,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 
         // get by exception type from classTypes list
         if (found == null) {
-            found = classCache.get(aClass);
+            found = get(aClass);
 
             if (found != null) {
                 log.info("Found matching class type exception handler: " + found.getName());
@@ -83,7 +87,7 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
         }
 
         // create class instance
-        return super.getClassInstance(found, provider, context);
+        return (ExceptionHandler) ClassFactory.getClassInstance(found, this, provider, context);
     }
 
     @SafeVarargs
@@ -98,7 +102,10 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
 
             checkIfAlreadyRegistered((Class) type);
 
-            classCache.classTypes.put((Class) type, handler);
+            classTypes.put((Class) type, handler);
+
+            // cache instance by handler class type
+            super.register((Class<?>) type, handler);
         }
     }
 
@@ -117,17 +124,17 @@ public class ExceptionHandlerFactory extends ClassFactory<ExceptionHandler> {
             checkIfAlreadyRegistered((Class) generic);
 
             // register
-            classCache.classTypes.put((Class) generic, handler.getClass());
+            classTypes.put((Class) generic, handler.getClass());
 
             // cache instance by handler class type
-            classCache.register(handler);
+            super.register(handler);
         }
     }
 
     private void checkIfAlreadyRegistered(Class<?> clazz) {
 
         // check if already registered
-        Class<? extends ExceptionHandler> found = classCache.classTypes.get(clazz);
+        Class<? extends ExceptionHandler> found = classTypes.get(clazz);
         if (found != null) {
             throw new IllegalArgumentException("Exception handler for: " + clazz.getName() + " already registered with: " + found.getName());
         }

@@ -18,63 +18,20 @@ import static com.zandero.rest.data.ClassUtils.*;
 /**
  * Simple class instance cache and class factory utility
  */
-public abstract class ClassFactory<T> {
+public class ClassFactory {
 
     private final static Logger log = LoggerFactory.getLogger(ClassFactory.class);
 
     private static final Set<String> INJECTION_ANNOTATIONS = ArrayUtils.toSet("Inject", "Injection", "InjectionProvider");
 
-    protected ClassCache<T> classCache = new ClassCache<>();
+    // public ClassFactory() { }
 
-
-/*    *//**
-     * map of media type associated with class type (to be instantiated)
-     *//*
-    protected Map<String, Class<? extends T>> mediaTypes = new LinkedHashMap<>();
-
-    *//**
-     * Cache of class instances
-     *//*
-    private final Map<String, T> cache = new HashMap<>();
-
-    *//**
-     * map of class associated with class type (to be instantiated)
-     *//*
-    protected Map<Class<?>, Class<? extends T>> classTypes = new LinkedHashMap<>();*/
-
-
-    public ClassFactory() {
-
-        init();
-    }
-
-    abstract protected void init();
-
-    public void clear() {
-
-        classCache.clear();
-        /*// clears caches
-        classTypes.clear();
-        mediaTypes.clear();
-        cache.clear();*/
-
-        init();
-    }
-
-    /*private void cache(T instance) {
-
-        cache.put(instance.getClass().getName(), instance);
-    }
-
-    private T getCached(Class<? extends T> clazz) {
-
-        return cache.get(clazz.getName());
-    }*/
 
     @SuppressWarnings("unchecked")
-    public T getClassInstance(Class<? extends T> clazz,
-                              InjectionProvider provider,
-                              RoutingContext context) throws ClassFactoryException,
+    public static Object getClassInstance(Class<?> clazz,
+                                          ClassCache classCache,
+                                          InjectionProvider provider,
+                                          RoutingContext context) throws ClassFactoryException,
                                                                  ContextException {
 
         if (clazz == null) {
@@ -85,14 +42,14 @@ public abstract class ClassFactory<T> {
         boolean hasContext = ContextProviderFactory.hasContext(clazz);
         boolean cacheIt = clazz.getAnnotation(NoCache.class) == null; // caching disabled / enabled
 
-        T instance = null;
+        Object instance = null;
         if (!hasContext && cacheIt) { // no Context ... we can get it from cache
             instance = classCache.getCached(clazz);
         }
 
         if (instance == null) {
 
-            instance = (T) newInstanceOf(clazz, provider, context);
+            instance =  newInstanceOf(clazz, provider, context);
 
             if (!hasContext && cacheIt) { // no context .. we can cache this instance
                 classCache.cache(instance);
@@ -350,14 +307,15 @@ public abstract class ClassFactory<T> {
     }*/
 
     // TODO : move media type specific into a new class that Reader, Writer factory derives from
-    protected T get(Class<?> type,
-                    Class<? extends T> byDefinition,
-                    InjectionProvider provider,
-                    RoutingContext routeContext,
-                    MediaType[] mediaTypes) throws ClassFactoryException,
+    public static Object get(Class<?> type,
+                             ClassCache classCache,
+                             Class<?> byDefinition,
+                             InjectionProvider provider,
+                             RoutingContext routeContext,
+                             MediaType[] mediaTypes) throws ClassFactoryException,
                                                        ContextException {
 
-        Class<? extends T> clazz = byDefinition;
+        Class<?> clazz = byDefinition;
 
         // No class defined ... try by type
         if (clazz == null) {
@@ -377,7 +335,7 @@ public abstract class ClassFactory<T> {
         }
 
         if (clazz != null) {
-            return getClassInstance(clazz, provider, routeContext);
+            return getClassInstance(clazz, classCache, provider, routeContext);
         }
 
         // 3. find cached instance ... if any
@@ -393,11 +351,13 @@ public abstract class ClassFactory<T> {
         return mediaTypes.get(MediaTypeHelper.getKey(mediaType));
     }*/
 
-    public T get(String mediaType, RoutingContext routeContext) throws ClassFactoryException,
+    public static Object get(String mediaType,
+                 ClassCache classCache,
+                 RoutingContext routeContext) throws ClassFactoryException,
                                                                            ContextException {
 
-        Class<? extends T> clazz = classCache.get(MediaTypeHelper.valueOf(mediaType));
-        return getClassInstance(clazz, null, routeContext);
+        Class<?> clazz = classCache.get(MediaTypeHelper.valueOf(mediaType));
+        return getClassInstance(clazz, classCache, null, routeContext);
     }
 
     /*public Class<? extends T> get(Class<?> type) {

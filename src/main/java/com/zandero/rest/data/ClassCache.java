@@ -12,7 +12,7 @@ import static com.zandero.rest.data.ClassUtils.*;
 /**
  * Caching of classes
  */
-public class ClassCache<T> {
+public abstract class ClassCache<T> {
 
     private final static Logger log = LoggerFactory.getLogger(ClassCache.class);
 
@@ -37,7 +37,11 @@ public class ClassCache<T> {
         classTypes.clear();
         mediaTypes.clear();
         cache.clear();
+
+        setDefaults();
     }
+
+    protected abstract void setDefaults();
 
     public void cache(T instance) {
 
@@ -78,7 +82,7 @@ public class ClassCache<T> {
     }
 
 
-    public void register(String mediaType, Class<? extends T> clazz) {
+    protected void register(String mediaType, Class<? extends T> clazz) {
 
         Assert.notNull(mediaType, "Missing media type!");
         Assert.notNull(clazz, "Missing media type class");
@@ -90,7 +94,7 @@ public class ClassCache<T> {
         mediaTypes.put(key, clazz);
     }
 
-    public void register(String mediaType, T clazz) {
+    protected void register(String mediaType, T clazz) {
 
         Assert.notNull(mediaType, "Missing media type!");
         Assert.notNull(clazz, "Missing media type class instance!");
@@ -102,7 +106,7 @@ public class ClassCache<T> {
         cache.put(key, clazz);
     }
 
-    public void register(MediaType mediaType, Class<? extends T> clazz) {
+    protected void register(MediaType mediaType, Class<? extends T> clazz) {
 
         Assert.notNull(mediaType, "Missing media type!");
         Assert.notNull(clazz, "Missing media type class!");
@@ -111,7 +115,7 @@ public class ClassCache<T> {
         mediaTypes.put(key, clazz);
     }
 
-    public void register(MediaType mediaType, T clazz) {
+    protected void register(MediaType mediaType, T clazz) {
 
         Assert.notNull(mediaType, "Missing media type!");
         Assert.notNull(clazz, "Missing media type class instance!");
@@ -120,13 +124,13 @@ public class ClassCache<T> {
         cache.put(key, clazz);
     }
 
-    public void register(T clazz) {
+    protected void register(T clazz) {
 
         Assert.notNull(clazz, "Missing class instance!");
         cache.put(clazz.getClass().getName(), clazz);
     }
 
-    public void register(Class<?> aClass, Class<? extends T> clazz) {
+    protected void register(Class<?> aClass, Class<? extends T> clazz) {
 
         Assert.notNull(aClass, "Missing associated class!");
         Assert.notNull(clazz, "Missing response type class!");
@@ -139,7 +143,7 @@ public class ClassCache<T> {
         classTypes.put(aClass, clazz);
     }
 
-    public void register(Class<?> aClass, T instance) {
+    protected void register(Class<?> aClass, T instance) {
 
         Assert.notNull(aClass, "Missing associated class!");
         Assert.notNull(instance, "Missing instance of class!");

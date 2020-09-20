@@ -508,7 +508,7 @@ public class RestRouter {
                     Future<?> fut = (Future) result;
 
                     // wait for future to complete ... don't block vertx event bus in the mean time
-                    fut.setHandler(handler -> {
+                    fut.onComplete(handler -> {
 
                         if (fut.succeeded()) {
 
@@ -523,7 +523,7 @@ public class RestRouter {
                                                        context);
                                 } else { // due to limitations of Java generics we can't tell the type if response is null
                                     Class<?> writerClass = definition.getWriter() == null ? GenericResponseWriter.class : definition.getWriter();
-                                    writer = (HttpResponseWriter) WriterFactory.newInstanceOf(writerClass);
+                                    writer = (HttpResponseWriter) ClassFactory.newInstanceOf(writerClass);
                                 }
 
                                 validateResult(futureResult, method, definition, validator, toInvoke);
@@ -575,7 +575,7 @@ public class RestRouter {
 
                 HttpResponseWriter<?> writer;
                 if (notFoundWriter instanceof Class) {
-                    writer = writers.getClassInstance((Class<? extends HttpResponseWriter<?>>) notFoundWriter, injectionProvider, context);
+                    writer = (HttpResponseWriter<?>) ClassFactory.getClassInstance((Class<? extends HttpResponseWriter<?>>) notFoundWriter, writers, injectionProvider, context);
                 } else {
                     writer = (HttpResponseWriter<?>) notFoundWriter;
                 }

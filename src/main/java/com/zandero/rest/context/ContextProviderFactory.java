@@ -18,7 +18,7 @@ import java.util.*;
 /**
  * Storage of context providers
  */
-public class ContextProviderFactory extends ClassFactory<ContextProvider> {
+public class ContextProviderFactory extends ClassCache<ContextProvider> {
 
     /**
      * Cache of classes that need or don't need context injection
@@ -31,11 +31,6 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
 
     private static final String CONTEXT_DATA_KEY_PREFIX = "RestRouter-";
 
-    @Override
-    protected void init() {
-        // nothing to
-    }
-
     public ContextProvider getContextProvider(InjectionProvider provider,
                                               Class clazzType,
                                               Class<? extends ContextProvider> aClass,
@@ -43,15 +38,20 @@ public class ContextProviderFactory extends ClassFactory<ContextProvider> {
                                                                                  ContextException {
 
 
-        return get(clazzType, aClass, provider, context, null);
+        return (ContextProvider) ClassFactory.get(clazzType, this, aClass, provider, context, null);
+    }
+
+    @Override
+    protected void setDefaults() {
+
     }
 
     public void register(Class<?> aClass, Class<? extends ContextProvider> clazz) {
-        classCache.register(aClass, clazz);
+        super.register(aClass, clazz);
     }
 
     public void register(Class<?> aClass, ContextProvider instance) {
-        classCache.register(aClass, instance);
+        super.register(aClass, instance);
     }
 
     private static List<Field> checkForContext(Class<?> clazz) {

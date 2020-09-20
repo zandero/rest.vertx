@@ -80,7 +80,7 @@ public class ArgumentProvider {
                         case context:
 
                             // check if providers need to be called to assure context
-                            ContextProvider provider = providerFactory.get(dataType, parameter.getContextProvider(), injectionProvider, context, null);
+                            ContextProvider provider = (ContextProvider) ClassFactory.get(dataType, providerFactory, parameter.getContextProvider(), injectionProvider, context, null);
                             if (provider != null) {
                                 Object result = provider.provide(context.request());
                                 if (result != null) {

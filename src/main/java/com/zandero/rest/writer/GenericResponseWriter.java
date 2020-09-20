@@ -1,7 +1,7 @@
 package com.zandero.rest.writer;
 
 import com.zandero.rest.RestRouter;
-import com.zandero.rest.data.MediaTypeHelper;
+import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.*;
@@ -34,7 +34,7 @@ public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
 
         HttpResponseWriter writer;
         try {
-            writer = RestRouter.getWriters().get(mediaType, context);
+            writer = (HttpResponseWriter) ClassFactory.get(mediaType, RestRouter.getWriters(), context);
         } catch (ClassFactoryException | ContextException e) {
             // writer = RestRouter.getWriters().get(result);
             log.warn("Failed to provide GenericResponseWriter: ", e);

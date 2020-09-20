@@ -14,28 +14,27 @@ import javax.ws.rs.core.*;
 /**
  * Provides definition and caching of response writer implementations
  */
-public class WriterFactory extends ClassFactory<HttpResponseWriter> {
+public class WriterFactory extends ClassCache<HttpResponseWriter> {
 
     private final static Logger log = LoggerFactory.getLogger(WriterFactory.class);
 
     public WriterFactory() {
-
-        super();
+        // default writers
+        setDefaults();
     }
 
     @Override
-    protected void init() {
+    protected void setDefaults() {
 
-        // default writers
-        classCache.classTypes.put(Response.class, JaxResponseWriter.class);
-        classCache.classTypes.put(HttpServerResponse.class, VertxResponseWriter.class);
+        classTypes.put(Response.class, JaxResponseWriter.class);
+        classTypes.put(HttpServerResponse.class, VertxResponseWriter.class);
 
-        classCache.mediaTypes.put(MediaType.APPLICATION_JSON, JsonResponseWriter.class);
-        classCache.mediaTypes.put(MediaType.TEXT_HTML, GenericResponseWriter.class);
+        mediaTypes.put(MediaType.APPLICATION_JSON, JsonResponseWriter.class);
+        mediaTypes.put(MediaType.TEXT_HTML, GenericResponseWriter.class);
 
         // if not found ... default to simple toString() writer
-        classCache.mediaTypes.put(MediaType.TEXT_PLAIN, PlainResponseWriter.class);
-        classCache.mediaTypes.put(MediaType.WILDCARD, PlainResponseWriter.class);
+        mediaTypes.put(MediaType.TEXT_PLAIN, PlainResponseWriter.class);
+        mediaTypes.put(MediaType.WILDCARD, PlainResponseWriter.class);
     }
 
     /**
@@ -57,11 +56,11 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
         try {
             HttpResponseWriter writer = null;
             if (accept != null) {
-                writer = get(returnType, definition.getWriter(), provider, routeContext, new MediaType[]{accept});
+                writer = (HttpResponseWriter) ClassFactory.get(returnType, this, definition.getWriter(), provider, routeContext, new MediaType[]{accept});
             }
 
             if (writer == null) {
-                writer = get(returnType, definition.getWriter(), provider, routeContext, definition.getProduces());
+                writer = (HttpResponseWriter) ClassFactory.get(returnType, this, definition.getWriter(), provider, routeContext, definition.getProduces());
             }
 
             return writer != null ? writer : new GenericResponseWriter();
@@ -106,7 +105,7 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
             MediaType[] produces = MediaTypeHelper.getMediaTypes(found.value());
             if (produces != null && produces.length > 0) {
                 for (MediaType type : produces) {
-                    register(type, writer);
+                    super.register(type, writer); // TODO: might be register without super
                 }
                 registered = true;
             }
@@ -122,7 +121,7 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
         Assert.notNull(aClass, "Missing response writer type class!");
 
         log.info("Registering '" + aClass.getName() + "' writer '" + clazz.getName() + "'");
-        classCache.register(aClass, clazz);
+        super.register(aClass, clazz);
     }
 
     public void register(Class<?> aClass, HttpResponseWriter clazz) {
@@ -131,7 +130,7 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
         Assert.notNull(aClass, "Missing response writer type class!");
 
         log.info("Registering '" + aClass.getName() + "' writer '" + clazz.getClass().getName() + "'");
-        classCache.register(aClass, clazz);
+        super.register(aClass, clazz);
     }
 
     public void register(String mediaType, Class<? extends HttpResponseWriter> clazz) {
@@ -140,7 +139,7 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
         Assert.notNull(clazz, "Missing response writer!");
 
         log.info("Registering '" + mediaType + "' writer '" + clazz.getName() + "'");
-        classCache.register(mediaType, clazz);
+        super.register(mediaType, clazz);
     }
 
     public void register(String mediaType, HttpResponseWriter clazz) {
@@ -149,7 +148,7 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
         Assert.notNull(clazz, "Missing response writer!");
 
         log.info("Registering '" + mediaType + "' writer '" + clazz.getClass().getName() + "'");
-        classCache.register(mediaType, clazz);
+        super.register(mediaType, clazz);
     }
 
     public void register(MediaType mediaType, Class<? extends HttpResponseWriter> clazz) {
@@ -158,7 +157,7 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
         Assert.notNull(clazz, "Missing response writer!");
 
         log.info("Registering '" + MediaTypeHelper.toString(mediaType) + "' writer '" + clazz.getName() + "'");
-        classCache.register(mediaType, clazz);
+        super.register(mediaType, clazz);
     }
 
     public void register(MediaType mediaType, HttpResponseWriter clazz) {
@@ -167,6 +166,6 @@ public class WriterFactory extends ClassFactory<HttpResponseWriter> {
         Assert.notNull(clazz, "Missing response writer!");
 
         log.info("Registering '" + MediaTypeHelper.toString(mediaType) + "' writer '" + clazz.getClass().getName() + "'");
-        classCache.register(mediaType, clazz);
+        super.register(mediaType, clazz);
     }
 }
