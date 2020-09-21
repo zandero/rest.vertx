@@ -1,5 +1,6 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.cache.WriterCache;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.writer.*;
@@ -16,11 +17,11 @@ public class ClassForge {
     private final static Logger log = LoggerFactory.getLogger(ClassForge.class);
 
     // TODO: to be hidden
-    private final WriterFactory writers = new WriterFactory();
+    private final WriterCache writers = new WriterCache();
 
     private InjectionProvider injection;
 
-    public WriterFactory getWriters() {
+    public WriterCache getWriters() {
         return writers;
     }
 

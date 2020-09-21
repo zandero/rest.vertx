@@ -1,6 +1,7 @@
 package com.zandero.rest;
 
 import com.zandero.rest.bean.*;
+import com.zandero.rest.cache.WriterCache;
 import com.zandero.rest.context.*;
 import com.zandero.rest.data.*;
 import com.zandero.rest.events.RestEventExecutor;
@@ -36,11 +37,11 @@ public class RestRouter {
 
     private static final ClassForge forge = new ClassForge();
 
-    private static final ReaderFactory readers = new ReaderFactory();
+    private static final ReaderCache readers = new ReaderCache();
 
-    private static final ExceptionHandlerFactory handlers = new ExceptionHandlerFactory();
+    private static final ExceptionHandlerCache handlers = new ExceptionHandlerCache();
 
-    private static final ContextProviderFactory providers = new ContextProviderFactory();
+    private static final ContextProviderCache providers = new ContextProviderCache();
 
     private static final RestEventExecutor eventExecutor = new RestEventExecutor();
 
@@ -217,7 +218,7 @@ public class RestRouter {
                     }
 
                     if (provided != null) { // push provided context into request data
-                        context.data().put(ContextProviderFactory.getContextDataKey(provided), provided);
+                        context.data().put(ContextProviderCache.getContextDataKey(provided), provided);
                     }
                 } catch (Throwable e) {
                     handleException(e, context, null); // no definition
@@ -658,16 +659,16 @@ public class RestRouter {
         }
     }
 
-    public static WriterFactory getWriters() {
+    public static WriterCache getWriters() {
         return forge.getWriters();
     }
 
-    public static ReaderFactory getReaders() {
+    public static ReaderCache getReaders() {
 
         return readers;
     }
 
-    public static ExceptionHandlerFactory getExceptionHandlers() {
+    public static ExceptionHandlerCache getExceptionHandlers() {
 
         return handlers;
     }
@@ -707,7 +708,7 @@ public class RestRouter {
         log.info("Registering '" + clazz + "' provider '" + provider.getClass().getName() + "'");
     }
 
-    public static ContextProviderFactory getContextProviders() {
+    public static ContextProviderCache getContextProviders() {
         return providers;
     }
 
@@ -716,7 +717,7 @@ public class RestRouter {
         Assert.notNull(context, "Missing context!");
         Assert.notNull(object, "Can't push null into context!");
 
-        context.put(ContextProviderFactory.getContextDataKey(object), object);
+        context.put(ContextProviderCache.getContextDataKey(object), object);
     }
 
     /**

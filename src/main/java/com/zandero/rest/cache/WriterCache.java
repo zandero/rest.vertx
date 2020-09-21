@@ -1,6 +1,7 @@
-package com.zandero.rest.writer;
+package com.zandero.rest.cache;
 
-import com.zandero.rest.data.*;
+import com.zandero.rest.data.MediaTypeHelper;
+import com.zandero.rest.writer.*;
 import com.zandero.utils.Assert;
 import io.vertx.core.http.HttpServerResponse;
 import org.slf4j.*;
@@ -11,17 +12,19 @@ import javax.ws.rs.core.*;
 /**
  * Provides definition and caching of response writer implementations
  */
-public class WriterFactory extends ClassCache<HttpResponseWriter> {
+public class WriterCache extends ClassCache<HttpResponseWriter> {
 
-    private final static Logger log = LoggerFactory.getLogger(WriterFactory.class);
+    private final static Logger log = LoggerFactory.getLogger(WriterCache.class);
 
-    public WriterFactory() {
+    public WriterCache() {
         // default writers
         setDefaults();
     }
 
     @Override
-    protected void setDefaults() {
+    public void setDefaults() {
+
+        super.setDefaults();
 
         classTypes.put(Response.class, JaxResponseWriter.class);
         classTypes.put(HttpServerResponse.class, VertxResponseWriter.class);
@@ -34,44 +37,6 @@ public class WriterFactory extends ClassCache<HttpResponseWriter> {
         mediaTypes.put(MediaType.WILDCARD, PlainResponseWriter.class);
     }
 
-    /**
-     * Finds assigned response writer or tries to assign a writer according to produces annotation and result type
-     *
-     * @param returnType   type of response
-     * @param definition   method definition
-     * @param provider     injection provider if any
-     * @param routeContext routing context
-     * @param accept       accept media type header
-     * @return writer to be used to produce response, or {@link GenericResponseWriter} in case no suitable writer could be found
-     *//*
-    public HttpResponseWriter getResponseWriter(Class returnType,
-                                                RouteDefinition definition,
-                                                InjectionProvider provider,
-                                                RoutingContext routeContext,
-                                                MediaType accept) {
-
-        try {
-            HttpResponseWriter writer = null;
-            if (accept != null) {
-                writer = (HttpResponseWriter) ClassFactory.get(returnType, this, definition.getWriter(), provider, routeContext, new MediaType[]{accept});
-            }
-
-            if (writer == null) {
-                writer = (HttpResponseWriter) ClassFactory.get(returnType, this, definition.getWriter(), provider, routeContext, definition.getProduces());
-            }
-
-            return writer != null ? writer : new GenericResponseWriter();
-        } catch (ClassFactoryException e) {
-            log.error(
-                "Failed to provide response writer: " + returnType + ", for: " + definition + ", falling back to GenericResponseWriter() instead!");
-            return new GenericResponseWriter();
-        } catch (ContextException e) {
-            log.error("Could not inject context to provide response writer: " + returnType + ", for: " + definition +
-                          ", falling back to GenericResponseWriter() instead!");
-            return new GenericResponseWriter();
-        }
-    }*/
-
     public void register(Class<? extends HttpResponseWriter> writer) {
 
         Assert.notNull(writer, "Missing writer type!");
@@ -82,7 +47,7 @@ public class WriterFactory extends ClassCache<HttpResponseWriter> {
             MediaType[] produces = MediaTypeHelper.getMediaTypes(found.value());
             if (produces != null && produces.length > 0) {
                 for (MediaType type : produces) {
-                    register(type, writer);
+                    super.register(type, writer);
                 }
                 registered = true;
             }

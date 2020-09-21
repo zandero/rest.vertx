@@ -1,7 +1,8 @@
 package com.zandero.rest.exception;
 
-import com.zandero.rest.context.ContextProviderFactory;
-import com.zandero.rest.data.*;
+import com.zandero.rest.cache.ClassCache;
+import com.zandero.rest.context.ContextProviderCache;
+import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
 import io.vertx.ext.web.RoutingContext;
@@ -16,9 +17,9 @@ import static com.zandero.rest.data.ClassUtils.*;
 /**
  *
  */
-public class ExceptionHandlerFactory extends ClassCache<ExceptionHandler> {
+public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
 
-    private final static Logger log = LoggerFactory.getLogger(ExceptionHandlerFactory.class);
+    private final static Logger log = LoggerFactory.getLogger(ExceptionHandlerCache.class);
 
     // NOTE
     // classType list holds list of exception handlers and order how they are considered
@@ -33,16 +34,11 @@ public class ExceptionHandlerFactory extends ClassCache<ExceptionHandler> {
         defaultHandlers.put(Throwable.class, GenericExceptionHandler.class);
     }
 
-    public ExceptionHandlerFactory() {
+    public ExceptionHandlerCache() {
 
         // register handlers from specific to general ...
         // when searching we go over handlers ... first match is returned
         setDefaults();
-    }
-
-    @Override
-    protected void setDefaults() {
-        classTypes = new LinkedHashMap<>();
     }
 
     public ExceptionHandler getExceptionHandler(Class<? extends Throwable> aClass,
@@ -114,7 +110,7 @@ public class ExceptionHandlerFactory extends ClassCache<ExceptionHandler> {
         Assert.notNullOrEmpty(handlers, "Missing exception handler(s)!");
         for (ExceptionHandler handler : handlers) {
 
-            Assert.isFalse(ContextProviderFactory.hasContext(handler.getClass()),
+            Assert.isFalse(ContextProviderCache.hasContext(handler.getClass()),
                            "Exception handler utilizing @Context must be registered as class type not as instance!");
 
             Type generic = getGenericType(handler.getClass());

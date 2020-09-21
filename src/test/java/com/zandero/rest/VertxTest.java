@@ -4,9 +4,7 @@ import com.zandero.rest.injection.InjectionProvider;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.*;
 
 import javax.validation.Validator;
 
@@ -32,10 +30,10 @@ public class VertxTest {
         vertxTestContext = new VertxTestContext();
 
         // clear all registered writers or reader and handlers
-        RestRouter.getReaders().clear();
-        RestRouter.getWriters().clear();
-        RestRouter.getExceptionHandlers().clear();
-        RestRouter.getContextProviders().clear();
+        RestRouter.getReaders().setDefaults();
+        RestRouter.getWriters().setDefaults();
+        RestRouter.getExceptionHandlers().setDefaults();
+        RestRouter.getContextProviders().setDefaults();
 
         // clear
         RestRouter.validateWith((Validator) null);

@@ -39,10 +39,10 @@ class CustomReaderTest extends VertxTest {
     @BeforeEach
     void cleanUp() {
         // clear all registered writers or reader and handlers
-        RestRouter.getReaders().clear();
-        RestRouter.getWriters().clear();
-        RestRouter.getExceptionHandlers().clear();
-        RestRouter.getContextProviders().clear();
+        RestRouter.getReaders().setDefaults();
+        RestRouter.getWriters().setDefaults();
+        RestRouter.getExceptionHandlers().setDefaults();
+        RestRouter.getContextProviders().setDefaults();
     }
 
     @Test

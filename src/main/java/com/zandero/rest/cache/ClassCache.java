@@ -1,5 +1,6 @@
-package com.zandero.rest.data;
+package com.zandero.rest.cache;
 
+import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.utils.Assert;
 import org.slf4j.*;
 
@@ -31,17 +32,13 @@ public abstract class ClassCache<T> {
      */
     public Map<String, Class<? extends T>> mediaTypes = new LinkedHashMap<>();
 
-    public void clear() {
+    public void setDefaults() {
 
         // clears caches
         classTypes.clear();
         mediaTypes.clear();
         cache.clear();
-
-        setDefaults();
     }
-
-    protected abstract void setDefaults();
 
     public void cache(T instance) {
 

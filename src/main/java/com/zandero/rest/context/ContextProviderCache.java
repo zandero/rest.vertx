@@ -1,5 +1,6 @@
 package com.zandero.rest.context;
 
+import com.zandero.rest.cache.ClassCache;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
@@ -18,7 +19,7 @@ import java.util.*;
 /**
  * Storage of context providers
  */
-public class ContextProviderFactory extends ClassCache<ContextProvider> {
+public class ContextProviderCache extends ClassCache<ContextProvider> {
 
     /**
      * Cache of classes that need or don't need context injection
@@ -39,11 +40,6 @@ public class ContextProviderFactory extends ClassCache<ContextProvider> {
 
 
         return (ContextProvider) ClassFactory.get(clazzType, this, aClass, provider, context, null);
-    }
-
-    @Override
-    protected void setDefaults() {
-
     }
 
     public void register(Class<?> aClass, Class<? extends ContextProvider> clazz) {

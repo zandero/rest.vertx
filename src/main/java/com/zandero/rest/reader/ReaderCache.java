@@ -1,5 +1,6 @@
 package com.zandero.rest.reader;
 
+import com.zandero.rest.cache.ClassCache;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
@@ -13,16 +14,18 @@ import javax.ws.rs.core.MediaType;
 /**
  * Provides definition and caching of request body reader implementations
  */
-public class ReaderFactory extends ClassCache<ValueReader> {
+public class ReaderCache extends ClassCache<ValueReader> {
 
-    private final static Logger log = LoggerFactory.getLogger(ReaderFactory.class);
+    private final static Logger log = LoggerFactory.getLogger(ReaderCache.class);
 
-    public ReaderFactory() {
+    public ReaderCache() {
         setDefaults();
     }
 
     @Override
-    protected void setDefaults() {
+    public void setDefaults() {
+
+        super.setDefaults();
 
         classTypes.put(String.class, GenericValueReader.class);
 

@@ -28,8 +28,8 @@ public class ArgumentProvider {
     public static Object[] getArguments(Method method,
                                         RouteDefinition definition,
                                         RoutingContext context,
-                                        ReaderFactory readers,
-                                        ContextProviderFactory providerFactory,
+                                        ReaderCache readers,
+                                        ContextProviderCache providerFactory,
                                         InjectionProvider injectionProvider,
                                         BeanProvider beanProvider) throws Throwable {
 
@@ -84,14 +84,14 @@ public class ArgumentProvider {
                             if (provider != null) {
                                 Object result = provider.provide(context.request());
                                 if (result != null) {
-                                    context.data().put(ContextProviderFactory.getContextDataKey(dataType), result);
+                                    context.data().put(ContextProviderCache.getContextDataKey(dataType), result);
                                 }
                             }
 
-                            args[parameter.getIndex()] = ContextProviderFactory.provideContext(method.getParameterTypes()[parameter.getIndex()],
-                                                                                               parameter.getDefaultValue(),
-                                                                                               definition,
-                                                                                               context);
+                            args[parameter.getIndex()] = ContextProviderCache.provideContext(method.getParameterTypes()[parameter.getIndex()],
+                                                                                             parameter.getDefaultValue(),
+                                                                                             definition,
+                                                                                             context);
                             break;
 
                         default:
@@ -229,7 +229,7 @@ public class ArgumentProvider {
                                               MethodParameter parameter,
                                               RouteDefinition definition,
                                               RoutingContext context,
-                                              ReaderFactory readers) {
+                                              ReaderCache readers) {
 
         // get associated reader set in parameter
         MediaType[] consumes = parameter.isBody() ? definition.getConsumes() : null;

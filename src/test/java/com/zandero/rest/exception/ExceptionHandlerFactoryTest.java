@@ -13,11 +13,11 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ExceptionHandlerFactoryTest {
 
-    static private ExceptionHandlerFactory factory;
+    static private ExceptionHandlerCache factory;
 
     @BeforeEach
     void setUp() {
-        factory = new ExceptionHandlerFactory();
+        factory = new ExceptionHandlerCache();
     }
 
     @Test

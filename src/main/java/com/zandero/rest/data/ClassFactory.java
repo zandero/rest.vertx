@@ -2,7 +2,8 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.annotation.*;
 import com.zandero.rest.bean.BeanDefinition;
-import com.zandero.rest.context.ContextProviderFactory;
+import com.zandero.rest.cache.ClassCache;
+import com.zandero.rest.context.ContextProviderCache;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.*;
@@ -39,7 +40,7 @@ public class ClassFactory {
         }
 
         // only use cache if no @Context is needed
-        boolean hasContext = ContextProviderFactory.hasContext(clazz);
+        boolean hasContext = ContextProviderCache.hasContext(clazz);
         boolean cacheIt = clazz.getAnnotation(NoCache.class) == null; // caching disabled / enabled
 
         Object instance = null;
@@ -97,8 +98,8 @@ public class ClassFactory {
         }
 
         // TODO: remove this or move this method out of ClassFactory ... use some other means to inject context ...
-        if (ContextProviderFactory.hasContext(clazz)) {
-            ContextProviderFactory.injectContext(instance, context);
+        if (ContextProviderCache.hasContext(clazz)) {
+            ContextProviderCache.injectContext(instance, context);
         }
 
         return instance;
