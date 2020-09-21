@@ -26,15 +26,15 @@ public class WriterCache extends ClassCache<HttpResponseWriter> {
 
         super.setDefaults();
 
-        classTypes.put(Response.class, JaxResponseWriter.class);
-        classTypes.put(HttpServerResponse.class, VertxResponseWriter.class);
+        typeCache.put(Response.class, JaxResponseWriter.class);
+        typeCache.put(HttpServerResponse.class, VertxResponseWriter.class);
 
-        mediaTypes.put(MediaType.APPLICATION_JSON, JsonResponseWriter.class);
-        mediaTypes.put(MediaType.TEXT_HTML, GenericResponseWriter.class);
+        mediaTypeCache.put(MediaType.APPLICATION_JSON, JsonResponseWriter.class);
+        mediaTypeCache.put(MediaType.TEXT_HTML, GenericResponseWriter.class);
 
         // if not found ... default to simple toString() writer
-        mediaTypes.put(MediaType.TEXT_PLAIN, PlainResponseWriter.class);
-        mediaTypes.put(MediaType.WILDCARD, PlainResponseWriter.class);
+        mediaTypeCache.put(MediaType.TEXT_PLAIN, PlainResponseWriter.class);
+        mediaTypeCache.put(MediaType.WILDCARD, PlainResponseWriter.class);
     }
 
     public void register(Class<? extends HttpResponseWriter> writer) {

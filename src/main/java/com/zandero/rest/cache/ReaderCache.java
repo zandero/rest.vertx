@@ -1,9 +1,9 @@
-package com.zandero.rest.reader;
+package com.zandero.rest.cache;
 
-import com.zandero.rest.cache.ClassCache;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.rest.reader.*;
 import com.zandero.utils.Assert;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
@@ -27,11 +27,11 @@ public class ReaderCache extends ClassCache<ValueReader> {
 
         super.setDefaults();
 
-        classTypes.put(String.class, GenericValueReader.class);
+        typeCache.put(String.class, GenericValueReader.class);
 
         // pre fill with most generic implementation
-        mediaTypes.put(MediaType.APPLICATION_JSON, JsonValueReader.class);
-        mediaTypes.put(MediaType.TEXT_PLAIN, GenericValueReader.class);
+        mediaTypeCache.put(MediaType.APPLICATION_JSON, JsonValueReader.class);
+        mediaTypeCache.put(MediaType.TEXT_PLAIN, GenericValueReader.class);
     }
 
     public ValueReader get(MethodParameter parameter,

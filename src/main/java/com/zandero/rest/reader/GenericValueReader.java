@@ -3,9 +3,12 @@ package com.zandero.rest.reader;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.exception.ClassFactoryException;
 
+import javax.ws.rs.Consumes;
+
 /**
  *
  */
+@Consumes("*/*")
 public class GenericValueReader implements ValueReader<Object> {
 
     @Override

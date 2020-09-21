@@ -7,6 +7,7 @@ import io.vertx.core.json.jackson.DatabindCodec;
 /**
  * Converts result into JSON object if not null
  */
+// @Produces("application/json")
 public class JsonResponseWriter<T> implements HttpResponseWriter<T> {
 
     // TODO: add custom mapper ... to override vertx.mapper if desired

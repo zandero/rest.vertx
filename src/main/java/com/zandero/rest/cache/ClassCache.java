@@ -2,7 +2,6 @@ package com.zandero.rest.cache;
 
 import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.utils.Assert;
-import org.slf4j.*;
 
 import javax.ws.rs.core.MediaType;
 import java.lang.reflect.Type;
@@ -11,84 +10,67 @@ import java.util.*;
 import static com.zandero.rest.data.ClassUtils.*;
 
 /**
- * Caching of classes
+ *
  */
 public abstract class ClassCache<T> {
-
-    private final static Logger log = LoggerFactory.getLogger(ClassCache.class);
 
     /**
      * Cache of class instances
      */
-    protected final Map<String, T> cache = new HashMap<>();
+    protected final Map<String, T> instanceCache = new HashMap<>();
 
     /**
      * map of class associated with class type (to be instantiated)
      */
-    public Map<Class<?>, Class<? extends T>> classTypes = new LinkedHashMap<>();
+    protected Map<Class<?>, Class<? extends T>> typeCache = new LinkedHashMap<>();
 
     /**
      * map of media type associated with class type (to be instantiated)
      */
-    public Map<String, Class<? extends T>> mediaTypes = new LinkedHashMap<>();
+    protected Map<String, Class<? extends T>> mediaTypeCache = new LinkedHashMap<>();
 
     public void setDefaults() {
 
         // clears caches
-        classTypes.clear();
-        mediaTypes.clear();
-        cache.clear();
+        instanceCache.clear();
+        typeCache.clear();
+        mediaTypeCache.clear();
     }
 
-    public void cache(T instance) {
-
-        cache.put(instance.getClass().getName(), instance);
+    public T get(String name) {
+        return instanceCache.get(name);
     }
 
-    public T getCached(Class<? extends T> clazz) {
-
-        return cache.get(clazz.getName());
+    public T get(Class<? extends T> clazz) {
+        return instanceCache.get(clazz.getName());
     }
 
-    public Class<? extends T> get(Class<?> type) {
-
+    public Class<? extends T> getFromType(Class<?> type) {
         if (type == null) {
             return null;
         }
         // try to find appropriate class if mapped (by type)
-        for (Class<?> key : classTypes.keySet()) {
+        for (Class<?> key : typeCache.keySet()) {
             if (key.isInstance(type) || key.isAssignableFrom(type)) {
-                return classTypes.get(key);
+                return typeCache.get(key);
             }
         }
 
         return null;
     }
 
-    public Class<? extends T> get(MediaType mediaType) {
-
+    public Class<? extends T> getFromMediaType(MediaType mediaType) {
         if (mediaType == null) {
             return null;
         }
 
-        return mediaTypes.get(MediaTypeHelper.getKey(mediaType));
+        return mediaTypeCache.get(MediaTypeHelper.getKey(mediaType));
     }
 
-    public T get(String name) {
-        return cache.get(name);
-    }
+    public void put(T clazz) {
 
-
-    protected void register(String mediaType, Class<? extends T> clazz) {
-
-        Assert.notNull(mediaType, "Missing media type!");
-        Assert.notNull(clazz, "Missing media type class");
-
-        MediaType type = MediaTypeHelper.valueOf(mediaType);
-        Assert.notNull(type, "Unknown media type given: " + mediaType + "!");
-
-        String key = MediaTypeHelper.getKey(type);
-        mediaTypes.put(key, clazz);
+        Assert.notNull(clazz, "Missing class instance!");
+        instanceCache.put(clazz.getClass().getName(), clazz);
     }
 
     protected void register(String mediaType, T clazz) {
@@ -100,16 +82,7 @@ public abstract class ClassCache<T> {
         Assert.notNull(type, "Unknown media type given: " + mediaType + "!");
 
         String key = MediaTypeHelper.getKey(type);
-        cache.put(key, clazz);
-    }
-
-    protected void register(MediaType mediaType, Class<? extends T> clazz) {
-
-        Assert.notNull(mediaType, "Missing media type!");
-        Assert.notNull(clazz, "Missing media type class!");
-
-        String key = MediaTypeHelper.getKey(mediaType);
-        mediaTypes.put(key, clazz);
+        instanceCache.put(key, clazz);
     }
 
     protected void register(MediaType mediaType, T clazz) {
@@ -118,13 +91,28 @@ public abstract class ClassCache<T> {
         Assert.notNull(clazz, "Missing media type class instance!");
 
         String key = MediaTypeHelper.getKey(mediaType);
-        cache.put(key, clazz);
+        instanceCache.put(key, clazz);
     }
 
-    protected void register(T clazz) {
+    protected void register(String mediaType, Class<? extends T> clazz) {
 
-        Assert.notNull(clazz, "Missing class instance!");
-        cache.put(clazz.getClass().getName(), clazz);
+        Assert.notNull(mediaType, "Missing media type!");
+        Assert.notNull(clazz, "Missing media type class");
+
+        MediaType type = MediaTypeHelper.valueOf(mediaType);
+        Assert.notNull(type, "Unknown media type given: " + mediaType + "!");
+
+        String key = MediaTypeHelper.getKey(type);
+        mediaTypeCache.put(key, clazz);
+    }
+
+    protected void register(MediaType mediaType, Class<? extends T> clazz) {
+
+        Assert.notNull(mediaType, "Missing media type!");
+        Assert.notNull(clazz, "Missing media type class!");
+
+        String key = MediaTypeHelper.getKey(mediaType);
+        mediaTypeCache.put(key, clazz);
     }
 
     protected void register(Class<?> aClass, Class<? extends T> clazz) {
@@ -137,7 +125,7 @@ public abstract class ClassCache<T> {
             checkIfCompatibleType(aClass, expected, "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + clazz + "'!");
         }
 
-        classTypes.put(aClass, clazz);
+        typeCache.put(aClass, clazz);
     }
 
     protected void register(Class<?> aClass, T instance) {
@@ -152,6 +140,6 @@ public abstract class ClassCache<T> {
                                   "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + instance.getClass() + "'!");
         }
 
-        cache.put(aClass.getName(), instance);
+        instanceCache.put(aClass.getName(), instance);
     }
 }

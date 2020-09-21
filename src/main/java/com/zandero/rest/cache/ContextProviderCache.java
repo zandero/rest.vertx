@@ -1,6 +1,6 @@
-package com.zandero.rest.context;
+package com.zandero.rest.cache;
 
-import com.zandero.rest.cache.ClassCache;
+import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;

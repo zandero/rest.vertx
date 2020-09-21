@@ -2,8 +2,7 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.annotation.*;
 import com.zandero.rest.bean.BeanDefinition;
-import com.zandero.rest.cache.ClassCache;
-import com.zandero.rest.context.ContextProviderCache;
+import com.zandero.rest.cache.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.*;
@@ -25,9 +24,6 @@ public class ClassFactory {
 
     private static final Set<String> INJECTION_ANNOTATIONS = ArrayUtils.toSet("Inject", "Injection", "InjectionProvider");
 
-    // public ClassFactory() { }
-
-
     @SuppressWarnings("unchecked")
     public static Object getClassInstance(Class<?> clazz,
                                           ClassCache classCache,
@@ -45,7 +41,7 @@ public class ClassFactory {
 
         Object instance = null;
         if (!hasContext && cacheIt) { // no Context ... we can get it from cache
-            instance = classCache.getCached(clazz);
+            instance = classCache.get(clazz);
         }
 
         if (instance == null) {
@@ -53,7 +49,7 @@ public class ClassFactory {
             instance =  newInstanceOf(clazz, provider, context);
 
             if (!hasContext && cacheIt) { // no context .. we can cache this instance
-                classCache.cache(instance);
+                classCache.put(instance);
             }
         }
 
@@ -320,14 +316,14 @@ public class ClassFactory {
 
         // No class defined ... try by type
         if (clazz == null) {
-            clazz = classCache.get(type);
+            clazz = classCache.getFromType(type);
         }
 
         // try with media type ...
         if (clazz == null && mediaTypes != null && mediaTypes.length > 0) {
 
             for (MediaType mediaType : mediaTypes) {
-                clazz = classCache.get(mediaType);
+                clazz = classCache.getFromMediaType(mediaType);
 
                 if (clazz != null) {
                     break;
@@ -343,21 +339,12 @@ public class ClassFactory {
         return classCache.get(type.getName());
     }
 
-   /* private Class<? extends T> get(MediaType mediaType) {
-
-        if (mediaType == null) {
-            return null;
-        }
-
-        return mediaTypes.get(MediaTypeHelper.getKey(mediaType));
-    }*/
-
     public static Object get(String mediaType,
                  ClassCache classCache,
                  RoutingContext routeContext) throws ClassFactoryException,
                                                                            ContextException {
 
-        Class<?> clazz = classCache.get(MediaTypeHelper.valueOf(mediaType));
+        Class<?> clazz = classCache.getFromMediaType(MediaTypeHelper.valueOf(mediaType));
         return getClassInstance(clazz, classCache, null, routeContext);
     }
 

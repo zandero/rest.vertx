@@ -1,5 +1,6 @@
 package com.zandero.rest.exception;
 
+import com.zandero.rest.cache.ExceptionHandlerCache;
 import com.zandero.rest.test.exceptions.*;
 import com.zandero.rest.test.handler.*;
 import org.junit.jupiter.api.*;

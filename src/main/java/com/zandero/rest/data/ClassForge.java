@@ -99,16 +99,4 @@ public class ClassForge {
 
         return writer;
     }
-/*
-    public void register(Class<? extends HttpResponseWriter<?>> writer) {
-        writers.register(writer);
-    }
-
-    public void register(HttpResponseWriter writer) {
-        writers.register(writer);
-    }
-
-    public void register(MediaType type, HttpResponseWriter<?> writer) {
-        writers.register(type, writer);
-    }*/
 }

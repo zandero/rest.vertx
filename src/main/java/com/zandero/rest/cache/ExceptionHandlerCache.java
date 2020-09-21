@@ -1,8 +1,7 @@
-package com.zandero.rest.exception;
+package com.zandero.rest.cache;
 
-import com.zandero.rest.cache.ClassCache;
-import com.zandero.rest.context.ContextProviderCache;
 import com.zandero.rest.data.ClassFactory;
+import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
 import io.vertx.ext.web.RoutingContext;
@@ -65,7 +64,7 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
 
         // get by exception type from classTypes list
         if (found == null) {
-            found = get(aClass);
+            found = getFromType(aClass);
 
             if (found != null) {
                 log.info("Found matching class type exception handler: " + found.getName());
@@ -98,7 +97,7 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
 
             checkIfAlreadyRegistered((Class) type);
 
-            classTypes.put((Class) type, handler);
+            typeCache.put((Class) type, handler);
 
             // cache instance by handler class type
             super.register((Class<?>) type, handler);
@@ -120,17 +119,17 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
             checkIfAlreadyRegistered((Class) generic);
 
             // register
-            classTypes.put((Class) generic, handler.getClass());
+            typeCache.put((Class) generic, handler.getClass());
 
             // cache instance by handler class type
-            super.register(handler);
+            super.put(handler);
         }
     }
 
     private void checkIfAlreadyRegistered(Class<?> clazz) {
 
         // check if already registered
-        Class<? extends ExceptionHandler> found = classTypes.get(clazz);
+        Class<? extends ExceptionHandler> found = typeCache.get(clazz);
         if (found != null) {
             throw new IllegalArgumentException("Exception handler for: " + clazz.getName() + " already registered with: " + found.getName());
         }

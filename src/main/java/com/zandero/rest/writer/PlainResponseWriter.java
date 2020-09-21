@@ -8,6 +8,7 @@ import org.slf4j.*;
  *
  * @param <T> provided response type
  */
+// @Produces("html/text")
 public class PlainResponseWriter<T> implements HttpResponseWriter<T> {
 
     private final static Logger log = LoggerFactory.getLogger(PlainResponseWriter.class);
