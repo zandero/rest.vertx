@@ -26,6 +26,7 @@ public class ArgumentProvider {
     private final static Logger log = LoggerFactory.getLogger(ArgumentProvider.class);
 
     @SuppressWarnings("unchecked")
+    // TODO: split up method ... to long
     public static Object[] getArguments(Method method,
                                         RouteDefinition definition,
                                         RoutingContext context,
@@ -167,6 +168,7 @@ public class ArgumentProvider {
         return value;
     }
 
+    // TODO: split up .. to getPath(), getQuery() ...
     private static String getValue(RouteDefinition definition, MethodParameter param, RoutingContext context) {
 
         switch (param.getType()) {

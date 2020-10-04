@@ -1,6 +1,6 @@
 package com.zandero.rest.data;
 
-import com.zandero.rest.cache.WriterCache;
+import com.zandero.rest.cache.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.writer.*;
@@ -16,14 +16,25 @@ public class ClassForge {
 
     private final static Logger log = LoggerFactory.getLogger(ClassForge.class);
 
-    // TODO: to be hidden
     private final WriterCache writers = new WriterCache();
+    private final ReaderCache readers = new ReaderCache();
+    private final ExceptionHandlerCache exceptionHandlers = new ExceptionHandlerCache();
+    private final ContextProviderCache contextProviders = new ContextProviderCache();
 
     private InjectionProvider injection;
 
+    // TODO: to be hidden
     public WriterCache getWriters() {
         return writers;
     }
+
+    public ReaderCache getReaders() { return readers; }
+
+    public ExceptionHandlerCache getExceptionHandlers() { return exceptionHandlers; }
+
+    public ContextProviderCache getContextProviders() { return contextProviders; }
+
+    public InjectionProvider getInjectionProvider() { return injection; }
 
     public void setInjectionProvider(InjectionProvider provider) {
         injection = provider;
@@ -40,7 +51,6 @@ public class ClassForge {
      */
     protected HttpResponseWriter getResponseWriter(Class returnType,
                                                    RouteDefinition definition,
-                                                   // InjectionProvider provider,
                                                    RoutingContext routeContext,
                                                    MediaType accept) {
 
@@ -66,9 +76,9 @@ public class ClassForge {
         }
     }
 
-    public HttpResponseWriter<?> getWriter(Class<?> returnType,
-                                           RouteDefinition definition,
-                                           RoutingContext context) throws ClassFactoryException {
+    public HttpResponseWriter<?> getResponseWriter(Class<?> returnType,
+                                                   RouteDefinition definition,
+                                                   RoutingContext context) throws ClassFactoryException {
 
         if (returnType == null) {
             returnType = definition.getReturnType();

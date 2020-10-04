@@ -224,14 +224,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-validator -->
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>${version.hibernate.validation}</version>
-            <scope>test</scope>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
         <dependency>
             <groupId>org.hibernate.validator</groupId>

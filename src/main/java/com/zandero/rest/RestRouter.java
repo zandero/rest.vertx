@@ -37,15 +37,7 @@ public class RestRouter {
 
     private static final ClassForge forge = new ClassForge();
 
-    private static final ReaderCache readers = new ReaderCache();
-
-    private static final ExceptionHandlerCache handlers = new ExceptionHandlerCache();
-
-    private static final ContextProviderCache providers = new ContextProviderCache();
-
     private static final RestEventExecutor eventExecutor = new RestEventExecutor();
-
-    private static InjectionProvider injectionProvider;
 
     private static BeanProvider beanProvider = new DefaultBeanProvider();
 
@@ -93,7 +85,7 @@ public class RestRouter {
                 Class<?> inspectApi = (Class<?>) api;
 
                 try {
-                    api = ClassFactory.newInstanceOf(inspectApi, injectionProvider, null);
+                    api = ClassFactory.newInstanceOf(inspectApi, getInjectionProvider(), null);
                 } catch (ClassFactoryException | ContextException e) {
                     throw new IllegalArgumentException(e.getMessage());
                 }
@@ -175,7 +167,7 @@ public class RestRouter {
 
     private static void checkWriterCompatibility(RouteDefinition definition) {
         try { // no way to know the accept content at this point
-            forge.getWriter(definition.getReturnType(), definition, null);
+            forge.getResponseWriter(definition.getReturnType(), definition, null);
         } catch (ClassFactoryException e) {
             // ignoring instance creation ... but leaving Illegal argument exceptions to pass
         }
@@ -185,7 +177,7 @@ public class RestRouter {
 
         try {
             Class<?> clazz = (Class<?>) getGenericType(provider);
-            ContextProvider<?> instance = getContextProviders().getContextProvider(injectionProvider,
+            ContextProvider<?> instance = getContextProviders().getContextProvider(getInjectionProvider(),
                                                                                    clazz,
                                                                                    provider,
                                                                                    null);
@@ -233,7 +225,7 @@ public class RestRouter {
     public static void handler(Router output, Class<? extends Handler<RoutingContext>> handler) {
 
         try {
-            Handler<RoutingContext> instance = (Handler<RoutingContext>) ClassFactory.newInstanceOf(handler, injectionProvider, null);
+            Handler<RoutingContext> instance = (Handler<RoutingContext>) ClassFactory.newInstanceOf(handler, getInjectionProvider(), null);
             output.route().handler(instance);
         } catch (ClassFactoryException | ContextException e) {
             throw new IllegalArgumentException(e.getMessage());
@@ -339,9 +331,11 @@ public class RestRouter {
             return;
         }
 
-        ValueReader<?> bodyReader = readers.get(definition.getBodyParameter(), definition.getReader(), injectionProvider,
-                                                null,
-                                                definition.getConsumes());
+        ValueReader<?> bodyReader = getReaders().get(definition.getBodyParameter(),
+                                                     definition.getReader(),
+                                                     getInjectionProvider(),
+                                                     null,
+                                                     definition.getConsumes());
 
         if (bodyReader != null && definition.checkCompatibility()) {
 
@@ -420,7 +414,14 @@ public class RestRouter {
         return context -> context.vertx().executeBlocking(
             fut -> {
                 try {
-                    Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider, beanProvider);
+                    Object[] args = ArgumentProvider.getArguments(method,
+                                                                  definition,
+                                                                  context,
+                                                                  getReaders(),
+                                                                  getContextProviders(),
+                                                                  getInjectionProvider(),
+                                                                  beanProvider);
+
                     validate(method, definition, validator, toInvoke, args);
 
                     fut.complete(method.invoke(toInvoke, args));
@@ -436,9 +437,9 @@ public class RestRouter {
 
                         Class returnType = result != null ? result.getClass() : definition.getReturnType();
 
-                        HttpResponseWriter writer = forge.getWriter(returnType,
-                                                                    definition,
-                                                                    context);
+                        HttpResponseWriter writer = forge.getResponseWriter(returnType,
+                                                                            definition,
+                                                                            context);
 
                         validateResult(result, method, definition, validator, toInvoke);
                         produceResponse(result, context, definition, writer);
@@ -457,7 +458,7 @@ public class RestRouter {
         return context -> {
 
             try {
-                Object[] args = ArgumentProvider.getArguments(method, definition, context, readers, providers, injectionProvider, beanProvider);
+                Object[] args = ArgumentProvider.getArguments(method, definition, context, getReaders(), getContextProviders(), getInjectionProvider(), beanProvider);
                 validate(method, definition, validator, toInvoke, args);
 
                 Object result = method.invoke(toInvoke, args);
@@ -481,9 +482,9 @@ public class RestRouter {
 
                                 HttpResponseWriter writer;
                                 if (futureResult != null) { // get writer from result type otherwise we don't know
-                                    writer = forge.getWriter(futureResult.getClass(),
-                                                             definition,
-                                                             context);
+                                    writer = forge.getResponseWriter(futureResult.getClass(),
+                                                                     definition,
+                                                                     context);
                                 } else { // due to limitations of Java generics we can't tell the type if response is null
                                     Class<?> writerClass = definition.getWriter() == null ? GenericResponseWriter.class : definition.getWriter();
                                     writer = (HttpResponseWriter) ClassFactory.newInstanceOf(writerClass);
@@ -538,7 +539,7 @@ public class RestRouter {
 
                 HttpResponseWriter<?> writer;
                 if (notFoundWriter instanceof Class) {
-                    writer = (HttpResponseWriter<?>) ClassFactory.getClassInstance((Class<? extends HttpResponseWriter<?>>) notFoundWriter, forge.getWriters(), injectionProvider, context);
+                    writer = (HttpResponseWriter<?>) ClassFactory.getClassInstance((Class<? extends HttpResponseWriter<?>>) notFoundWriter, getWriters(), getInjectionProvider(), context);
                 } else {
                     writer = (HttpResponseWriter<?>) notFoundWriter;
                 }
@@ -569,7 +570,7 @@ public class RestRouter {
                 exHandlers = definition.getExceptionHandlers();
             }
 
-            handler = handlers.getExceptionHandler(clazz, exHandlers, injectionProvider, context);
+            handler = getExceptionHandlers().getExceptionHandler(clazz, exHandlers, getInjectionProvider(), context);
         } catch (ClassFactoryException classException) {
             // Can't provide exception handler ... rethrow
             log.error("Can't provide exception handler!", classException);
@@ -601,7 +602,8 @@ public class RestRouter {
         try {
             handler.write(ex.getCause(), request, response);
 
-            eventExecutor.triggerEvents(ex.getCause(), response.getStatusCode(), definition, context, injectionProvider);
+            eventExecutor.triggerEvents(ex.getCause(), response.getStatusCode(), definition, context,
+                                        getInjectionProvider());
         } catch (Throwable handlerException) {
             // this should not happen
             log.error("Failed to write out handled exception: " + e.getMessage(), e);
@@ -650,7 +652,7 @@ public class RestRouter {
         writer.write(result, request, response);
 
         // find and trigger events from // result / response
-        eventExecutor.triggerEvents(result, response.getStatusCode(), definition, context, injectionProvider);
+        eventExecutor.triggerEvents(result, response.getStatusCode(), definition, context, getInjectionProvider());
 
         // finish if not finished by writer
         // and is not an Async REST (Async RESTs must finish responses on their own)
@@ -659,20 +661,17 @@ public class RestRouter {
         }
     }
 
-    public static WriterCache getWriters() {
-        return forge.getWriters();
-    }
+    public static WriterCache getWriters() { return forge.getWriters(); }
 
-    public static ReaderCache getReaders() {
-
-        return readers;
-    }
+    public static ReaderCache getReaders() { return forge.getReaders(); }
 
     public static ExceptionHandlerCache getExceptionHandlers() {
-
-        return handlers;
+        return forge.getExceptionHandlers();
     }
 
+    public static ContextProviderCache getContextProviders() { return forge.getContextProviders(); }
+
+    public static InjectionProvider getInjectionProvider() { return forge.getInjectionProvider(); }
     /**
      * Registers a context provider for given type of class
      *
@@ -689,7 +688,7 @@ public class RestRouter {
         Assert.notNull(clazz, "Missing provided class type!");
         Assert.notNull(provider, "Missing provider class type!!");
 
-        providers.register(clazz, provider);
+        getContextProviders().register(clazz, provider);
         log.info("Registering '" + clazz + "' provider '" + provider.getName() + "'");
     }
 
@@ -704,12 +703,8 @@ public class RestRouter {
         Assert.notNull(clazz, "Missing provider class type!");
         Assert.notNull(provider, "Missing provider instance!");
 
-        providers.register(clazz, provider);
+        getContextProviders().register(clazz, provider);
         log.info("Registering '" + clazz + "' provider '" + provider.getClass().getName() + "'");
-    }
-
-    public static ContextProviderCache getContextProviders() {
-        return providers;
     }
 
     static void pushContext(RoutingContext context, Object object) {
@@ -727,10 +722,9 @@ public class RestRouter {
      */
     public static void injectWith(InjectionProvider provider) {
 
-        injectionProvider = provider;
         forge.setInjectionProvider(provider);
-        if (injectionProvider != null) {
-            log.info("Registered injection provider: " + injectionProvider.getClass().getName());
+        if (getInjectionProvider() != null) {
+            log.info("Registered injection provider: " + getInjectionProvider().getClass().getName());
         } else {
             log.info("No injection provider specified!");
         }
@@ -744,8 +738,8 @@ public class RestRouter {
     public static void injectWith(Class<InjectionProvider> provider) {
 
         try {
-            injectionProvider = (InjectionProvider) ClassFactory.newInstanceOf(provider);
-            log.info("Registered injection provider: " + injectionProvider.getClass().getName());
+            forge.setInjectionProvider ((InjectionProvider) ClassFactory.newInstanceOf(provider));
+            log.info("Registered injection provider: " + getInjectionProvider().getClass().getName());
         } catch (ClassFactoryException e) {
             log.error("Failed to instantiate injection provider: ", e);
             throw new IllegalArgumentException(e);

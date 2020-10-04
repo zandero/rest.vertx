@@ -16,7 +16,7 @@ import java.util.*;
 import static com.zandero.rest.data.ClassUtils.*;
 
 /**
- * Simple class instance cache and class factory utility
+ * A class factory utility
  */
 public class ClassFactory {
 
@@ -35,8 +35,8 @@ public class ClassFactory {
             return null;
         }
 
-        // only use cache if no @Context is needed
-        boolean hasContext = ContextProviderCache.hasContext(clazz);
+        // only use cache if no @Context is needed (TODO: join this two calls into one!)
+        boolean hasContext = ContextProviderCache.hasContext(clazz); // TODO: move this method somewhere else
         boolean cacheIt = clazz.getAnnotation(NoCache.class) == null; // caching disabled / enabled
 
         Object instance = null;
@@ -100,21 +100,6 @@ public class ClassFactory {
 
         return instance;
     }
-
-   /* private static boolean contain(String value, String... text) {
-
-        if (StringUtils.isNullOrEmptyTrimmed(value)) {
-            return false;
-        }
-
-        for (String search : text) {
-            if (StringUtils.equals(search, value, true)) {
-                return true;
-            }
-        }
-
-        return false;
-    }*/
 
     public static Object newInstanceOf(Class<?> clazz, RoutingContext context) throws ClassFactoryException {
 
@@ -226,82 +211,6 @@ public class ClassFactory {
     public static Object newInstanceOf(Class<?> clazz) throws ClassFactoryException {
         return newInstanceOf(clazz, null);
     }
-
-   /* protected void register(String mediaType, Class<? extends T> clazz) {
-
-        Assert.notNull(mediaType, "Missing media type!");
-        Assert.notNull(clazz, "Missing media type class");
-
-        MediaType type = MediaTypeHelper.valueOf(mediaType);
-        Assert.notNull(type, "Unknown media type given: " + mediaType + "!");
-
-        String key = MediaTypeHelper.getKey(type);
-        mediaTypes.put(key, clazz);
-    }
-
-    protected void register(String mediaType, T clazz) {
-
-        Assert.notNull(mediaType, "Missing media type!");
-        Assert.notNull(clazz, "Missing media type class instance!");
-
-        MediaType type = MediaTypeHelper.valueOf(mediaType);
-        Assert.notNull(type, "Unknown media type given: " + mediaType + "!");
-
-        String key = MediaTypeHelper.getKey(type);
-        cache.put(key, clazz);
-    }
-
-    protected void register(MediaType mediaType, Class<? extends T> clazz) {
-
-        Assert.notNull(mediaType, "Missing media type!");
-        Assert.notNull(clazz, "Missing media type class!");
-
-        String key = MediaTypeHelper.getKey(mediaType);
-        mediaTypes.put(key, clazz);
-    }
-
-    protected void register(MediaType mediaType, T clazz) {
-
-        Assert.notNull(mediaType, "Missing media type!");
-        Assert.notNull(clazz, "Missing media type class instance!");
-
-        String key = MediaTypeHelper.getKey(mediaType);
-        cache.put(key, clazz);
-    }
-
-    protected void register(T clazz) {
-
-        Assert.notNull(clazz, "Missing class instance!");
-        cache.put(clazz.getClass().getName(), clazz);
-    }
-
-    protected void register(Class<?> aClass, Class<? extends T> clazz) {
-
-        Assert.notNull(aClass, "Missing associated class!");
-        Assert.notNull(clazz, "Missing response type class!");
-
-        if (checkCompatibility(clazz)) {
-            Type expected = getGenericType(clazz);
-            checkIfCompatibleType(aClass, expected, "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + clazz + "'!");
-        }
-
-        classTypes.put(aClass, clazz);
-    }
-
-    protected void register(Class<?> aClass, T instance) {
-
-        Assert.notNull(aClass, "Missing associated class!");
-        Assert.notNull(instance, "Missing instance of class!");
-
-        if (ClassUtils.checkCompatibility(instance.getClass())) {
-            Type expected = getGenericType(instance.getClass());
-            checkIfCompatibleType(aClass,
-                                  expected,
-                                  "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + instance.getClass() + "'!");
-        }
-
-        cache.put(aClass.getName(), instance);
-    }*/
 
     // TODO : move media type specific into a new class that Reader, Writer factory derives from
     public static Object get(Class<?> type,

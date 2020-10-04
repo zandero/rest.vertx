@@ -10,7 +10,7 @@ import java.util.*;
 import static com.zandero.rest.data.ClassUtils.*;
 
 /**
- *
+ * Base class to cache class instances by name, type, media type ...
  */
 public abstract class ClassCache<T> {
 
@@ -37,6 +37,7 @@ public abstract class ClassCache<T> {
         mediaTypeCache.clear();
     }
 
+    // TODO: rename to something other than get() like getInstance()
     public T get(String name) {
         return instanceCache.get(name);
     }
@@ -45,6 +46,8 @@ public abstract class ClassCache<T> {
         return instanceCache.get(clazz.getName());
     }
 
+
+    // TODO: rename to getInstanceFromType()
     public Class<? extends T> getFromType(Class<?> type) {
         if (type == null) {
             return null;
@@ -59,6 +62,7 @@ public abstract class ClassCache<T> {
         return null;
     }
 
+    // TODO: rename to getInstanceFromMediaType()
     public Class<? extends T> getFromMediaType(MediaType mediaType) {
         if (mediaType == null) {
             return null;
@@ -67,6 +71,7 @@ public abstract class ClassCache<T> {
         return mediaTypeCache.get(MediaTypeHelper.getKey(mediaType));
     }
 
+    // TODO: rename to register or some other name
     public void put(T clazz) {
 
         Assert.notNull(clazz, "Missing class instance!");
@@ -75,14 +80,8 @@ public abstract class ClassCache<T> {
 
     protected void register(String mediaType, T clazz) {
 
-        Assert.notNull(mediaType, "Missing media type!");
-        Assert.notNull(clazz, "Missing media type class instance!");
-
         MediaType type = MediaTypeHelper.valueOf(mediaType);
-        Assert.notNull(type, "Unknown media type given: " + mediaType + "!");
-
-        String key = MediaTypeHelper.getKey(type);
-        instanceCache.put(key, clazz);
+        register(type, clazz);
     }
 
     protected void register(MediaType mediaType, T clazz) {
@@ -96,14 +95,8 @@ public abstract class ClassCache<T> {
 
     protected void register(String mediaType, Class<? extends T> clazz) {
 
-        Assert.notNull(mediaType, "Missing media type!");
-        Assert.notNull(clazz, "Missing media type class");
-
         MediaType type = MediaTypeHelper.valueOf(mediaType);
-        Assert.notNull(type, "Unknown media type given: " + mediaType + "!");
-
-        String key = MediaTypeHelper.getKey(type);
-        mediaTypeCache.put(key, clazz);
+        register(type, clazz);
     }
 
     protected void register(MediaType mediaType, Class<? extends T> clazz) {
