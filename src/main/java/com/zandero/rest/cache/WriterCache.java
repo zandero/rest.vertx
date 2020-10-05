@@ -18,13 +18,13 @@ public class WriterCache extends ClassCache<HttpResponseWriter> {
 
     public WriterCache() {
         // default writers
-        setDefaults();
+        clear();
     }
 
     @Override
-    public void setDefaults() {
+    public void clear() {
 
-        super.setDefaults();
+        super.clear();
 
         typeCache.put(Response.class, JaxResponseWriter.class);
         typeCache.put(HttpServerResponse.class, VertxResponseWriter.class);
@@ -47,7 +47,7 @@ public class WriterCache extends ClassCache<HttpResponseWriter> {
             MediaType[] produces = MediaTypeHelper.getMediaTypes(found.value());
             if (produces != null && produces.length > 0) {
                 for (MediaType type : produces) {
-                    super.register(type, writer);
+                    super.registerInstanceByMediaType(type, writer);
                 }
                 registered = true;
             }
@@ -67,7 +67,7 @@ public class WriterCache extends ClassCache<HttpResponseWriter> {
             MediaType[] produces = MediaTypeHelper.getMediaTypes(found.value());
             if (produces != null && produces.length > 0) {
                 for (MediaType type : produces) {
-                    super.register(type, writer); // TODO: might be register without super
+                    super.registerInstanceByMediaType(type, writer); // TODO: might be register without super
                 }
                 registered = true;
             }
@@ -83,7 +83,7 @@ public class WriterCache extends ClassCache<HttpResponseWriter> {
         Assert.notNull(aClass, "Missing response writer type class!");
 
         log.info("Registering '" + aClass.getName() + "' writer '" + clazz.getName() + "'");
-        super.register(aClass, clazz);
+        super.registerTypeByAssociatedType(aClass, clazz);
     }
 
     public void register(Class<?> aClass, HttpResponseWriter clazz) {
@@ -92,7 +92,7 @@ public class WriterCache extends ClassCache<HttpResponseWriter> {
         Assert.notNull(aClass, "Missing response writer type class!");
 
         log.info("Registering '" + aClass.getName() + "' writer '" + clazz.getClass().getName() + "'");
-        super.register(aClass, clazz);
+        super.registerInstanceByAssociatedType(aClass, clazz);
     }
 
     public void register(String mediaType, Class<? extends HttpResponseWriter> clazz) {
@@ -101,7 +101,7 @@ public class WriterCache extends ClassCache<HttpResponseWriter> {
         Assert.notNull(clazz, "Missing response writer!");
 
         log.info("Registering '" + mediaType + "' writer '" + clazz.getName() + "'");
-        super.register(mediaType, clazz);
+        super.registerTypeByMediaType(mediaType, clazz);
     }
 
     public void register(String mediaType, HttpResponseWriter clazz) {
@@ -110,7 +110,7 @@ public class WriterCache extends ClassCache<HttpResponseWriter> {
         Assert.notNull(clazz, "Missing response writer!");
 
         log.info("Registering '" + mediaType + "' writer '" + clazz.getClass().getName() + "'");
-        super.register(mediaType, clazz);
+        super.registerInstanceByMediaType(mediaType, clazz);
     }
 
     public void register(MediaType mediaType, Class<? extends HttpResponseWriter> clazz) {
@@ -119,7 +119,7 @@ public class WriterCache extends ClassCache<HttpResponseWriter> {
         Assert.notNull(clazz, "Missing response writer!");
 
         log.info("Registering '" + MediaTypeHelper.toString(mediaType) + "' writer '" + clazz.getName() + "'");
-        super.register(mediaType, clazz);
+        super.registerInstanceByMediaType(mediaType, clazz);
     }
 
     public void register(MediaType mediaType, HttpResponseWriter clazz) {
@@ -128,6 +128,6 @@ public class WriterCache extends ClassCache<HttpResponseWriter> {
         Assert.notNull(clazz, "Missing response writer!");
 
         log.info("Registering '" + MediaTypeHelper.toString(mediaType) + "' writer '" + clazz.getClass().getName() + "'");
-        super.register(mediaType, clazz);
+        super.registerInstanceByMediaType(mediaType, clazz);
     }
 }

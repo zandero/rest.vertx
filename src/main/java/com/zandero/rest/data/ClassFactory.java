@@ -41,7 +41,7 @@ public class ClassFactory {
 
         Object instance = null;
         if (!hasContext && cacheIt) { // no Context ... we can get it from cache
-            instance = classCache.get(clazz);
+            instance = classCache.getInstanceByType(clazz);
         }
 
         if (instance == null) {
@@ -49,7 +49,7 @@ public class ClassFactory {
             instance =  newInstanceOf(clazz, provider, context);
 
             if (!hasContext && cacheIt) { // no context .. we can cache this instance
-                classCache.put(instance);
+                classCache.registerInstance(instance);
             }
         }
 
@@ -225,14 +225,14 @@ public class ClassFactory {
 
         // No class defined ... try by type
         if (clazz == null) {
-            clazz = classCache.getFromType(type);
+            clazz = classCache.getInstanceFromType(type);
         }
 
         // try with media type ...
         if (clazz == null && mediaTypes != null && mediaTypes.length > 0) {
 
             for (MediaType mediaType : mediaTypes) {
-                clazz = classCache.getFromMediaType(mediaType);
+                clazz = classCache.getInstanceFromMediaType(mediaType);
 
                 if (clazz != null) {
                     break;
@@ -245,7 +245,7 @@ public class ClassFactory {
         }
 
         // 3. find cached instance ... if any
-        return classCache.get(type.getName());
+        return classCache.getInstanceByName(type.getName());
     }
 
     public static Object get(String mediaType,
@@ -253,7 +253,7 @@ public class ClassFactory {
                  RoutingContext routeContext) throws ClassFactoryException,
                                                                            ContextException {
 
-        Class<?> clazz = classCache.getFromMediaType(MediaTypeHelper.valueOf(mediaType));
+        Class<?> clazz = classCache.getInstanceFromMediaType(MediaTypeHelper.valueOf(mediaType));
         return getClassInstance(clazz, classCache, null, routeContext);
     }
 

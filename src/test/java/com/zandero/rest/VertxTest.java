@@ -30,10 +30,10 @@ public class VertxTest {
         vertxTestContext = new VertxTestContext();
 
         // clear all registered writers or reader and handlers
-        RestRouter.getReaders().setDefaults();
-        RestRouter.getWriters().setDefaults();
-        RestRouter.getExceptionHandlers().setDefaults();
-        RestRouter.getContextProviders().setDefaults();
+        RestRouter.getReaders().clear();
+        RestRouter.getWriters().clear();
+        RestRouter.getExceptionHandlers().clear();
+        RestRouter.getContextProviders().clear();
 
         // clear
         RestRouter.validateWith((Validator) null);

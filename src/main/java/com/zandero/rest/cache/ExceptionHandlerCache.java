@@ -26,7 +26,7 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
 
     static Map<Class<?>, Class<? extends ExceptionHandler<?>>> defaultHandlers;
 
-    {
+    static {
         defaultHandlers = new LinkedHashMap<>();
         defaultHandlers.put(ConstraintException.class, ConstraintExceptionHandler.class);
         defaultHandlers.put(WebApplicationException.class, WebApplicationExceptionHandler.class);
@@ -37,7 +37,7 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
 
         // register handlers from specific to general ...
         // when searching we go over handlers ... first match is returned
-        setDefaults();
+        clear();
     }
 
     public ExceptionHandler getExceptionHandler(Class<? extends Throwable> aClass,
@@ -64,7 +64,7 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
 
         // get by exception type from classTypes list
         if (found == null) {
-            found = getFromType(aClass);
+            found = getInstanceFromType(aClass);
 
             if (found != null) {
                 log.info("Found matching class type exception handler: " + found.getName());
@@ -100,7 +100,7 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
             typeCache.put((Class) type, handler);
 
             // cache instance by handler class type
-            super.register((Class<?>) type, handler);
+            super.registerTypeByAssociatedType((Class<?>) type, handler);
         }
     }
 
@@ -122,7 +122,7 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
             typeCache.put((Class) generic, handler.getClass());
 
             // cache instance by handler class type
-            super.put(handler);
+            super.registerInstance(handler);
         }
     }
 

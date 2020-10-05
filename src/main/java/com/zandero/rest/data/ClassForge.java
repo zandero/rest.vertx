@@ -37,6 +37,7 @@ public class ClassForge {
     public InjectionProvider getInjectionProvider() { return injection; }
 
     public void setInjectionProvider(InjectionProvider provider) {
+
         injection = provider;
     }
 

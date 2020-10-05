@@ -29,26 +29,21 @@ public abstract class ClassCache<T> {
      */
     protected Map<String, Class<? extends T>> mediaTypeCache = new LinkedHashMap<>();
 
-    public void setDefaults() {
-
-        // clears caches
+    public void clear() {
         instanceCache.clear();
         typeCache.clear();
         mediaTypeCache.clear();
     }
 
-    // TODO: rename to something other than get() like getInstance()
-    public T get(String name) {
+    public T getInstanceByName(String name) {
         return instanceCache.get(name);
     }
 
-    public T get(Class<? extends T> clazz) {
+    public T getInstanceByType(Class<? extends T> clazz) {
         return instanceCache.get(clazz.getName());
     }
 
-
-    // TODO: rename to getInstanceFromType()
-    public Class<? extends T> getFromType(Class<?> type) {
+    public Class<? extends T> getInstanceFromType(Class<?> type) {
         if (type == null) {
             return null;
         }
@@ -62,8 +57,7 @@ public abstract class ClassCache<T> {
         return null;
     }
 
-    // TODO: rename to getInstanceFromMediaType()
-    public Class<? extends T> getFromMediaType(MediaType mediaType) {
+    public Class<? extends T> getInstanceFromMediaType(MediaType mediaType) {
         if (mediaType == null) {
             return null;
         }
@@ -71,20 +65,18 @@ public abstract class ClassCache<T> {
         return mediaTypeCache.get(MediaTypeHelper.getKey(mediaType));
     }
 
-    // TODO: rename to register or some other name
-    public void put(T clazz) {
-
+    public void registerInstance(T clazz) {
         Assert.notNull(clazz, "Missing class instance!");
         instanceCache.put(clazz.getClass().getName(), clazz);
     }
 
-    protected void register(String mediaType, T clazz) {
+    protected void registerInstanceByMediaType(String mediaType, T clazz) {
 
         MediaType type = MediaTypeHelper.valueOf(mediaType);
-        register(type, clazz);
+        registerInstanceByMediaType(type, clazz);
     }
 
-    protected void register(MediaType mediaType, T clazz) {
+    protected void registerInstanceByMediaType(MediaType mediaType, T clazz) {
 
         Assert.notNull(mediaType, "Missing media type!");
         Assert.notNull(clazz, "Missing media type class instance!");
@@ -93,13 +85,13 @@ public abstract class ClassCache<T> {
         instanceCache.put(key, clazz);
     }
 
-    protected void register(String mediaType, Class<? extends T> clazz) {
+    protected void registerTypeByMediaType(String mediaType, Class<? extends T> clazz) {
 
         MediaType type = MediaTypeHelper.valueOf(mediaType);
-        register(type, clazz);
+        registerInstanceByMediaType(type, clazz);
     }
 
-    protected void register(MediaType mediaType, Class<? extends T> clazz) {
+    protected void registerInstanceByMediaType(MediaType mediaType, Class<? extends T> clazz) {
 
         Assert.notNull(mediaType, "Missing media type!");
         Assert.notNull(clazz, "Missing media type class!");
@@ -108,7 +100,7 @@ public abstract class ClassCache<T> {
         mediaTypeCache.put(key, clazz);
     }
 
-    protected void register(Class<?> aClass, Class<? extends T> clazz) {
+    protected void registerTypeByAssociatedType(Class<?> aClass, Class<? extends T> clazz) {
 
         Assert.notNull(aClass, "Missing associated class!");
         Assert.notNull(clazz, "Missing response type class!");
@@ -121,7 +113,7 @@ public abstract class ClassCache<T> {
         typeCache.put(aClass, clazz);
     }
 
-    protected void register(Class<?> aClass, T instance) {
+    protected void registerInstanceByAssociatedType(Class<?> aClass, T instance) {
 
         Assert.notNull(aClass, "Missing associated class!");
         Assert.notNull(instance, "Missing instance of class!");

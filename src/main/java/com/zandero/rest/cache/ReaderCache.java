@@ -19,13 +19,13 @@ public class ReaderCache extends ClassCache<ValueReader> {
     private final static Logger log = LoggerFactory.getLogger(ReaderCache.class);
 
     public ReaderCache() {
-        setDefaults();
+        clear();
     }
 
     @Override
-    public void setDefaults() {
+    public void clear() {
 
-        super.setDefaults();
+        super.clear();
 
         typeCache.put(String.class, GenericValueReader.class);
 
@@ -142,7 +142,7 @@ public class ReaderCache extends ClassCache<ValueReader> {
         Assert.notNull(reader, "Missing request reader type class!");
 
         log.info("Registering '" + clazz.getName() + "' reader '" + reader.getName() + "'");
-        super.register(clazz, reader);
+        super.registerTypeByAssociatedType(clazz, reader);
     }
 
     public void register(Class<?> clazz, ValueReader reader) {
@@ -151,7 +151,7 @@ public class ReaderCache extends ClassCache<ValueReader> {
         Assert.notNull(reader, "Missing request reader!");
 
         log.info("Registering '" + clazz.getName() + "' reader '" + reader.getClass().getName() + "'");
-        super.register(clazz, reader);
+        super.registerInstanceByAssociatedType(clazz, reader);
     }
 
     public void register(String mediaType, Class<? extends ValueReader> clazz) {
@@ -160,7 +160,7 @@ public class ReaderCache extends ClassCache<ValueReader> {
         Assert.notNull(clazz, "Missing value reader!");
 
         log.info("Registering '" + mediaType + "' reader '" + clazz.getName() + "'");
-        super.register(mediaType, clazz);
+        super.registerTypeByMediaType(mediaType, clazz);
     }
 
     public void register(String mediaType, ValueReader clazz) {
@@ -169,7 +169,7 @@ public class ReaderCache extends ClassCache<ValueReader> {
         Assert.notNull(clazz, "Missing value reader!");
 
         log.info("Registering '" + mediaType + "' reader '" + clazz.getClass().getName() + "'");
-        super.register(mediaType, clazz);
+        super.registerInstanceByMediaType(mediaType, clazz);
     }
 
     public void register(MediaType mediaType, Class<? extends ValueReader> clazz) {
@@ -178,7 +178,7 @@ public class ReaderCache extends ClassCache<ValueReader> {
         Assert.notNull(clazz, "Missing value reader!");
 
         log.info("Registering '" + MediaTypeHelper.toString(mediaType) + "' reader '" + clazz.getName() + "'");
-        super.register(mediaType, clazz);
+        super.registerInstanceByMediaType(mediaType, clazz);
     }
 
     public void register(MediaType mediaType, ValueReader clazz) {
@@ -187,6 +187,6 @@ public class ReaderCache extends ClassCache<ValueReader> {
         Assert.notNull(clazz, "Missing value reader!");
 
         log.info("Registering '" + MediaTypeHelper.toString(mediaType) + "' reader '" + clazz.getClass().getName() + "'");
-        super.register(mediaType, clazz);
+        super.registerInstanceByMediaType(mediaType, clazz);
     }
 }
