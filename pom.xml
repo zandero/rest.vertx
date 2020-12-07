@@ -69,7 +69,7 @@
         <version.junit>[5.6.0,)</version.junit>
         <version.mockito-all>[1.10.19,)</version.mockito-all>
         <version.jetty>[9.3.7.v20160115,)</version.jetty>
-        <version.glassfish>2.32</version.glassfish>
+        <version.glassfish>3.0.0</version.glassfish>
 
         <version.guice>4.2.3</version.guice>
         <version.feather>1.0</version.feather>
