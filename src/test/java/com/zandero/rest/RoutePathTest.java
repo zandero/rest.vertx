@@ -3,6 +3,7 @@ package com.zandero.rest;
 import com.zandero.rest.test.*;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.ext.web.handler.*;
 import io.vertx.junit5.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +20,14 @@ class RoutePathTest extends VertxTest {
 
         TestPathRest testRest = new TestPathRest();
 
-        Router router = RestRouter.register(vertx, testRest);
+        Router router = Router.router(vertx);
+
+        // The handler
+        router.route().handler(LoggerHandler.create(LoggerFormat.DEFAULT));
+        RestRouter.register(router, testRest);
+
+        //Router router = RestRouter.register(vertx, testRest);
+
         vertx.createHttpServer()
             .requestHandler(router)
             .listen(PORT);
