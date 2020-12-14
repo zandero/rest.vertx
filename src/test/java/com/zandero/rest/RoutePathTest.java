@@ -23,7 +23,7 @@ class RoutePathTest extends VertxTest {
         Router router = Router.router(vertx);
 
         // The handler
-        router.route().handler(LoggerHandler.create(LoggerFormat.DEFAULT));
+        router.route().handler(LoggerHandler.create(true, LoggerFormat.DEFAULT));
         RestRouter.register(router, testRest);
 
         //Router router = RestRouter.register(vertx, testRest);
