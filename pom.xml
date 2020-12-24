@@ -73,7 +73,7 @@
 
         <version.guice>4.2.3</version.guice>
         <version.feather>1.0</version.feather>
-        <version.hibernate.validation>6.1.6.Final</version.hibernate.validation>
+        <version.hibernate.validation>7.0.0.Final</version.hibernate.validation>
         <version.java.validation.el>3.0.0</version.java.validation.el>
     </properties>
 
