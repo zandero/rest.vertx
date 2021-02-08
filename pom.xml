@@ -58,7 +58,7 @@
         <version.zandero.http>[1.2.4,)</version.zandero.http>
         <version.zandero.utils.junit>[1.0.1,)</version.zandero.utils.junit>
 
-        <version.vertx>3.9.4</version.vertx>
+        <version.vertx>4.0.2</version.vertx>
         <version.servlet-api>4.0.1</version.servlet-api>
 
         <!-- logging -->
