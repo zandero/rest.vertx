@@ -178,7 +178,7 @@ public class RestBuilder {
                           .maxAgeSeconds(maxAge);
 
         if (methods == null || methods.length == 0) { // if not given than all
-            methods = HttpMethod.values();
+            methods = HttpMethod.values().toArray(new HttpMethod[]{});
         }
 
         for (HttpMethod method : methods) {

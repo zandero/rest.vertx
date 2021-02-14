@@ -1,18 +1,18 @@
 package com.zandero.rest.data;
 
-import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.RouteOrder;
 import com.zandero.rest.test.*;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.*;
 import io.vertx.core.http.HttpMethod;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 /**
  *
@@ -132,24 +132,10 @@ class RouteDefinitionTest {
         assertEquals("/regEx/(?!api\\/).*", def.getRoutePath());
     }
 
-    /*@Disabled // issue #59 get requests can have a body
-    @Test
-    void missingArgumentAnnotationTest() {
-
-        try {
-            AnnotationProcessor.get(TestMissingAnnotationsRest.class);
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertEquals("com.zandero.rest.test.TestMissingAnnotationsRest.returnOuch(String arg0) - " +
-                             "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: arg0!",
-                         e.getMessage());
-        }
-    }*/
-
     @Test
     void isAsyncTest() {
 
-        Future<String> out = Future.future();
+        Future<String> out = Future.future(Promise::complete);
         CompositeFuture out2 = CompositeFuture.all(out, out);
 
         CompletableFuture<String> complete = new CompletableFuture<>();

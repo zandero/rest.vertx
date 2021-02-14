@@ -1,5 +1,6 @@
 package com.zandero.rest;
 
+import com.zandero.rest.authorization.RoleBasedAuthorizationProvider;
 import com.zandero.rest.bean.*;
 import com.zandero.rest.cache.*;
 import com.zandero.rest.context.ContextProvider;
@@ -13,6 +14,7 @@ import com.zandero.utils.Assert;
 import io.vertx.core.*;
 import io.vertx.core.http.*;
 import io.vertx.ext.auth.User;
+import io.vertx.ext.auth.authorization.AuthorizationProvider;
 import io.vertx.ext.web.*;
 import io.vertx.ext.web.handler.*;
 import org.slf4j.*;
@@ -44,6 +46,8 @@ public class RestRouter {
     private static Validator validator;
 
     private static BodyHandler bodyHandler;
+
+    private static final Map<String, RoleBasedAuthorizationProvider> roleAuthorizationProviders = new HashMap<>();
 
     /**
      * Searches for annotations to register routes ...
@@ -143,9 +147,19 @@ public class RestRouter {
                 }
 
                 // add security check handler in front of regular route handler
-                if (definition.checkSecurity()) {
-                    route.handler(getSecurityHandler(definition));
+                if (definition.checkSecurity()) { // TODO: re-evaluate if PermitAll, DenyAll are needed at all?
+
+                    // what to attest
+
+                    //route.handler(getSecurityHandler(definition));
                 }
+
+                if (definition.getRoles() != null) {
+                    for (String role : definition.getRoles()) {
+                        route.handler(getRoleBasedAuthorizationHandler(role, definition));
+                    }
+                }
+
 
                 // bind handler // blocking or async
                 Handler<RoutingContext> handler;
@@ -314,7 +328,7 @@ public class RestRouter {
                                   .maxAgeSeconds(maxAge);
 
         if (methods == null || methods.length == 0) { // if not given than all
-            methods = HttpMethod.values();
+            methods = HttpMethod.values().toArray(new HttpMethod[]{});
         }
 
         for (HttpMethod method : methods) {
@@ -349,7 +363,38 @@ public class RestRouter {
         }
     }
 
-    private static Handler<RoutingContext> getSecurityHandler(final RouteDefinition definition) {
+    private static Handler<RoutingContext> getRoleBasedAuthorizationHandler(String role, RouteDefinition definition) {
+
+        AuthorizationProvider provider = getRoleBasedAuthorizationProvider(role);
+
+        return context -> {
+
+            provider.getAuthorizations(context.user(), userAuthorizationResult -> {
+                if (userAuthorizationResult.failed()) {
+                    context.next();
+                }
+                else {
+                    handleException(new UnauthorizedException(context.user()),
+                                    context,
+                                    definition);
+                }
+            });
+        };
+    }
+
+    private static AuthorizationProvider getRoleBasedAuthorizationProvider(String role) {
+        if (!roleAuthorizationProviders.containsKey(role)) {
+            log.info("Adding role authorization provider for: '{}'", role);
+            roleAuthorizationProviders.put(role, new RoleBasedAuthorizationProvider(role));
+        }
+
+        return roleAuthorizationProviders.get(role);
+    }
+
+
+
+
+    /*private static Handler<RoutingContext> getSecurityHandler(final RouteDefinition definition) {
 
         return context -> {
 
@@ -363,12 +408,12 @@ public class RestRouter {
                                 definition);
             }
         };
-    }
+    }*/
 
     // TODO: change from vert.x 3 -> 4
     // User the methods isAuthorized is deprecated (authorization should be performed by the AuthorizationProvider
     // check if given user is authorized for given role ...
-    private static boolean isAllowed(User user, RouteDefinition definition) {
+   /* private static boolean isAllowed(User user, RouteDefinition definition) {
 
         if (definition.getPermitAll() != null) {
             // allow all or deny all
@@ -379,18 +424,19 @@ public class RestRouter {
             return false; // no user present ... can't check
         }
 
+        // TODO: VertX 4 rework
         List<Future> list = new ArrayList<>();
 
         for (String role : definition.getRoles()) {
 
-            Future<Boolean> future = Future.future();
+            Future<Boolean> future = Future.future(Promise::complete);
             user.isAuthorized(role, future.completer());
 
             list.add(future);
         }
 
         // compose multiple futures ... and return true if any of those return true
-        Future<CompositeFuture> output = Future.future();
+        Future<CompositeFuture> output = Future.future(Promise::complete);
         CompositeFuture.all(list).setHandler(output.completer());
 
         if (output.result() != null) {
@@ -407,7 +453,7 @@ public class RestRouter {
         }
 
         return false;
-    }
+    }*/
 
     private static Handler<RoutingContext> getHandler(final Object toInvoke, final RouteDefinition definition, final Method method) {
 
@@ -661,17 +707,26 @@ public class RestRouter {
         }
     }
 
-    public static WriterCache getWriters() { return forge.getWriters(); }
+    public static WriterCache getWriters() {
+        return forge.getWriters();
+    }
 
-    public static ReaderCache getReaders() { return forge.getReaders(); }
+    public static ReaderCache getReaders() {
+        return forge.getReaders();
+    }
 
     public static ExceptionHandlerCache getExceptionHandlers() {
         return forge.getExceptionHandlers();
     }
 
-    public static ContextProviderCache getContextProviders() { return forge.getContextProviders(); }
+    public static ContextProviderCache getContextProviders() {
+        return forge.getContextProviders();
+    }
 
-    public static InjectionProvider getInjectionProvider() { return forge.getInjectionProvider(); }
+    public static InjectionProvider getInjectionProvider() {
+        return forge.getInjectionProvider();
+    }
+
     /**
      * Registers a context provider for given type of class
      *
@@ -738,7 +793,7 @@ public class RestRouter {
     public static void injectWith(Class<InjectionProvider> provider) {
 
         try {
-            forge.setInjectionProvider ((InjectionProvider) ClassFactory.newInstanceOf(provider));
+            forge.setInjectionProvider((InjectionProvider) ClassFactory.newInstanceOf(provider));
             log.info("Registered injection provider: " + getInjectionProvider().getClass().getName());
         } catch (ClassFactoryException e) {
             log.error("Failed to instantiate injection provider: ", e);

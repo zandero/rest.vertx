@@ -19,7 +19,7 @@ class RouteWithRegExTest extends VertxTest {
 
         TestRegExRest testRest = new TestRegExRest();
         Router router = RestRouter.register(vertx, testRest);
-        router = router.mountSubRouter("/sub", router);
+        router.mountSubRouter("/sub", router);
 
         vertx.createHttpServer()
             .requestHandler(router)

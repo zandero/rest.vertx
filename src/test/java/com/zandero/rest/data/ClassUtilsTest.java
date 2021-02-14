@@ -4,7 +4,7 @@ import com.zandero.rest.exception.*;
 import com.zandero.rest.reader.*;
 import com.zandero.rest.test.data.SimulatedUser;
 import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
-import io.vertx.ext.auth.AbstractUser;
+import io.vertx.ext.auth.User;
 import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.*;
@@ -35,7 +35,7 @@ public class ClassUtilsTest {
 
     @Test
     void checkIfCompatibleTypes() {
-        assertTrue(checkIfCompatibleType(SimulatedUser.class, AbstractUser.class));
+        assertTrue(checkIfCompatibleType(SimulatedUser.class, User.class));
     }
 
     @Test

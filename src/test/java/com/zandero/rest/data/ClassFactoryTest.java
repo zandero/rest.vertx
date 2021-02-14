@@ -67,7 +67,10 @@ class ClassFactoryTest {
 
         Pair<Boolean, SimulatedUser> user = ClassFactory.constructViaMethod(SimulatedUser.class, "BLA");
         assertNotNull(user);
+
         assertTrue(user.getKey());
+        assertNotNull(user.getValue());
+
         assertEquals("BLA", user.getValue().getRole());
 
         Pair<Boolean, IntegerHolder> holder = constructViaMethod(IntegerHolder.class, "10");

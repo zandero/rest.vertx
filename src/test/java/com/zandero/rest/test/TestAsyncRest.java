@@ -20,7 +20,7 @@ public class TestAsyncRest {
     private final AsyncService spaceService = new AsyncService();
     private final WorkerExecutor executor = Vertx.vertx().createSharedWorkerExecutor("shared");
 
-    @GET
+    /*@GET
     @Path("call_future")
     @Produces(MediaType.APPLICATION_JSON)
     @ResponseWriter(DummyWriter.class)
@@ -32,7 +32,7 @@ public class TestAsyncRest {
         spaceService.asyncCallFuture(vertx, res);
         System.out.println("Rest finished");
         return res;
-    }
+    }*/
 
     @GET
     @Path("call_promise")
@@ -74,7 +74,7 @@ public class TestAsyncRest {
         return new Dummy("hello", "world");
     }
 
-    @GET
+    /*@GET
     @Path("executor_future")
     @Produces(MediaType.APPLICATION_JSON)
     @ResponseWriter(DummyWriter.class)
@@ -86,7 +86,7 @@ public class TestAsyncRest {
         spaceService.asyncExecutorFuture(executor, res);
         System.out.println("Rest finished");
         return res;
-    }
+    }*/
 
     @GET
     @Path("executor_promise")
@@ -102,7 +102,7 @@ public class TestAsyncRest {
         return res;
     }
 
-    @GET
+   /* @GET
     @Path("empty")
     @Produces(MediaType.APPLICATION_JSON)
     @ResponseWriter(DummyWriter.class)
@@ -114,9 +114,9 @@ public class TestAsyncRest {
         spaceService.asyncCallReturnNullFuture(vertx, res);
         System.out.println("Rest finished");
         return res;
-    }
+    }*/
 
-    @GET
+    /*@GET
     @Path("null")
     @Produces(MediaType.APPLICATION_JSON)
     public Future<Dummy> nullItIs(@Context Vertx vertx) {
@@ -127,7 +127,7 @@ public class TestAsyncRest {
         spaceService.asyncCallReturnNullFuture(vertx, res);
         System.out.println("Rest finished");
         return res;
-    }
+    }*/
 
     @GET
     @Path("empty")
