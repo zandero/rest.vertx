@@ -1,6 +1,6 @@
 package com.zandero.rest;
 
-import com.zandero.rest.authorization.RoleBasedAuthorizationProvider;
+import com.zandero.rest.authorization.RoleBasedUserAuthorizationProvider;
 import com.zandero.rest.bean.*;
 import com.zandero.rest.cache.*;
 import com.zandero.rest.context.ContextProvider;
@@ -47,7 +47,7 @@ public class RestRouter {
 
     private static BodyHandler bodyHandler;
 
-    private static final Map<String, RoleBasedAuthorizationProvider> roleAuthorizationProviders = new HashMap<>();
+    private static final Map<String, RoleBasedUserAuthorizationProvider> roleAuthorizationProviders = new HashMap<>();
 
     /**
      * Searches for annotations to register routes ...
@@ -149,14 +149,12 @@ public class RestRouter {
                 // add security check handler in front of regular route handler
                 if (definition.checkSecurity()) { // TODO: re-evaluate if PermitAll, DenyAll are needed at all?
 
-                    // what to attest
-
-                    //route.handler(getSecurityHandler(definition));
-                }
-
-                if (definition.getRoles() != null) {
-                    for (String role : definition.getRoles()) {
-                        route.handler(getRoleBasedAuthorizationHandler(role, definition));
+                    if (definition.getRoles() != null) {
+                        for (String role : definition.getRoles()) {
+                            route.handler(getRoleBasedAuthorizationHandler(role, definition));
+                        }
+                    } else { // deny-all or permit-all
+                        route.handler(getRoleBasedAuthorizationHandler(null, definition));
                     }
                 }
 
@@ -365,31 +363,36 @@ public class RestRouter {
 
     private static Handler<RoutingContext> getRoleBasedAuthorizationHandler(String role, RouteDefinition definition) {
 
-        AuthorizationProvider provider = getRoleBasedAuthorizationProvider(role);
+            return context -> {
 
-        return context -> {
+                AuthorizationProvider provider = new RoleBasedUserAuthorizationProvider(definition);
+                provider.getAuthorizations(context.user(), userAuthorizationResult -> {
+                    if (userAuthorizationResult.failed()) {
+                        if (userAuthorizationResult.cause() != null) {
+                            handleException(userAuthorizationResult.cause(),
+                                            context,
+                                            definition);
+                        } else {
+                            handleException(new UnauthorizedException(context.user()),
+                                            context,
+                                            definition);
+                        }
+                    } else {
+                        context.next();
 
-            provider.getAuthorizations(context.user(), userAuthorizationResult -> {
-                if (userAuthorizationResult.failed()) {
-                    context.next();
-                }
-                else {
-                    handleException(new UnauthorizedException(context.user()),
-                                    context,
-                                    definition);
-                }
-            });
-        };
+                    }
+                });
+            };
     }
 
-    private static AuthorizationProvider getRoleBasedAuthorizationProvider(String role) {
+  /*  private static AuthorizationProvider getRoleBasedAuthorizationProvider(String role) {
         if (!roleAuthorizationProviders.containsKey(role)) {
             log.info("Adding role authorization provider for: '{}'", role);
-            roleAuthorizationProviders.put(role, new RoleBasedAuthorizationProvider(role));
+            roleAuthorizationProviders.put(role, new RoleBasedUserAuthorizationProvider(role));
         }
 
         return roleAuthorizationProviders.get(role);
-    }
+    }*/
 
 
 

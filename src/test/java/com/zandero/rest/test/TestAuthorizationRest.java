@@ -1,6 +1,7 @@
 package com.zandero.rest.test;
 
 import com.zandero.rest.annotation.RouteOrder;
+import com.zandero.rest.test.data.SimulatedUser;
 import io.vertx.ext.auth.User;
 
 import javax.annotation.security.*;
@@ -65,6 +66,9 @@ public class TestAuthorizationRest {
     @RolesAllowed({"one", "two"})
     public String oneOrTwo(@Context User user) {
 
-        return user.principal().encode();
+        if (user instanceof SimulatedUser)
+            return "{\"role\":\"" + ((SimulatedUser)user).getRole() + "\"}";
+
+        return user.toString();
     }
 }
