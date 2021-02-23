@@ -20,20 +20,6 @@ public class TestAsyncRest {
     private final AsyncService spaceService = new AsyncService();
     private final WorkerExecutor executor = Vertx.vertx().createSharedWorkerExecutor("shared");
 
-    /*@GET
-    @Path("call_future")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ResponseWriter(DummyWriter.class)
-    public Future<Dummy> createFuture(@Context Vertx vertx) {
-
-        System.out.println(Thread.currentThread().getName() + " REST invoked");
-
-        Future<Dummy> res = Future.future();
-        spaceService.asyncCallFuture(vertx, res);
-        System.out.println("Rest finished");
-        return res;
-    }*/
-
     @GET
     @Path("call_promise")
     @Produces(MediaType.APPLICATION_JSON)
@@ -74,20 +60,6 @@ public class TestAsyncRest {
         return new Dummy("hello", "world");
     }
 
-    /*@GET
-    @Path("executor_future")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ResponseWriter(DummyWriter.class)
-    public Future<Dummy> executorFuture(@Context Vertx vertx) {
-
-        System.out.println(Thread.currentThread().getName() + " REST invoked");
-
-        Future<Dummy> res = Future.future();
-        spaceService.asyncExecutorFuture(executor, res);
-        System.out.println("Rest finished");
-        return res;
-    }*/
-
     @GET
     @Path("executor_promise")
     @Produces(MediaType.APPLICATION_JSON)
@@ -101,33 +73,6 @@ public class TestAsyncRest {
         System.out.println("Rest finished");
         return res;
     }
-
-   /* @GET
-    @Path("empty")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ResponseWriter(DummyWriter.class)
-    public Future<Dummy> empty(@Context Vertx vertx) {
-
-        System.out.println(Thread.currentThread().getName() + " REST invoked");
-
-        Future<Dummy> res = Future.future();
-        spaceService.asyncCallReturnNullFuture(vertx, res);
-        System.out.println("Rest finished");
-        return res;
-    }*/
-
-    /*@GET
-    @Path("null")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Future<Dummy> nullItIs(@Context Vertx vertx) {
-
-        System.out.println(Thread.currentThread().getName() + " REST invoked");
-
-        Future<Dummy> res = Future.future();
-        spaceService.asyncCallReturnNullFuture(vertx, res);
-        System.out.println("Rest finished");
-        return res;
-    }*/
 
     @GET
     @Path("empty")

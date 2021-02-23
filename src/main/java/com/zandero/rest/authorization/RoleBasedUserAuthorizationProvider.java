@@ -7,6 +7,10 @@ import io.vertx.core.*;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.authorization.AuthorizationProvider;
 
+/**
+ * Default Authorization provider handing: @PermitAll, @DenyAll and  @RolesAllowed route annotations
+ * Expects user to implement RoleBasedUser interface in order to check if user is in certain role
+ */
 public class RoleBasedUserAuthorizationProvider implements AuthorizationProvider {
 
     private final RouteDefinition definition;
