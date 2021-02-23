@@ -28,8 +28,7 @@ public class ClassFactory {
     public static Object getClassInstance(Class<?> clazz,
                                           ClassCache classCache,
                                           InjectionProvider provider,
-                                          RoutingContext context) throws ClassFactoryException,
-                                                                 ContextException {
+                                          RoutingContext context) throws ClassFactoryException, ContextException {
 
         if (clazz == null) {
             return null;
@@ -46,7 +45,7 @@ public class ClassFactory {
 
         if (instance == null) {
 
-            instance =  newInstanceOf(clazz, provider, context);
+            instance = newInstanceOf(clazz, provider, context);
 
             if (!hasContext && cacheIt) { // no context .. we can cache this instance
                 classCache.registerInstance(instance);
@@ -219,7 +218,7 @@ public class ClassFactory {
                              InjectionProvider provider,
                              RoutingContext routeContext,
                              MediaType[] mediaTypes) throws ClassFactoryException,
-                                                       ContextException {
+                                                                ContextException {
 
         Class<?> clazz = byDefinition;
 
@@ -249,9 +248,9 @@ public class ClassFactory {
     }
 
     public static Object get(String mediaType,
-                 ClassCache classCache,
-                 RoutingContext routeContext) throws ClassFactoryException,
-                                                                           ContextException {
+                             ClassCache classCache,
+                             RoutingContext routeContext) throws ClassFactoryException,
+                                                                     ContextException {
 
         Class<?> clazz = classCache.getInstanceFromMediaType(MediaTypeHelper.valueOf(mediaType));
         return getClassInstance(clazz, classCache, null, routeContext);

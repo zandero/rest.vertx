@@ -21,6 +21,8 @@ public class ClassForge {
     private final ExceptionHandlerCache exceptionHandlers = new ExceptionHandlerCache();
     private final ContextProviderCache contextProviders = new ContextProviderCache();
 
+    private final AuthorizationProvidersCache authorizationProviders = new AuthorizationProvidersCache();
+
     private InjectionProvider injection;
 
     // TODO: to be hidden
@@ -35,6 +37,8 @@ public class ClassForge {
     public ContextProviderCache getContextProviders() { return contextProviders; }
 
     public InjectionProvider getInjectionProvider() { return injection; }
+
+    public AuthorizationProvidersCache getAuthorizationProviders() { return authorizationProviders; }
 
     public void setInjectionProvider(InjectionProvider provider) {
 

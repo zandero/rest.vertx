@@ -4,7 +4,7 @@ import javax.ws.rs.HttpMethod;
 import java.lang.annotation.*;
 
 /**
- *
+ * Delete HTTP method alternative
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

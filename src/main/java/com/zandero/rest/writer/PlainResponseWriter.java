@@ -17,7 +17,7 @@ public class PlainResponseWriter<T> implements HttpResponseWriter<T> {
     public void write(T result, HttpServerRequest request, HttpServerResponse response) {
 
         String mediaType = response.headers().get(HttpHeaders.CONTENT_TYPE);
-        log.warn(request.path() + " - no writer for 'content-type'='" + mediaType + "', defaulting to toString() as output!");
+        log.warn(request.path() + " - no writer for Content-Type='" + mediaType + "', defaulting to toString() as output!");
         if (result != null) {
             response.end(result.toString());
         } else {

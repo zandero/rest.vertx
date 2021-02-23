@@ -47,7 +47,7 @@ public class RestRouter {
 
     private static BodyHandler bodyHandler;
 
-    private static final Map<String, RoleBasedUserAuthorizationProvider> roleAuthorizationProviders = new HashMap<>();
+    private static final Map<String, AuthorizationProvider> authorizationProviders = new HashMap<>();
 
     /**
      * Searches for annotations to register routes ...
@@ -145,19 +145,22 @@ public class RestRouter {
                         log.debug("Adding provided body handler to route!");
                     }
                 }
+/*
 
-                // add security check handler in front of regular route handler
-                if (definition.checkSecurity()) { // TODO: re-evaluate if PermitAll, DenyAll are needed at all?
+                if (definition.getAuthenticationProvider() != null) {
+                    route.handler(addAuthenticationProvider(definition.getAuthenticationProvider()));
+                }
+*/
 
-                    if (definition.getRoles() != null) {
-                        for (String role : definition.getRoles()) {
-                            route.handler(getRoleBasedAuthorizationHandler(role, definition));
-                        }
-                    } else { // deny-all or permit-all
-                        route.handler(getRoleBasedAuthorizationHandler(null, definition));
-                    }
+                if (definition.getAuthorizationProvider() != null) {
+                    route.handler(getAuthorizationHandler(definition.getAuthorizationProvider(), definition));
                 }
 
+                // add security check handler in front of regular route handler
+                // (in case @PermitAll, @DenyAll or @RolesAllowed is used)
+                if (definition.checkSecurity()) {
+                    route.handler(getAuthorizationHandler(RoleBasedUserAuthorizationProvider.class, definition));
+                }
 
                 // bind handler // blocking or async
                 Handler<RoutingContext> handler;
@@ -361,30 +364,67 @@ public class RestRouter {
         }
     }
 
-    private static Handler<RoutingContext> getRoleBasedAuthorizationHandler(String role, RouteDefinition definition) {
+    /*private static Handler<RoutingContext> addAuthenticationProvider(AuthenticationProvider provider) {
+        return context -> {
 
-            return context -> {
+            provider.authenticate(authInfo)
 
-                AuthorizationProvider provider = new RoleBasedUserAuthorizationProvider(definition);
+                .onSuccess(user -> {
+                    System.out.println("User " + user.principal() + " is now authenticated");
+                })
+                .onFailure(Throwable::printStackTrace);
+
+            provider.getAuthorizations(context.user());
+        }
+    }*/
+
+    private static Handler<RoutingContext> getAuthorizationHandler(Class<? extends AuthorizationProvider> providerClass, RouteDefinition definition) {
+        return context -> {
+
+            try {
+                AuthorizationProvider provider = getAuthorizationProviders().provide(providerClass, getInjectionProvider(), definition, context);
                 provider.getAuthorizations(context.user(), userAuthorizationResult -> {
                     if (userAuthorizationResult.failed()) {
-                        if (userAuthorizationResult.cause() != null) {
-                            handleException(userAuthorizationResult.cause(),
-                                            context,
-                                            definition);
-                        } else {
-                            handleException(new UnauthorizedException(context.user()),
-                                            context,
-                                            definition);
-                        }
+                        Throwable ex = (userAuthorizationResult.cause() != null ? userAuthorizationResult.cause() : new UnauthorizedException(context.user()));
+                        handleException(ex,
+                                        context,
+                                        definition);
                     } else {
                         context.next();
-
                     }
                 });
-            };
+            } catch (ClassFactoryException | ContextException e) {
+                handleException(e,
+                                context,
+                                definition);
+            }
+        };
     }
 
+    /*private static Handler<RoutingContext> getRoleBasedAuthorizationHandler(RouteDefinition definition) {
+
+        return context -> {
+
+            AuthorizationProvider provider = new RoleBasedUserAuthorizationProvider(definition);
+            provider.getAuthorizations(context.user(), userAuthorizationResult -> {
+                if (userAuthorizationResult.failed()) {
+                    if (userAuthorizationResult.cause() != null) {
+                        handleException(userAuthorizationResult.cause(),
+                                        context,
+                                        definition);
+                    } else {
+                        handleException(new UnauthorizedException(context.user()),
+                                        context,
+                                        definition);
+                    }
+                } else {
+                    context.next();
+
+                }
+            });
+        };
+    }
+*/
   /*  private static AuthorizationProvider getRoleBasedAuthorizationProvider(String role) {
         if (!roleAuthorizationProviders.containsKey(role)) {
             log.info("Adding role authorization provider for: '{}'", role);
@@ -726,9 +766,14 @@ public class RestRouter {
         return forge.getContextProviders();
     }
 
+    public static AuthorizationProvidersCache getAuthorizationProviders() {
+        return forge.getAuthorizationProviders();
+    }
+
     public static InjectionProvider getInjectionProvider() {
         return forge.getInjectionProvider();
     }
+
 
     /**
      * Registers a context provider for given type of class

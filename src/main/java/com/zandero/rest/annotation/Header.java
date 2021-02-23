@@ -3,7 +3,8 @@ package com.zandero.rest.annotation;
 import java.lang.annotation.*;
 
 /**
- *
+ * To be used in combination with response writers to provide static response headers
+ * Can be also used on REST APIs as an alternative to @Produces or to complement @Produces annotation
  */
 @Inherited
 @Target({ElementType.TYPE, ElementType.METHOD})

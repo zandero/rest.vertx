@@ -8,6 +8,9 @@ import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.authorization.AuthorizationProvider;
 
 /**
+ * This is for back compatibility purposes only, since Vert.x 4 the @Authentication / @Authorization annotations with
+ * AuthenticationProvider / AuthorizationProvider should be used.
+ *
  * Default Authorization provider handing: @PermitAll, @DenyAll and  @RolesAllowed route annotations
  * Expects user to implement RoleBasedUser interface in order to check if user is in certain role
  */
@@ -22,7 +25,7 @@ public class RoleBasedUserAuthorizationProvider implements AuthorizationProvider
 
     @Override
     public String getId() {
-        return definition.getPath();
+        return definition.getId();
     }
 
     @Override

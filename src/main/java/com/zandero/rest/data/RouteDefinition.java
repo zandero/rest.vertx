@@ -9,6 +9,8 @@ import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.utils.*;
 import io.vertx.core.*;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.ext.auth.authentication.AuthenticationProvider;
+import io.vertx.ext.auth.authorization.AuthorizationProvider;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
@@ -135,6 +137,16 @@ public class RouteDefinition {
     protected String[] roles = null;
 
     /**
+     *  Authentication provider
+     */
+    protected Class<? extends AuthenticationProvider> authenticationProvider;
+
+    /**
+     *  Authorization provider
+     */
+    protected Class<? extends AuthorizationProvider> authorizationProvider;
+
+    /**
      * Suppress preventive failure checks - it might be that the check is to strong
      */
     protected boolean suppressCheck;
@@ -235,6 +247,14 @@ public class RouteDefinition {
         if (permitAll == null && roles == null) {
             permitAll = additional.permitAll;
             roles = null;
+        }
+
+        if (authorizationProvider == null) {
+            authorizationProvider = additional.authorizationProvider;
+        }
+
+        if (authenticationProvider == null) {
+            authenticationProvider = additional.authenticationProvider;
         }
 
         if (!async) {
@@ -447,6 +467,14 @@ public class RouteDefinition {
             if (annotation instanceof PermitAll) {
                 roles = null; // override any previous definition
                 permitAll = true;
+            }
+
+            if (annotation instanceof Authenticate) {
+                authenticationProvider = ((Authenticate)annotation).value();
+            }
+
+            if (annotation instanceof Authorize) {
+                authorizationProvider = ((Authorize)annotation).value();
             }
 
             if (annotation instanceof CatchWith) {
@@ -980,6 +1008,21 @@ public class RouteDefinition {
     }
 
     /**
+     * @return associated authentication provider
+     */
+    public Class<? extends AuthenticationProvider> getAuthenticationProvider() {
+        return authenticationProvider;
+    }
+
+    /**
+     * @return associated authorization provider
+     */
+    public Class<? extends AuthorizationProvider> getAuthorizationProvider() {
+        return authorizationProvider;
+    }
+
+
+    /**
      * defines if execute blocking or async
      *
      * @return true async, false blocking
@@ -1013,6 +1056,9 @@ public class RouteDefinition {
         return events;
     }
 
+    /**
+     * @return formatted output of http method / route and access check (if applicable)
+     */
     @Override
     public String toString() {
 
@@ -1021,7 +1067,6 @@ public class RouteDefinition {
 
         String security = "";
         if (checkSecurity()) {
-
             if (permitAll != null) {
                 security = permitAll ? " @PermitAll" : " @DenyAll";
             } else {
@@ -1029,6 +1074,21 @@ public class RouteDefinition {
             }
         }
 
+        if (authenticationProvider != null) {
+            security = "  authenticate[" + authenticationProvider.getSimpleName() + "]";
+        }
+
+        if (authorizationProvider != null) {
+            security = "  authorize[" + authorizationProvider.getSimpleName() + "]";
+        }
+
         return prefix + (method == null ? ">undefined<" : method) + " " + routePath + security + (pathIsRegEx() ? "[regex]" : "");
+    }
+
+    /**
+     * @return unique route id
+     */
+    public String getId() {
+        return (method == null ? ">undefined<" : method) + "::" + routePath;
     }
 }

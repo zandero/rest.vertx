@@ -1,13 +1,15 @@
 package com.zandero.rest.annotation;
 
 import com.zandero.rest.exception.*;
+
 import java.lang.annotation.*;
 
 /**
- *
+ *  Provides exception handler for a thrown exception type, for a specific class or REST method
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
+@Documented
 public @interface CatchWith {
 
     /**

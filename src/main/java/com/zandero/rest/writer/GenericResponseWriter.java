@@ -44,7 +44,7 @@ public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
         if (writer != null && !(writer instanceof GenericResponseWriter)) {
             writer.write(result, request, response);
         } else {
-            log.warn(request.path() + " - no writer for 'content-type'='" + mediaType + "', defaulting to toString() as output!");
+            log.warn(request.path() + " - no writer for Content-Type='" + mediaType + "', defaulting to toString() as output!");
             MediaType type = MediaTypeHelper.valueOf(mediaType);
             if (type != null) {
                 // TODO ... correct response headers should already be set according to ACCEPT header
