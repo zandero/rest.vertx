@@ -1,7 +1,7 @@
 package com.zandero.rest.test;
 
 import com.zandero.rest.annotation.Authorize;
-import com.zandero.rest.authorization.RoleBasedUserAuthorizationProvider;
+import com.zandero.rest.authorization.TestAuthorizationProvider;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -15,7 +15,7 @@ public class TestAuthorizationProviderRest {
     @GET
     @Path("/all")
     @Produces(MediaType.TEXT_PLAIN)
-    @Authorize(RoleBasedUserAuthorizationProvider.class)
+    @Authorize(TestAuthorizationProvider.class)
     public String all() {
 
         return "all";

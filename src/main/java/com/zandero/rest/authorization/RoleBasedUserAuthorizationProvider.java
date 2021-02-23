@@ -5,12 +5,14 @@ import com.zandero.rest.exception.UnauthorizedException;
 import com.zandero.utils.Assert;
 import io.vertx.core.*;
 import io.vertx.ext.auth.User;
-import io.vertx.ext.auth.authorization.AuthorizationProvider;
+import io.vertx.ext.auth.authorization.*;
+
+import java.util.*;
 
 /**
  * This is for back compatibility purposes only, since Vert.x 4 the @Authentication / @Authorization annotations with
  * AuthenticationProvider / AuthorizationProvider should be used.
- *
+ * <p>
  * Default Authorization provider handing: @PermitAll, @DenyAll and  @RolesAllowed route annotations
  * Expects user to implement RoleBasedUser interface in order to check if user is in certain role
  */
@@ -38,13 +40,18 @@ public class RoleBasedUserAuthorizationProvider implements AuthorizationProvider
                 handler.handle(Future.failedFuture(new UnauthorizedException(user)));
             }
         } else {
-            if (user instanceof RoleBasedUser) {
-                if (((RoleBasedUser) user).hasRole(definition.getRoles()))
+            if (user != null) {
+                Optional<String> found = Arrays.stream(definition.getRoles())
+                                             .filter(role -> PermissionBasedAuthorization.create(role).match(user))
+                                             .findFirst();
+
+                if (found.isPresent()) {
                     handler.handle(Future.succeededFuture());
-                else
+                } else {
                     handler.handle(Future.failedFuture(new UnauthorizedException(user)));
+                }
             } else {
-                handler.handle(Future.failedFuture(new UnauthorizedException(user)));
+                handler.handle(Future.failedFuture(new UnauthorizedException(null)));
             }
         }
     }

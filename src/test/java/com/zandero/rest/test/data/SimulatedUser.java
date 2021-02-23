@@ -1,14 +1,14 @@
 package com.zandero.rest.test.data;
 
-import com.zandero.rest.authorization.RoleBasedUser;
+import com.zandero.rest.authorization.TestAuthorizationProvider;
+import io.vertx.ext.auth.authorization.*;
+import io.vertx.ext.auth.authorization.impl.AuthorizationsImpl;
 import io.vertx.ext.auth.impl.UserImpl;
-
-import java.util.Arrays;
 
 /**
  * Simplistic user where name is his role ...
  */
-public class SimulatedUser extends UserImpl implements RoleBasedUser {
+public class SimulatedUser extends UserImpl {
 
     private final String role;
 
@@ -21,8 +21,9 @@ public class SimulatedUser extends UserImpl implements RoleBasedUser {
     }
 
     @Override
-    public boolean hasRole(String... roles) {
-        return roles != null && roles.length > 0 && Arrays.asList(roles).contains(role);
+    public Authorizations authorizations() {
+        return new AuthorizationsImpl().add(TestAuthorizationProvider.ID,
+                                            PermissionBasedAuthorization.create(role));
     }
 
     public static SimulatedUser valueOf(String value) {
