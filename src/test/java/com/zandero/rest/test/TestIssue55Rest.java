@@ -22,7 +22,6 @@ public class TestIssue55Rest {
     @Produces(MediaType.TEXT_HTML)
     @AuditLog(title = "echo")
     public String echo2() {
-
         return "Hello echo";
     }
 
@@ -30,7 +29,6 @@ public class TestIssue55Rest {
     @Path("/echo2")
     @Produces(MediaType.TEXT_HTML)
     public String echo3() {
-
         return "Hello echo 2";
     }
 }
