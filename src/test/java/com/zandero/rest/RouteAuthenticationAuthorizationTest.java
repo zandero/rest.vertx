@@ -13,7 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(VertxExtension.class)
-class RouteAuthenticationAutorizationTest extends VertxTest {
+class RouteAuthenticationAuthorizationTest extends VertxTest {
 
     @BeforeAll
     static void start() {
@@ -69,7 +69,7 @@ class RouteAuthenticationAutorizationTest extends VertxTest {
         client.get(PORT, HOST, "/private/nobody")
             .as(BodyCodec.string())
             .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals(401, response.statusCode());
+                assertEquals(403, response.statusCode());
                 context.completeNow();
             })));
     }
@@ -80,7 +80,7 @@ class RouteAuthenticationAutorizationTest extends VertxTest {
         client.get(PORT, HOST, "/private/user")
             .as(BodyCodec.string())
             .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals(401, response.statusCode());
+                assertEquals(403, response.statusCode());
                 context.completeNow();
             })));
     }
@@ -117,8 +117,8 @@ class RouteAuthenticationAutorizationTest extends VertxTest {
         client.post(PORT, HOST, "/private/user")
             .as(BodyCodec.string())
             .sendBuffer(Buffer.buffer("HELLO"), context.succeeding(response -> context.verify(() -> {
-                assertEquals("HTTP 401 Unauthorized", response.body());
-                assertEquals(401, response.statusCode());
+                assertEquals("HTTP 403 Forbidden", response.body());
+                assertEquals(403, response.statusCode());
                 context.completeNow();
             })));
     }
@@ -143,8 +143,8 @@ class RouteAuthenticationAutorizationTest extends VertxTest {
             .as(BodyCodec.string())
             .putHeader("X-Token", "user")
             .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals(401, response.statusCode());
-                assertEquals("HTTP 401 Unauthorized", response.body());
+                assertEquals(403, response.statusCode());
+                assertEquals("HTTP 403 Forbidden", response.body());
                 context.completeNow();
             })));
     }
@@ -156,8 +156,8 @@ class RouteAuthenticationAutorizationTest extends VertxTest {
             .as(BodyCodec.string())
             .putHeader("X-Token", "user")
             .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals(401, response.statusCode());
-                assertEquals("HTTP 401 Unauthorized", response.body());
+                assertEquals(403, response.statusCode());
+                assertEquals("HTTP 403 Forbidden", response.body());
                 context.completeNow();
             })));
     }

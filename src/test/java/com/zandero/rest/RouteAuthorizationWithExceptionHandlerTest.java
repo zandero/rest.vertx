@@ -68,7 +68,7 @@ class RouteAuthorizationWithExceptionHandlerTest extends VertxTest {
         client.get(PORT, HOST, "/private/nobody")
             .as(BodyCodec.string())
             .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals(401, response.statusCode());
+                assertEquals(403, response.statusCode());
                 context.completeNow();
             })));
     }
@@ -79,7 +79,7 @@ class RouteAuthorizationWithExceptionHandlerTest extends VertxTest {
         client.get(PORT, HOST, "/private/user")
             .as(BodyCodec.string())
             .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals(401, response.statusCode());
+                assertEquals(403, response.statusCode());
                 context.completeNow();
             })));
     }
@@ -111,13 +111,13 @@ class RouteAuthorizationWithExceptionHandlerTest extends VertxTest {
     }
 
     @Test
-    void testPostUserUnauthorized(VertxTestContext context) {
+    void testPostUserForbidden(VertxTestContext context) {
 
         client.post(PORT, HOST, "/private/user")
             .as(BodyCodec.string())
             .sendBuffer(Buffer.buffer("HELLO"), context.succeeding(response -> context.verify(() -> {
-                assertEquals("HTTP 401 Unauthorized", response.body());
-                assertEquals(401, response.statusCode());
+                assertEquals("HTTP 403 Forbidden", response.body());
+                assertEquals(403, response.statusCode());
                 context.completeNow();
             })));
     }

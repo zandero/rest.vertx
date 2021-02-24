@@ -22,6 +22,8 @@ public class ClassForge {
     private final ContextProviderCache contextProviders = new ContextProviderCache();
 
     private final AuthorizationProvidersCache authorizationProviders = new AuthorizationProvidersCache();
+    private final AuthenticationProvidersCache authenticationProviders = new AuthenticationProvidersCache();
+    private final CredentialsProviderCache credentialProviders = new CredentialsProviderCache();
 
     private InjectionProvider injection;
 
@@ -39,6 +41,8 @@ public class ClassForge {
     public InjectionProvider getInjectionProvider() { return injection; }
 
     public AuthorizationProvidersCache getAuthorizationProviders() { return authorizationProviders; }
+    public AuthenticationProvidersCache getAuthenticationProviders() { return authenticationProviders; }
+    public CredentialsProviderCache getCredentialProviders() { return credentialProviders; }
 
     public void setInjectionProvider(InjectionProvider provider) {
 

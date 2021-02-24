@@ -1,5 +1,6 @@
 package com.zandero.rest;
 
+import com.zandero.rest.authentication.CredentialsProvider;
 import com.zandero.rest.authorization.RoleBasedUserAuthorizationProvider;
 import com.zandero.rest.bean.*;
 import com.zandero.rest.cache.*;
@@ -14,6 +15,7 @@ import com.zandero.utils.Assert;
 import io.vertx.core.*;
 import io.vertx.core.http.*;
 import io.vertx.ext.auth.User;
+import io.vertx.ext.auth.authentication.*;
 import io.vertx.ext.auth.authorization.AuthorizationProvider;
 import io.vertx.ext.web.*;
 import io.vertx.ext.web.handler.*;
@@ -145,21 +147,24 @@ public class RestRouter {
                         log.debug("Adding provided body handler to route!");
                     }
                 }
-/*
 
+                // Authentication
                 if (definition.getAuthenticationProvider() != null) {
-                    route.handler(addAuthenticationProvider(definition.getAuthenticationProvider()));
+                    route.handler(getAuthenticationProvider(definition.getAuthenticationProvider(),
+                                                            definition.getCredentialProvider(),
+                                                            definition));
                 }
-*/
 
+                // Authorization
                 if (definition.getAuthorizationProvider() != null) {
-                    route.handler(getAuthorizationHandler(definition.getAuthorizationProvider(), definition));
-                }
-
-                // add security check handler in front of regular route handler
-                // (in case @PermitAll, @DenyAll or @RolesAllowed is used)
-                if (definition.checkSecurity()) {
-                    route.handler(getAuthorizationHandler(RoleBasedUserAuthorizationProvider.class, definition));
+                    route.handler(getAuthorizationHandler(definition.getAuthorizationProvider(),
+                                                          definition));
+                } else if (definition.checkSecurity()) {
+                    // for back compatibility purposes
+                    // add security check handler in front of regular route handler
+                    // (in case @PermitAll, @DenyAll or @RolesAllowed is used)
+                    route.handler(getAuthorizationHandler(RoleBasedUserAuthorizationProvider.class,
+                                                          definition));
                 }
 
                 // bind handler // blocking or async
@@ -364,19 +369,32 @@ public class RestRouter {
         }
     }
 
-    /*private static Handler<RoutingContext> addAuthenticationProvider(AuthenticationProvider provider) {
+    private static Handler<RoutingContext> getAuthenticationProvider(Class<? extends AuthenticationProvider> authenticatorProviderClass,
+                                                                     Class<? extends CredentialsProvider> credentialsProviderClass,
+                                                                     RouteDefinition definition) {
         return context -> {
+            try {
+                AuthenticationProvider authenticator = getAuthenticationProviders().provide(authenticatorProviderClass, getInjectionProvider(), context);
+                CredentialsProvider credentialsProvider = getCredentialProviders().provide(credentialsProviderClass, getInjectionProvider(), context);
 
-            provider.authenticate(authInfo)
+                Credentials credentials = credentialsProvider.provide(context.request());
 
-                .onSuccess(user -> {
-                    System.out.println("User " + user.principal() + " is now authenticated");
-                })
-                .onFailure(Throwable::printStackTrace);
-
-            provider.getAuthorizations(context.user());
-        }
-    }*/
+                authenticator.authenticate(credentials, userAsyncResult -> {
+                    if (userAsyncResult.failed()) {
+                        Throwable ex = (userAsyncResult.cause() != null ?
+                                            userAsyncResult.cause() :
+                                            new UnauthorizedException(context.user()));
+                        handleException(ex, context, definition);
+                    } else {
+                        context.setUser(userAsyncResult.result());
+                        context.next();
+                    }
+                });
+            } catch (Throwable e) {
+                handleException(e, context, definition);
+            }
+        };
+    }
 
     private static Handler<RoutingContext> getAuthorizationHandler(Class<? extends AuthorizationProvider> providerClass, RouteDefinition definition) {
         return context -> {
@@ -385,118 +403,19 @@ public class RestRouter {
                 AuthorizationProvider provider = getAuthorizationProviders().provide(providerClass, getInjectionProvider(), definition, context);
                 provider.getAuthorizations(context.user(), userAuthorizationResult -> {
                     if (userAuthorizationResult.failed()) {
-                        Throwable ex = (userAuthorizationResult.cause() != null ? userAuthorizationResult.cause() : new UnauthorizedException(context.user()));
-                        handleException(ex,
-                                        context,
-                                        definition);
+                        Throwable ex = (userAuthorizationResult.cause() != null ?
+                                            userAuthorizationResult.cause() :
+                                            new ForbiddenException(context.user()));
+                        handleException(ex, context, definition);
                     } else {
                         context.next();
                     }
                 });
             } catch (ClassFactoryException | ContextException e) {
-                handleException(e,
-                                context,
-                                definition);
+                handleException(e, context, definition);
             }
         };
     }
-
-    /*private static Handler<RoutingContext> getRoleBasedAuthorizationHandler(RouteDefinition definition) {
-
-        return context -> {
-
-            AuthorizationProvider provider = new RoleBasedUserAuthorizationProvider(definition);
-            provider.getAuthorizations(context.user(), userAuthorizationResult -> {
-                if (userAuthorizationResult.failed()) {
-                    if (userAuthorizationResult.cause() != null) {
-                        handleException(userAuthorizationResult.cause(),
-                                        context,
-                                        definition);
-                    } else {
-                        handleException(new UnauthorizedException(context.user()),
-                                        context,
-                                        definition);
-                    }
-                } else {
-                    context.next();
-
-                }
-            });
-        };
-    }
-*/
-  /*  private static AuthorizationProvider getRoleBasedAuthorizationProvider(String role) {
-        if (!roleAuthorizationProviders.containsKey(role)) {
-            log.info("Adding role authorization provider for: '{}'", role);
-            roleAuthorizationProviders.put(role, new RoleBasedUserAuthorizationProvider(role));
-        }
-
-        return roleAuthorizationProviders.get(role);
-    }*/
-
-
-
-
-    /*private static Handler<RoutingContext> getSecurityHandler(final RouteDefinition definition) {
-
-        return context -> {
-
-            boolean allowed = isAllowed(context.user(), definition);
-            if (allowed) {
-                context.next();
-            } else {
-                // issue #64 ... provide specific exception so registered handler can to handle this
-                handleException(new UnauthorizedException(context.user()),
-                                context,
-                                definition);
-            }
-        };
-    }*/
-
-    // TODO: change from vert.x 3 -> 4
-    // User the methods isAuthorized is deprecated (authorization should be performed by the AuthorizationProvider
-    // check if given user is authorized for given role ...
-   /* private static boolean isAllowed(User user, RouteDefinition definition) {
-
-        if (definition.getPermitAll() != null) {
-            // allow all or deny all
-            return definition.getPermitAll();
-        }
-
-        if (user == null) {
-            return false; // no user present ... can't check
-        }
-
-        // TODO: VertX 4 rework
-        List<Future> list = new ArrayList<>();
-
-        for (String role : definition.getRoles()) {
-
-            Future<Boolean> future = Future.future(Promise::complete);
-            user.isAuthorized(role, future.completer());
-
-            list.add(future);
-        }
-
-        // compose multiple futures ... and return true if any of those return true
-        Future<CompositeFuture> output = Future.future(Promise::complete);
-        CompositeFuture.all(list).setHandler(output.completer());
-
-        if (output.result() != null) {
-
-            for (int index = 0; index < output.result().size(); index++) {
-                if (output.result().succeeded(index)) {
-
-                    Object result = output.result().resultAt(index);
-                    if (result instanceof Boolean && ((Boolean) result)) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }*/
 
     private static Handler<RoutingContext> getHandler(final Object toInvoke, final RouteDefinition definition, final Method method) {
 
@@ -766,14 +685,21 @@ public class RestRouter {
         return forge.getContextProviders();
     }
 
+    public static AuthenticationProvidersCache getAuthenticationProviders() {
+        return forge.getAuthenticationProviders();
+    }
+
     public static AuthorizationProvidersCache getAuthorizationProviders() {
         return forge.getAuthorizationProviders();
+    }
+
+    public static CredentialsProviderCache getCredentialProviders() {
+        return forge.getCredentialProviders();
     }
 
     public static InjectionProvider getInjectionProvider() {
         return forge.getInjectionProvider();
     }
-
 
     /**
      * Registers a context provider for given type of class

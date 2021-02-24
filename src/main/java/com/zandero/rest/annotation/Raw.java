@@ -5,6 +5,8 @@ import java.lang.annotation.*;
 /**
  * Applies to any parameters that is transformed via some internal logic and disables transformation
  * providing the raw value as it is delivered by vert.x
+ *
+ * For instance query string parameters
  */
 @Target({ElementType.PARAMETER, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)

@@ -1,5 +1,6 @@
 package com.zandero.rest.annotation;
 
+import com.zandero.rest.authentication.CredentialsProvider;
 import io.vertx.ext.auth.authentication.AuthenticationProvider;
 
 import java.lang.annotation.*;
@@ -9,5 +10,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface Authenticate {
 
-    Class<? extends AuthenticationProvider> value();
+    Class<? extends AuthenticationProvider> auth();
+
+    Class<? extends CredentialsProvider> with();
 }

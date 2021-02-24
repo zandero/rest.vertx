@@ -1,9 +1,7 @@
 package com.zandero.rest;
 
 import com.zandero.rest.test.TestAuthorizationProviderRest;
-import com.zandero.rest.test.data.SimulatedUser;
-import io.vertx.core.Handler;
-import io.vertx.ext.web.*;
+import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
 import io.vertx.junit5.*;
 import org.junit.jupiter.api.*;
@@ -19,19 +17,14 @@ class RouteAuthorizationProviderTest extends VertxTest {
 
         before();
 
-        // 1. register handler to initialize User
-        Router router = Router.router(vertx);
-        router.route().handler(getUserHandler());
-
-        // 2. REST with @Authorize annotations
-        RestRouter.register(router, TestAuthorizationProviderRest.class);
+        Router router = RestRouter.register(vertx, TestAuthorizationProviderRest.class);
 
         vertx.createHttpServer()
             .requestHandler(router)
             .listen(PORT);
     }
 
-    private static Handler<RoutingContext> getUserHandler() {
+   /* private static Handler<RoutingContext> getUserHandler() {
 
         return context -> {
 
@@ -45,6 +38,32 @@ class RouteAuthorizationProviderTest extends VertxTest {
 
             context.next();
         };
+    }*/
+
+    @Test
+    void testGetAllDefaultAllow(VertxTestContext context) {
+
+        client.get(PORT, HOST, "/private/all_default")
+            .as(BodyCodec.string())
+            .putHeader("X-Token", "user")
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(200, response.statusCode());
+                assertEquals("all", response.body());
+                context.completeNow();
+            })));
+    }
+
+    @Test
+    void testGetAllDefaultDeny(VertxTestContext context) {
+
+        client.get(PORT, HOST, "/private/all_default")
+            .as(BodyCodec.string())
+            .putHeader("X-Token", "LetMeIn")
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(403, response.statusCode());
+                assertEquals("HTTP 403 Forbidden", response.body());
+                context.completeNow();
+            })));
     }
 
     @Test
@@ -54,8 +73,8 @@ class RouteAuthorizationProviderTest extends VertxTest {
             .as(BodyCodec.string())
             .putHeader("X-Token", "LetMeIn")
             .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals("all", response.body());
                 assertEquals(200, response.statusCode());
+                assertEquals("all", response.body());
                 context.completeNow();
             })));
     }

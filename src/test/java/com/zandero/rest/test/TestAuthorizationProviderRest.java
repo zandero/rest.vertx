@@ -1,15 +1,17 @@
 package com.zandero.rest.test;
 
-import com.zandero.rest.annotation.Authorize;
-import com.zandero.rest.authorization.TestAuthorizationProvider;
+import com.zandero.rest.annotation.*;
+import com.zandero.rest.authorization.*;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 /**
  * Test access based on assigned AuthorizationProvider
+ *
  */
 @Path("/private")
+@Authenticate(auth = MyAuthenticator.class, with = MyCredentialProvider.class)
 public class TestAuthorizationProviderRest {
 
     @GET
@@ -17,6 +19,14 @@ public class TestAuthorizationProviderRest {
     @Produces(MediaType.TEXT_PLAIN)
     @Authorize(TestAuthorizationProvider.class)
     public String all() {
+        return "all";
+    }
+
+    @GET
+    @Path("/all_default")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Authorize(role = "user")
+    public String all_default() {
 
         return "all";
     }

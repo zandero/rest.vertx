@@ -2,6 +2,7 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.*;
+import com.zandero.rest.authentication.CredentialsProvider;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.reader.ValueReader;
@@ -140,6 +141,7 @@ public class RouteDefinition {
      *  Authentication provider
      */
     protected Class<? extends AuthenticationProvider> authenticationProvider;
+    protected Class<? extends CredentialsProvider> credentialProvider;
 
     /**
      *  Authorization provider
@@ -255,6 +257,10 @@ public class RouteDefinition {
 
         if (authenticationProvider == null) {
             authenticationProvider = additional.authenticationProvider;
+        }
+
+        if (credentialProvider == null) {
+            credentialProvider = additional.credentialProvider;
         }
 
         if (!async) {
@@ -470,11 +476,15 @@ public class RouteDefinition {
             }
 
             if (annotation instanceof Authenticate) {
-                authenticationProvider = ((Authenticate)annotation).value();
+                authenticationProvider = ((Authenticate)annotation).auth();
+                credentialProvider = ((Authenticate)annotation).with();
             }
 
             if (annotation instanceof Authorize) {
                 authorizationProvider = ((Authorize)annotation).value();
+                if (((Authorize)annotation).role().length > 0) {
+                    roles = ArrayUtils.join(roles, ((Authorize)annotation).role());
+                }
             }
 
             if (annotation instanceof CatchWith) {
@@ -1014,6 +1024,10 @@ public class RouteDefinition {
         return authenticationProvider;
     }
 
+    public Class<? extends CredentialsProvider> getCredentialProvider() {
+        return credentialProvider;
+    }
+
     /**
      * @return associated authorization provider
      */
@@ -1066,20 +1080,21 @@ public class RouteDefinition {
         prefix = prefix.substring(0, prefix.length() - (method == null ? 0 : method.toString().length()));
 
         String security = "";
+
+        if (authenticationProvider != null) {
+            security = "      authenticate[" + authenticationProvider.getSimpleName() + "]";
+        }
+
+        if (authorizationProvider != null) {
+            security = "      authorize[" + authorizationProvider.getSimpleName() + "]";
+        }
+
         if (checkSecurity()) {
             if (permitAll != null) {
                 security = permitAll ? " @PermitAll" : " @DenyAll";
             } else {
                 security = "  [" + StringUtils.join(roles, ", ") + "]";
             }
-        }
-
-        if (authenticationProvider != null) {
-            security = "  authenticate[" + authenticationProvider.getSimpleName() + "]";
-        }
-
-        if (authorizationProvider != null) {
-            security = "  authorize[" + authorizationProvider.getSimpleName() + "]";
         }
 
         return prefix + (method == null ? ">undefined<" : method) + " " + routePath + security + (pathIsRegEx() ? "[regex]" : "");
