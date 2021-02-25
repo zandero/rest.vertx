@@ -1,5 +1,7 @@
 package com.zandero.rest.test;
 
+import com.zandero.rest.annotation.Header;
+
 import javax.ws.rs.*;
 
 /**
@@ -17,4 +19,15 @@ public class TestMultiProducesRest {
 
         return "HELLO!";
     }
+
+    @GET
+    @Path("/produce")
+    /*@Consumes({"application/json", "application/xml"})
+    @Produces({"application/json"}) // "application/xml"*/
+    @Header({"Accept: application/json",
+        "Content-Type: application/json"})
+    public String getAsJson() {
+        return "Bam!";
+    }
+
 }

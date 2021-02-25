@@ -2,12 +2,13 @@ package com.zandero.rest.authorization;
 
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.exception.ForbiddenException;
-import com.zandero.utils.Assert;
 import io.vertx.core.*;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.authorization.*;
 import org.slf4j.*;
 
+import javax.ws.rs.core.Context;
 import java.util.*;
 
 /**
@@ -19,13 +20,17 @@ import java.util.*;
  */
 public class RoleBasedUserAuthorizationProvider implements AuthorizationProvider {
 
-    private final RouteDefinition definition;
+    @Context
+    private RouteDefinition definition;
+
+    @Context
+    private HttpServerRequest request;
 
     private final static Logger log = LoggerFactory.getLogger(RoleBasedUserAuthorizationProvider.class);
 
-    public RoleBasedUserAuthorizationProvider(RouteDefinition routeDefinition) {
-        Assert.notNull(routeDefinition, "No route definition provided!");
-        definition = routeDefinition;
+    public RoleBasedUserAuthorizationProvider() {
+        /*Assert.notNull(routeDefinition, "No route definition provided!");
+        definition = routeDefinition;*/
     }
 
     @Override
@@ -59,11 +64,9 @@ public class RoleBasedUserAuthorizationProvider implements AuthorizationProvider
                     if (definition.getRoles() == null) {
                         log.trace("User authorization failed: " + definition.toString() + ", is missing @RolesAllowed annotation. " +
                                       "Either provide @RolesAllowed annotation or use different AuthorizationProvider");
-                    }
-                    else if (user != null) {
+                    } else if (user != null) {
                         log.trace("User authorization failed: '" + user.principal() + "', not authorized to access: " + definition.toString());
-                    }
-                    else {
+                    } else {
                         log.trace("User authorization failed: no user was provided, for: " + definition.toString());
                     }
 

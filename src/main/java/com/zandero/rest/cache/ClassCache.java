@@ -70,6 +70,12 @@ public abstract class ClassCache<T> {
         instanceCache.put(clazz.getClass().getName(), clazz);
     }
 
+    public void registerInstanceByName(String name, T clazz) {
+        Assert.notNull(name, "Missing instance name!");
+        Assert.notNull(clazz, "Missing class instance!");
+        instanceCache.put(name, clazz);
+    }
+
     protected void registerInstanceByMediaType(String mediaType, T clazz) {
 
         MediaType type = MediaTypeHelper.valueOf(mediaType);

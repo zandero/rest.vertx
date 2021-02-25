@@ -54,4 +54,16 @@ class RouteWithMultiProducesTest extends VertxTest {
                 context.completeNow();
             })));
     }
+
+    @Test
+    void echoProducesJsonTest(VertxTestContext context) {
+
+        client.get(PORT, HOST, "/multi/produce").as(BodyCodec.string())
+            .putHeader("Accept", "application/json")
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(200, response.statusCode());
+                assertEquals("{\"text\": \"Bam!\"}", response.body());
+                context.completeNow();
+            })));
+    }
 }

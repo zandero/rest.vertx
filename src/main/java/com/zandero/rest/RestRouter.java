@@ -115,9 +115,23 @@ public class RestRouter {
                 } else {
                     route = router.route(definition.getMethod(), definition.getRoutePath());
                 }
-
+                //
                 log.info("Registering route: " + definition);
 
+                if (definition.getOrder() != 0) {
+                    route.order(definition.getOrder());
+                }
+
+                // each route gets ist definition provided via context provider
+                ContextProvider<RouteDefinition> definitionHandler = new ContextProvider<RouteDefinition>() {
+                    @Override
+                    public RouteDefinition provide(HttpServerRequest request) throws Throwable {
+                        return definition;
+                    }
+                };
+                route.handler(getContextHandler(definitionHandler));
+
+                //
                 if (definition.requestHasBody() && definition.getConsumes() != null) { // only register if request with body
                     for (MediaType item : definition.getConsumes()) {
                         route.consumes(MediaTypeHelper.getKey(item)); // ignore charset when binding
@@ -128,10 +142,6 @@ public class RestRouter {
                     for (MediaType item : definition.getProduces()) {
                         route.produces(MediaTypeHelper.getKey(item)); // ignore charset when binding
                     }
-                }
-
-                if (definition.getOrder() != 0) {
-                    route.order(definition.getOrder());
                 }
 
                 // check body and reader compatibility beforehand
@@ -400,7 +410,7 @@ public class RestRouter {
         return context -> {
 
             try {
-                AuthorizationProvider provider = getAuthorizationProviders().provide(providerClass, getInjectionProvider(), definition, context);
+                AuthorizationProvider provider = getAuthorizationProviders().provide(providerClass, getInjectionProvider(), context);
                 provider.getAuthorizations(context.user(), userAuthorizationResult -> {
                     if (userAuthorizationResult.failed()) {
                         Throwable ex = (userAuthorizationResult.cause() != null ?

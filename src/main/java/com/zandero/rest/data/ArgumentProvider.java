@@ -92,7 +92,6 @@ public class ArgumentProvider {
 
                             args[parameter.getIndex()] = ContextProviderCache.provideContext(method.getParameterTypes()[parameter.getIndex()],
                                                                                              parameter.getDefaultValue(),
-                                                                                             definition,
                                                                                              context);
                             break;
 

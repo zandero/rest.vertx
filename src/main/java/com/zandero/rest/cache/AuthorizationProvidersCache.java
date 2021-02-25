@@ -1,7 +1,6 @@
 package com.zandero.rest.cache;
 
-import com.zandero.rest.authorization.RoleBasedUserAuthorizationProvider;
-import com.zandero.rest.data.*;
+import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
 import io.vertx.ext.auth.authorization.AuthorizationProvider;
@@ -18,13 +17,15 @@ public class AuthorizationProvidersCache extends ClassCache<AuthorizationProvide
 
     public AuthorizationProvider provide(Class<? extends AuthorizationProvider> authorizationProvider,
                                          InjectionProvider provider,
-                                         RouteDefinition definition,
+                                         //RouteDefinition definition,
                                          RoutingContext context) throws ClassFactoryException, ContextException {
 
-        // For back compatibility purposes only ... handling @RolesAllowed, @PermitAll, @DenyAll routes
+       /* // For back compatibility purposes only ... handling @RolesAllowed, @PermitAll, @DenyAll routes
         if (authorizationProvider == RoleBasedUserAuthorizationProvider.class) {
             return new RoleBasedUserAuthorizationProvider(definition);
-        }
+        }*/
+
+        //ClassFactory.getClassInstance(authorizationProvider, this, provider, context)
 
         // create class instance
         return (AuthorizationProvider) ClassFactory.getClassInstance(authorizationProvider, this, provider, context);

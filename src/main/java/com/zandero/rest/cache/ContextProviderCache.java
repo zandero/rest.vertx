@@ -1,7 +1,7 @@
 package com.zandero.rest.cache;
 
 import com.zandero.rest.context.ContextProvider;
-import com.zandero.rest.data.*;
+import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
@@ -77,7 +77,6 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
     }
 
     public static <T> boolean hasContext(Class<? extends T> clazz) {
-
         return getContextFields(clazz).size() > 0;
     }
 
@@ -92,7 +91,6 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
      */
     public static Object provideContext(Class<?> type,
                                         String defaultValue,
-                                        RouteDefinition definition,
                                         RoutingContext context) throws ContextException {
 
         // vert.x context
@@ -123,9 +121,9 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
         }
 
         // internal context / reflection of route definition
-        if (type.isAssignableFrom(RouteDefinition.class)) {
+/*        if (type.isAssignableFrom(RouteDefinition.class)) {
             return definition;
-        }
+        }*/
 
         // browse through context storage
         if (context.data() != null && context.data().size() > 0) {
@@ -162,7 +160,7 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
             Annotation found = field.getAnnotation(Context.class);
             if (found != null) {
 
-                Object context = provideContext(field.getType(), null, null, routeContext);
+                Object context = provideContext(field.getType(), null, routeContext);
                 try {
                     field.setAccessible(true);
                     field.set(instance, context);

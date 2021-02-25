@@ -1024,6 +1024,9 @@ public class RouteDefinition {
         return authenticationProvider;
     }
 
+    /**
+     * @return associated credentials provider
+     */
     public Class<? extends CredentialsProvider> getCredentialProvider() {
         return credentialProvider;
     }

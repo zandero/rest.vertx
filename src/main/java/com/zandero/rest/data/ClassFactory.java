@@ -55,6 +55,37 @@ public class ClassFactory {
         return instance;
     }
 
+    public static Object getClassInstanceByName(Class<?> clazz,
+                                                String name,
+                                                ClassCache classCache,
+                                                InjectionProvider provider,
+                                                RoutingContext context) throws ClassFactoryException, ContextException {
+
+        if (clazz == null) {
+            return null;
+        }
+
+        // only use cache if no @Context is needed (TODO: join this two calls into one!)
+        boolean hasContext = ContextProviderCache.hasContext(clazz); // TODO: move this method somewhere else
+        boolean cacheIt = clazz.getAnnotation(NoCache.class) == null; // caching disabled / enabled
+
+        Object instance = null;
+        if (!hasContext && cacheIt) { // no Context ... we can get it from cache
+            instance = classCache.getInstanceByName(name);
+        }
+
+        if (instance == null) {
+
+            instance = newInstanceOf(clazz, provider, context);
+
+            if (!hasContext && cacheIt) { // no context .. we can cache this instance
+                classCache.registerInstanceByName(name, instance);
+            }
+        }
+
+        return instance;
+    }
+
     // TODO: improve with additional context provider
     public static Object newInstanceOf(Class<?> clazz,
                                        InjectionProvider provider,
