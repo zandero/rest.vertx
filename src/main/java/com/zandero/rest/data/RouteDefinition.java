@@ -22,6 +22,7 @@ import javax.ws.rs.core.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.zandero.rest.data.ClassUtils.*;
 
@@ -138,13 +139,13 @@ public class RouteDefinition {
     protected String[] roles = null;
 
     /**
-     *  Authentication provider
+     * Authentication provider
      */
     protected Class<? extends AuthenticationProvider> authenticationProvider;
     protected Class<? extends CredentialsProvider> credentialProvider;
 
     /**
-     *  Authorization provider
+     * Authorization provider
      */
     protected Class<? extends AuthorizationProvider> authorizationProvider;
 
@@ -403,7 +404,10 @@ public class RouteDefinition {
             }
 
             if (annotation instanceof Header) {
-                headers = headers(((Header) annotation).value());
+                String[] value = ((Header) annotation).value();
+                headers = headers(value);
+                consumes = ArrayUtils.join(consumes, getConsumeHeaders(headers));
+                produces = ArrayUtils.join(produces, getProducesHeaders(headers));
             }
 
             if (annotation instanceof GET ||
@@ -476,14 +480,14 @@ public class RouteDefinition {
             }
 
             if (annotation instanceof Authenticate) {
-                authenticationProvider = ((Authenticate)annotation).auth();
-                credentialProvider = ((Authenticate)annotation).with();
+                authenticationProvider = ((Authenticate) annotation).check();
+                credentialProvider = ((Authenticate) annotation).with();
             }
 
             if (annotation instanceof Authorize) {
-                authorizationProvider = ((Authorize)annotation).value();
-                if (((Authorize)annotation).role().length > 0) {
-                    roles = ArrayUtils.join(roles, ((Authorize)annotation).role());
+                authorizationProvider = ((Authorize) annotation).value();
+                if (((Authorize) annotation).role().length > 0) {
+                    roles = ArrayUtils.join(roles, ((Authorize) annotation).role());
                 }
             }
 
@@ -514,6 +518,26 @@ public class RouteDefinition {
                 }
             }
         }
+    }
+
+    private MediaType[] getProducesHeaders(Map<String, String> headers) {
+
+        Map<String, String> contentTypes = headers.entrySet()
+                                               .stream()
+                                               .filter(map -> HttpRequestHeader.isConsumeHeader(map.getKey()))
+                                               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        return MediaTypeHelper.getMediaTypes(contentTypes);
+    }
+
+    private MediaType[] getConsumeHeaders(Map<String, String> headers) {
+
+        Map<String, String> contentTypes = headers.entrySet()
+                                               .stream()
+                                               .filter(map -> HttpResponseHeader.isProducesHeader(map.getKey()))
+                                               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        return MediaTypeHelper.getMediaTypes(contentTypes);
     }
 
     private Map<String, String> headers(String[] value) {
@@ -883,9 +907,7 @@ public class RouteDefinition {
         return routePath;
     }
 
-    public MediaType[] getConsumes() {
-        return consumes;
-    }
+    public MediaType[] getConsumes() { return consumes; }
 
     public MediaType[] getProduces() {
         return produces;
@@ -905,6 +927,29 @@ public class RouteDefinition {
 
     public Map<String, String> getHeaders() {
         return headers;
+    }
+
+    public Map<String, String> getResponseHeaders() {
+        if (headers == null || headers.size() == 0) {
+            return headers;
+        }
+
+        return headers.entrySet()
+                   .stream()
+                   .filter(map -> HttpResponseHeader.isResponseHeader(map.getKey()))
+                   .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    public Map<String, String> getRequestHeaders() {
+        if (headers == null || headers.size() == 0) {
+            return headers;
+        }
+
+        return headers.entrySet()
+                   .stream()
+                   .filter(map -> HttpRequestHeader.isRequestHeader(map.getKey()))
+                   .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
     }
 
     public Class<? extends ValueReader> getReader() {

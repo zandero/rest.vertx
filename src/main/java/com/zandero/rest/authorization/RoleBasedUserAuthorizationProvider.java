@@ -3,7 +3,6 @@ package com.zandero.rest.authorization;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.exception.ForbiddenException;
 import io.vertx.core.*;
-import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.authorization.*;
 import org.slf4j.*;
@@ -23,15 +22,7 @@ public class RoleBasedUserAuthorizationProvider implements AuthorizationProvider
     @Context
     private RouteDefinition definition;
 
-    @Context
-    private HttpServerRequest request;
-
     private final static Logger log = LoggerFactory.getLogger(RoleBasedUserAuthorizationProvider.class);
-
-    public RoleBasedUserAuthorizationProvider() {
-        /*Assert.notNull(routeDefinition, "No route definition provided!");
-        definition = routeDefinition;*/
-    }
 
     @Override
     public String getId() {

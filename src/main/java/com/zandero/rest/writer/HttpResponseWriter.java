@@ -30,13 +30,11 @@ public interface HttpResponseWriter<T> {
 
         if (!response.ended()) {
 
-
             Map<String, String> headers = new HashMap<>();
 
             // collect all headers to put into response ...
-
             // 1. add definition headers
-            headers = join(headers, definition.getHeaders());
+            headers = join(headers, definition.getResponseHeaders());
 
             // 2. add REST produces
             headers = join(headers, requestMediaType, definition.getProduces());

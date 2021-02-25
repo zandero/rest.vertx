@@ -11,7 +11,7 @@ import javax.ws.rs.core.MediaType;
  *
  */
 @Path("/private")
-@Authenticate(auth = MyAuthenticator.class, with = MyCredentialProvider.class)
+@Authenticate(check = MyAuthenticator.class, with = MyCredentialProvider.class)
 public class TestAuthorizationProviderRest {
 
     @GET

@@ -66,4 +66,15 @@ class RouteWithMultiProducesTest extends VertxTest {
                 context.completeNow();
             })));
     }
+
+    @Test
+    void echoProducesXmlTest(VertxTestContext context) {
+
+        client.get(PORT, HOST, "/multi/produce").as(BodyCodec.string())
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(200, response.statusCode());
+                assertEquals("<xml>Bam!</xml>", response.body());
+                context.completeNow();
+            })));
+    }
 }

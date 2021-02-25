@@ -16,16 +16,12 @@ public class TestMultiProducesRest {
     @Consumes({"application/json", "application/xml"})
     @Produces({"application/json"}) // "application/xml"
     public String getAsDesired() {
-
         return "HELLO!";
     }
 
     @GET
     @Path("/produce")
-    /*@Consumes({"application/json", "application/xml"})
-    @Produces({"application/json"}) // "application/xml"*/
-    @Header({"Accept: application/json",
-        "Content-Type: application/json"})
+    @Header({"Accept: application/json", "Content-Type: application/json"})
     public String getAsJson() {
         return "Bam!";
     }

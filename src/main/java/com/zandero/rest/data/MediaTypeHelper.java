@@ -5,6 +5,7 @@ import org.slf4j.*;
 
 import javax.ws.rs.core.MediaType;
 import java.util.*;
+import java.util.stream.*;
 
 /**
  *
@@ -207,5 +208,10 @@ public final class MediaTypeHelper {
         }
 
         return joinedSet.values().toArray(new MediaType[]{});
+    }
+
+    public static MediaType[] getMediaTypes(Map<String, String> headers) {
+        Stream<MediaType> mapped = headers.values().stream().map(MediaTypeHelper::parse);
+        return mapped.collect(Collectors.toSet()).toArray(new MediaType[]{});
     }
 }
