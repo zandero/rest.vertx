@@ -211,6 +211,7 @@ public final class MediaTypeHelper {
     }
 
     public static MediaType[] getMediaTypes(Map<String, String> headers) {
+        Assert.notNull(headers, "Missing map of headers!");
         Stream<MediaType> mapped = headers.values().stream().map(MediaTypeHelper::parse);
         return mapped.collect(Collectors.toSet()).toArray(new MediaType[]{});
     }

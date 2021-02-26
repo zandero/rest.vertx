@@ -4,6 +4,7 @@ package com.zandero.rest.data;
 import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.MediaType;
+import java.util.*;
 
 import static com.zandero.utils.junit.AssertFinalClass.isWellDefined;
 import static org.junit.jupiter.api.Assertions.*;
@@ -82,4 +83,16 @@ class MediaTypeHelperTest {
         assertEquals("UTF-8", out[1].getParameters().get("charset"));
     }
 
+    @Test
+    void getMediaTypesFromHeaders() {
+        Map<String, String> headers = new HashMap<>();
+
+        MediaType[] out = MediaTypeHelper.getMediaTypes(headers);
+        assertEquals(out.length, 0);
+
+        headers.put("Accept", "application/json");
+        out = MediaTypeHelper.getMediaTypes(headers);
+        assertEquals(out.length, 1);
+        assertEquals(out[0], new MediaType("application", "json"));
+    }
 }
