@@ -71,7 +71,7 @@
         <version.jetty>[9.3.7.v20160115,)</version.jetty>
         <version.glassfish>2.32</version.glassfish>
 
-        <version.guice>4.2.3</version.guice>
+        <version.guice>5.0.0</version.guice>
         <version.feather>1.0</version.feather>
         <version.hibernate.validation>6.1.6.Final</version.hibernate.validation>
         <version.java.validation.el>3.0.0</version.java.validation.el>
