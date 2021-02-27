@@ -12,6 +12,10 @@ import java.lang.reflect.Type;
 
 import static com.zandero.rest.data.ClassUtils.*;
 
+/**
+ * Produces and caches all classes needed for REST routing
+ * TODO: needs more refactoring
+ */
 public class ClassForge {
 
     private final static Logger log = LoggerFactory.getLogger(ClassForge.class);
@@ -27,7 +31,6 @@ public class ClassForge {
 
     private InjectionProvider injection;
 
-    // TODO: to be hidden
     public WriterCache getWriters() {
         return writers;
     }
@@ -44,10 +47,17 @@ public class ClassForge {
     public AuthenticationProvidersCache getAuthenticationProviders() { return authenticationProviders; }
     public CredentialsProviderCache getCredentialProviders() { return credentialProviders; }
 
-    public void setInjectionProvider(InjectionProvider provider) {
-
-        injection = provider;
+    public void clean() {
+        writers.clear();
+        readers.clear();
+        exceptionHandlers.clear();
+        contextProviders.clear();
+        authenticationProviders.clear();
+        authorizationProviders.clear();
+        credentialProviders.clear();
     }
+
+    public void setInjectionProvider(InjectionProvider provider) { injection = provider; }
 
     /**
      * Finds assigned response writer or tries to assign a writer according to produces annotation and result type

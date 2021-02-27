@@ -49,7 +49,13 @@ public class RestRouter {
 
     private static BodyHandler bodyHandler;
 
-    private static final Map<String, AuthorizationProvider> authorizationProviders = new HashMap<>();
+    /**
+     * Default authentication / credential and authorization providers
+     * Used in case no other provider is defined
+     */
+    private static AuthenticationProvider defaultAuthenticationProvider;
+    private static CredentialsProvider defaultCredentialsProvider;
+    private static AuthorizationProvider defaultAuthorizationProvider;
 
     /**
      * Searches for annotations to register routes ...
@@ -159,14 +165,14 @@ public class RestRouter {
                 }
 
                 // Authentication
-                if (definition.getAuthenticationProvider() != null) {
+                if (definition.getAuthenticationProvider() != null || defaultAuthenticationProvider != null) {
                     route.handler(getAuthenticationProvider(definition.getAuthenticationProvider(),
                                                             definition.getCredentialProvider(),
                                                             definition));
                 }
 
                 // Authorization
-                if (definition.getAuthorizationProvider() != null) {
+                if (definition.getAuthorizationProvider() != null || defaultAuthorizationProvider != null) {
                     route.handler(getAuthorizationHandler(definition.getAuthorizationProvider(),
                                                           definition));
                 } else if (definition.checkSecurity()) {
@@ -355,6 +361,55 @@ public class RestRouter {
         router.route().order(ORDER_CORS_HANDLER).handler(handler);
     }
 
+    public static void authenticateWith(Class<? extends AuthenticationProvider> provider) {
+        try {
+            Assert.notNull(provider, "Missing authorization provider!");
+            Assert.isNull(defaultAuthenticationProvider, "Default authentication provider already defined as: " + defaultAuthenticationProvider.getClass().getName());
+            defaultAuthenticationProvider = getAuthenticationProviders().provide(provider, getInjectionProvider(), null);
+
+        } catch (Throwable e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static void authenticateWith(AuthenticationProvider provider) {
+        Assert.notNull(provider, "Missing authorization provider!");
+        Assert.isNull(defaultAuthenticationProvider, "Default authentication provider already defined as: " + defaultAuthenticationProvider.getClass().getName());
+        defaultAuthenticationProvider = provider;
+    }
+
+    public static void provideCredentials(Class<? extends CredentialsProvider> provider) {
+        Assert.notNull(provider, "Missing credentials provider!");
+        Assert.isNull(defaultCredentialsProvider, "Default credentials provider already defined as: " + defaultCredentialsProvider.getClass().getName());
+        try {
+            defaultCredentialsProvider = getCredentialProviders().provide(provider, getInjectionProvider(), null);
+        } catch (Throwable e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static void provideCredentials(CredentialsProvider provider) {
+        Assert.notNull(provider, "Missing credentials provider!");
+        Assert.isNull(defaultCredentialsProvider, "Default credentials provider already defined as: " + defaultCredentialsProvider.getClass().getName());
+        defaultCredentialsProvider = provider;
+    }
+
+    public static void authorizeWith(Class<? extends AuthorizationProvider> provider) {
+        try {
+            Assert.notNull(provider, "Missing authorization provider!");
+            Assert.isNull(defaultAuthorizationProvider, "Default authorization provider already defined as: " + defaultAuthorizationProvider.getClass().getName());
+            defaultAuthorizationProvider = getAuthorizationProviders().provide(provider, getInjectionProvider(), null);
+        } catch (Throwable e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static void authorizeWith(AuthorizationProvider provider) {
+        Assert.notNull(provider, "Missing authorization provider!");
+        Assert.isNull(defaultAuthorizationProvider, "Default authorization provider already defined as: " + defaultAuthorizationProvider.getClass().getName());
+        defaultAuthorizationProvider = provider;
+    }
+
     private static void checkBodyReader(RouteDefinition definition) {
 
         if (!definition.requestCanHaveBody() || !definition.hasBodyParameter()) {
@@ -384,8 +439,15 @@ public class RestRouter {
                                                                      RouteDefinition definition) {
         return context -> {
             try {
-                AuthenticationProvider authenticator = getAuthenticationProviders().provide(authenticatorProviderClass, getInjectionProvider(), context);
-                CredentialsProvider credentialsProvider = getCredentialProviders().provide(credentialsProviderClass, getInjectionProvider(), context);
+                AuthenticationProvider authenticator = authenticatorProviderClass != null ?
+                                                           getAuthenticationProviders().provide(authenticatorProviderClass, getInjectionProvider(), context) :
+                                                           defaultAuthenticationProvider;
+
+                CredentialsProvider credentialsProvider = credentialsProviderClass != null ?
+                                                              getCredentialProviders().provide(credentialsProviderClass, getInjectionProvider(), context) :
+                                                              defaultCredentialsProvider;
+
+                Assert.notNull(credentialsProvider, "No CredentialsProvider provided for: " + definition.getId());
 
                 Credentials credentials = credentialsProvider.provide(context.request());
                 authenticator.authenticate(credentials, userAsyncResult -> {
@@ -400,7 +462,7 @@ public class RestRouter {
                     }
                 });
             } catch (Throwable e) {
-                log.error("Authentication provider failed: " + e.getMessage(), e);
+                log.error("Authentication failed: " + e.getMessage(), e);
                 handleException(e, context, definition);
             }
         };
@@ -410,7 +472,10 @@ public class RestRouter {
         return context -> {
 
             try {
-                AuthorizationProvider provider = getAuthorizationProviders().provide(providerClass, getInjectionProvider(), context);
+                AuthorizationProvider provider = providerClass != null ?
+                                                     getAuthorizationProviders().provide(providerClass, getInjectionProvider(), context) :
+                                                     defaultAuthorizationProvider;
+
                 provider.getAuthorizations(context.user(), userAuthorizationResult -> {
                     if (userAuthorizationResult.failed()) {
                         Throwable ex = (userAuthorizationResult.cause() != null ?
@@ -422,7 +487,7 @@ public class RestRouter {
                     }
                 });
             } catch (Throwable e) {
-                log.error("Authorization provider failed: " + e.getMessage(), e);
+                log.error("Authorization failed: " + e.getMessage(), e);
                 handleException(e, context, definition);
             }
         };
@@ -710,6 +775,16 @@ public class RestRouter {
 
     public static InjectionProvider getInjectionProvider() {
         return forge.getInjectionProvider();
+    }
+
+    /**
+     * Clears all cached classes and removes any associated validator and injection provider
+     * Intended for Unit tests only, should not be called
+     */
+    public static void clearCache() {
+        forge.clean();
+        validateWith((Validator) null);
+        injectWith((InjectionProvider) null);
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.zandero.rest;
 
+import com.zandero.rest.authentication.CredentialsProvider;
 import com.zandero.rest.bean.BeanProvider;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.data.*;
@@ -10,6 +11,8 @@ import com.zandero.rest.writer.*;
 import com.zandero.utils.*;
 import io.vertx.core.*;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.ext.auth.authentication.AuthenticationProvider;
+import io.vertx.ext.auth.authorization.AuthorizationProvider;
 import io.vertx.ext.web.*;
 import io.vertx.ext.web.handler.*;
 
@@ -41,6 +44,16 @@ public class RestBuilder {
 
     private final Map<MediaType, Object> mediaTypeValueReaders = new LinkedHashMap<>();
     private final Map<Class<?>, Object> classValueReaders = new LinkedHashMap<>();
+
+    private AuthenticationProvider authenticationProvider;
+    private Class<? extends AuthenticationProvider> authenticationProviderClass;
+
+    private CredentialsProvider credentialProvider;
+    private Class<? extends CredentialsProvider> credentialProviderClass;
+
+    private AuthorizationProvider authorizationProvider;
+    private Class<? extends AuthorizationProvider> authorizationProviderClass;
+
 
     /**
      * Map of path / not found handlers
@@ -302,17 +315,13 @@ public class RestBuilder {
     }
 
     public RestBuilder reader(Class<? extends ValueReader<?>> reader) {
-
         Assert.notNull(reader, "Missing value reader class!");
-
         mediaTypeValueReaders.put(null, reader);
         return this;
     }
 
     public RestBuilder reader(ValueReader<?> reader) {
-
         Assert.notNull(reader, "Missing value reader class!");
-
         mediaTypeValueReaders.put(null, reader);
         return this;
     }
@@ -325,9 +334,7 @@ public class RestBuilder {
      * @return builder
      */
     public <T> RestBuilder provide(ContextProvider<T> provider) {
-
         Assert.notNull(provider, "Missing context provider!");
-
         contextProviders.add(provider);
         return this;
     }
@@ -342,7 +349,6 @@ public class RestBuilder {
     public <T> RestBuilder provide(Class<? extends ContextProvider<T>> provider) {
 
         Assert.notNull(provider, "Missing context provider!");
-
         contextProviders.add(provider);
         return this;
     }
@@ -356,7 +362,6 @@ public class RestBuilder {
      * @return builder
      */
     public <T> RestBuilder addProvider(Class<T> clazz, ContextProvider<T> provider) {
-
         Assert.notNull(clazz, "Missing provided class type!");
         Assert.notNull(provider, "Missing context provider!");
         registeredProviders.put(clazz, provider);
@@ -371,7 +376,6 @@ public class RestBuilder {
      * @return builder
      */
     public <T> RestBuilder addProvider(ContextProvider<T> provider) {
-
         Assert.notNull(provider, "Missing context provider!");
         registeredProviders.put(null, provider);
         return this;
@@ -414,6 +418,8 @@ public class RestBuilder {
      * @return rest builder
      */
     public RestBuilder injectWith(InjectionProvider provider) {
+
+        Assert.notNull(provider, "Missing injection provider!");
         injectionProvider = provider;
         return this;
     }
@@ -425,12 +431,14 @@ public class RestBuilder {
      * @return rest builder
      */
     public RestBuilder provideWith(BeanProvider provider) {
+        Assert.notNull(provider, "Missing bean provider!");
         beanProvider = provider;
         return this;
     }
 
     public RestBuilder provideWith(Class<? extends BeanProvider> provider) {
         try {
+            Assert.notNull(provider, "Missing bean provider!");
             beanProvider = (BeanProvider) ClassFactory.newInstanceOf(provider);
         } catch (ClassFactoryException e) {
             throw new IllegalArgumentException(e);
@@ -440,12 +448,14 @@ public class RestBuilder {
     }
 
     public RestBuilder validateWith(Validator provider) {
+        Assert.notNull(provider, "Missing validation provider!");
         validator = provider;
         return this;
     }
 
     public RestBuilder injectWith(Class<? extends InjectionProvider> provider) {
         try {
+            Assert.notNull(provider, "Missing validation provider!");
             injectionProvider = (InjectionProvider) ClassFactory.newInstanceOf(provider);
         } catch (ClassFactoryException e) {
             throw new IllegalArgumentException(e);
@@ -453,6 +463,43 @@ public class RestBuilder {
 
         return this;
     }
+
+    public RestBuilder authenticateWith(Class<? extends AuthenticationProvider> provider) {
+        Assert.notNull(provider, "Missing authentication provider!");
+        authenticationProviderClass = provider;
+        return this;
+    }
+
+    public RestBuilder authenticateWith(AuthenticationProvider provider) {
+        Assert.notNull(provider, "Missing authentication provider!");
+        authenticationProvider = provider;
+        return this;
+    }
+
+    public RestBuilder provideCredentials(Class<? extends CredentialsProvider> provider) {
+        Assert.notNull(provider, "Missing credentials provider!");
+        credentialProviderClass = provider;
+        return this;
+    }
+
+    public RestBuilder provideCredentials(CredentialsProvider provider) {
+        Assert.notNull(provider, "Missing credentials provider!");
+        credentialProvider = provider;
+        return this;
+    }
+
+    public RestBuilder authorizeWith(Class<? extends AuthorizationProvider> provider) {
+        Assert.notNull(provider, "Missing authorization provider!");
+        authorizationProviderClass = provider;
+        return this;
+    }
+
+    public RestBuilder authorizeWith(AuthorizationProvider provider) {
+        Assert.notNull(provider, "Missing authorization provider!");
+        authorizationProvider = provider;
+        return this;
+    }
+
 
     private Router getRouter(Object... handlers) {
 
@@ -480,8 +527,6 @@ public class RestBuilder {
             RestRouter.validateWith(validator);
         }
 
-        //if (!registeredProviders.isEmpty()) {
-
         registeredProviders.forEach((clazz, provider) -> {
 
             if (provider instanceof Class) {
@@ -498,7 +543,7 @@ public class RestBuilder {
                 }
             }
         });
-        //}
+
 
         // put CORS handler in front of other handlers
         Object[] handlers = null;
@@ -517,6 +562,27 @@ public class RestBuilder {
 
         if (bodyHandler != null) {
             RestRouter.setBodyHandler(bodyHandler);
+        }
+
+        if (authenticationProvider != null) {
+            RestRouter.authenticateWith(authenticationProvider);
+        }
+        if (authenticationProviderClass != null) {
+            RestRouter.authenticateWith(authenticationProviderClass);
+        }
+
+        if (credentialProvider != null) {
+            RestRouter.provideCredentials(credentialProvider);
+        }
+        if (credentialProviderClass != null) {
+            RestRouter.provideCredentials(credentialProviderClass);
+        }
+
+        if (authorizationProvider != null) {
+            RestRouter.authorizeWith(authorizationProvider);
+        }
+        if (authorizationProviderClass != null) {
+            RestRouter.authorizeWith(authorizationProviderClass);
         }
 
         // register all handlers and APIs

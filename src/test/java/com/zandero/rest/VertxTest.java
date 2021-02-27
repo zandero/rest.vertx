@@ -29,15 +29,7 @@ public class VertxTest {
         vertx = Vertx.vertx();
         vertxTestContext = new VertxTestContext();
 
-        // clear all registered writers or reader and handlers
-        RestRouter.getReaders().clear();
-        RestRouter.getWriters().clear();
-        RestRouter.getExceptionHandlers().clear();
-        RestRouter.getContextProviders().clear();
-
-        // clear
-        RestRouter.validateWith((Validator) null);
-        RestRouter.injectWith((InjectionProvider) null);
+        RestRouter.clearCache();
 
         client = WebClient.create(vertx);
     }

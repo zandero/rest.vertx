@@ -480,8 +480,8 @@ public class RouteDefinition {
             }
 
             if (annotation instanceof Authenticate) {
-                authenticationProvider = ((Authenticate) annotation).check();
-                credentialProvider = ((Authenticate) annotation).with();
+                authenticationProvider = ((Authenticate) annotation).auth();
+                credentialProvider = ((Authenticate) annotation).cred();
             }
 
             if (annotation instanceof Authorize) {

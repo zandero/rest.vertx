@@ -1918,6 +1918,7 @@ public class JsonExceptionHandler implements ExceptionHandler<String> {
 The @Header annotation adds one or multiple static header to the response. It can be applied either to REST endpoints or
 to response writers.
 
+
 Example:
 
 ```java
@@ -1931,6 +1932,31 @@ public class ConstraintExceptionHandler implements ExceptionHandler<ConstraintEx
     }
 }
 ```
+
+> since version 1.0.4 or later
+
+The @Header annotation can be used instead of @Consumes and @Produces annotation directly on the REST endpoint.
+**Rest.vertx** assigns 'Accept' headers to readers and 'Content-Type' and all other response headers to writers.
+
+Example:
+```java
+    @GET
+    @Path("/produce")
+    @Header({"Accept: application/json", "Content-Type: application/json"})
+    public String getAsJson() {
+        return "I'm Johnson";
+    }
+    
+    // is the same as
+    @GET
+    @Path("/produce")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String getAsJson() {
+        return "I'm Johns son!";
+    }
+```
+
 
 # Logging
 
@@ -1975,6 +2001,10 @@ or even:
 @Get(value = "/test", consumes = "application/json", produces = "application/json")
 public String method(){...}
 ```
+
+# Writing Unit tests
+
+Tips and tricks to writing unit tests for your REST endpoints.
 
 # Request/Response rest.vertx lifecycle
 

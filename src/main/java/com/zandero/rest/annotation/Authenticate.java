@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface Authenticate {
 
-    Class<? extends AuthenticationProvider> check();
+    Class<? extends AuthenticationProvider> auth();
 
-    Class<? extends CredentialsProvider> with();
+    Class<? extends CredentialsProvider> cred();
 }
