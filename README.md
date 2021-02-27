@@ -1004,9 +1004,10 @@ public class MyAuthorizationProvider implements AuthorizationProvider {
 ```
 
 ### Throwing custom exceptions on Authorization / Authentication problems
+
 _Authorization_ and _Authentication_ throw **Unauthorized** and **Forbidden** exceptions respectively.  
-But we can customize Authorization/Authentication provider by simply providing a custom exception when handling failure.  
-> handler.handle(Future.failedFuture(new MyException("custom"))); 
+But we can customize Authorization/Authentication provider by simply providing a custom exception when handling failure.
+> handler.handle(Future.failedFuture(new MyException("custom")));
 
 The thrown exception is taken over and can be further processed with an Exception handler to produce the desired output.
 
@@ -1655,6 +1656,9 @@ best matching response writer instead.
 
 #### Simple async example
 
+> Deprecated example for **vert.x 3**, applicable to versions prior **1.0.4**   
+> since **vert.x** 4 _Promise_ and _CompletableFuture_ should be used instead
+
 ```java
 WorkerExecutor executor=Vertx.vertx().createSharedWorkerExecutor("SlowServiceExecutor",20);
 ```
@@ -1666,7 +1670,7 @@ public Future<Dummy> create(@Context Vertx vertx)throws InterruptedException{
 
     Future<Dummy> res=Future.future();
     asyncCall(executor,res);
-    return res;
+        return res;
     }
 ```
 
@@ -1676,16 +1680,17 @@ public void asyncCall(WorkerExecutor executor,Future<Dummy> value)throws Interru
     executor.executeBlocking(
     fut->{
     try{
-    Thread.sleep(1000);
+        Thread.sleep(1000);
     }
     catch(InterruptedException e){
-    value.fail("Fail");
+        value.fail("Fail");
     }
+    
     value.complete(new Dummy("async","called"));
-    fut.complete();
+        fut.complete();
     },
     false,
-    fut->{}
+        fut->{}
     );
     }
 ```
@@ -1918,7 +1923,6 @@ public class JsonExceptionHandler implements ExceptionHandler<String> {
 The @Header annotation adds one or multiple static header to the response. It can be applied either to REST endpoints or
 to response writers.
 
-
 Example:
 
 ```java
@@ -1939,24 +1943,24 @@ The @Header annotation can be used instead of @Consumes and @Produces annotation
 **Rest.vertx** assigns 'Accept' headers to readers and 'Content-Type' and all other response headers to writers.
 
 Example:
+
 ```java
     @GET
-    @Path("/produce")
-    @Header({"Accept: application/json", "Content-Type: application/json"})
-    public String getAsJson() {
-        return "I'm Johnson";
+@Path("/produce")
+@Header({"Accept: application/json", "Content-Type: application/json"})
+public String getAsJson(){
+    return"I'm Johnson";
     }
-    
-    // is the same as
-    @GET
-    @Path("/produce")
-    @Consumes("application/json")
-    @Produces("application/json")
-    public String getAsJson() {
-        return "I'm Johns son!";
+
+// is the same as
+@GET
+@Path("/produce")
+@Consumes("application/json")
+@Produces("application/json")
+public String getAsJson(){
+    return"I'm Johns son!";
     }
 ```
-
 
 # Logging
 

@@ -1,5 +1,6 @@
 package com.zandero.rest.authorization;
 
+import com.zandero.rest.exception.ExecuteException;
 import io.vertx.core.*;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.authorization.*;
@@ -22,7 +23,7 @@ public class TestAuthorizationProvider implements AuthorizationProvider {
         if (PermissionBasedAuthorization.create("LetMeIn").match(user)) {
             handler.handle(Future.succeededFuture());
         } else {
-            handler.handle(Future.failedFuture(new BadRequestException()));
+            handler.handle(Future.failedFuture(new ExecuteException(400, "HTTP 400 Bad Request")));
         }
     }
 }

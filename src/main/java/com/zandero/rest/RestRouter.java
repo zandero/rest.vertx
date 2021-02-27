@@ -364,7 +364,7 @@ public class RestRouter {
     public static void authenticateWith(Class<? extends AuthenticationProvider> provider) {
         try {
             Assert.notNull(provider, "Missing authorization provider!");
-            Assert.isNull(defaultAuthenticationProvider, "Default authentication provider already defined as: " + defaultAuthenticationProvider.getClass().getName());
+            Assert.isNull(defaultAuthenticationProvider, "Default authentication provider already defined!");
             defaultAuthenticationProvider = getAuthenticationProviders().provide(provider, getInjectionProvider(), null);
 
         } catch (Throwable e) {
@@ -374,13 +374,13 @@ public class RestRouter {
 
     public static void authenticateWith(AuthenticationProvider provider) {
         Assert.notNull(provider, "Missing authorization provider!");
-        Assert.isNull(defaultAuthenticationProvider, "Default authentication provider already defined as: " + defaultAuthenticationProvider.getClass().getName());
+        Assert.isNull(defaultAuthenticationProvider, "Default authentication provider already defined!");
         defaultAuthenticationProvider = provider;
     }
 
     public static void provideCredentials(Class<? extends CredentialsProvider> provider) {
         Assert.notNull(provider, "Missing credentials provider!");
-        Assert.isNull(defaultCredentialsProvider, "Default credentials provider already defined as: " + defaultCredentialsProvider.getClass().getName());
+        Assert.isNull(defaultCredentialsProvider, "Default credentials provider already defined!");
         try {
             defaultCredentialsProvider = getCredentialProviders().provide(provider, getInjectionProvider(), null);
         } catch (Throwable e) {
@@ -390,14 +390,14 @@ public class RestRouter {
 
     public static void provideCredentials(CredentialsProvider provider) {
         Assert.notNull(provider, "Missing credentials provider!");
-        Assert.isNull(defaultCredentialsProvider, "Default credentials provider already defined as: " + defaultCredentialsProvider.getClass().getName());
+        Assert.isNull(defaultCredentialsProvider, "Default credentials provider already defined!");
         defaultCredentialsProvider = provider;
     }
 
     public static void authorizeWith(Class<? extends AuthorizationProvider> provider) {
         try {
             Assert.notNull(provider, "Missing authorization provider!");
-            Assert.isNull(defaultAuthorizationProvider, "Default authorization provider already defined as: " + defaultAuthorizationProvider.getClass().getName());
+            Assert.isNull(defaultAuthorizationProvider, "Default authorization provider already defined!");
             defaultAuthorizationProvider = getAuthorizationProviders().provide(provider, getInjectionProvider(), null);
         } catch (Throwable e) {
             throw new IllegalArgumentException(e);
@@ -406,7 +406,7 @@ public class RestRouter {
 
     public static void authorizeWith(AuthorizationProvider provider) {
         Assert.notNull(provider, "Missing authorization provider!");
-        Assert.isNull(defaultAuthorizationProvider, "Default authorization provider already defined as: " + defaultAuthorizationProvider.getClass().getName());
+        Assert.isNull(defaultAuthorizationProvider, "Default authorization provider already defined!");
         defaultAuthorizationProvider = provider;
     }
 
@@ -779,10 +779,15 @@ public class RestRouter {
 
     /**
      * Clears all cached classes and removes any associated validator and injection provider
-     * Intended for Unit tests only, should not be called
+     * Intended for Unit tests only, should not be called in production code
      */
     public static void clearCache() {
         forge.clean();
+
+        defaultAuthorizationProvider = null;
+        defaultAuthenticationProvider = null;
+        defaultCredentialsProvider = null;
+
         validateWith((Validator) null);
         injectWith((InjectionProvider) null);
     }

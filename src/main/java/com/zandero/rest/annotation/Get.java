@@ -17,4 +17,6 @@ public @interface Get {
 	String[] produces() default "*/*"; // same as @Produces
 
 	String[] consumes() default "*/*"; // same as @Consumes
+
+	// TODO: add String[] headers() default "" to complete
 }
