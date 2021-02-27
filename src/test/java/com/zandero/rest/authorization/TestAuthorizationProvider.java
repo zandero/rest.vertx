@@ -1,9 +1,11 @@
 package com.zandero.rest.authorization;
 
-import com.zandero.rest.exception.UnauthorizedException;
 import io.vertx.core.*;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.authorization.*;
+import org.slf4j.*;
+
+import javax.ws.rs.BadRequestException;
 
 public class TestAuthorizationProvider implements AuthorizationProvider {
 
@@ -16,11 +18,11 @@ public class TestAuthorizationProvider implements AuthorizationProvider {
 
     @Override
     public void getAuthorizations(User user, Handler<AsyncResult<Void>> handler) {
+
         if (PermissionBasedAuthorization.create("LetMeIn").match(user)) {
             handler.handle(Future.succeededFuture());
-        }
-        else {
-            handler.handle(Future.failedFuture(new UnauthorizedException(user)));
+        } else {
+            handler.handle(Future.failedFuture(new BadRequestException()));
         }
     }
 }

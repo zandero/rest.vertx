@@ -11,13 +11,20 @@ import javax.ws.rs.core.MediaType;
  *
  */
 @Path("/private")
-@Authenticate(check = MyAuthenticator.class, with = MyCredentialProvider.class)
+@Authenticate(auth = MyAuthenticator.class, cred = MyCredentialProvider.class)
+@Authorize(TestAuthorizationProvider.class)
 public class TestAuthorizationProviderRest {
+
+    @GET
+    @Path("/user")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String user() {
+        return "user";
+    }
 
     @GET
     @Path("/all")
     @Produces(MediaType.TEXT_PLAIN)
-    @Authorize(TestAuthorizationProvider.class)
     public String all() {
         return "all";
     }
@@ -25,58 +32,17 @@ public class TestAuthorizationProviderRest {
     @GET
     @Path("/all_default")
     @Produces(MediaType.TEXT_PLAIN)
-    @Authorize(role = "user")
+    @Authorize(role = "user") // uses RoleBasedAuthorizationProvider
     public String all_default() {
 
         return "all";
     }
 
-    /*@GET
-    @Path("/nobody")
-    @Produces(MediaType.TEXT_PLAIN)
-    @DenyAll()
-    public String nobody() {
-
-        return "nobody";
-    }
-
     @GET
-    @Path("/user")
+    @Path("/other_user")
     @Produces(MediaType.TEXT_PLAIN)
-    @RolesAllowed("user")
-    public String user() {
-
-        return "user";
+    @Authenticate(auth = MySimpleAuthenticator.class, cred = MyCredentialProvider.class) // override class authenticator
+    public String other_user() {
+        return "other_user";
     }
-
-    @POST
-    @Path("/user")
-    @Produces(MediaType.TEXT_PLAIN)
-    @RolesAllowed("user")
-    public String setTest(String test) {
-
-        return test;
-    }
-
-    @GET
-    @Path("/admin")
-    @Produces(MediaType.TEXT_PLAIN)
-    @RolesAllowed("admin")
-    @RouteOrder(20)
-    public String admin() {
-
-        return "admin";
-    }
-
-    @GET
-    @Path("/other")
-    @Produces(MediaType.TEXT_PLAIN)
-    @RolesAllowed({"one", "two"})
-    public String oneOrTwo(@Context User user) {
-
-        if (user instanceof SimulatedUser)
-            return "{\"role\":\"" + ((SimulatedUser)user).getRole() + "\"}";
-
-        return user.toString();
-    }*/
 }

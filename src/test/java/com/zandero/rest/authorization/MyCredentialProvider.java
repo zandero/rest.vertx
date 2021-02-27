@@ -9,12 +9,6 @@ public class MyCredentialProvider implements CredentialsProvider {
     @Override
     public Credentials provide(HttpServerRequest request) throws Throwable {
         String token = request.getHeader("X-Token");
-
-        // read the token ...
-        if (token != null) {
-            return new TokenCredentials(token);
-        }
-
-        return null;
+        return token != null ? new TokenCredentials(token) : null; // token might be null
     }
 }

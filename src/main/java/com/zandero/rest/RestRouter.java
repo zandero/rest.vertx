@@ -388,7 +388,6 @@ public class RestRouter {
                 CredentialsProvider credentialsProvider = getCredentialProviders().provide(credentialsProviderClass, getInjectionProvider(), context);
 
                 Credentials credentials = credentialsProvider.provide(context.request());
-
                 authenticator.authenticate(credentials, userAsyncResult -> {
                     if (userAsyncResult.failed()) {
                         Throwable ex = (userAsyncResult.cause() != null ?
@@ -401,6 +400,7 @@ public class RestRouter {
                     }
                 });
             } catch (Throwable e) {
+                log.error("Authentication provider failed: " + e.getMessage(), e);
                 handleException(e, context, definition);
             }
         };
@@ -421,7 +421,8 @@ public class RestRouter {
                         context.next();
                     }
                 });
-            } catch (ClassFactoryException | ContextException e) {
+            } catch (Throwable e) {
+                log.error("Authorization provider failed: " + e.getMessage(), e);
                 handleException(e, context, definition);
             }
         };
