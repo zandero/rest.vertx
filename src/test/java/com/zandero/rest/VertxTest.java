@@ -1,12 +1,9 @@
 package com.zandero.rest;
 
-import com.zandero.rest.injection.InjectionProvider;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.junit5.VertxTestContext;
 import org.junit.jupiter.api.*;
-
-import javax.validation.Validator;
 
 /**
  *
@@ -36,7 +33,7 @@ public class VertxTest {
 
     @AfterEach
     void lastChecks(Vertx vertx) {
-        vertx.close(vertxTestContext.succeeding());
+        vertx.close(vertxTestContext.succeedingThenComplete());
     }
 
     @AfterAll

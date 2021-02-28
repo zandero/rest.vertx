@@ -15,7 +15,7 @@ If this project help you reduce time to develop? Keep it running and donate for 
 >
 > Version **1.0.4** is only compatible with **vert.x** version **4** and higher and introduces some **breaking changes:**
 > - **@RolesAllowed** authorization throws **403 Forbidden** exception where before it was a **401 Unauthorized** exception
-> - Authentication and authorization flow is now aligned with **vert.x** and **@RolesAllowed** processing is done by a **AuthorizationProvider** implementation
+> - Authentication and authorization flow is now aligned with **vert.x** and **@RolesAllowed** processing is done by an **AuthorizationProvider** implementation
 > - **@RolesAllowed** annotations still work but should be replaced with **@Authenticate** and **@Authorize** annotations instead
 
 ## Setup
@@ -1011,10 +1011,28 @@ But we can customize Authorization/Authentication provider by simply providing a
 
 The thrown exception is taken over and can be further processed with an Exception handler to produce the desired output.
 
+## Global Authenticaton / Authorization providers
+We can define global authentication/authorization providers for all routes.
+
+```java
+RestBuilder builder = new RestBuilder(vertx)
+    .authenticateWith(MyAuthenticator.class)
+    .provideCredentials(MyCredentialProvider.class)
+    .authorizeWith(new MyAuthorizationProvider())
+    .register(EchoRest.class);
+
+vertx.createHttpServer()
+    .requestHandler(router)
+    .listen(PORT);
+```
+
+> Route based authentication/authorization providers override globally defined providers.
+
 ## User roles & authorization
 
 > Up until version: **0.9.***  
-> Since version **1.0.*** one should use **@Authenticate** and **@Authorize** annotations instead
+> Since version **1.0.*** one should use **@Authenticate** and **@Authorize** annotations instead  
+> **@RollesAllowed**, **@PermitAll** and **@DenyAll** will still work.
 
 User access is checked in case REST API is annotated with:
 
@@ -2010,6 +2028,89 @@ public String method(){...}
 
 Tips and tricks to writing unit tests for your REST endpoints.
 
+## Example
+
+### REST endpoint
+
+For instance, we have the following REST endpoint
+```java
+
+import javax.ws.rs.Produces;
+
+@Path("test")
+public class EchoRest {
+
+    @GET
+    @Path("echo")
+    @Produces("application/json")
+    public String echo() {
+        return "echo";
+    }
+}
+```
+
+### JUnit test
+
+We can test the REST endpoint like this:
+```java
+@ExtendWith(VertxExtension.class)
+class EchoTest {
+
+    public static final String API_ROOT = "/";
+    protected static final int PORT = 4444;
+    public static final String HOST = "localhost";
+
+    protected static Vertx vertx = null;
+    protected static VertxTestContext vertxTestContext;
+    protected static WebClient client;
+
+    public static void before() {
+
+        vertx = Vertx.vertx();
+        vertxTestContext = new VertxTestContext();
+
+        // Important ... this clears any registered writers/readers/exception handlers ... 
+        // and provides a clean slate for the next test
+        RestRouter.clearCache();
+
+        client = WebClient.create(vertx);
+    }
+
+    @BeforeAll
+    static void start() {
+
+        before();
+
+        Router router = Router.router(vertx);
+        RestRouter.register(router, EchoRest.class);
+
+        vertx.createHttpServer()
+            .requestHandler(router)
+            .listen(PORT);
+    }
+    
+    @AfterEach
+    void lastChecks(Vertx vertx) {
+        vertx.close(vertxTestContext.succeedingThenComplete());
+    }
+
+    @AfterAll
+    static void close() {
+        vertx.close();
+    }
+    
+    @Test
+    void getEcho(VertxTestContext context) {
+
+        client.get(PORT, HOST, "/test/echo").as(BodyCodec.string())
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(200, response.statusCode());
+                assertEquals("\"echo\"", response.body());
+                context.completeNow();
+            })));
+    }
+}
+```
+
 # Request/Response rest.vertx lifecycle
 
-TODO: describe request/response lifecycle
