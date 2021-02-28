@@ -582,7 +582,6 @@ Following types are by default supported:
 @GET
 @Path("/context")
 public String createdResponse(@Context HttpServerResponse response,@Context HttpServerRequest request){
-
     response.setStatusCode(201);
     return request.uri();
     }
@@ -692,12 +691,12 @@ Then the context object can than be used as a method argument
 
 @Path("custom")
 public class CustomContextRest {
-    
+
     @GET
     @Path("/context")
     public String createdResponse(@Context MyCustomContext context) {
-
     }
+}
 ```
 
 ### Context reader
@@ -712,7 +711,7 @@ A custom context reader can be applied to a @Context annotated variable to overr
 @ContextReader(TokenProvider.class)
 public String createdResponse(@Context Token token){
     return token.token;
-    }
+}
 
 // or
 
@@ -720,7 +719,7 @@ public String createdResponse(@Context Token token){
 @Path("/token")
 public String createdResponse(@ContextReader(TokenProvider.class) @Context Token token){
     return token.token;
-    }
+}
 ```
 
 ## Body handler
@@ -730,22 +729,21 @@ public String createdResponse(@ContextReader(TokenProvider.class) @Context Token
 In case needed a custom body handler can be provided for all body handling requests.
 
 ```java
-    BodyHandler bodyHandler=BodyHandler.create("my_upload_folder");
-    RestRouter.setBodyHandler(bodyHandler);
+BodyHandler bodyHandler=BodyHandler.create("my_upload_folder");
+RestRouter.setBodyHandler(bodyHandler);
 
-    Router router=RestRouter.register(vertx,UploadFileRest.class);
+Router router = RestRouter.register(vertx,UploadFileRest.class);
 ```
 
 or
 
 ```java
-    BodyHandler handler=BodyHandler.create("my_upload_folder");
+BodyHandler handler = BodyHandler.create("my_upload_folder");
 
-    Router router=new RestBuilder(vertx)
+Router router=new RestBuilder(vertx)
     .bodyHandler(handler)
     .register(UploadFileRest.class)
     .build();
-
 ```
 
 ## Response building
@@ -863,7 +861,7 @@ public HttpServerResponse vertx(@Context HttpServerResponse response){
     response.putHeader("X-MySessionHeader",sessionId);
     response.end("Hello world!");
     return reponse;
-    }
+}
 ```
 
 ### JAX-RS response builder
@@ -883,13 +881,13 @@ public HttpServerResponse vertx(@Context HttpServerResponse response){
 ```java
 @GET
 @Path("/login")
-public Response jax(){
+public Response jax() {
 
     return Response
-    .accepted("Hello world!!")
-    .header("X-MySessionHeader",sessionId)
-    .build();
-    }
+        .accepted("Hello world!!")
+        .header("X-MySessionHeader",sessionId)
+        .build();
+}
 ```
 
 ## Authentication and Authorization
@@ -898,13 +896,14 @@ public Response jax(){
 
 Authentication and Authorization steps:
 
-1. **RestAuthorizationProvider** reads the request and provides the appropriate **Credentials** 
+1. **RestAuthorizationProvider** reads the request and provides the appropriate **Credentials**
    for the **AuthorizationProvider**
-   
+
 1. **AuthorizationProvider** uses the supplied **Credentials** to identify the **User** accessing the REST endpoint
     - if the user is not identified a **401 Unauthorized** exception is thrown
-    
-1. the **User** entity is then provided to the **AuthorizationProvider** to check if user is allowed accessing the REST endpoint
+
+1. the **User** entity is then provided to the **AuthorizationProvider** to check if user is allowed accessing the REST
+   endpoint
     - if the user is not allowed to access the REST endpoint a **403 Forbidden** exception is thrown
 
 ### Authentication
@@ -961,7 +960,7 @@ public class MyAuthenticator implements RestAuthenticationProvider {
             resultHandler.handle(Future.failedFuture(new BadRequestException("Missing authentication token")));
         }
     }
-    
+
     @Override
     public Credentials provideCredentials(RoutingContext context) {
         String token = context.request().getHeader("X-Token");
@@ -1000,6 +999,7 @@ But we can customize Authorization/Authentication provider by simply providing a
 The thrown exception is taken over and can be further processed with an Exception handler to produce the desired output.
 
 ## Global Authenticaton / Authorization providers
+
 We can define global authentication/authorization providers for all routes.
 
 ```java
@@ -1048,7 +1048,7 @@ public void init(){
     vertx.createHttpServer()
     .requestHandler(router)
     .listen(PORT);
-    }
+}
 
 // simple hanler to push a User entity into the vert.x RoutingContext
 public Handler<RoutingContext> getUserHandler(){
@@ -1060,12 +1060,12 @@ public Handler<RoutingContext> getUserHandler(){
 
     // set user ...
     if(token!=null){
-    context.setUser(new SimulatedUser(token)); // push User into context
+        context.setUser(new SimulatedUser(token)); // push User into context
     }
 
-    context.next();
+        context.next();
     };
-    }
+}
 ```
 
 > **Depricated: vert.x 3 example**
@@ -1077,12 +1077,12 @@ public Handler<RoutingContext> getUserHandler(){
 public String info(@Context User user){
 
     if(user instanceof SimulatedUser){
-    SimulatedUser theUser=(SimulatedUser)user;
-    return theUser.name;
+        SimulatedUser theUser=(SimulatedUser)user;
+        return theUser.name;
     }
 
     return"hello logged in "+user.principal();
-    }
+}
 ```
 
 **Example of User implementation:**
@@ -1246,8 +1246,8 @@ Register as global writer:
 
 ```java
 RestRouter.getWriters().register(MyObject.class,MyCustomResponseWriter.class);
-// or  
-    new RestBuilder(vertx).writer(MyObject.class,MyCustomResponseWriter.class);
+// or
+new RestBuilder(vertx).writer(MyObject.class,MyCustomResponseWriter.class);
 ```
 
 Use only local on specific REST endpoint:
@@ -1292,21 +1292,21 @@ Order can also be negative, e.g. if you want to ensure a route is evaluated befo
 @Path("/test")
 public String third(){
     return"third";
-    }
+}
 
 @RouteOrder(10)
 @GET
 @Path("/test")
 public String first(){
     return"first";
-    }
+}
 
 @RouteOrder(15)
 @GET
 @Path("/test")
 public String second(){
     return"second";
-    }
+}
 ```
 
 ```java
@@ -1347,16 +1347,16 @@ If the event/entity pair does not match, the event is **not triggered**.
 public Dummy returnOrFail(@PathParam("status") int status){
 
     if(status>=200&&status< 300){
-    return new Dummy("one","event");
+        return new Dummy("one","event");
     }
 
     if(status>=300&&status< 400){
-    response.setStatusCode(301);
-    return new Dummy("two","failed");
+        response.setStatusCode(301);
+        return new Dummy("two","failed");
     }
 
     throw new IllegalArgumentException("Failed: "+status);
-    }  
+}  
 ```
 
 ```java
@@ -1453,14 +1453,16 @@ public class MyExceptionHandler implements ExceptionHandler<MyExceptionClass> {
     }
 }
 
-    // throw your exception
-    @GET
-    @Path("/throw")
-    @CatchWith(MyExceptionHandler.class)
-    public String fail() {
+...
 
-        throw new MyExceptionClass("Not implemented.", 404);
-    }
+// throw your exception
+@GET
+@Path("/throw")
+@CatchWith(MyExceptionHandler.class)
+public String fail() {
+
+    throw new MyExceptionClass("Not implemented.", 404);
+}
 ```
 
 ```
@@ -1480,7 +1482,7 @@ Both class and methods support **@CatchWith** annotation.
 public String fail(){
 
     throw new IllegalArgumentExcetion("Bang!");
-    }
+}
 ```
 
 ```java
@@ -1506,7 +1508,7 @@ Handlers are considered in order given, first matching handler is used.
 public String fail(){
 
     throw new IllegalArgumentException("Bang!");
-    }
+}
 ```
 
 ```java
@@ -1675,28 +1677,28 @@ public Future<Dummy> create(@Context Vertx vertx)throws InterruptedException{
 
     Future<Dummy> res=Future.future();
     asyncCall(executor,res);
-        return res;
-    }
+    return res;
+}
 ```
 
 ```java
 public void asyncCall(WorkerExecutor executor,Future<Dummy> value)throws InterruptedException{
 
     executor.executeBlocking(
-    fut->{
-    try{
-        Thread.sleep(1000);
-    }
-    catch(InterruptedException e){
-        value.fail("Fail");
-    }
+        fut->{
+            try{
+                Thread.sleep(1000);
+            }
+            catch(InterruptedException e){
+                value.fail("Fail");
+            }
     
-    value.complete(new Dummy("async","called"));
-        fut.complete();
-    },
-    false,
-        fut->{}
-    );
+        value.complete(new Dummy("async","called"));
+            fut.complete();
+        },
+        false,
+            fut->{}
+        );
     }
 ```
 
@@ -1755,7 +1757,7 @@ private Module[]getModules(){
     new ServiceModule(),
     new SecurityModule()...
     };
-    }
+}
 ```
 
 ### Implement service (use @Inject if needed)
@@ -1768,12 +1770,12 @@ private final OtherService other;
 @Inject
 public MyServiceImpl(OtherService service){
     other=service;
-    }
+}
 
 public String call(){
     return"something";
     }
-    }
+}
 ```
 
 ### Use @Inject in RESTs
@@ -1837,9 +1839,11 @@ public class StringWriter implements HttpResponseWriter<String> {
 ### Caching and singletons
 
 * All registered REST classes are singletons by default, no need to annotate them with _@Singleton_ annotation.
-* By default, all _HttpResponseWriter_, _ValueReader_, _ExceptionHandler_, _RestAuthenticationProviders_ and _AuthoriziationProvider_ 
+* By default, all _HttpResponseWriter_, _ValueReader_, _ExceptionHandler_, _RestAuthenticationProviders_ and _
+  AuthoriziationProvider_
   classes are singletons that are cached once initialized.
-* In case _HttpResponseWriter_, _ValueReader_, _ExceptionHandler_, _RestAuthenticationProviders_ and _AuthoriziationProvider_ 
+* In case _HttpResponseWriter_, _ValueReader_, _ExceptionHandler_, _RestAuthenticationProviders_ and _
+  AuthoriziationProvider_
   are utilizing a **@Context** field they are initialized on **every request** for thread safety
 
 ### Disabling caching
@@ -1955,7 +1959,7 @@ Example:
 @Header({"Accept: application/json", "Content-Type: application/json"})
 public String getAsJson(){
     return"I'm Johnson";
-    }
+}
 
 // is the same as
 @GET
@@ -1964,7 +1968,7 @@ public String getAsJson(){
 @Produces("application/json")
 public String getAsJson(){
     return"I'm Johns son!";
-    }
+}
 ```
 
 # Logging
@@ -2020,6 +2024,7 @@ Tips and tricks to writing unit tests for your REST endpoints.
 ### REST endpoint
 
 For instance, we have the following REST endpoint
+
 ```java
 
 import javax.ws.rs.Produces;
@@ -2039,7 +2044,9 @@ public class EchoRest {
 ### JUnit test
 
 We can test the REST endpoint like this:
+
 ```java
+
 @ExtendWith(VertxExtension.class)
 class EchoTest {
 
@@ -2075,7 +2082,7 @@ class EchoTest {
             .requestHandler(router)
             .listen(PORT);
     }
-    
+
     @AfterEach
     void lastChecks(Vertx vertx) {
         vertx.close(vertxTestContext.succeedingThenComplete());
@@ -2085,7 +2092,7 @@ class EchoTest {
     static void close() {
         vertx.close();
     }
-    
+
     @Test
     void getEcho(VertxTestContext context) {
 
