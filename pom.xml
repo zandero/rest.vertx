@@ -77,7 +77,7 @@
         <version.glassfish>2.32</version.glassfish>
 
         <!-- implementation of javax.validation -->
-        <version.hibernate.validation>6.1.6.Final</version.hibernate.validation>
+        <version.hibernate.validation>7.0.1.Final</version.hibernate.validation>
         <version.java.validation.el>3.0.0</version.java.validation.el>
     </properties>
 
