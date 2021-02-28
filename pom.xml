@@ -74,7 +74,7 @@
         <version.feather>1.0</version.feather>
 
         <!-- implementation of javax.rs Response -->
-        <version.glassfish>2.32</version.glassfish>
+        <version.glassfish>3.0.1</version.glassfish>
 
         <!-- implementation of javax.validation -->
         <version.hibernate.validation>6.1.6.Final</version.hibernate.validation>
