@@ -27,7 +27,6 @@ public class ClassForge {
 
     private final AuthorizationProvidersCache authorizationProviders = new AuthorizationProvidersCache();
     private final AuthenticationProvidersCache authenticationProviders = new AuthenticationProvidersCache();
-    private final CredentialsProviderCache credentialProviders = new CredentialsProviderCache();
 
     private InjectionProvider injection;
 
@@ -45,7 +44,6 @@ public class ClassForge {
 
     public AuthorizationProvidersCache getAuthorizationProviders() { return authorizationProviders; }
     public AuthenticationProvidersCache getAuthenticationProviders() { return authenticationProviders; }
-    public CredentialsProviderCache getCredentialProviders() { return credentialProviders; }
 
     public void clean() {
         writers.clear();
@@ -54,7 +52,6 @@ public class ClassForge {
         contextProviders.clear();
         authenticationProviders.clear();
         authorizationProviders.clear();
-        credentialProviders.clear();
     }
 
     public void setInjectionProvider(InjectionProvider provider) { injection = provider; }

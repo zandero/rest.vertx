@@ -1,6 +1,6 @@
 package com.zandero.rest;
 
-import com.zandero.rest.authentication.CredentialsProvider;
+import com.zandero.rest.authentication.*;
 import com.zandero.rest.authorization.RoleBasedUserAuthorizationProvider;
 import com.zandero.rest.bean.*;
 import com.zandero.rest.cache.*;
@@ -53,8 +53,7 @@ public class RestRouter {
      * Default authentication / credential and authorization providers
      * Used in case no other provider is defined
      */
-    private static AuthenticationProvider defaultAuthenticationProvider;
-    private static CredentialsProvider defaultCredentialsProvider;
+    private static RestAuthenticationProvider defaultAuthenticationProvider;
     private static AuthorizationProvider defaultAuthorizationProvider;
 
     /**
@@ -129,12 +128,7 @@ public class RestRouter {
                 }
 
                 // each route gets ist definition provided via context provider
-                ContextProvider<RouteDefinition> definitionHandler = new ContextProvider<RouteDefinition>() {
-                    @Override
-                    public RouteDefinition provide(HttpServerRequest request) throws Throwable {
-                        return definition;
-                    }
-                };
+                ContextProvider<RouteDefinition> definitionHandler = request -> definition;
                 route.handler(getContextHandler(definitionHandler));
 
                 //
@@ -167,7 +161,6 @@ public class RestRouter {
                 // Authentication
                 if (definition.getAuthenticationProvider() != null || defaultAuthenticationProvider != null) {
                     route.handler(getAuthenticationProvider(definition.getAuthenticationProvider(),
-                                                            definition.getCredentialProvider(),
                                                             definition));
                 }
 
@@ -361,7 +354,7 @@ public class RestRouter {
         router.route().order(ORDER_CORS_HANDLER).handler(handler);
     }
 
-    public static void authenticateWith(Class<? extends AuthenticationProvider> provider) {
+    public static void authenticateWith(Class<? extends RestAuthenticationProvider> provider) {
         try {
             Assert.notNull(provider, "Missing authorization provider!");
             Assert.isNull(defaultAuthenticationProvider, "Default authentication provider already defined!");
@@ -372,26 +365,10 @@ public class RestRouter {
         }
     }
 
-    public static void authenticateWith(AuthenticationProvider provider) {
+    public static void authenticateWith(RestAuthenticationProvider provider) {
         Assert.notNull(provider, "Missing authorization provider!");
         Assert.isNull(defaultAuthenticationProvider, "Default authentication provider already defined!");
         defaultAuthenticationProvider = provider;
-    }
-
-    public static void provideCredentials(Class<? extends CredentialsProvider> provider) {
-        Assert.notNull(provider, "Missing credentials provider!");
-        Assert.isNull(defaultCredentialsProvider, "Default credentials provider already defined!");
-        try {
-            defaultCredentialsProvider = getCredentialProviders().provide(provider, getInjectionProvider(), null);
-        } catch (Throwable e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
-
-    public static void provideCredentials(CredentialsProvider provider) {
-        Assert.notNull(provider, "Missing credentials provider!");
-        Assert.isNull(defaultCredentialsProvider, "Default credentials provider already defined!");
-        defaultCredentialsProvider = provider;
     }
 
     public static void authorizeWith(Class<? extends AuthorizationProvider> provider) {
@@ -434,23 +411,15 @@ public class RestRouter {
         }
     }
 
-    private static Handler<RoutingContext> getAuthenticationProvider(Class<? extends AuthenticationProvider> authenticatorProviderClass,
-                                                                     Class<? extends CredentialsProvider> credentialsProviderClass,
+    private static Handler<RoutingContext> getAuthenticationProvider(Class<? extends RestAuthenticationProvider> authenticatorProviderClass,
                                                                      RouteDefinition definition) {
         return context -> {
             try {
-                AuthenticationProvider authenticator = authenticatorProviderClass != null ?
+                RestAuthenticationProvider authenticator = authenticatorProviderClass != null ?
                                                            getAuthenticationProviders().provide(authenticatorProviderClass, getInjectionProvider(), context) :
                                                            defaultAuthenticationProvider;
 
-                CredentialsProvider credentialsProvider = credentialsProviderClass != null ?
-                                                              getCredentialProviders().provide(credentialsProviderClass, getInjectionProvider(), context) :
-                                                              defaultCredentialsProvider;
-
-                Assert.notNull(credentialsProvider, "No CredentialsProvider provided for: " + definition.getId());
-
-                Credentials credentials = credentialsProvider.provide(context.request());
-                authenticator.authenticate(credentials, userAsyncResult -> {
+                authenticator.authenticate(context, userAsyncResult -> {
                     if (userAsyncResult.failed()) {
                         Throwable ex = (userAsyncResult.cause() != null ?
                                             userAsyncResult.cause() :
@@ -769,10 +738,6 @@ public class RestRouter {
         return forge.getAuthorizationProviders();
     }
 
-    public static CredentialsProviderCache getCredentialProviders() {
-        return forge.getCredentialProviders();
-    }
-
     public static InjectionProvider getInjectionProvider() {
         return forge.getInjectionProvider();
     }
@@ -786,7 +751,6 @@ public class RestRouter {
 
         defaultAuthorizationProvider = null;
         defaultAuthenticationProvider = null;
-        defaultCredentialsProvider = null;
 
         validateWith((Validator) null);
         injectWith((InjectionProvider) null);

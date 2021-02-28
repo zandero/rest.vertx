@@ -9,26 +9,17 @@ import org.slf4j.*;
 
 public class AuthorizationProvidersCache extends ClassCache<AuthorizationProvider> {
 
-    private final static Logger log = LoggerFactory.getLogger(AuthorizationProvidersCache.class);
-
     public AuthorizationProvidersCache() {
         clear();
     }
 
     public AuthorizationProvider provide(Class<? extends AuthorizationProvider> authorizationProvider,
                                          InjectionProvider provider,
-                                         //RouteDefinition definition,
                                          RoutingContext context) throws ClassFactoryException, ContextException {
-
-       /* // For back compatibility purposes only ... handling @RolesAllowed, @PermitAll, @DenyAll routes
-        if (authorizationProvider == RoleBasedUserAuthorizationProvider.class) {
-            return new RoleBasedUserAuthorizationProvider(definition);
-        }*/
-
-        //ClassFactory.getClassInstance(authorizationProvider, this, provider, context)
-
-        // create class instance
-        return (AuthorizationProvider) ClassFactory.getClassInstance(authorizationProvider, this, provider, context);
+        return (AuthorizationProvider) ClassFactory.getClassInstance(authorizationProvider,
+                                                                     this,
+                                                                     provider,
+                                                                     context);
     }
 
     public void register(Class<?> aClass, Class<? extends AuthorizationProvider> clazz) {

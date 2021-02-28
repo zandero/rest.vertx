@@ -1,13 +1,16 @@
 package com.zandero.rest.authorization;
 
+import com.zandero.rest.authentication.RestAuthenticationProvider;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.test.data.SimulatedUser;
 import io.vertx.core.*;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.authentication.*;
+import io.vertx.ext.web.RoutingContext;
 
-public class MySimpleAuthenticator implements AuthenticationProvider {
+public class MySimpleAuthenticator implements RestAuthenticationProvider {
 
     @Override
     public void authenticate(JsonObject credentials, Handler<AsyncResult<User>> resultHandler) {
@@ -27,5 +30,11 @@ public class MySimpleAuthenticator implements AuthenticationProvider {
         } else {
             resultHandler.handle(Future.failedFuture(new ExecuteException(400, "HTTP 400 just for you")));
         }
+    }
+
+    @Override
+    public Credentials provideCredentials(RoutingContext context) {
+        String token = context.request().getHeader("X-Token");
+        return token != null ? new TokenCredentials(token) : null; // token might be null
     }
 }

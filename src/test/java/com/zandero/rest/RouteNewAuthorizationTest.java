@@ -23,7 +23,6 @@ class RouteNewAuthorizationTest extends VertxTest {
 
         RestBuilder builder = new RestBuilder(vertx)
                                   .authenticateWith(MyAuthenticator.class)
-                                  .provideCredentials(MyCredentialProvider.class)
                                   .authorizeWith(new TestAuthorizationProvider())
                                   .register(TestEchoRest.class);
 

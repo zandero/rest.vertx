@@ -2,7 +2,7 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.*;
-import com.zandero.rest.authentication.CredentialsProvider;
+import com.zandero.rest.authentication.*;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.reader.ValueReader;
@@ -141,8 +141,7 @@ public class RouteDefinition {
     /**
      * Authentication provider
      */
-    protected Class<? extends AuthenticationProvider> authenticationProvider;
-    protected Class<? extends CredentialsProvider> credentialProvider;
+    protected Class<? extends RestAuthenticationProvider> authenticationProvider;
 
     /**
      * Authorization provider
@@ -258,10 +257,6 @@ public class RouteDefinition {
 
         if (authenticationProvider == null) {
             authenticationProvider = additional.authenticationProvider;
-        }
-
-        if (credentialProvider == null) {
-            credentialProvider = additional.credentialProvider;
         }
 
         if (!async) {
@@ -480,8 +475,7 @@ public class RouteDefinition {
             }
 
             if (annotation instanceof Authenticate) {
-                authenticationProvider = ((Authenticate) annotation).auth();
-                credentialProvider = ((Authenticate) annotation).cred();
+                authenticationProvider = ((Authenticate) annotation).value();
             }
 
             if (annotation instanceof Authorize) {
@@ -1065,15 +1059,8 @@ public class RouteDefinition {
     /**
      * @return associated authentication provider
      */
-    public Class<? extends AuthenticationProvider> getAuthenticationProvider() {
+    public Class<? extends RestAuthenticationProvider> getAuthenticationProvider() {
         return authenticationProvider;
-    }
-
-    /**
-     * @return associated credentials provider
-     */
-    public Class<? extends CredentialsProvider> getCredentialProvider() {
-        return credentialProvider;
     }
 
     /**

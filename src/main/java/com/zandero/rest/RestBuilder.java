@@ -1,6 +1,6 @@
 package com.zandero.rest;
 
-import com.zandero.rest.authentication.CredentialsProvider;
+import com.zandero.rest.authentication.*;
 import com.zandero.rest.bean.BeanProvider;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.data.*;
@@ -45,11 +45,8 @@ public class RestBuilder {
     private final Map<MediaType, Object> mediaTypeValueReaders = new LinkedHashMap<>();
     private final Map<Class<?>, Object> classValueReaders = new LinkedHashMap<>();
 
-    private AuthenticationProvider authenticationProvider;
-    private Class<? extends AuthenticationProvider> authenticationProviderClass;
-
-    private CredentialsProvider credentialProvider;
-    private Class<? extends CredentialsProvider> credentialProviderClass;
+    private RestAuthenticationProvider authenticationProvider;
+    private Class<? extends RestAuthenticationProvider> authenticationProviderClass;
 
     private AuthorizationProvider authorizationProvider;
     private Class<? extends AuthorizationProvider> authorizationProviderClass;
@@ -464,27 +461,15 @@ public class RestBuilder {
         return this;
     }
 
-    public RestBuilder authenticateWith(Class<? extends AuthenticationProvider> provider) {
+    public RestBuilder authenticateWith(Class<? extends RestAuthenticationProvider> provider) {
         Assert.notNull(provider, "Missing authentication provider!");
         authenticationProviderClass = provider;
         return this;
     }
 
-    public RestBuilder authenticateWith(AuthenticationProvider provider) {
+    public RestBuilder authenticateWith(RestAuthenticationProvider provider) {
         Assert.notNull(provider, "Missing authentication provider!");
         authenticationProvider = provider;
-        return this;
-    }
-
-    public RestBuilder provideCredentials(Class<? extends CredentialsProvider> provider) {
-        Assert.notNull(provider, "Missing credentials provider!");
-        credentialProviderClass = provider;
-        return this;
-    }
-
-    public RestBuilder provideCredentials(CredentialsProvider provider) {
-        Assert.notNull(provider, "Missing credentials provider!");
-        credentialProvider = provider;
         return this;
     }
 
@@ -569,13 +554,6 @@ public class RestBuilder {
         }
         if (authenticationProviderClass != null) {
             RestRouter.authenticateWith(authenticationProviderClass);
-        }
-
-        if (credentialProvider != null) {
-            RestRouter.provideCredentials(credentialProvider);
-        }
-        if (credentialProviderClass != null) {
-            RestRouter.provideCredentials(credentialProviderClass);
         }
 
         if (authorizationProvider != null) {

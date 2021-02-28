@@ -11,7 +11,7 @@ import javax.ws.rs.core.MediaType;
  *
  */
 @Path("/private")
-@Authenticate(auth = MyAuthenticator.class, cred = MyCredentialProvider.class)
+@Authenticate(MyAuthenticator.class)
 @Authorize(TestAuthorizationProvider.class)
 public class TestAuthorizationProviderRest {
 
@@ -41,7 +41,7 @@ public class TestAuthorizationProviderRest {
     @GET
     @Path("/other_user")
     @Produces(MediaType.TEXT_PLAIN)
-    @Authenticate(auth = MySimpleAuthenticator.class, cred = MyCredentialProvider.class) // override class authenticator
+    @Authenticate(MySimpleAuthenticator.class) // override class authenticator
     public String other_user() {
         return "other_user";
     }

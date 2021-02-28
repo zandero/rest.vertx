@@ -692,8 +692,7 @@ Then the context object can than be used as a method argument
 
 @Path("custom")
 public class CustomContextRest {
-
-
+    
     @GET
     @Path("/context")
     public String createdResponse(@Context MyCustomContext context) {
@@ -708,7 +707,7 @@ public class CustomContextRest {
 A custom context reader can be applied to a @Context annotated variable to override the global context providers.
 
 ```java
-    @GET
+@GET
 @Path("/token")
 @ContextReader(TokenProvider.class)
 public String createdResponse(@Context Token token){
@@ -899,27 +898,25 @@ public Response jax(){
 
 Authentication and Authorization steps:
 
-1. **CredentialsProvider** reads the request and provides the appropriate **Credentials** for the **
-   AuthorizationProvider**
-2. **AuthorizationProvider** uses the supplied **Credentials** to identify the **User** accessing the REST endpoint
+1. **RestAuthorizationProvider** reads the request and provides the appropriate **Credentials** 
+   for the **AuthorizationProvider**
+   
+1. **AuthorizationProvider** uses the supplied **Credentials** to identify the **User** accessing the REST endpoint
     - if the user is not identified a **401 Unauthorized** exception is thrown
-3. the **User** entity is then provided to the **AuthorizationProvider** to check if user is allowed accessing the REST
-   endpoint
+    
+1. the **User** entity is then provided to the **AuthorizationProvider** to check if user is allowed accessing the REST endpoint
     - if the user is not allowed to access the REST endpoint a **403 Forbidden** exception is thrown
 
 ### Authentication
 
 In order to authenticate a user we can annotate a REST interface/method with the **@Authenticate** annotation.  
-The **@Authenticate** annotation needs:
-
-- a **AuthenticationProvider** implementation and
-- a **CredentialsProvider** implementation
+The **@Authenticate** annotation needs **RestAuthenticationProvider** implementation.
 
 ```java
 import com.zandero.rest.annotation.*;
 
 @Path("secure")
-@Authenticate(auth = MyAuthentication.class, cred = MyCredentialsReader.class)
+@Authenticate(MyAuthenticator.class)
 public class ConsumeJSON {
 
     @GET
@@ -931,25 +928,10 @@ public class ConsumeJSON {
 }
 ```
 
-**Example of CredentialsProvider implementation:**
+**Example of RestAuthenticationProvider implementation:**
 
 ```java
-public class MyCredentialProvider implements CredentialsProvider {
-
-    @Override
-    public Credentials provide(HttpServerRequest request) throws Throwable {
-        String token = request.getHeader("X-Token"); // get the credentials if any
-        return token != null ? new TokenCredentials(token) : null;
-    }
-}
-```
-
-**Example of AuthenticationProvider implementation:**
-
-```java
-import javax.ws.rs.BadRequestException;
-
-public class MyAuthenticator implements AuthenticationProvider {
+public class MyAuthenticator implements RestAuthenticationProvider {
 
     @Override
     public void authenticate(JsonObject credentials, Handler<AsyncResult<User>> resultHandler) {
@@ -978,6 +960,12 @@ public class MyAuthenticator implements AuthenticationProvider {
         } else {
             resultHandler.handle(Future.failedFuture(new BadRequestException("Missing authentication token")));
         }
+    }
+    
+    @Override
+    public Credentials provideCredentials(RoutingContext context) {
+        String token = context.request().getHeader("X-Token");
+        return token != null ? new TokenCredentials(token) : null; // token might be null
     }
 }
 ```
@@ -1017,7 +1005,6 @@ We can define global authentication/authorization providers for all routes.
 ```java
 RestBuilder builder = new RestBuilder(vertx)
     .authenticateWith(MyAuthenticator.class)
-    .provideCredentials(MyCredentialProvider.class)
     .authorizeWith(new MyAuthorizationProvider())
     .register(EchoRest.class);
 
@@ -1331,7 +1318,7 @@ public String second(){
 > version 0.8.6 or later
 
 Rest events are a useful when some additional work/action must be performed based on the response produced.  
-For instance we want to send out a registration confirmation e-mail on a 200 response (a successful registration).
+For instance, we want to send out a registration confirmation e-mail on a 200 response (a successful registration).
 
 Rest events are triggered after the response has been generated, but before the REST has ended.  
 One or more events are executed **synchronously** after the REST execution.  
@@ -1343,7 +1330,7 @@ Rest events can be bound to:
 * thrown exception
 * or both
 
-This is the place to trigger some async operation via event bus or some other response based operation.
+This is the place to trigger some async operation via event bus, or some other response based operation.
 
 A RestEvent processor must implement the RestEvent interface (similar to ResponseWriters). The event input is either the
 produced response entity or the exception thrown.  
@@ -1850,10 +1837,10 @@ public class StringWriter implements HttpResponseWriter<String> {
 ### Caching and singletons
 
 * All registered REST classes are singletons by default, no need to annotate them with _@Singleton_ annotation.
-* By default all _HttpResponseWriter_, _ValueReader_ and _ExceptionHandler_ classes are singletons that are cached once
-  initialized.
-* In case _HttpResponseWriter_, _ValueReader_ or _ExceptionHandler_ are utilizing a **@Context** field they are
-  initialized on **every request** for thread safety
+* By default, all _HttpResponseWriter_, _ValueReader_, _ExceptionHandler_, _RestAuthenticationProviders_ and _AuthoriziationProvider_ 
+  classes are singletons that are cached once initialized.
+* In case _HttpResponseWriter_, _ValueReader_, _ExceptionHandler_, _RestAuthenticationProviders_ and _AuthoriziationProvider_ 
+  are utilizing a **@Context** field they are initialized on **every request** for thread safety
 
 ### Disabling caching
 
@@ -2114,3 +2101,4 @@ class EchoTest {
 
 # Request/Response rest.vertx lifecycle
 
+![Request lifecycle](./docs/request_lifecycle.svg)
