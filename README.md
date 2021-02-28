@@ -584,7 +584,7 @@ Following types are by default supported:
 public String createdResponse(@Context HttpServerResponse response,@Context HttpServerRequest request){
     response.setStatusCode(201);
     return request.uri();
-    }
+}
 ```
 
 ### Registering a context provider
@@ -620,7 +620,7 @@ RestRouter.addProvider(Token.class,request->{
     }
 
     return null;
-    });
+});
 ```
 
 or
@@ -1664,7 +1664,7 @@ best matching response writer instead.
 #### Simple async example
 
 > Deprecated example for **vert.x 3**, applicable to versions prior **1.0.4**   
-> since **vert.x** 4 _Promise_ and _CompletableFuture_ should be used instead
+> since **vert.x 4** _Promise_ and _CompletableFuture_ should be used instead
 
 ```java
 WorkerExecutor executor=Vertx.vertx().createSharedWorkerExecutor("SlowServiceExecutor",20);
@@ -1839,11 +1839,11 @@ public class StringWriter implements HttpResponseWriter<String> {
 ### Caching and singletons
 
 * All registered REST classes are singletons by default, no need to annotate them with _@Singleton_ annotation.
-* By default, all _HttpResponseWriter_, _ValueReader_, _ExceptionHandler_, _RestAuthenticationProviders_ and _
-  AuthoriziationProvider_
+* By default, all _HttpResponseWriter_, _ValueReader_, _ExceptionHandler_, _RestAuthenticationProviders_ and 
+  _AuthoriziationProvider_
   classes are singletons that are cached once initialized.
-* In case _HttpResponseWriter_, _ValueReader_, _ExceptionHandler_, _RestAuthenticationProviders_ and _
-  AuthoriziationProvider_
+* In case _HttpResponseWriter_, _ValueReader_, _ExceptionHandler_, _RestAuthenticationProviders_ and
+  _AuthoriziationProvider_
   are utilizing a **@Context** field they are initialized on **every request** for thread safety
 
 ### Disabling caching
@@ -1898,7 +1898,7 @@ public int sum(@Max(10) @QueryParam("one") int one,
 @Min(1) @QueryParam("two") int two,
 @Valid Dummy body){
     return one+two+body.value;
-    }
+}
 ```
 
 In case of a violation a _400 Bad request_ response will be generated using _ConstraintExceptionHandler_.
@@ -1983,11 +1983,7 @@ Slf4j compatible logging implementation.
 <logger name="com.zandero.rest" level="DEBUG"/>
 ```
 
-## Experimental features
-
-> NOTE: not necessary to stay in the final release
-
-### Shorthands for method, path, consumes and produces
+## Shorthands for method, path, consumes and produces
 
 Instead of the following:
 
@@ -2044,6 +2040,10 @@ public class EchoRest {
 ### JUnit test
 
 We can test the REST endpoint like this:
+
+> NOTE: once a _ExceptionHandler_, _Writer_, _Reader_ ... etc. is registered
+> it is **cached**. Therefore before each test it is recommended to call 
+> **RestRouter.clearCache()** to make sure you have a clean set up. 
 
 ```java
 
@@ -2105,6 +2105,9 @@ class EchoTest {
     }
 }
 ```
+
+The **@BeforeAll**, **@AfterEach** and **@AfterAll** methods should be moved into a 
+helper class from there all test classes can be extended.
 
 # Request/Response rest.vertx lifecycle
 
