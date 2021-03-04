@@ -13,7 +13,7 @@ If this project help you reduce time to develop? Keep it running and donate for 
 
 > If you are using **vert.x** version **3.*** then use version **0.9.*** of **Rest.vertx**
 >
-> Version **1.0.4** is only compatible with **vert.x** version **4** and higher and introduces some **breaking changes:**
+> Version **1.0.4** and higher are only compatible with **vert.x** version **4** and higher and introduce some **breaking changes:**
 > - **@RolesAllowed** authorization throws **403 Forbidden** exception where before it was a **401 Unauthorized** exception
 > - Authentication and authorization flow is now aligned with **vert.x** and **@RolesAllowed** processing is done by an **AuthorizationProvider** implementation
 > - **@RolesAllowed** annotations still work but should be replaced with **@Authenticate** and **@Authorize** annotations instead
@@ -25,7 +25,7 @@ If this project help you reduce time to develop? Keep it running and donate for 
 <dependency>
     <groupId>com.zandero</groupId>
     <artifactId>rest.vertx</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 
@@ -904,6 +904,7 @@ Authentication and Authorization steps:
 
 1. the **User** entity is then provided to the **AuthorizationProvider** to check if user is allowed accessing the REST
    endpoint
+    - User entity should return a list of allowed Authorizations to be matched against the provider authorization 
     - if the user is not allowed to access the REST endpoint a **403 Forbidden** exception is thrown
 
 ### Authentication
@@ -986,6 +987,29 @@ public class MyAuthorizationProvider implements AuthorizationProvider {
         } else {
             handler.handle(Future.failedFuture("You are not allowed in!"));
         }
+    }
+}
+```
+
+### User
+
+Example of a simple **User** entity with _PermissionBasedAuthorization_ to be matched in **MyAuthorizationProvider**
+```java
+public class MyUser extends UserImpl {
+
+    private final String role;
+
+    public MyUser(String role) {
+        this.role = role;
+    }
+
+    /**
+     * @return all authorizations that user can be matched against
+     */
+    @Override
+    public Authorizations authorizations() {
+        return new AuthorizationsImpl().add("MyAuthorizationProvider",
+                                            PermissionBasedAuthorization.create(role));
     }
 }
 ```
