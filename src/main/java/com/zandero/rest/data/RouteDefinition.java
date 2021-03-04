@@ -2,7 +2,7 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.AnnotationProcessor;
 import com.zandero.rest.annotation.*;
-import com.zandero.rest.authentication.*;
+import com.zandero.rest.authentication.RestAuthenticationProvider;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.reader.ValueReader;
@@ -10,7 +10,6 @@ import com.zandero.rest.writer.HttpResponseWriter;
 import com.zandero.utils.*;
 import io.vertx.core.*;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.ext.auth.authentication.AuthenticationProvider;
 import io.vertx.ext.auth.authorization.AuthorizationProvider;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
@@ -178,11 +177,14 @@ public class RouteDefinition {
 
         // set root privileges
         permitAll = base.getPermitAll();
-        roles = base.roles;
+        roles = filterRoles(base.roles);
 
         if (roles != null) {
             permitAll = null;
         }
+
+        authenticationProvider = base.authenticationProvider;
+        authorizationProvider = base.authorizationProvider;
 
         exceptionHandlers = ArrayUtils.join(exceptionHandlers, base.exceptionHandlers);
 
@@ -243,7 +245,7 @@ public class RouteDefinition {
         }
 
         if (roles == null && permitAll == null) {
-            roles = additional.roles;
+            roles = filterRoles(additional.roles);
         }
 
         if (permitAll == null && roles == null) {
@@ -461,7 +463,7 @@ public class RouteDefinition {
 
             if (annotation instanceof RolesAllowed) {
                 permitAll = null; // override any previous definition
-                roles = ((RolesAllowed) annotation).value();
+                roles = filterRoles(((RolesAllowed) annotation).value());
             }
 
             if (annotation instanceof DenyAll) {
@@ -481,7 +483,7 @@ public class RouteDefinition {
             if (annotation instanceof Authorize) {
                 authorizationProvider = ((Authorize) annotation).value();
                 if (((Authorize) annotation).role().length > 0) {
-                    roles = ArrayUtils.join(roles, ((Authorize) annotation).role());
+                    roles = filterRoles(ArrayUtils.join(roles, ((Authorize) annotation).role()));
                 }
             }
 
@@ -512,6 +514,18 @@ public class RouteDefinition {
                 }
             }
         }
+    }
+
+    private String[] filterRoles(String[] value) {
+        if (value == null) {
+            return null;
+        }
+
+        List<String> found = Arrays.stream(value).filter(it -> !StringUtils.isNullOrEmptyTrimmed(it)).collect(Collectors.toList());
+        if (found.isEmpty()) {
+            return null;
+        }
+        return found.toArray(new String[]{});
     }
 
     private MediaType[] getProducesHeaders(Map<String, String> headers) {
@@ -901,7 +915,9 @@ public class RouteDefinition {
         return routePath;
     }
 
-    public MediaType[] getConsumes() { return consumes; }
+    public MediaType[] getConsumes() {
+        return consumes;
+    }
 
     public MediaType[] getProduces() {
         return produces;
@@ -1111,28 +1127,28 @@ public class RouteDefinition {
     @Override
     public String toString() {
 
-        String prefix = "        "; // to improve formatting ...
-        prefix = prefix.substring(0, prefix.length() - (method == null ? 0 : method.toString().length()));
-
-        String security = "";
+        List<String> columns = new ArrayList<>();
+        columns.add(method.toString());
+        columns.add(path);
 
         if (authenticationProvider != null) {
-            security = "      authenticate[" + authenticationProvider.getSimpleName() + "]";
+            columns.add("@Authenticate[" + authenticationProvider.getSimpleName() + "]");
         }
 
         if (authorizationProvider != null) {
-            security = "      authorize[" + authorizationProvider.getSimpleName() + "]";
+            columns.add("@Authorize[" + authorizationProvider.getSimpleName() + "]");
         }
 
         if (checkSecurity()) {
             if (permitAll != null) {
-                security = permitAll ? " @PermitAll" : " @DenyAll";
-            } else {
-                security = "  [" + StringUtils.join(roles, ", ") + "]";
+                columns.add((permitAll ? "@PermitAll" : "@DenyAll"));
+            } else if (roles != null && roles.length > 0) {
+                columns.add("@RolesAllowed[" + StringUtils.join(roles, ", ") + "]");
             }
         }
 
-        return prefix + (method == null ? ">undefined<" : method) + " " + routePath + security + (pathIsRegEx() ? "[regex]" : "");
+        String format = "%10s %-60s " + String.join("", Collections.nCopies(columns.size() - 2, "%-50s "));
+        return String.format(format, columns.toArray());
     }
 
     /**
