@@ -39,6 +39,12 @@ This project uses:
 * the
   excellent <img src="https://www.yourkit.com/images/yklogo.png" width="80"> [Java Profiler](https://www.yourkit.com/java/profiler/)
 
+
+# Request/Response rest.vertx lifecycle
+A high level overview of how **rest.vertx** works:  
+
+![Request lifecycle](./docs/request_lifecycle.svg)
+
 ## Example
 
 **Step 1** - annotate a class with JAX-RS annotations
@@ -2132,7 +2138,3 @@ class EchoTest {
 
 The **@BeforeAll**, **@AfterEach** and **@AfterAll** methods should be moved into a 
 helper class from there all test classes can be extended.
-
-# Request/Response rest.vertx lifecycle
-
-![Request lifecycle](./docs/request_lifecycle.svg)
