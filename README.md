@@ -69,10 +69,10 @@ public class TestRest {
 **Step 2** - register annotated class as REST API
 
 ```java
-TestRest rest=new TestRest();
-    Router router=RestRouter.register(vertx,rest);
+TestRest rest = new TestRest();
+Router router = RestRouter.register(vertx,rest);
 
-    vertx.createHttpServer()
+vertx.createHttpServer()
     .requestHandler(router)
     .listen(PORT);
 ```
@@ -80,12 +80,12 @@ TestRest rest=new TestRest();
 or alternatively
 
 ```java
-Router router=Router.router(vertx);
+Router router = Router.router(vertx);
 
-    TestRest rest=new TestRest();
-    RestRouter.register(router,rest);
+TestRest rest = new TestRest();
+RestRouter.register(router,rest);
 
-    vertx.createHttpServer()
+vertx.createHttpServer()
     .requestHandler(router)
     .listen(PORT);
 ```
@@ -99,9 +99,9 @@ or alternatively use _RestBuilder_ helper to build up endpoints.
 Alternatively RESTs can be registered by class type only.
 
 ```java
-Router router=RestRouter.register(vertx,TestRest.class);
+Router router = RestRouter.register(vertx,TestRest.class);
 
-    vertx.createHttpServer()
+vertx.createHttpServer()
     .requestHandler(router)
     .listen(PORT);
 ```
@@ -113,7 +113,7 @@ Router router=RestRouter.register(vertx,TestRest.class);
 Rest endpoints, error handlers, writers and readers can be bound in one go using the RestBuilder.
 
 ```java
-Router router=new RestBuilder(vertx)
+Router router = new RestBuilder(vertx)
     .register(RestApi.class,OtherRestApi.class)
     .reader(MyClass.class,MyBodyReader.class)
     .writer(MediaType.APPLICATION_JSON,CustomWriter.class)
@@ -125,7 +125,7 @@ Router router=new RestBuilder(vertx)
 or
 
 ```java
-router=new RestBuilder(router)
+router = new RestBuilder(router)
     .register(AdditionalApi.class)
     .build();
 ```
@@ -274,13 +274,11 @@ If the original (non decoded) value is desired, we can use the @Raw annotation.
 @Path("/decode")
 public String echoGetQuery(@QueryParam("decoded") String decodedQuery,
 @QueryParam("raw") @Raw String rawQuery){
-
 ```
 
 ```
 > GET /decode?decoded=hello+world -> decoded = "hello world"
 > GET /decode?raw=hello+world     -> raw = "hello+world"
-
 ```
 
 ### Matrix parameters
@@ -293,16 +291,16 @@ Matrix parameters are defined using the @MatrixParam annotation.
 public int calculate(@PathParam("operation") String operation,@MatrixParam("one") int one,@MatrixParam("two") int two){
 
     switch(operation){
-    case"add":
-    return one+two;
-
-    case"multiply":
-    return one*two;
-
-default:
-    return 0;
-    }
-    }
+        case"add":
+            return one+two;
+    
+        case"multiply":
+            return one*two;
+    
+        default:
+            return 0;
+        }
+}
 ```
 
 ```
@@ -417,11 +415,11 @@ First appropriate reader is assigned searching in following order:
 > since version 0.9.0 or later
 
 ```java
-    @POST
+@POST
 @Path("/read/{param}")
-public String read(@BeanParam BeanClazz bean){
+public String read(@BeanParam BeanClazz bean) {
     ...
-    }
+}
 ```  
 
 ```java
@@ -455,11 +453,11 @@ OR via constructor
 
 ```java
 public BeanClazz(@PathParam("param") String path,
-@HeaderParam("x-token") boolean xToken,
-@QueryParam("query") @Raw int query,
-@CookieParam("chocolate") String cookie){
+                @HeaderParam("x-token") boolean xToken,
+                @QueryParam("query") @Raw int query,
+                @CookieParam("chocolate") String cookie) {
     ...
-    }
+}
 ```
 
 #### Missing ValueReader?
@@ -587,7 +585,7 @@ Following types are by default supported:
 ```java
 @GET
 @Path("/context")
-public String createdResponse(@Context HttpServerResponse response,@Context HttpServerRequest request){
+public String createdResponse(@Context HttpServerResponse response, @Context HttpServerRequest request) {
     response.setStatusCode(201);
     return request.uri();
 }
@@ -613,19 +611,19 @@ public class TokenProvider implements ContextProvider<Token> {
     }
 }
 
-RestRouter.addProvider(Token.class,TokenProvider.class);
+RestRouter.addProvider(Token.class, TokenProvider.class);
 ```
 
 or
 
 ```java
-RestRouter.addProvider(Token.class,request->{
-    String token=request.getHeader("X-Token");
-    if(token!=null){
-    return new Token(token);
-    }
+RestRouter.addProvider(Token.class, request -> {
+        String token=request.getHeader("X-Token");
+        if(token!=null) {
+            return new Token(token);
+        }
 
-    return null;
+        return null;
 });
 ```
 
@@ -641,15 +639,14 @@ public class Token {
     }
 }
 
-RestRouter.addProvider(Token.class,Token::new)
+RestRouter.addProvider(Token.class, Token::new)
 ```
 
 ```java
 @GET
 @Path("/token")
-public String readToken(@Context Token token){
-
-    return token.getToken();
+public String readToken(@Context Token token) {
+        return token.getToken();
     }
 ```
 
@@ -667,17 +664,17 @@ In order to achieve this we need to create a custom handler that pushes the cont
 
 ```java
 Router router=Router.router(vertx);
-    router.route().handler(pushContextHandler());
+router.route().handler(pushContextHandler());
 
-    router=RestRouter.register(router,new CustomContextRest());
+router=RestRouter.register(router, new CustomContextRest());
     vertx.createHttpServer()
     .requestHandler(router)
     .listen(PORT);
 
-private Handler<RoutingContext> pushContextHandler(){
+private Handler<RoutingContext> pushContextHandler() {
 
     return context->{
-    RestRouter.pushContext(context,new MyCustomContext("push this into storage"));
+    RestRouter.pushContext(context, new MyCustomContext("push this into storage"));
     context.next();
     };
     }
@@ -715,7 +712,7 @@ A custom context reader can be applied to a @Context annotated variable to overr
 @GET
 @Path("/token")
 @ContextReader(TokenProvider.class)
-public String createdResponse(@Context Token token){
+public String createdResponse(@Context Token token) {
     return token.token;
 }
 
@@ -723,7 +720,7 @@ public String createdResponse(@Context Token token){
 
 @GET
 @Path("/token")
-public String createdResponse(@ContextReader(TokenProvider.class) @Context Token token){
+public String createdResponse(@ContextReader(TokenProvider.class) @Context Token token) {
     return token.token;
 }
 ```
@@ -762,7 +759,6 @@ Response writers take the method result and produce a vert.x response.
 Example of a simple response writer:
 
 ```java
-
 @Produces("application/xml")        // content-type header
 @Header("X-Status: I'm a dummy")    // additional static headers
 public class DummyWriter implements HttpResponseWriter<Dummy> {
@@ -782,7 +778,6 @@ public class DummyWriter implements HttpResponseWriter<Dummy> {
 In this case a build in JSON writer is applied.
 
 ```java
-
 @Path("produces")
 public class ConsumeJSON {
 
@@ -799,7 +794,6 @@ public class ConsumeJSON {
 **Option 2** - The **@ResponseWriter** annotation defines a specific writer to be used.
 
 ```java
-
 @Path("produces")
 public class ConsumeJSON {
 
@@ -819,17 +813,17 @@ public class ConsumeJSON {
 **Option 3** - An ResponseWriter is globally assigned to a specific class type.
 
 ```java
-RestRouter.getWriters().register(SomeClass.class,SomeClassWriter.class);
-    RestRouter.getWriters().register("application/json",SomeClassWriter.class);
-    RestRouter.getWriters().register(SomeClassWriter.class); // where SomeClassWriter is annotated with @Produces("application/json")
+RestRouter.getWriters().register(SomeClass.class, SomeClassWriter.class);
+RestRouter.getWriters().register("application/json", SomeClassWriter.class);
+RestRouter.getWriters().register(SomeClassWriter.class); // where SomeClassWriter is annotated with @Produces("application/json")
 ```
 
 **Option 4** - An ResponseWriter is globally assigned to a specific mime type.
 
 ```java
-RestRouter.getWriters().register(MyClass.class,MyJsonWriter.class);
-    RestRouter.getWriters().register("application/json",MyJsonWriter.class);
-    RestRouter.getWriters().register(MyJsonWriter.class); // where MyJsonWriter is annotated with @Produces("application/json") 
+RestRouter.getWriters().register(MyClass.class, MyJsonWriter.class);
+RestRouter.getWriters().register("application/json", MyJsonWriter.class);
+RestRouter.getWriters().register(MyJsonWriter.class); // where MyJsonWriter is annotated with @Produces("application/json") 
 ```
 
 ```java
@@ -861,10 +855,10 @@ In order to manipulate returned response, we can utilize the **@Context HttpServ
 ```java
 @GET
 @Path("/login")
-public HttpServerResponse vertx(@Context HttpServerResponse response){
+public HttpServerResponse vertx(@Context HttpServerResponse response) {
 
     response.setStatusCode(201);
-    response.putHeader("X-MySessionHeader",sessionId);
+    response.putHeader("X-MySessionHeader", sessionId);
     response.end("Hello world!");
     return reponse;
 }
@@ -1068,30 +1062,30 @@ In order to make this work, we need to fill up the RoutingContext with a User en
 public void init(){
 
     // 1. register handler to initialize User
-    Router router=Router.router(vertx);
+    Router router = Router.router(vertx);
     router.route().handler(getUserHandler());
 
     // 2. REST with @RolesAllowed annotations
-    TestAuthorizationRest testRest=new TestAuthorizationRest();
+    TestAuthorizationRest testRest = new TestAuthorizationRest();
     RestRouter.register(router,testRest);
 
     vertx.createHttpServer()
-    .requestHandler(router)
-    .listen(PORT);
+        .requestHandler(router)
+        .listen(PORT);
 }
 
 // simple hanler to push a User entity into the vert.x RoutingContext
-public Handler<RoutingContext> getUserHandler(){
+public Handler<RoutingContext> getUserHandler() {
 
-    return context->{
+    return context -> {
 
-    // read header ... if present ... create user with given value
-    String token=context.request().getHeader("X-Token");
-
-    // set user ...
-    if(token!=null){
-        context.setUser(new SimulatedUser(token)); // push User into context
-    }
+        // read header ... if present ... create user with given value
+        String token = context.request().getHeader("X-Token");
+    
+        // set user ...
+        if(token != null){
+            context.setUser(new SimulatedUser(token)); // push User into context
+        }
 
         context.next();
     };
@@ -1107,11 +1101,11 @@ public Handler<RoutingContext> getUserHandler(){
 public String info(@Context User user){
 
     if(user instanceof SimulatedUser){
-        SimulatedUser theUser=(SimulatedUser)user;
+        SimulatedUser theUser = (SimulatedUser)user;
         return theUser.name;
     }
 
-    return"hello logged in "+user.principal();
+    return"hello logged in " + user.principal();
 }
 ```
 
@@ -1193,15 +1187,14 @@ Register as global reader:
 > Global readers are used in case no other reader is specified for given type or content-type!
 
 ```java
-RestRouter.getReaders().register(MyNewObject.class,MyCustomReader.class);
-    RestRouter.getReaders().register("application/json",MyCustomReader.class);
-    RestRouter.getReaders().register(MyCustomReader.class); // if reader is annotated with @Consumes("application/json")
+RestRouter.getReaders().register(MyNewObject.class, MyCustomReader.class);
+RestRouter.getReaders().register("application/json", MyCustomReader.class);
+RestRouter.getReaders().register(MyCustomReader.class); // if reader is annotated with @Consumes("application/json")
 
-// or  
-    new RestBuilder(vertx).reader(MyNewObject.class,MyCustomReader.class);
-    new RestBuilder(vertx).reader("appplication/json",MyCustomReader.class);
-    new RestBuilder(vertx).reader(MyCustomReader.class); // if reader is annotated with @Consumes("application/json")
-
+// or
+new RestBuilder(vertx).reader(MyNewObject.class, MyCustomReader.class);
+new RestBuilder(vertx).reader("appplication/json", MyCustomReader.class);
+new RestBuilder(vertx).reader(MyCustomReader.class); // if reader is annotated with @Consumes("application/json")
 ```
 
 Use only local on specific REST endpoint:
@@ -1275,9 +1268,9 @@ public class MyCustomResponseWriter implements HttpResponseWriter<MyObject> {
 Register as global writer:
 
 ```java
-RestRouter.getWriters().register(MyObject.class,MyCustomResponseWriter.class);
+RestRouter.getWriters().register(MyObject.class, MyCustomResponseWriter.class);
 // or
-new RestBuilder(vertx).writer(MyObject.class,MyCustomResponseWriter.class);
+new RestBuilder(vertx).writer(MyObject.class, MyCustomResponseWriter.class);
 ```
 
 Use only local on specific REST endpoint:
@@ -1416,7 +1409,7 @@ public class FailureEvent implements RestEvent<Exception> {
 > version 0.7.4 or later
 
 ```java
-Router router=new RestBuilder(vertx)
+Router router = new RestBuilder(vertx)
     .enableCors("*",true,1728000,allowedHeaders,HttpMethod.OPTIONS,HttpMethod.GET)
     .register(apiRest) // /api endpoint
     .notFound(RestNotFoundHandler.class) // rest not found (last resort)
@@ -1572,10 +1565,10 @@ handlers.
 In case no global error handler is associated a default (generic) error handler is invoked.
 
 ```java
-  Router router=RestRouter.register(vertx,SomeRest.class);
-    RestRouter.getExceptionHandlers().register(MyExceptionHandler.class);
+Router router = RestRouter.register(vertx,SomeRest.class);
+RestRouter.getExceptionHandlers().register(MyExceptionHandler.class);
 
-    vertx.createHttpServer()
+vertx.createHttpServer()
     .requestHandler(router)
     .listen(PORT);
 ```
@@ -1600,10 +1593,10 @@ We can
 * handle all not matching requests
 
 ```java
-Router router=new RestBuilder(vertx)
+Router router = new RestBuilder(vertx)
     .register(MyRest.class)
-    .notFound(".*\\/other/?.*",OtherNotFoundHandler.class) // handle all calls to an /other request
-    .notFound("/rest/.*",RestNotFoundHandler.class) // handle all calls to /rest subpath
+    .notFound(".*\\/other/?.*", OtherNotFoundHandler.class) // handle all calls to an /other request
+    .notFound("/rest/.*", RestNotFoundHandler.class) // handle all calls to /rest subpath
     .notFound(NotFoundHandler.class) // handle all other not found requests
     .build();
 ```
@@ -1611,7 +1604,7 @@ Router router=new RestBuilder(vertx)
 or
 
 ```java
-RestRouter.notFound(router,"rest",RestNotFoundHandler.class);
+RestRouter.notFound(router, "rest", RestNotFoundHandler.class);
 ```
 
 The not found handler must extend _NotFoundResponseWriter_:
@@ -1667,7 +1660,7 @@ By default all REST utilize _vertx().executeBlocking()_ call. Therefore the vert
 utilize the default vertx thread pool:
 
 ```java
-DeploymentOptions options=new DeploymentOptions();
+DeploymentOptions options = new DeploymentOptions();
     options.setWorkerPoolSize(poolSize);
     options.setMaxWorkerExecuteTime(maxExecuteTime);
     options.setWorkerPoolName("rest.vertx.example.worker.pool");
@@ -1793,17 +1786,19 @@ private Module[]getModules(){
 ### Implement service (use @Inject if needed)
 
 ```java
-public MyServiceImpl implements MyService{
+import javax.ws.rs.core.Context;
 
-private final OtherService other;
+public MyServiceImpl implements MyService {
 
-@Inject
-public MyServiceImpl(OtherService service){
-    other=service;
-}
+    private final OtherService other;
 
-public String call(){
-    return"something";
+    @Inject
+    public MyServiceImpl(OtherService service) {
+        other=service;
+    }
+
+    public String call(){
+      return"something";
     }
 }
 ```
@@ -1819,7 +1814,6 @@ public class GuicedRest {
 
     @Inject
     public GuicedRest(MyService someService) {
-
         service = someService;
     }
 
@@ -1883,7 +1877,6 @@ public class StringWriter implements HttpResponseWriter<String> {
 To disabled caching use the @NoCache annotation.
 
 ```java
-
 @NoCache
 public class NotCachedClass() {
 }
@@ -1898,11 +1891,10 @@ implementation.
 For instance we can use Hibernate implementation:
 
 ```java
-HibernateValidatorConfiguration configuration=Validation.byProvider(HibernateValidator.class)
-    .configure();
+HibernateValidatorConfiguration configuration = Validation.byProvider(HibernateValidator.class)
+                                                            .configure();
 
-    Validator validator=configuration.buildValidatorFactory()
-    .getValidator();
+    Validator validator = configuration.buildValidatorFactory().getValidator();
 ```
 
 Link validator with **rest.vertx**:
@@ -1925,8 +1917,8 @@ and annotate REST calls:
 ```java
 @POST("valid")
 public int sum(@Max(10) @QueryParam("one") int one,
-@Min(1) @QueryParam("two") int two,
-@Valid Dummy body){
+                @Min(1) @QueryParam("two") int two,
+                @Valid Dummy body) {
     return one+two+body.value;
 }
 ```
