@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: ubuntu
+      image: maven:3.6.0-jdk-11-slim
       ports:
         - 4444:4444
 
