@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: ubuntu-latest
+      image: ubuntu
       ports:
         - 4444:4444
 
