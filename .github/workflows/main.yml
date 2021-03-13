@@ -21,8 +21,9 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
+      image: ubuntu-latest
       ports:
-        - 4444:80 #/tcp #   ports: 4444:4444
+        - 4444:4444
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
