@@ -1,26 +1,16 @@
 # Rest.Vertx
 
-Lightweight JAX-RS (RestEasy) like annotation processor for vert.x verticles
+- Lightweight JAX-RS (RestEasy) like annotation processor for vert.x verticles.  
+- You are highly encouraged to participate and improve upon the existing code.  
+- Please report any [issues](https://github.com/zandero/rest.vertx/issues) discovered.
 
-You are highly encouraged to participate and improve upon the existing code.
-Please report any [issues](https://github.com/zandero/rest.vertx/issues) discovered.  
-
-  
+## Donations are welcome
 
 **If this project help you reduce time to develop?**  
 
 Keep it running and 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=R6SBEEJNP97MC&lc=SI&item_name=Zandero&item_number=Rest%2eVertX&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted)
 for cookies and coffee or become a **[sponsor](https://github.com/sponsors/zandero)**.
-
-# NOTE
-
-> If you are using **vert.x** version **3.*** then use version **0.9.*** of **Rest.vertx**
->
-> Version **1.0.4** and higher are only compatible with **vert.x** version **4** and higher and introduce some **breaking changes:**
-> - **@RolesAllowed** authorization throws **403 Forbidden** exception where before it was a **401 Unauthorized** exception
-> - Authentication and authorization flow is now aligned with **vert.x** and **@RolesAllowed** processing is done by an **AuthorizationProvider** implementation
-> - **@RolesAllowed** annotations still work but should be replaced with **@Authenticate** and **@Authorize** annotations instead
 
 ## Setup
 
@@ -32,8 +22,18 @@ for cookies and coffee or become a **[sponsor](https://github.com/sponsors/zande
     <version>1.0.5</version>
 </dependency>
 ```
+See also: [change log](https://github.com/zandero/rest.vertx/releases)
 
-See also: [older versions](https://github.com/zandero/rest.vertx/releases)
+
+## Important note - breaking changes - when migrating to vertx 4.*
+
+> If you are using **vert.x** version **3.*** then use version **0.9.*** of **Rest.vertx**
+>
+> Version **1.0.4** and higher are only compatible with **vert.x** version **4** and higher and introduce some **breaking changes:**
+> - **@RolesAllowed** authorization throws **403 Forbidden** exception where before it was a **401 Unauthorized** exception
+> - Authentication and authorization flow is now aligned with **vert.x** and **@RolesAllowed** processing is done by an **AuthorizationProvider** implementation
+> - **@RolesAllowed** annotations still work but should be replaced with **@Authenticate** and **@Authorize** annotations instead
+
 
 ## Acknowledgments
 
@@ -44,7 +44,7 @@ This project uses:
   excellent <img src="https://www.yourkit.com/images/yklogo.png" width="80"> [Java Profiler](https://www.yourkit.com/java/profiler/)
 
 
-# Request/Response rest.vertx lifecycle
+## Request/Response rest.vertx lifecycle
 A high level overview of how **rest.vertx** works:  
 
 ![Request lifecycle](./docs/request_lifecycle.svg)
