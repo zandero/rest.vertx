@@ -78,7 +78,7 @@ Router router = RestRouter.register(vertx,rest);
 
 vertx.createHttpServer()
     .requestHandler(router)
-    .listen(PORT);
+    .listen(PORT.get());
 ```
 
 or alternatively
@@ -91,7 +91,7 @@ RestRouter.register(router,rest);
 
 vertx.createHttpServer()
     .requestHandler(router)
-    .listen(PORT);
+    .listen(PORT.get());
 ```
 
 or alternatively use _RestBuilder_ helper to build up endpoints.
@@ -107,7 +107,7 @@ Router router = RestRouter.register(vertx,TestRest.class);
 
 vertx.createHttpServer()
     .requestHandler(router)
-    .listen(PORT);
+    .listen(PORT.get());
 ```
 
 ## RestBuilder
@@ -673,7 +673,7 @@ router.route().handler(pushContextHandler());
 router=RestRouter.register(router, new CustomContextRest());
     vertx.createHttpServer()
     .requestHandler(router)
-    .listen(PORT);
+    .listen(PORT.get());
 
 private Handler<RoutingContext> pushContextHandler() {
 
@@ -1038,7 +1038,7 @@ RestBuilder builder = new RestBuilder(vertx)
 
 vertx.createHttpServer()
     .requestHandler(router)
-    .listen(PORT);
+    .listen(PORT.get());
 ```
 
 > Route based authentication/authorization providers override globally defined providers.
@@ -1075,7 +1075,7 @@ public void init(){
 
     vertx.createHttpServer()
         .requestHandler(router)
-        .listen(PORT);
+        .listen(PORT.get());
 }
 
 // simple hanler to push a User entity into the vert.x RoutingContext
@@ -1574,7 +1574,7 @@ RestRouter.getExceptionHandlers().register(MyExceptionHandler.class);
 
 vertx.createHttpServer()
     .requestHandler(router)
-    .listen(PORT);
+    .listen(PORT.get());
 ```
 
 or alternatively we bind multiple exception handlers.  
@@ -1777,7 +1777,7 @@ public class GuiceInjectionProvider implements InjectionProvider {
 Router router=new RestBuilder(vertx).injectWith(new GuiceInjectionProvider(getModules())).build();
     vertx.createHttpServer()
     .requestHandler(router)
-    .listen(port);
+    .listen(PORT.get());
 
 private Module[]getModules(){
     return new Module[]{
@@ -2106,7 +2106,7 @@ class EchoTest {
 
         vertx.createHttpServer()
             .requestHandler(router)
-            .listen(PORT);
+            .listen(PORT.get());
     }
 
     @AfterEach
@@ -2122,7 +2122,7 @@ class EchoTest {
     @Test
     void getEcho(VertxTestContext context) {
 
-        client.get(PORT, HOST, "/test/echo").as(BodyCodec.string())
+        client.get(PORT.get(), HOST, "/test/echo").as(BodyCodec.string())
             .send(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("\"echo\"", response.body());

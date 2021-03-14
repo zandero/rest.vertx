@@ -32,7 +32,7 @@ jobs:
         run: docker build -t local .
 
       - name: Run tests
-        run: docker run -p 4444:4444 local mvn -f /home/app/pom.xml clean compile test
+        run: docker run -p 4444:5555 local mvn -f /home/app/pom.xml clean compile test
         #working-directory:
     
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
