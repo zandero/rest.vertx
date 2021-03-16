@@ -1,14 +1,14 @@
 # Rest.Vertx
 
-- Lightweight JAX-RS (RestEasy) like annotation processor for vert.x verticles.  
-- You are highly encouraged to participate and improve upon the existing code.  
+- Lightweight JAX-RS (RestEasy) like annotation processor for vert.x verticles.
+- You are highly encouraged to participate and improve upon the existing code.
 - Please report any [issues](https://github.com/zandero/rest.vertx/issues) discovered.
 
 ## Donations are welcome
 
-**If this project help you reduce time to develop?**  
+**If this project help you reduce time to develop?**
 
-Keep it running and 
+Keep it running and
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=R6SBEEJNP97MC&lc=SI&item_name=Zandero&item_number=Rest%2eVertX&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted)
 for cookies and coffee or become a **[sponsor](https://github.com/sponsors/zandero)**.
 
@@ -22,8 +22,8 @@ for cookies and coffee or become a **[sponsor](https://github.com/sponsors/zande
     <version>1.0.5</version>
 </dependency>
 ```
-See also: [change log](https://github.com/zandero/rest.vertx/releases)
 
+See also: [change log](https://github.com/zandero/rest.vertx/releases)
 
 ## Important note - breaking changes - when migrating to vertx 4.*
 
@@ -34,7 +34,6 @@ See also: [change log](https://github.com/zandero/rest.vertx/releases)
 > - Authentication and authorization flow is now aligned with **vert.x** and **@RolesAllowed** processing is done by an **AuthorizationProvider** implementation
 > - **@RolesAllowed** annotations still work but should be replaced with **@Authenticate** and **@Authorize** annotations instead
 
-
 ## Acknowledgments
 
 This project uses:
@@ -43,9 +42,9 @@ This project uses:
 * the
   excellent <img src="https://www.yourkit.com/images/yklogo.png" width="80"> [Java Profiler](https://www.yourkit.com/java/profiler/)
 
-
 ## Request/Response rest.vertx lifecycle
-A high level overview of how **rest.vertx** works:  
+
+A high level overview of how **rest.vertx** works:
 
 ![Request lifecycle](./docs/request_lifecycle.svg)
 
@@ -73,10 +72,10 @@ public class TestRest {
 **Step 2** - register annotated class as REST API
 
 ```java
-TestRest rest = new TestRest();
-Router router = RestRouter.register(vertx,rest);
+TestRest rest=new TestRest();
+    Router router=RestRouter.register(vertx,rest);
 
-vertx.createHttpServer()
+    vertx.createHttpServer()
     .requestHandler(router)
     .listen(PORT.get());
 ```
@@ -84,12 +83,12 @@ vertx.createHttpServer()
 or alternatively
 
 ```java
-Router router = Router.router(vertx);
+Router router=Router.router(vertx);
 
-TestRest rest = new TestRest();
-RestRouter.register(router,rest);
+    TestRest rest=new TestRest();
+    RestRouter.register(router,rest);
 
-vertx.createHttpServer()
+    vertx.createHttpServer()
     .requestHandler(router)
     .listen(PORT.get());
 ```
@@ -103,9 +102,9 @@ or alternatively use _RestBuilder_ helper to build up endpoints.
 Alternatively RESTs can be registered by class type only.
 
 ```java
-Router router = RestRouter.register(vertx,TestRest.class);
+Router router=RestRouter.register(vertx,TestRest.class);
 
-vertx.createHttpServer()
+    vertx.createHttpServer()
     .requestHandler(router)
     .listen(PORT.get());
 ```
@@ -117,7 +116,7 @@ vertx.createHttpServer()
 Rest endpoints, error handlers, writers and readers can be bound in one go using the RestBuilder.
 
 ```java
-Router router = new RestBuilder(vertx)
+Router router=new RestBuilder(vertx)
     .register(RestApi.class,OtherRestApi.class)
     .reader(MyClass.class,MyBodyReader.class)
     .writer(MediaType.APPLICATION_JSON,CustomWriter.class)
@@ -129,7 +128,7 @@ Router router = new RestBuilder(vertx)
 or
 
 ```java
-router = new RestBuilder(router)
+router=new RestBuilder(router)
     .register(AdditionalApi.class)
     .build();
 ```
@@ -295,16 +294,16 @@ Matrix parameters are defined using the @MatrixParam annotation.
 public int calculate(@PathParam("operation") String operation,@MatrixParam("one") int one,@MatrixParam("two") int two){
 
     switch(operation){
-        case"add":
-            return one+two;
-    
-        case"multiply":
-            return one*two;
-    
-        default:
-            return 0;
-        }
-}
+    case"add":
+    return one+two;
+
+    case"multiply":
+    return one*two;
+
+default:
+    return 0;
+    }
+    }
 ```
 
 ```
@@ -421,9 +420,9 @@ First appropriate reader is assigned searching in following order:
 ```java
 @POST
 @Path("/read/{param}")
-public String read(@BeanParam BeanClazz bean) {
+public String read(@BeanParam BeanClazz bean){
     ...
-}
+    }
 ```  
 
 ```java
@@ -457,11 +456,11 @@ OR via constructor
 
 ```java
 public BeanClazz(@PathParam("param") String path,
-                @HeaderParam("x-token") boolean xToken,
-                @QueryParam("query") @Raw int query,
-                @CookieParam("chocolate") String cookie) {
+@HeaderParam("x-token") boolean xToken,
+@QueryParam("query") @Raw int query,
+@CookieParam("chocolate") String cookie){
     ...
-}
+    }
 ```
 
 #### Missing ValueReader?
@@ -589,10 +588,10 @@ Following types are by default supported:
 ```java
 @GET
 @Path("/context")
-public String createdResponse(@Context HttpServerResponse response, @Context HttpServerRequest request) {
+public String createdResponse(@Context HttpServerResponse response,@Context HttpServerRequest request){
     response.setStatusCode(201);
     return request.uri();
-}
+    }
 ```
 
 ### Registering a context provider
@@ -615,20 +614,20 @@ public class TokenProvider implements ContextProvider<Token> {
     }
 }
 
-RestRouter.addProvider(Token.class, TokenProvider.class);
+RestRouter.addProvider(Token.class,TokenProvider.class);
 ```
 
 or
 
 ```java
-RestRouter.addProvider(Token.class, request -> {
-        String token=request.getHeader("X-Token");
-        if(token!=null) {
-            return new Token(token);
-        }
+RestRouter.addProvider(Token.class,request->{
+    String token=request.getHeader("X-Token");
+    if(token!=null){
+    return new Token(token);
+    }
 
-        return null;
-});
+    return null;
+    });
 ```
 
 or
@@ -643,14 +642,14 @@ public class Token {
     }
 }
 
-RestRouter.addProvider(Token.class, Token::new)
+RestRouter.addProvider(Token.class,Token::new)
 ```
 
 ```java
 @GET
 @Path("/token")
-public String readToken(@Context Token token) {
-        return token.getToken();
+public String readToken(@Context Token token){
+    return token.getToken();
     }
 ```
 
@@ -668,17 +667,17 @@ In order to achieve this we need to create a custom handler that pushes the cont
 
 ```java
 Router router=Router.router(vertx);
-router.route().handler(pushContextHandler());
+    router.route().handler(pushContextHandler());
 
-router=RestRouter.register(router, new CustomContextRest());
+    router=RestRouter.register(router,new CustomContextRest());
     vertx.createHttpServer()
     .requestHandler(router)
     .listen(PORT.get());
 
-private Handler<RoutingContext> pushContextHandler() {
+private Handler<RoutingContext> pushContextHandler(){
 
     return context->{
-    RestRouter.pushContext(context, new MyCustomContext("push this into storage"));
+    RestRouter.pushContext(context,new MyCustomContext("push this into storage"));
     context.next();
     };
     }
@@ -716,17 +715,17 @@ A custom context reader can be applied to a @Context annotated variable to overr
 @GET
 @Path("/token")
 @ContextReader(TokenProvider.class)
-public String createdResponse(@Context Token token) {
+public String createdResponse(@Context Token token){
     return token.token;
-}
+    }
 
 // or
 
 @GET
 @Path("/token")
-public String createdResponse(@ContextReader(TokenProvider.class) @Context Token token) {
+public String createdResponse(@ContextReader(TokenProvider.class) @Context Token token){
     return token.token;
-}
+    }
 ```
 
 ## Body handler
@@ -737,17 +736,17 @@ In case needed a custom body handler can be provided for all body handling reque
 
 ```java
 BodyHandler bodyHandler=BodyHandler.create("my_upload_folder");
-RestRouter.setBodyHandler(bodyHandler);
+    RestRouter.setBodyHandler(bodyHandler);
 
-Router router = RestRouter.register(vertx,UploadFileRest.class);
+    Router router=RestRouter.register(vertx,UploadFileRest.class);
 ```
 
 or
 
 ```java
-BodyHandler handler = BodyHandler.create("my_upload_folder");
+BodyHandler handler=BodyHandler.create("my_upload_folder");
 
-Router router=new RestBuilder(vertx)
+    Router router=new RestBuilder(vertx)
     .bodyHandler(handler)
     .register(UploadFileRest.class)
     .build();
@@ -763,6 +762,7 @@ Response writers take the method result and produce a vert.x response.
 Example of a simple response writer:
 
 ```java
+
 @Produces("application/xml")        // content-type header
 @Header("X-Status: I'm a dummy")    // additional static headers
 public class DummyWriter implements HttpResponseWriter<Dummy> {
@@ -782,6 +782,7 @@ public class DummyWriter implements HttpResponseWriter<Dummy> {
 In this case a build in JSON writer is applied.
 
 ```java
+
 @Path("produces")
 public class ConsumeJSON {
 
@@ -798,6 +799,7 @@ public class ConsumeJSON {
 **Option 2** - The **@ResponseWriter** annotation defines a specific writer to be used.
 
 ```java
+
 @Path("produces")
 public class ConsumeJSON {
 
@@ -817,17 +819,17 @@ public class ConsumeJSON {
 **Option 3** - An ResponseWriter is globally assigned to a specific class type.
 
 ```java
-RestRouter.getWriters().register(SomeClass.class, SomeClassWriter.class);
-RestRouter.getWriters().register("application/json", SomeClassWriter.class);
-RestRouter.getWriters().register(SomeClassWriter.class); // where SomeClassWriter is annotated with @Produces("application/json")
+RestRouter.getWriters().register(SomeClass.class,SomeClassWriter.class);
+    RestRouter.getWriters().register("application/json",SomeClassWriter.class);
+    RestRouter.getWriters().register(SomeClassWriter.class); // where SomeClassWriter is annotated with @Produces("application/json")
 ```
 
 **Option 4** - An ResponseWriter is globally assigned to a specific mime type.
 
 ```java
-RestRouter.getWriters().register(MyClass.class, MyJsonWriter.class);
-RestRouter.getWriters().register("application/json", MyJsonWriter.class);
-RestRouter.getWriters().register(MyJsonWriter.class); // where MyJsonWriter is annotated with @Produces("application/json") 
+RestRouter.getWriters().register(MyClass.class,MyJsonWriter.class);
+    RestRouter.getWriters().register("application/json",MyJsonWriter.class);
+    RestRouter.getWriters().register(MyJsonWriter.class); // where MyJsonWriter is annotated with @Produces("application/json") 
 ```
 
 ```java
@@ -859,13 +861,13 @@ In order to manipulate returned response, we can utilize the **@Context HttpServ
 ```java
 @GET
 @Path("/login")
-public HttpServerResponse vertx(@Context HttpServerResponse response) {
+public HttpServerResponse vertx(@Context HttpServerResponse response){
 
     response.setStatusCode(201);
-    response.putHeader("X-MySessionHeader", sessionId);
+    response.putHeader("X-MySessionHeader",sessionId);
     response.end("Hello world!");
     return reponse;
-}
+    }
 ```
 
 ### JAX-RS response builder
@@ -885,13 +887,13 @@ public HttpServerResponse vertx(@Context HttpServerResponse response) {
 ```java
 @GET
 @Path("/login")
-public Response jax() {
+public Response jax(){
 
     return Response
-        .accepted("Hello world!!")
-        .header("X-MySessionHeader",sessionId)
-        .build();
-}
+    .accepted("Hello world!!")
+    .header("X-MySessionHeader",sessionId)
+    .build();
+    }
 ```
 
 ## Authentication and Authorization
@@ -908,7 +910,7 @@ Authentication and Authorization steps:
 
 1. the **User** entity is then provided to the **AuthorizationProvider** to check if user is allowed accessing the REST
    endpoint
-    - User entity should return a list of allowed Authorizations to be matched against the provider authorization 
+    - User entity should return a list of allowed Authorizations to be matched against the provider authorization
     - if the user is not allowed to access the REST endpoint a **403 Forbidden** exception is thrown
 
 ### Authentication
@@ -998,6 +1000,7 @@ public class MyAuthorizationProvider implements AuthorizationProvider {
 ### User
 
 Example of a simple **User** entity with _PermissionBasedAuthorization_ to be matched in **MyAuthorizationProvider**
+
 ```java
 public class MyUser extends UserImpl {
 
@@ -1031,12 +1034,12 @@ The thrown exception is taken over and can be further processed with an Exceptio
 We can define global authentication/authorization providers for all routes.
 
 ```java
-RestBuilder builder = new RestBuilder(vertx)
+RestBuilder builder=new RestBuilder(vertx)
     .authenticateWith(MyAuthenticator.class)
     .authorizeWith(new MyAuthorizationProvider())
     .register(EchoRest.class);
 
-vertx.createHttpServer()
+    vertx.createHttpServer()
     .requestHandler(router)
     .listen(PORT.get());
 ```
@@ -1066,34 +1069,34 @@ In order to make this work, we need to fill up the RoutingContext with a User en
 public void init(){
 
     // 1. register handler to initialize User
-    Router router = Router.router(vertx);
+    Router router=Router.router(vertx);
     router.route().handler(getUserHandler());
 
     // 2. REST with @RolesAllowed annotations
-    TestAuthorizationRest testRest = new TestAuthorizationRest();
+    TestAuthorizationRest testRest=new TestAuthorizationRest();
     RestRouter.register(router,testRest);
 
     vertx.createHttpServer()
-        .requestHandler(router)
-        .listen(PORT.get());
-}
+    .requestHandler(router)
+    .listen(PORT.get());
+    }
 
 // simple hanler to push a User entity into the vert.x RoutingContext
-public Handler<RoutingContext> getUserHandler() {
+public Handler<RoutingContext> getUserHandler(){
 
-    return context -> {
+    return context->{
 
-        // read header ... if present ... create user with given value
-        String token = context.request().getHeader("X-Token");
-    
-        // set user ...
-        if(token != null){
-            context.setUser(new SimulatedUser(token)); // push User into context
-        }
+    // read header ... if present ... create user with given value
+    String token=context.request().getHeader("X-Token");
 
-        context.next();
+    // set user ...
+    if(token!=null){
+    context.setUser(new SimulatedUser(token)); // push User into context
+    }
+
+    context.next();
     };
-}
+    }
 ```
 
 > **Depricated: vert.x 3 example**
@@ -1105,12 +1108,12 @@ public Handler<RoutingContext> getUserHandler() {
 public String info(@Context User user){
 
     if(user instanceof SimulatedUser){
-        SimulatedUser theUser = (SimulatedUser)user;
-        return theUser.name;
+    SimulatedUser theUser=(SimulatedUser)user;
+    return theUser.name;
     }
 
-    return"hello logged in " + user.principal();
-}
+    return"hello logged in "+user.principal();
+    }
 ```
 
 **Example of User implementation:**
@@ -1191,14 +1194,14 @@ Register as global reader:
 > Global readers are used in case no other reader is specified for given type or content-type!
 
 ```java
-RestRouter.getReaders().register(MyNewObject.class, MyCustomReader.class);
-RestRouter.getReaders().register("application/json", MyCustomReader.class);
-RestRouter.getReaders().register(MyCustomReader.class); // if reader is annotated with @Consumes("application/json")
+RestRouter.getReaders().register(MyNewObject.class,MyCustomReader.class);
+    RestRouter.getReaders().register("application/json",MyCustomReader.class);
+    RestRouter.getReaders().register(MyCustomReader.class); // if reader is annotated with @Consumes("application/json")
 
 // or
-new RestBuilder(vertx).reader(MyNewObject.class, MyCustomReader.class);
-new RestBuilder(vertx).reader("appplication/json", MyCustomReader.class);
-new RestBuilder(vertx).reader(MyCustomReader.class); // if reader is annotated with @Consumes("application/json")
+    new RestBuilder(vertx).reader(MyNewObject.class,MyCustomReader.class);
+    new RestBuilder(vertx).reader("appplication/json",MyCustomReader.class);
+    new RestBuilder(vertx).reader(MyCustomReader.class); // if reader is annotated with @Consumes("application/json")
 ```
 
 Use only local on specific REST endpoint:
@@ -1272,9 +1275,9 @@ public class MyCustomResponseWriter implements HttpResponseWriter<MyObject> {
 Register as global writer:
 
 ```java
-RestRouter.getWriters().register(MyObject.class, MyCustomResponseWriter.class);
+RestRouter.getWriters().register(MyObject.class,MyCustomResponseWriter.class);
 // or
-new RestBuilder(vertx).writer(MyObject.class, MyCustomResponseWriter.class);
+    new RestBuilder(vertx).writer(MyObject.class,MyCustomResponseWriter.class);
 ```
 
 Use only local on specific REST endpoint:
@@ -1319,21 +1322,21 @@ Order can also be negative, e.g. if you want to ensure a route is evaluated befo
 @Path("/test")
 public String third(){
     return"third";
-}
+    }
 
 @RouteOrder(10)
 @GET
 @Path("/test")
 public String first(){
     return"first";
-}
+    }
 
 @RouteOrder(15)
 @GET
 @Path("/test")
 public String second(){
     return"second";
-}
+    }
 ```
 
 ```java
@@ -1374,16 +1377,16 @@ If the event/entity pair does not match, the event is **not triggered**.
 public Dummy returnOrFail(@PathParam("status") int status){
 
     if(status>=200&&status< 300){
-        return new Dummy("one","event");
+    return new Dummy("one","event");
     }
 
     if(status>=300&&status< 400){
-        response.setStatusCode(301);
-        return new Dummy("two","failed");
+    response.setStatusCode(301);
+    return new Dummy("two","failed");
     }
 
     throw new IllegalArgumentException("Failed: "+status);
-}  
+    }  
 ```
 
 ```java
@@ -1413,7 +1416,7 @@ public class FailureEvent implements RestEvent<Exception> {
 > version 0.7.4 or later
 
 ```java
-Router router = new RestBuilder(vertx)
+Router router=new RestBuilder(vertx)
     .enableCors("*",true,1728000,allowedHeaders,HttpMethod.OPTIONS,HttpMethod.GET)
     .register(apiRest) // /api endpoint
     .notFound(RestNotFoundHandler.class) // rest not found (last resort)
@@ -1486,10 +1489,10 @@ public class MyExceptionHandler implements ExceptionHandler<MyExceptionClass> {
 @GET
 @Path("/throw")
 @CatchWith(MyExceptionHandler.class)
-public String fail() {
+public String fail(){
 
-    throw new MyExceptionClass("Not implemented.", 404);
-}
+    throw new MyExceptionClass("Not implemented.",404);
+    }
 ```
 
 ```
@@ -1509,7 +1512,7 @@ Both class and methods support **@CatchWith** annotation.
 public String fail(){
 
     throw new IllegalArgumentExcetion("Bang!");
-}
+    }
 ```
 
 ```java
@@ -1535,7 +1538,7 @@ Handlers are considered in order given, first matching handler is used.
 public String fail(){
 
     throw new IllegalArgumentException("Bang!");
-}
+    }
 ```
 
 ```java
@@ -1569,10 +1572,10 @@ handlers.
 In case no global error handler is associated a default (generic) error handler is invoked.
 
 ```java
-Router router = RestRouter.register(vertx,SomeRest.class);
-RestRouter.getExceptionHandlers().register(MyExceptionHandler.class);
+Router router=RestRouter.register(vertx,SomeRest.class);
+    RestRouter.getExceptionHandlers().register(MyExceptionHandler.class);
 
-vertx.createHttpServer()
+    vertx.createHttpServer()
     .requestHandler(router)
     .listen(PORT.get());
 ```
@@ -1597,10 +1600,10 @@ We can
 * handle all not matching requests
 
 ```java
-Router router = new RestBuilder(vertx)
+Router router=new RestBuilder(vertx)
     .register(MyRest.class)
-    .notFound(".*\\/other/?.*", OtherNotFoundHandler.class) // handle all calls to an /other request
-    .notFound("/rest/.*", RestNotFoundHandler.class) // handle all calls to /rest subpath
+    .notFound(".*\\/other/?.*",OtherNotFoundHandler.class) // handle all calls to an /other request
+    .notFound("/rest/.*",RestNotFoundHandler.class) // handle all calls to /rest subpath
     .notFound(NotFoundHandler.class) // handle all other not found requests
     .build();
 ```
@@ -1608,7 +1611,7 @@ Router router = new RestBuilder(vertx)
 or
 
 ```java
-RestRouter.notFound(router, "rest", RestNotFoundHandler.class);
+RestRouter.notFound(router,"rest",RestNotFoundHandler.class);
 ```
 
 The not found handler must extend _NotFoundResponseWriter_:
@@ -1663,12 +1666,13 @@ Example of a REST endpoint handling file upload.
 ```java
 // 1. provide a BodyHandler 
 BodyHandler bodyHandler = BodyHandler.create("my_upload_folder");
-RestRouter.setBodyHandler(bodyHandler);
+    RestBuilder builder = new RestBuilder(vertx)
+        .bodyHandler(bodyHandler)
+        .register(UploadFileRest.class);
+```
 
-Router router = RestRouter.register(vertx, UploadFileRest.class);
-
-...
-
+```java
+// 2. implement File upload rest to handle incoming files
 @Path("/upload")
 public class UploadFileRest {
 
@@ -1693,7 +1697,6 @@ public class UploadFileRest {
 }
 ```
 
-
 ## Blocking and Async RESTs
 
 > version 0.8.1 or later
@@ -1704,7 +1707,7 @@ By default all REST utilize _vertx().executeBlocking()_ call. Therefore the vert
 utilize the default vertx thread pool:
 
 ```java
-DeploymentOptions options = new DeploymentOptions();
+DeploymentOptions options=new DeploymentOptions();
     options.setWorkerPoolSize(poolSize);
     options.setMaxWorkerExecuteTime(maxExecuteTime);
     options.setWorkerPoolName("rest.vertx.example.worker.pool");
@@ -1745,27 +1748,27 @@ public Future<Dummy> create(@Context Vertx vertx)throws InterruptedException{
     Future<Dummy> res=Future.future();
     asyncCall(executor,res);
     return res;
-}
+    }
 ```
 
 ```java
 public void asyncCall(WorkerExecutor executor,Future<Dummy> value)throws InterruptedException{
 
     executor.executeBlocking(
-        fut->{
-            try{
-                Thread.sleep(1000);
-            }
-            catch(InterruptedException e){
-                value.fail("Fail");
-            }
-    
-        value.complete(new Dummy("async","called"));
-            fut.complete();
-        },
-        false,
-            fut->{}
-        );
+    fut->{
+    try{
+    Thread.sleep(1000);
+    }
+    catch(InterruptedException e){
+    value.fail("Fail");
+    }
+
+    value.complete(new Dummy("async","called"));
+    fut.complete();
+    },
+    false,
+    fut->{}
+    );
     }
 ```
 
@@ -1824,7 +1827,7 @@ private Module[]getModules(){
     new ServiceModule(),
     new SecurityModule()...
     };
-}
+    }
 ```
 
 ### Implement service (use @Inject if needed)
@@ -1832,19 +1835,19 @@ private Module[]getModules(){
 ```java
 import javax.ws.rs.core.Context;
 
-public MyServiceImpl implements MyService {
+public MyServiceImpl implements MyService{
 
-    private final OtherService other;
+private final OtherService other;
 
-    @Inject
-    public MyServiceImpl(OtherService service) {
-        other=service;
+@Inject
+public MyServiceImpl(OtherService service){
+    other=service;
     }
 
-    public String call(){
-      return"something";
+public String call(){
+    return"something";
     }
-}
+    }
 ```
 
 ### Use @Inject in RESTs
@@ -1907,7 +1910,7 @@ public class StringWriter implements HttpResponseWriter<String> {
 ### Caching and singletons
 
 * All registered REST classes are singletons by default, no need to annotate them with _@Singleton_ annotation.
-* By default, all _HttpResponseWriter_, _ValueReader_, _ExceptionHandler_, _RestAuthenticationProviders_ and 
+* By default, all _HttpResponseWriter_, _ValueReader_, _ExceptionHandler_, _RestAuthenticationProviders_ and
   _AuthoriziationProvider_
   classes are singletons that are cached once initialized.
 * In case _HttpResponseWriter_, _ValueReader_, _ExceptionHandler_, _RestAuthenticationProviders_ and
@@ -1921,6 +1924,7 @@ public class StringWriter implements HttpResponseWriter<String> {
 To disabled caching use the @NoCache annotation.
 
 ```java
+
 @NoCache
 public class NotCachedClass() {
 }
@@ -1935,10 +1939,10 @@ implementation.
 For instance we can use Hibernate implementation:
 
 ```java
-HibernateValidatorConfiguration configuration = Validation.byProvider(HibernateValidator.class)
-                                                            .configure();
+HibernateValidatorConfiguration configuration=Validation.byProvider(HibernateValidator.class)
+    .configure();
 
-    Validator validator = configuration.buildValidatorFactory().getValidator();
+    Validator validator=configuration.buildValidatorFactory().getValidator();
 ```
 
 Link validator with **rest.vertx**:
@@ -1961,10 +1965,10 @@ and annotate REST calls:
 ```java
 @POST("valid")
 public int sum(@Max(10) @QueryParam("one") int one,
-                @Min(1) @QueryParam("two") int two,
-                @Valid Dummy body) {
+@Min(1) @QueryParam("two") int two,
+@Valid Dummy body){
     return one+two+body.value;
-}
+    }
 ```
 
 In case of a violation a _400 Bad request_ response will be generated using _ConstraintExceptionHandler_.
@@ -2025,7 +2029,7 @@ Example:
 @Header({"Accept: application/json", "Content-Type: application/json"})
 public String getAsJson(){
     return"I'm Johnson";
-}
+    }
 
 // is the same as
 @GET
@@ -2034,7 +2038,7 @@ public String getAsJson(){
 @Produces("application/json")
 public String getAsJson(){
     return"I'm Johns son!";
-}
+    }
 ```
 
 # Logging
@@ -2108,8 +2112,8 @@ public class EchoRest {
 We can test the REST endpoint like this:
 
 > NOTE: once a _ExceptionHandler_, _Writer_, _Reader_ ... etc. is registered
-> it is **cached**. Therefore before each test it is recommended to call 
-> **RestRouter.clearCache()** to make sure you have a clean set up. 
+> it is **cached**. Therefore before each test it is recommended to call
+> **RestRouter.clearCache()** to make sure you have a clean set up.
 
 ```java
 
@@ -2172,5 +2176,5 @@ class EchoTest {
 }
 ```
 
-The **@BeforeAll**, **@AfterEach** and **@AfterAll** methods should be moved into a 
-helper class from there all test classes can be extended.
+The **@BeforeAll**, **@AfterEach** and **@AfterAll** methods should be moved into a helper class from there all test
+classes can be extended.

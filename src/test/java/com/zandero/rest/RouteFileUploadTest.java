@@ -23,13 +23,10 @@ class RouteFileUploadTest extends VertxTest {
 
         before();
 
-        String path = new File(RouteFileUploadTest.class.getProtectionDomain().getCodeSource().getLocation()
-                                   .toURI()).getPath();
-
         BodyHandler bodyHandler = BodyHandler.create("my_upload_folder");
-        RestBuilder builder = new RestBuilder(vertx).bodyHandler(bodyHandler).register(TestUploadFileRest.class);
-
-        //RestRouter.setBodyHandler(bodyHandler);
+        RestBuilder builder = new RestBuilder(vertx)
+                                  .bodyHandler(bodyHandler)
+                                  .register(TestUploadFileRest.class);
 
         Router router = builder.build();
         vertx.createHttpServer()
@@ -40,14 +37,15 @@ class RouteFileUploadTest extends VertxTest {
     @Test
     void uploadFile(VertxTestContext context) {
 
-        String path = ResourceUtils.getResourceAbsolutePath("/html/index.html");
+        String resourceName = "/html/index.html";
+        String path = ResourceUtils.getResourceAbsolutePath(resourceName);
         File file = new File(path);
 
         MultipartForm form = MultipartForm.create()
                                  .binaryFileUpload("file",
-                                                 file.getName(),
-                                                 file.getAbsolutePath(),
-                                                 "text/plain");
+                                                   file.getName(),
+                                                   file.getAbsolutePath(),
+                                                   "text/plain");
 
         client.post(PORT, HOST, "/upload/file")
             .putHeader("ContentType", "multipart/form-data")
@@ -59,7 +57,7 @@ class RouteFileUploadTest extends VertxTest {
                                    assertTrue(fileName.startsWith("my_upload_folder/"), fileName);
 
                                    Buffer uploaded = vertx.fileSystem().readFileBlocking(fileName);
-                                   String compare = ResourceUtils.getResourceAsString("/html/index.html");
+                                   String compare = ResourceUtils.getResourceAsString(resourceName);
                                    assertEquals(compare, uploaded.toString());
 
                                    context.completeNow();
