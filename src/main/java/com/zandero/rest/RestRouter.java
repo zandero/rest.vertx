@@ -1,6 +1,6 @@
 package com.zandero.rest;
 
-import com.zandero.rest.authentication.*;
+import com.zandero.rest.authentication.RestAuthenticationProvider;
 import com.zandero.rest.authorization.RoleBasedUserAuthorizationProvider;
 import com.zandero.rest.bean.*;
 import com.zandero.rest.cache.*;
@@ -15,7 +15,6 @@ import com.zandero.utils.Assert;
 import io.vertx.core.*;
 import io.vertx.core.http.*;
 import io.vertx.ext.auth.User;
-import io.vertx.ext.auth.authentication.*;
 import io.vertx.ext.auth.authorization.AuthorizationProvider;
 import io.vertx.ext.web.*;
 import io.vertx.ext.web.handler.*;
@@ -416,8 +415,8 @@ public class RestRouter {
         return context -> {
             try {
                 RestAuthenticationProvider authenticator = authenticatorProviderClass != null ?
-                                                           getAuthenticationProviders().provide(authenticatorProviderClass, getInjectionProvider(), context) :
-                                                           defaultAuthenticationProvider;
+                                                               getAuthenticationProviders().provide(authenticatorProviderClass, getInjectionProvider(), context) :
+                                                               defaultAuthenticationProvider;
 
                 authenticator.authenticate(context, userAsyncResult -> {
                     if (userAsyncResult.failed()) {

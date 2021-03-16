@@ -1654,6 +1654,46 @@ will load resource file in _html/{path}_ and return it's content.
 > GET docs/page.html -> returns page.html content via FileResponseWriter
 ```
 
+## Uploading files
+
+> version 0.9.1 or later
+
+Example of a REST endpoint handling file upload.
+
+```java
+// 1. provide a BodyHandler 
+BodyHandler bodyHandler = BodyHandler.create("my_upload_folder");
+RestRouter.setBodyHandler(bodyHandler);
+
+Router router = RestRouter.register(vertx, UploadFileRest.class);
+
+...
+
+@Path("/upload")
+public class UploadFileRest {
+
+    @POST
+    @Path("/file")
+    public String upload(@Context RoutingContext context) {
+
+        Set<FileUpload> fileUploadSet = context.fileUploads();
+        if (fileUploadSet == null || fileUploadSet.isEmpty()) {
+            return "missing upload file!";
+        }
+
+        Iterator<FileUpload> fileUploadIterator = fileUploadSet.iterator();
+        List<String> urlList = new ArrayList<>();
+        while (fileUploadIterator.hasNext()) {
+            FileUpload fileUpload = fileUploadIterator.next();
+            urlList.add(fileUpload.uploadedFileName());
+        }
+
+        return StringUtils.join(urlList, ", ");
+    }
+}
+```
+
+
 ## Blocking and Async RESTs
 
 > version 0.8.1 or later

@@ -8,11 +8,11 @@ import javax.ws.rs.core.Context;
 import java.util.*;
 
 @Path("/upload")
-public class UploadFileRest {
+public class TestUploadFileRest {
 
     @POST
     @Path("/file")
-    public String importData(@Context RoutingContext context) {
+    public String upload(@Context RoutingContext context) {
 
         Set<FileUpload> fileUploadSet = context.fileUploads();
         if (fileUploadSet == null || fileUploadSet.isEmpty()) {
@@ -23,10 +23,6 @@ public class UploadFileRest {
         List<String> urlList = new ArrayList<>();
         while (fileUploadIterator.hasNext()) {
             FileUpload fileUpload = fileUploadIterator.next();
-
-            // default folder is file-uploads in vertx
-            // Could you give us method to change default upload folder?
-            // Add BodyHandler.create().setUploadsDirectory("....") in your code.
             urlList.add(fileUpload.uploadedFileName());
         }
 

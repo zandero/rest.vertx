@@ -7,7 +7,7 @@
 
     <artifactId>rest.vertx</artifactId>
     <groupId>com.zandero</groupId>
-    <version>1.0.5</version>
+    <version>1.0.5-test</version>
     <packaging>jar</packaging>
 
     <name>Zandero REST Vert.X</name>
@@ -61,6 +61,8 @@
         <version.vertx>4.0.3</version.vertx>
         <version.servlet-api>4.0.1</version.servlet-api>
 
+        <version.jackson>2.12.2</version.jackson>
+
         <!-- logging -->
         <version.slf4j-api>2.0.0-alpha1</version.slf4j-api>
 
@@ -105,7 +107,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.12.2</version>
+            <version>${version.jackson}</version>
         </dependency>
 
         <dependency>

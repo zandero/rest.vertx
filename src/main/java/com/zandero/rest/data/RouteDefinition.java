@@ -34,7 +34,8 @@ public class RouteDefinition {
     private static final String CONTINUATION_CLASS = "kotlin.coroutines.Continuation";
     private static final String CONTINUATION_EXPERIMENTAL_CLASS = "kotlin.coroutines.experimental.Continuation";
 
-    private static final Set<ParameterType> BODY_HANDLER_PARAMS = ArrayUtils.toSet(ParameterType.body,
+    private static final Set<ParameterType> BODY_HANDLER_PARAMS = ArrayUtils.toSet(ParameterType.context,
+                                                                                   ParameterType.body,
                                                                                    ParameterType.bean,
                                                                                    ParameterType.form);
 

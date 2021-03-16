@@ -2,7 +2,7 @@ Build docker image
 > docker build -t demo .
 
 Run tests ...
-> docker run -p 4444 demo mvn -f /home/app/pom.xml clean compile te
+> docker run -p 4444 demo mvn -f /home/app/pom.xml clean compile test
 
 It is not working as expected ... tests are randomly failing:
 -  Connection refused: localhost/127.0.0.1:4444

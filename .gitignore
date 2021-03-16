@@ -13,3 +13,4 @@
 target/
 .vertx/
 file-uploads/
+my_upload_folder/
