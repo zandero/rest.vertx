@@ -12,5 +12,6 @@ public class NoContentResponseWriter implements HttpResponseWriter<Object> {
 	public void write(Object result, HttpServerRequest request, HttpServerResponse response) {
 
 		response.setStatusCode(204);
+		response.end();
 	}
 }

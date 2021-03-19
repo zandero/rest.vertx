@@ -1666,7 +1666,7 @@ Example of a REST endpoint handling file upload.
 ```java
 // 1. provide a BodyHandler 
 BodyHandler bodyHandler = BodyHandler.create("my_upload_folder");
-    RestBuilder builder = new RestBuilder(vertx)
+RestBuilder builder = new RestBuilder(vertx)
         .bodyHandler(bodyHandler)
         .register(UploadFileRest.class);
 ```
@@ -2040,6 +2040,24 @@ public String getAsJson(){
     return"I'm Johns son!";
     }
 ```
+
+# Best practices
+
+## Don't do this
+
+### Don't use vert.x @Context if not necessary 
+
+On a request @Context must be dynamically provided by the method using it. 
+This means that no caching is possible and every class or chain of classes must be created on each and every request.  
+This might cause unecessary processing overhead - avoid it if you can.
+
+### Don't manipulate the response inside the REST method body
+
+The intended workflow is as follows:
+* request gets read by __RequestReader__ and deserialized into a Java Object
+* REST method uses the request input to call a service and produce a result
+* REST method returns the result as a Java Object
+* __RequestWriter__ or __ExceptionHandler__ take the produced result and write the vertx response
 
 # Logging
 
