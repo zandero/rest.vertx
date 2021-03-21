@@ -538,8 +538,8 @@ public class RestRouter {
                                                                      definition,
                                                                      context);
                                 } else { // due to limitations of Java generics we can't tell the type if response is null
-                                    Class<?> writerClass = definition.getWriter() == null ? GenericResponseWriter.class : definition.getWriter();
-                                    writer = (HttpResponseWriter) ClassFactory.newInstanceOf(writerClass);
+                                    writer = (definition.getWriter() != null) ?
+                                         (HttpResponseWriter) ClassFactory.newInstanceOf(definition.getWriter()) : new GenericResponseWriter();
                                 }
 
                                 validateResult(futureResult, method, definition, validator, toInvoke);

@@ -21,6 +21,8 @@ public class WriterCache extends MediaTypesClassCache<HttpResponseWriter> {
         clear();
     }
 
+    //private final GenericResponseWriter genericResponseWriter = new GenericResponseWriter(this);
+
     @Override
     public void clear() {
 
@@ -30,12 +32,18 @@ public class WriterCache extends MediaTypesClassCache<HttpResponseWriter> {
         typeCache.put(HttpServerResponse.class, VertxResponseWriter.class);
 
         mediaTypeCache.put(MediaType.APPLICATION_JSON, JsonResponseWriter.class);
+        //registerInstanceByMediaType(MediaType.TEXT_HTML, GenericResponseWriter.class);
+
         mediaTypeCache.put(MediaType.TEXT_HTML, GenericResponseWriter.class);
 
         // if not found ... default to simple toString() writer
         mediaTypeCache.put(MediaType.TEXT_PLAIN, PlainResponseWriter.class);
         mediaTypeCache.put(MediaType.WILDCARD, PlainResponseWriter.class);
     }
+
+    /*public HttpResponseWriter getGenericWriter() {
+        return genericResponseWriter;
+    }*/
 
     public void register(Class<? extends HttpResponseWriter> writer) {
 

@@ -1,6 +1,7 @@
 package com.zandero.rest.writer;
 
 import com.zandero.rest.RestRouter;
+import com.zandero.rest.cache.WriterCache;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
 import io.vertx.core.http.HttpHeaders;
@@ -18,6 +19,11 @@ import javax.ws.rs.core.*;
 public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
 
     private final static Logger log = LoggerFactory.getLogger(GenericResponseWriter.class);
+    /*private final WriterCache cache;
+
+    public GenericResponseWriter(WriterCache writers) {
+        cache = writers;
+    }*/
 
     @Context
     RoutingContext context;
@@ -34,6 +40,7 @@ public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
 
         HttpResponseWriter writer;
         try {
+            // TODO: fix this .. cache should provide / produce writer
             writer = (HttpResponseWriter) ClassFactory.get(mediaType, RestRouter.getWriters(), context);
         } catch (ClassFactoryException | ContextException e) {
             // writer = RestRouter.getWriters().get(result);

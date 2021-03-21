@@ -17,6 +17,6 @@ public class TestApplicationV2PathRest extends RestApplicationV2 {
         @Context RouteDefinition definition,
         @PathParam("param") String param) {
 
-        return "2" + param;
+        return definition.getPath() + "=2" + param;
     }
 }

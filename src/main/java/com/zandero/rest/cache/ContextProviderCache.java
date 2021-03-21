@@ -93,6 +93,9 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
                                         String defaultValue,
                                         RoutingContext context) throws ContextException {
 
+        Assert.notNull(type, "Missing class type!");
+        Assert.notNull(context, "Missing context!");
+
         // vert.x context
         if (type.isAssignableFrom(HttpServerResponse.class)) {
             return context.response();

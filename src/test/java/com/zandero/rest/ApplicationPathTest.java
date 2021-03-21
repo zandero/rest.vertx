@@ -41,7 +41,7 @@ public class ApplicationPathTest extends VertxTest {
 
         client.get(PORT, HOST, "/v2/application/echo/this").as(BodyCodec.string())
             .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals("2this", response.body());
+                assertEquals("/application/echo/{param}=2this", response.body());
                 context.completeNow();
             })));
     }
