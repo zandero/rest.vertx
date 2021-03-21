@@ -26,13 +26,13 @@ public abstract class ClassCache<T> {
 
     /**
      * map of media type associated with class type (to be instantiated)
-     */
-    protected Map<String, Class<? extends T>> mediaTypeCache = new LinkedHashMap<>();
+     *//*
+    protected Map<String, Class<? extends T>> mediaTypeCache = new LinkedHashMap<>();*/
 
     public void clear() {
         instanceCache.clear();
         typeCache.clear();
-        mediaTypeCache.clear();
+        //mediaTypeCache.clear();
     }
 
     public T getInstanceByName(String name) {
@@ -57,13 +57,13 @@ public abstract class ClassCache<T> {
         return null;
     }
 
-    public Class<? extends T> getInstanceFromMediaType(MediaType mediaType) {
+    /*public Class<? extends T> getInstanceFromMediaType(MediaType mediaType) {
         if (mediaType == null) {
             return null;
         }
 
         return mediaTypeCache.get(MediaTypeHelper.getKey(mediaType));
-    }
+    }*/
 
     public void registerInstance(T clazz) {
         Assert.notNull(clazz, "Missing class instance!");
@@ -76,7 +76,7 @@ public abstract class ClassCache<T> {
         instanceCache.put(name, clazz);
     }
 
-    protected void registerInstanceByMediaType(String mediaType, T clazz) {
+  /*  protected void registerInstanceByMediaType(String mediaType, T clazz) {
 
         MediaType type = MediaTypeHelper.valueOf(mediaType);
         registerInstanceByMediaType(type, clazz);
@@ -95,16 +95,16 @@ public abstract class ClassCache<T> {
 
         MediaType type = MediaTypeHelper.valueOf(mediaType);
         registerInstanceByMediaType(type, clazz);
-    }
+    }*/
 
-    protected void registerInstanceByMediaType(MediaType mediaType, Class<? extends T> clazz) {
+   /* protected void registerInstanceByMediaType(MediaType mediaType, Class<? extends T> clazz) {
 
         Assert.notNull(mediaType, "Missing media type!");
         Assert.notNull(clazz, "Missing media type class!");
 
         String key = MediaTypeHelper.getKey(mediaType);
         mediaTypeCache.put(key, clazz);
-    }
+    }*/
 
     protected void registerTypeByAssociatedType(Class<?> aClass, Class<? extends T> clazz) {
 

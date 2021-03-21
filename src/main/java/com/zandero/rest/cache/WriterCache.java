@@ -12,7 +12,7 @@ import javax.ws.rs.core.*;
 /**
  * Provides definition and caching of response writer implementations
  */
-public class WriterCache extends ClassCache<HttpResponseWriter> {
+public class WriterCache extends MediaTypesClassCache<HttpResponseWriter> {
 
     private final static Logger log = LoggerFactory.getLogger(WriterCache.class);
 
@@ -47,7 +47,7 @@ public class WriterCache extends ClassCache<HttpResponseWriter> {
             MediaType[] produces = MediaTypeHelper.getMediaTypes(found.value());
             if (produces != null && produces.length > 0) {
                 for (MediaType type : produces) {
-                    super.registerInstanceByMediaType(type, writer);
+                    super.registerTypeByMediaType(type, writer);
                 }
                 registered = true;
             }
@@ -119,7 +119,7 @@ public class WriterCache extends ClassCache<HttpResponseWriter> {
         Assert.notNull(clazz, "Missing response writer!");
 
         log.info("Registering '" + MediaTypeHelper.toString(mediaType) + "' writer '" + clazz.getName() + "'");
-        super.registerInstanceByMediaType(mediaType, clazz);
+        super.registerTypeByMediaType(mediaType, clazz);
     }
 
     public void register(MediaType mediaType, HttpResponseWriter clazz) {

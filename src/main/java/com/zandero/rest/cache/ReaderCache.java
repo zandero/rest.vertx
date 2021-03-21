@@ -14,7 +14,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * Provides definition and caching of request body reader implementations
  */
-public class ReaderCache extends ClassCache<ValueReader> {
+public class ReaderCache extends MediaTypesClassCache<ValueReader> {
 
     private final static Logger log = LoggerFactory.getLogger(ReaderCache.class);
 
@@ -107,8 +107,6 @@ public class ReaderCache extends ClassCache<ValueReader> {
             registered = true;
         }
 
-        //register(reader.gereader);
-
         Assert.isTrue(registered,
                       "Failed to register reader: '" + reader.getName() + "', missing @Consumes annotation!");
     }
@@ -178,7 +176,7 @@ public class ReaderCache extends ClassCache<ValueReader> {
         Assert.notNull(clazz, "Missing value reader!");
 
         log.info("Registering '" + MediaTypeHelper.toString(mediaType) + "' reader '" + clazz.getName() + "'");
-        super.registerInstanceByMediaType(mediaType, clazz);
+        super.registerTypeByMediaType(mediaType, clazz);
     }
 
     public void register(MediaType mediaType, ValueReader clazz) {

@@ -39,7 +39,7 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
                                                                                  ContextException {
 
 
-        return (ContextProvider) ClassFactory.get(clazzType, this, aClass, provider, context, null);
+        return (ContextProvider) ClassFactory.get(clazzType, this, aClass, provider, context);
     }
 
     public void register(Class<?> aClass, Class<? extends ContextProvider> clazz) {

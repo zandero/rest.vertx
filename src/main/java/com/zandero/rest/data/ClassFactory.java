@@ -55,7 +55,7 @@ public class ClassFactory {
         return instance;
     }
 
-    public static Object getClassInstanceByName(Class<?> clazz,
+   /* public static Object getClassInstanceByName(Class<?> clazz,
                                                 String name,
                                                 ClassCache classCache,
                                                 InjectionProvider provider,
@@ -84,7 +84,7 @@ public class ClassFactory {
         }
 
         return instance;
-    }
+    }*/
 
     // TODO: improve with additional context provider
     public static Object newInstanceOf(Class<?> clazz,
@@ -244,7 +244,7 @@ public class ClassFactory {
 
     // TODO : move media type specific into a new class that Reader, Writer factory derives from
     public static Object get(Class<?> type,
-                             ClassCache classCache,
+                             MediaTypesClassCache classCache,
                              Class<?> byDefinition,
                              InjectionProvider provider,
                              RoutingContext routeContext,
@@ -278,29 +278,36 @@ public class ClassFactory {
         return classCache.getInstanceByName(type.getName());
     }
 
-    public static Object get(String mediaType,
+    public static Object get(Class<?> type,
                              ClassCache classCache,
+                             Class<?> byDefinition,
+                             InjectionProvider provider,
+                             RoutingContext routeContext) throws ClassFactoryException,
+                                                                ContextException {
+
+        Class<?> clazz = byDefinition;
+
+        // No class defined ... try by type
+        if (clazz == null) {
+            clazz = classCache.getInstanceFromType(type);
+        }
+
+        if (clazz != null) {
+            return getClassInstance(clazz, classCache, provider, routeContext);
+        }
+
+        // 3. find cached instance ... if any
+        return classCache.getInstanceByName(type.getName());
+    }
+
+    public static Object get(String mediaType,
+                             MediaTypesClassCache classCache,
                              RoutingContext routeContext) throws ClassFactoryException,
                                                                      ContextException {
 
         Class<?> clazz = classCache.getInstanceFromMediaType(MediaTypeHelper.valueOf(mediaType));
         return getClassInstance(clazz, classCache, null, routeContext);
     }
-
-    /*public Class<? extends T> get(Class<?> type) {
-
-        if (type == null) {
-            return null;
-        }
-        // try to find appropriate class if mapped (by type)
-        for (Class<?> key : classTypes.keySet()) {
-            if (key.isInstance(type) || key.isAssignableFrom(type)) {
-                return classTypes.get(key);
-            }
-        }
-
-        return null;
-    }*/
 
     /**
      * Aims to construct given type utilizing a constructor that takes String or other primitive type values
