@@ -4,9 +4,7 @@ import com.zandero.rest.authentication.RestAuthenticationProvider;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
-import io.vertx.ext.auth.authentication.AuthenticationProvider;
 import io.vertx.ext.web.RoutingContext;
-import org.slf4j.*;
 
 public class AuthenticationProvidersCache extends ClassCache<RestAuthenticationProvider> {
 
@@ -24,7 +22,7 @@ public class AuthenticationProvidersCache extends ClassCache<RestAuthenticationP
     }
 
     public void register(Class<?> aClass, Class<? extends RestAuthenticationProvider> clazz) {
-        super.registerTypeByAssociatedType(aClass, clazz);
+        super.registerAssociatedType(aClass, clazz);
     }
 
     public void register(Class<?> aClass, RestAuthenticationProvider instance) {

@@ -56,7 +56,14 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
                 Type type = getGenericType(handler);
                 if (checkIfCompatibleType(aClass, type)) {
                     found = handler;
+
                     log.info("Found matching exception handler: " + found.getName());
+                    ExceptionHandler cached = getInstanceByType(found);
+                    if (cached != null) {
+                        log.trace("Using cached exception handler: " + cached.getClass().getName());
+                        return cached;
+                    }
+
                     break;
                 }
             }
@@ -64,8 +71,13 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
 
         // get by exception type from classTypes list
         if (found == null) {
-            found = getInstanceFromType(aClass);
 
+            ExceptionHandler cached = getInstanceByAssociatedType(aClass);
+            if (cached != null) {
+                return cached;
+            }
+
+            found = getAssociatedType(aClass);
             if (found != null) {
                 log.info("Found matching class type exception handler: " + found.getName());
             }
@@ -97,10 +109,8 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
 
             checkIfAlreadyRegistered((Class) type);
 
-            typeCache.put((Class) type, handler);
-
             // cache instance by handler class type
-            super.registerTypeByAssociatedType((Class<?>) type, handler);
+            super.registerAssociatedType((Class<?>) type, handler);
         }
     }
 
@@ -119,17 +129,17 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
             checkIfAlreadyRegistered((Class) generic);
 
             // register
-            typeCache.put((Class) generic, handler.getClass());
+            //associatedTypeMap.put((Class) generic, handler.getClass());
 
             // cache instance by handler class type
-            super.registerInstance(handler);
+            super.registerInstanceByAssociatedType((Class) generic, handler);
         }
     }
 
     private void checkIfAlreadyRegistered(Class<?> clazz) {
 
         // check if already registered
-        Class<? extends ExceptionHandler> found = typeCache.get(clazz);
+        Class<? extends ExceptionHandler> found = associatedTypeMap.get(clazz);
         if (found != null) {
             throw new IllegalArgumentException("Exception handler for: " + clazz.getName() + " already registered with: " + found.getName());
         }

@@ -27,7 +27,7 @@ public class ReaderCache extends MediaTypesClassCache<ValueReader> {
 
         super.clear();
 
-        typeCache.put(String.class, GenericValueReader.class);
+        associatedTypeMap.put(String.class, GenericValueReader.class);
 
         // pre fill with most generic implementation
         mediaTypeCache.put(MediaType.APPLICATION_JSON, JsonValueReader.class);
@@ -140,7 +140,7 @@ public class ReaderCache extends MediaTypesClassCache<ValueReader> {
         Assert.notNull(reader, "Missing request reader type class!");
 
         log.info("Registering '" + clazz.getName() + "' reader '" + reader.getName() + "'");
-        super.registerTypeByAssociatedType(clazz, reader);
+        super.registerAssociatedType(clazz, reader);
     }
 
     public void register(Class<?> clazz, ValueReader reader) {

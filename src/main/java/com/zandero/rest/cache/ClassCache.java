@@ -1,9 +1,7 @@
 package com.zandero.rest.cache;
 
-import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.utils.Assert;
 
-import javax.ws.rs.core.MediaType;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -16,97 +14,98 @@ public abstract class ClassCache<T> {
 
     /**
      * Cache of class instances
+     * Map of class(A)->name / class(A)->instance
      */
     protected final Map<String, T> instanceCache = new HashMap<>();
 
     /**
      * map of class associated with class type (to be instantiated)
+     * once instantiated it is put into instanceCache
+     * Map of class(B)->name -> class(A)->name
      */
-    protected Map<Class<?>, Class<? extends T>> typeCache = new LinkedHashMap<>();
-
-    /**
-     * map of media type associated with class type (to be instantiated)
-     *//*
-    protected Map<String, Class<? extends T>> mediaTypeCache = new LinkedHashMap<>();*/
+    protected Map<Class<?>, Class<? extends T>> associatedTypeMap = new LinkedHashMap<>();
 
     public void clear() {
         instanceCache.clear();
-        typeCache.clear();
-        //mediaTypeCache.clear();
+        associatedTypeMap.clear();
     }
 
+    /**
+     * Find instance by name / key
+     *
+     * @param name to be found
+     * @return found instance or null if not found
+     */
     public T getInstanceByName(String name) {
+        Assert.notNull(name, "Missing instance name!");
         return instanceCache.get(name);
     }
 
+    /**
+     * Find instance by type name / class name
+     *
+     * @param clazz to find cache instance for
+     * @return found instance or null if not found
+     */
     public T getInstanceByType(Class<? extends T> clazz) {
+        Assert.notNull(clazz, "Missing class!");
         return instanceCache.get(clazz.getName());
     }
 
-    public Class<? extends T> getInstanceFromType(Class<?> type) {
+    /**
+     * Tries to find registered class by associated type
+     * @param type associated
+     * @return found class instance or null if not found
+     */
+    public T getInstanceByAssociatedType(Class<?> type) {
+        Class<? extends T> found = getAssociatedType(type);
+        if (found != null) { // is registered ... try finding instnce
+            return getInstanceByType(found);
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns found type from typeCache if it was registered
+     *
+     * @param type to search for
+     * @return found type or null if none registered
+     */
+    public Class<? extends T> getAssociatedType(Class<?> type) {
         if (type == null) {
             return null;
         }
         // try to find appropriate class if mapped (by type)
-        for (Class<?> key : typeCache.keySet()) {
+        for (Class<?> key : associatedTypeMap.keySet()) {
             if (key.isInstance(type) || key.isAssignableFrom(type)) {
-                return typeCache.get(key);
+                return associatedTypeMap.get(key);
             }
         }
 
         return null;
     }
 
-    /*public Class<? extends T> getInstanceFromMediaType(MediaType mediaType) {
-        if (mediaType == null) {
-            return null;
-        }
-
-        return mediaTypeCache.get(MediaTypeHelper.getKey(mediaType));
-    }*/
-
+    /**
+     * Registers an instance of a class for this class (key = class itself)
+     *
+     * @param clazz instance
+     */
     public void registerInstance(T clazz) {
         Assert.notNull(clazz, "Missing class instance!");
+
+        // also register type
         instanceCache.put(clazz.getClass().getName(), clazz);
     }
 
-    public void registerInstanceByName(String name, T clazz) {
-        Assert.notNull(name, "Missing instance name!");
-        Assert.notNull(clazz, "Missing class instance!");
-        instanceCache.put(name, clazz);
-    }
 
-  /*  protected void registerInstanceByMediaType(String mediaType, T clazz) {
-
-        MediaType type = MediaTypeHelper.valueOf(mediaType);
-        registerInstanceByMediaType(type, clazz);
-    }
-
-    protected void registerInstanceByMediaType(MediaType mediaType, T clazz) {
-
-        Assert.notNull(mediaType, "Missing media type!");
-        Assert.notNull(clazz, "Missing media type class instance!");
-
-        String key = MediaTypeHelper.getKey(mediaType);
-        instanceCache.put(key, clazz);
-    }
-
-    protected void registerTypeByMediaType(String mediaType, Class<? extends T> clazz) {
-
-        MediaType type = MediaTypeHelper.valueOf(mediaType);
-        registerInstanceByMediaType(type, clazz);
-    }*/
-
-   /* protected void registerInstanceByMediaType(MediaType mediaType, Class<? extends T> clazz) {
-
-        Assert.notNull(mediaType, "Missing media type!");
-        Assert.notNull(clazz, "Missing media type class!");
-
-        String key = MediaTypeHelper.getKey(mediaType);
-        mediaTypeCache.put(key, clazz);
-    }*/
-
-    protected void registerTypeByAssociatedType(Class<?> aClass, Class<? extends T> clazz) {
+    /**
+     * Registers type associated with a type
+     *
+     * @param aClass key
+     * @param clazz  associated type
+     */
+    public void registerAssociatedType(Class<?> aClass, Class<? extends T> clazz) {
 
         Assert.notNull(aClass, "Missing associated class!");
         Assert.notNull(clazz, "Missing response type class!");
@@ -116,21 +115,29 @@ public abstract class ClassCache<T> {
             checkIfCompatibleType(aClass, expected, "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + clazz + "'!");
         }
 
-        typeCache.put(aClass, clazz);
+        associatedTypeMap.put(aClass, clazz);
     }
 
-    protected void registerInstanceByAssociatedType(Class<?> aClass, T instance) {
+    /**
+     * Registers type with instance
+     *
+     * @param aClass   key
+     * @param instance of associated type
+     */
+    public void registerInstanceByAssociatedType(Class<?> aClass, T instance) {
 
         Assert.notNull(aClass, "Missing associated class!");
         Assert.notNull(instance, "Missing instance of class!");
 
-        if (checkCompatibility(instance.getClass())) {
+       /* if (checkCompatibility(instance.getClass())) {
             Type expected = getGenericType(instance.getClass());
             checkIfCompatibleType(aClass,
                                   expected,
                                   "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + instance.getClass() + "'!");
-        }
+        }*/
 
-        instanceCache.put(aClass.getName(), instance);
+        // also register type
+        associatedTypeMap.put(aClass, (Class<? extends T>) instance.getClass());
+        instanceCache.put(instance.getClass().getName(), instance);
     }
 }

@@ -48,7 +48,7 @@ public class ClassFactory {
             instance = newInstanceOf(clazz, provider, context);
 
             if (!hasContext && cacheIt) { // no context .. we can cache this instance
-                classCache.registerInstance(instance);
+                classCache.registerInstanceByAssociatedType(clazz, instance);
             }
         }
 
@@ -255,7 +255,7 @@ public class ClassFactory {
 
         // No class defined ... try by type
         if (clazz == null) {
-            clazz = classCache.getInstanceFromType(type);
+            clazz = classCache.getAssociatedType(type);
         }
 
         // try with media type ...
@@ -289,7 +289,7 @@ public class ClassFactory {
 
         // No class defined ... try by type
         if (clazz == null) {
-            clazz = classCache.getInstanceFromType(type);
+            clazz = classCache.getAssociatedType(type);
         }
 
         if (clazz != null) {

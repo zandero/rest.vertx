@@ -5,7 +5,6 @@ import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
 import io.vertx.ext.auth.authorization.AuthorizationProvider;
 import io.vertx.ext.web.RoutingContext;
-import org.slf4j.*;
 
 public class AuthorizationProvidersCache extends ClassCache<AuthorizationProvider> {
 
@@ -23,7 +22,7 @@ public class AuthorizationProvidersCache extends ClassCache<AuthorizationProvide
     }
 
     public void register(Class<?> aClass, Class<? extends AuthorizationProvider> clazz) {
-        super.registerTypeByAssociatedType(aClass, clazz);
+        super.registerAssociatedType(aClass, clazz);
     }
 
     public void register(Class<?> aClass, AuthorizationProvider instance) {

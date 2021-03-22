@@ -28,8 +28,8 @@ public class WriterCache extends MediaTypesClassCache<HttpResponseWriter> {
 
         super.clear();
 
-        typeCache.put(Response.class, JaxResponseWriter.class);
-        typeCache.put(HttpServerResponse.class, VertxResponseWriter.class);
+        associatedTypeMap.put(Response.class, JaxResponseWriter.class);
+        associatedTypeMap.put(HttpServerResponse.class, VertxResponseWriter.class);
 
         mediaTypeCache.put(MediaType.APPLICATION_JSON, JsonResponseWriter.class);
         //registerInstanceByMediaType(MediaType.TEXT_HTML, GenericResponseWriter.class);
@@ -91,7 +91,7 @@ public class WriterCache extends MediaTypesClassCache<HttpResponseWriter> {
         Assert.notNull(aClass, "Missing response writer type class!");
 
         log.info("Registering '" + aClass.getName() + "' writer '" + clazz.getName() + "'");
-        super.registerTypeByAssociatedType(aClass, clazz);
+        super.registerAssociatedType(aClass, clazz);
     }
 
     public void register(Class<?> aClass, HttpResponseWriter clazz) {

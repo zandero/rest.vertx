@@ -43,7 +43,7 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
     }
 
     public void register(Class<?> aClass, Class<? extends ContextProvider> clazz) {
-        super.registerTypeByAssociatedType(aClass, clazz);
+        super.registerAssociatedType(aClass, clazz);
     }
 
     public void register(Class<?> aClass, ContextProvider instance) {
