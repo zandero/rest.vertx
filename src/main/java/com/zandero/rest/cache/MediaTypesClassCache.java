@@ -1,7 +1,10 @@
 package com.zandero.rest.cache;
 
-import com.zandero.rest.data.MediaTypeHelper;
+import com.zandero.rest.data.*;
+import com.zandero.rest.exception.*;
+import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.Assert;
+import io.vertx.ext.web.RoutingContext;
 
 import javax.ws.rs.core.MediaType;
 import java.util.*;
@@ -30,12 +33,13 @@ public abstract class MediaTypesClassCache<T> extends ClassCache<T> {
 
     /**
      * Tries to find registered class by associated type
+     *
      * @param mediaType associated media type
      * @return found class instance or null if not found
      */
     public T getInstanceByAssociatedMediaType(MediaType mediaType) {
         Class<? extends T> found = getAssociatedTypeFromMediaType(mediaType);
-        if (found != null) { // is registered ... try finding instnce
+        if (found != null) { // is registered ... try finding instance
             return getInstanceByType(found);
         }
 
@@ -72,5 +76,48 @@ public abstract class MediaTypesClassCache<T> extends ClassCache<T> {
 
         MediaType type = MediaTypeHelper.valueOf(mediaType);
         registerAssociatedTypeByMediaType(type, clazz);
+    }
+
+    public T get(Class<?> type,
+                 Class<?> byDefinition,
+                 InjectionProvider provider,
+                 RoutingContext routeContext,
+                 MediaType[] mediaTypes) throws ClassFactoryException,
+                                                    ContextException {
+
+        Class<?> clazz = byDefinition;
+
+        // No class defined ... try by type
+        if (clazz == null) {
+            T writer = getInstanceByAssociatedType(type);
+            if (writer != null) {
+                return writer;
+            }
+
+            clazz = getAssociatedType(type);
+        }
+
+        // try with media type ...
+        if (clazz == null && mediaTypes != null && mediaTypes.length > 0) {
+
+            for (MediaType mediaType : mediaTypes) {
+                T writer = getInstanceByAssociatedMediaType(mediaType);
+                if (writer != null) {
+                    return writer;
+                }
+
+                clazz = getAssociatedTypeFromMediaType(mediaType);
+                if (clazz != null) {
+                    break;
+                }
+            }
+        }
+
+        if (clazz != null) {
+            return (T) ClassFactory.getClassInstance(clazz, this, provider, routeContext);
+        }
+
+        // 3. find cached instance ... if any
+        return null;//getInstanceByName(type.getName());
     }
 }

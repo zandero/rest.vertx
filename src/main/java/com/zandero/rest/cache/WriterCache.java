@@ -1,9 +1,12 @@
 package com.zandero.rest.cache;
 
-import com.zandero.rest.data.MediaTypeHelper;
+import com.zandero.rest.data.*;
+import com.zandero.rest.exception.*;
+import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.writer.*;
 import com.zandero.utils.Assert;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
 import javax.ws.rs.Produces;
@@ -17,11 +20,8 @@ public class WriterCache extends MediaTypesClassCache<HttpResponseWriter> {
     private final static Logger log = LoggerFactory.getLogger(WriterCache.class);
 
     public WriterCache() {
-        // default writers
         clear();
     }
-
-    //private final GenericResponseWriter genericResponseWriter = new GenericResponseWriter(this);
 
     @Override
     public void clear() {
@@ -38,10 +38,6 @@ public class WriterCache extends MediaTypesClassCache<HttpResponseWriter> {
         associatedMediaTypeMap.put(MediaType.TEXT_PLAIN, PlainResponseWriter.class);
         associatedMediaTypeMap.put(MediaType.WILDCARD, PlainResponseWriter.class);
     }
-
-    /*public HttpResponseWriter getGenericWriter() {
-        return genericResponseWriter;
-    }*/
 
     public void register(Class<? extends HttpResponseWriter> writer) {
 

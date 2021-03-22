@@ -59,7 +59,7 @@ public abstract class ClassCache<T> {
      */
     public T getInstanceByAssociatedType(Class<?> type) {
         Class<? extends T> found = getAssociatedType(type);
-        if (found != null) { // is registered ... try finding instnce
+        if (found != null) { // is registered ... try finding instance
             return getInstanceByType(found);
         }
 

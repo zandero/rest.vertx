@@ -243,6 +243,7 @@ public class ClassFactory {
     }
 
     // TODO : move media type specific into a new class that Reader, Writer factory derives from
+    @Deprecated
     public static Object get(Class<?> type,
                              MediaTypesClassCache classCache,
                              Class<?> byDefinition,
