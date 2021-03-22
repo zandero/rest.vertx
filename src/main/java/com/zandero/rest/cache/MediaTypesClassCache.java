@@ -10,50 +10,67 @@ public abstract class MediaTypesClassCache<T> extends ClassCache<T> {
 
     /**
      * map of media type associated with class type (to be instantiated)
+     * Map of mediaType(X) -> class(A)->name
      */
-    protected Map<String, Class<? extends T>> mediaTypeCache = new LinkedHashMap<>();
+    protected Map<String, Class<? extends T>> associatedMediaTypeMap = new LinkedHashMap<>();
 
     @Override
     public void clear() {
         super.clear();
-        mediaTypeCache.clear();
+        associatedMediaTypeMap.clear();
     }
 
-    public Class<? extends T> getInstanceFromMediaType(MediaType mediaType) {
+    public Class<? extends T> getAssociatedTypeFromMediaType(MediaType mediaType) {
         if (mediaType == null) {
             return null;
         }
 
-        return mediaTypeCache.get(MediaTypeHelper.getKey(mediaType));
+        return associatedMediaTypeMap.get(MediaTypeHelper.getKey(mediaType));
     }
 
-    protected void registerInstanceByMediaType(MediaType mediaType, T clazz) {
+    /**
+     * Tries to find registered class by associated type
+     * @param mediaType associated media type
+     * @return found class instance or null if not found
+     */
+    public T getInstanceByAssociatedMediaType(MediaType mediaType) {
+        Class<? extends T> found = getAssociatedTypeFromMediaType(mediaType);
+        if (found != null) { // is registered ... try finding instnce
+            return getInstanceByType(found);
+        }
+
+        return null;
+    }
+
+
+    protected void registerInstanceByAssociatedMediaType(MediaType mediaType, T clazz) {
 
         Assert.notNull(mediaType, "Missing media type!");
         Assert.notNull(clazz, "Missing media type class instance!");
 
         String key = MediaTypeHelper.getKey(mediaType);
-        instanceCache.put(key, clazz);
+        associatedMediaTypeMap.put(key, (Class<? extends T>) clazz.getClass());
+        registerInstance(clazz);
     }
 
-    protected void registerInstanceByMediaType(String mediaType, T clazz) {
+    protected void registerInstanceByAssociatedMediaType(String mediaType, T clazz) {
 
         MediaType type = MediaTypeHelper.valueOf(mediaType);
-        registerInstanceByMediaType(type, clazz);
+        registerInstanceByAssociatedMediaType(type, clazz);
     }
-    
-    protected void registerTypeByMediaType(MediaType mediaType, Class<? extends T> clazz) {
+
+    protected void registerAssociatedTypeByMediaType(MediaType mediaType, Class<? extends T> clazz) {
 
         Assert.notNull(mediaType, "Missing media type!");
         Assert.notNull(clazz, "Missing media type class!");
 
         String key = MediaTypeHelper.getKey(mediaType);
-        mediaTypeCache.put(key, clazz);
+        associatedMediaTypeMap.put(key, clazz);
     }
 
-    protected void registerTypeByMediaType(String mediaType, Class<? extends T> clazz) {
+    protected void registerAssociatedTypeByMediaType(String mediaType, Class<? extends T> clazz) {
 
         MediaType type = MediaTypeHelper.valueOf(mediaType);
-        registerTypeByMediaType(type, clazz);
+        registerAssociatedTypeByMediaType(type, clazz);
     }
 }

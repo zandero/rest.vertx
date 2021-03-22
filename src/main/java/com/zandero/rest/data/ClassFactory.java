@@ -262,7 +262,7 @@ public class ClassFactory {
         if (clazz == null && mediaTypes != null && mediaTypes.length > 0) {
 
             for (MediaType mediaType : mediaTypes) {
-                clazz = classCache.getInstanceFromMediaType(mediaType);
+                clazz = classCache.getAssociatedTypeFromMediaType(mediaType);
 
                 if (clazz != null) {
                     break;
@@ -305,7 +305,7 @@ public class ClassFactory {
                              RoutingContext routeContext) throws ClassFactoryException,
                                                                      ContextException {
 
-        Class<?> clazz = classCache.getInstanceFromMediaType(MediaTypeHelper.valueOf(mediaType));
+        Class<?> clazz = classCache.getAssociatedTypeFromMediaType(MediaTypeHelper.valueOf(mediaType));
         return getClassInstance(clazz, classCache, null, routeContext);
     }
 
