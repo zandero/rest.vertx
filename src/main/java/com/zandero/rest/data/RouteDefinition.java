@@ -23,7 +23,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.zandero.rest.data.ClassUtils.*;
+import static com.zandero.rest.provisioning.ClassUtils.*;
 
 /**
  * Holds definition of a route as defined with annotations

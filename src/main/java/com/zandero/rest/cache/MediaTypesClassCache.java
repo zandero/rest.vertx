@@ -52,7 +52,7 @@ public abstract class MediaTypesClassCache<T> extends ClassCache<T> {
     }
 
 
-    protected void registerInstanceByAssociatedMediaType(MediaType mediaType, T clazz) {
+    public void registerInstanceByAssociatedMediaType(MediaType mediaType, T clazz) {
 
         Assert.notNull(mediaType, "Missing media type!");
         Assert.notNull(clazz, "Missing media type class instance!");
@@ -62,7 +62,7 @@ public abstract class MediaTypesClassCache<T> extends ClassCache<T> {
         registerInstance(clazz);
     }
 
-    protected void registerInstanceByAssociatedMediaType(String mediaType, T clazz) {
+    public void registerInstanceByAssociatedMediaType(String mediaType, T clazz) {
 
         MediaType type = MediaTypeHelper.valueOf(mediaType);
         registerInstanceByAssociatedMediaType(type, clazz);
@@ -83,6 +83,7 @@ public abstract class MediaTypesClassCache<T> extends ClassCache<T> {
         registerAssociatedTypeByMediaType(type, clazz);
     }
 
+    @Deprecated
     public T get(Class<?> type,
                  Class<?> byDefinition,
                  InjectionProvider provider,
@@ -117,11 +118,6 @@ public abstract class MediaTypesClassCache<T> extends ClassCache<T> {
             }
         }
 
-        if (clazz != null) {
-            return (T) ClassProducer.getClassInstance(clazz, this, provider, routeContext);
-        }
-
-        // 3. find cached instance ... if any
-        return null;//getInstanceByName(type.getName());
+        return (T) ClassProducer.getClassInstance(clazz, this, provider, routeContext);
     }
 }

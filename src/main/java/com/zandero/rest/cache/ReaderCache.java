@@ -138,6 +138,7 @@ public class ReaderCache extends MediaTypesClassCache<ValueReader> {
     }
 
 
+    @Deprecated
     public ValueReader get(MethodParameter parameter,
                            InjectionProvider provider,
                            RoutingContext context,
@@ -156,6 +157,7 @@ public class ReaderCache extends MediaTypesClassCache<ValueReader> {
      * @param mediaTypes         check by consumes annotation
      * @return found reader or GenericBodyReader
      */
+    @Deprecated
     public ValueReader get(MethodParameter parameter,
                            Class<? extends ValueReader> byMethodDefinition,
                            InjectionProvider provider,

@@ -1,5 +1,6 @@
 package com.zandero.rest.data;
 
+import com.zandero.rest.RestRouter;
 import com.zandero.rest.bean.BeanProvider;
 import com.zandero.rest.cache.*;
 import com.zandero.rest.context.ContextProvider;
@@ -82,7 +83,8 @@ public class ArgumentProvider {
                         case context:
 
                             // check if providers need to be called to assure context
-                            ContextProvider provider = (ContextProvider) ClassFactory.get(dataType, providerFactory, parameter.getContextProvider(), injectionProvider, context);
+                            ContextProvider provider = providerFactory.getContextProvider(injectionProvider, dataType, parameter.getContextProvider(), context);
+                                                           //ClassFactory.get(dataType, providerFactory, parameter.getContextProvider(), injectionProvider, context);
                             if (provider != null) {
                                 Object result = provider.provide(context.request());
                                 if (result != null) {

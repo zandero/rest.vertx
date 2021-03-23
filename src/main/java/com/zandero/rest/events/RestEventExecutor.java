@@ -4,12 +4,13 @@ import com.zandero.rest.annotation.Event;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.rest.provisioning.ClassFactory;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
 import java.lang.reflect.Type;
 
-import static com.zandero.rest.data.ClassUtils.*;
+import static com.zandero.rest.provisioning.ClassUtils.*;
 
 /**
  *

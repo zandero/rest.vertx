@@ -1,13 +1,12 @@
 package com.zandero.rest.cache;
 
-import com.zandero.rest.data.ClassFactory;
 import com.zandero.utils.Assert;
 import org.slf4j.*;
 
 import java.lang.reflect.Type;
 import java.util.*;
 
-import static com.zandero.rest.data.ClassUtils.*;
+import static com.zandero.rest.provisioning.ClassUtils.*;
 
 /**
  * Base class to cache class instances by name, type, media type ...

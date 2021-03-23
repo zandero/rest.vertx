@@ -1,4 +1,4 @@
-package com.zandero.rest.data;
+package com.zandero.rest.provisioning;
 
 import com.zandero.rest.annotation.SuppressCheck;
 import com.zandero.rest.exception.ClassFactoryException;
@@ -62,7 +62,7 @@ public final class ClassUtils {
         return null;
     }
 
-    static boolean checkIfCompatibleTypes(Class<?> expected, Type... actual) {
+    public static boolean checkIfCompatibleTypes(Class<?> expected, Type... actual) {
 
         for (Type item : actual) {
             if (checkIfCompatibleType(expected, item)) {

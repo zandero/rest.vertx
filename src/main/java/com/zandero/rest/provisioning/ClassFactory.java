@@ -1,60 +1,29 @@
-package com.zandero.rest.data;
+package com.zandero.rest.provisioning;
 
-import com.zandero.rest.annotation.*;
+import com.zandero.rest.annotation.SuppressCheck;
 import com.zandero.rest.bean.BeanDefinition;
-import com.zandero.rest.cache.*;
+import com.zandero.rest.cache.ContextProviderCache;
+import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.utils.*;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
-import javax.ws.rs.core.MediaType;
 import java.lang.reflect.*;
 import java.util.*;
 
-import static com.zandero.rest.data.ClassUtils.*;
+import static com.zandero.rest.provisioning.ClassUtils.*;
 
 /**
  * A class factory utility
+ * Takes care of object instance creation from class types
  */
 public class ClassFactory {
 
     private final static Logger log = LoggerFactory.getLogger(ClassFactory.class);
 
     private static final Set<String> INJECTION_ANNOTATIONS = ArrayUtils.toSet("Inject", "Injection", "InjectionProvider");
-
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    public static Object getClassInstance(Class<?> clazz,
-                                          ClassCache classCache,
-                                          InjectionProvider provider,
-                                          RoutingContext context) throws ClassFactoryException, ContextException {
-
-        if (clazz == null) {
-            return null;
-        }
-
-        // only use cache if no @Context is needed (TODO: join this two calls into one!)
-        boolean hasContext = ContextProviderCache.hasContext(clazz); // TODO: move this method somewhere else
-        boolean cacheIt = clazz.getAnnotation(NoCache.class) == null; // caching disabled / enabled
-
-        Object instance = null;
-        if (!hasContext && cacheIt) { // no Context ... we can get it from cache
-            instance = classCache.getInstanceByType(clazz);
-        }
-
-        if (instance == null) {
-
-            instance = newInstanceOf(clazz, provider, context);
-
-            if (!hasContext && cacheIt) { // no context .. we can cache this instance
-                classCache.registerInstanceByAssociatedType(clazz, instance);
-            }
-        }
-
-        return instance;
-    }
 
     // TODO: improve with additional context provider
     public static Object newInstanceOf(Class<?> clazz,
@@ -139,7 +108,7 @@ public class ClassFactory {
     }
 
     /**
-     * Creates new instance of object using context as provider for contructor parameters
+     * Creates new instance of object using context as provider for constructor parameters
      *
      * @param constructor to be used
      * @param context     to extract parameters from
@@ -210,76 +179,6 @@ public class ClassFactory {
 
     public static Object newInstanceOf(Class<?> clazz) throws ClassFactoryException {
         return newInstanceOf(clazz, null);
-    }
-
-    // TODO : move media type specific into a new class that Reader, Writer factory derives from
-    @Deprecated
-    public static Object get(Class<?> type,
-                             MediaTypesClassCache classCache,
-                             Class<?> byDefinition,
-                             InjectionProvider provider,
-                             RoutingContext routeContext,
-                             MediaType[] mediaTypes) throws ClassFactoryException,
-                                                                ContextException {
-
-        Class<?> clazz = byDefinition;
-
-        // No class defined ... try by type
-        if (clazz == null) {
-            clazz = classCache.getAssociatedType(type);
-        }
-
-        // try with media type ...
-        if (clazz == null && mediaTypes != null && mediaTypes.length > 0) {
-
-            for (MediaType mediaType : mediaTypes) {
-                clazz = classCache.getAssociatedTypeFromMediaType(mediaType);
-
-                if (clazz != null) {
-                    break;
-                }
-            }
-        }
-
-        if (clazz != null) {
-            return getClassInstance(clazz, classCache, provider, routeContext);
-        }
-
-        // 3. find cached instance ... if any
-        return classCache.getInstanceByName(type.getName());
-    }
-
-    @Deprecated
-    public static Object get(Class<?> type,
-                             ClassCache classCache,
-                             Class<?> byDefinition,
-                             InjectionProvider provider,
-                             RoutingContext routeContext) throws ClassFactoryException,
-                                                                ContextException {
-
-        Class<?> clazz = byDefinition;
-
-        // No class defined ... try by type
-        if (clazz == null) {
-            clazz = classCache.getAssociatedType(type);
-        }
-
-        if (clazz != null) {
-            return getClassInstance(clazz, classCache, provider, routeContext);
-        }
-
-        // 3. find cached instance ... if any
-        return classCache.getInstanceByName(type.getName());
-    }
-
-    @Deprecated
-    public static Object get(String mediaType,
-                             MediaTypesClassCache classCache,
-                             RoutingContext routeContext) throws ClassFactoryException,
-                                                                     ContextException {
-
-        Class<?> clazz = classCache.getAssociatedTypeFromMediaType(MediaTypeHelper.valueOf(mediaType));
-        return getClassInstance(clazz, classCache, null, routeContext);
     }
 
     /**

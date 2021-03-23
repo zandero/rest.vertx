@@ -1,6 +1,6 @@
 package com.zandero.rest.reader;
 
-import com.zandero.rest.data.ClassFactory;
+import com.zandero.rest.provisioning.ClassFactory;
 import com.zandero.rest.exception.ClassFactoryException;
 
 import javax.ws.rs.Consumes;

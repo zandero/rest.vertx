@@ -9,7 +9,7 @@ import com.zandero.rest.data.*;
 import com.zandero.rest.events.RestEventExecutor;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
-import com.zandero.rest.provisioning.ClassProducer;
+import com.zandero.rest.provisioning.*;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.rest.writer.*;
 import com.zandero.utils.Assert;
@@ -27,7 +27,7 @@ import javax.ws.rs.core.MediaType;
 import java.lang.reflect.*;
 import java.util.*;
 
-import static com.zandero.rest.data.ClassUtils.*;
+import static com.zandero.rest.provisioning.ClassUtils.*;
 
 /**
  * Builds up a vert.x route based on JAX-RS annotation provided in given class

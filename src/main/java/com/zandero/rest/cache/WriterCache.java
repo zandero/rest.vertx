@@ -3,6 +3,7 @@ package com.zandero.rest.cache;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.rest.provisioning.ClassFactory;
 import com.zandero.rest.writer.*;
 import com.zandero.utils.Assert;
 import io.vertx.core.http.HttpServerResponse;
@@ -13,7 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
 import java.lang.reflect.Type;
 
-import static com.zandero.rest.data.ClassUtils.*;
+import static com.zandero.rest.provisioning.ClassUtils.*;
 
 /**
  * Provides definition and caching of response writer implementations
@@ -146,6 +147,7 @@ public class WriterCache extends MediaTypesClassCache<HttpResponseWriter> {
      * @param accept       accept media type header
      * @return writer to be used to produce response, or {@link GenericResponseWriter} in case no suitable writer could be found
      */
+    @Deprecated
     protected HttpResponseWriter<?> getResponseWriter(Class<?> returnType,
                                                       RouteDefinition definition,
                                                       InjectionProvider injection,
@@ -174,6 +176,7 @@ public class WriterCache extends MediaTypesClassCache<HttpResponseWriter> {
         }
     }
 
+    @Deprecated
     public HttpResponseWriter<?> getResponseWriter(Class<?> returnType,
                                                    RouteDefinition definition,
                                                    InjectionProvider injection,

@@ -3,13 +3,14 @@ package com.zandero.rest.bean;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.rest.provisioning.ClassFactory;
 import io.vertx.core.cli.impl.ReflectionUtils;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
 import java.lang.reflect.*;
 
-import static com.zandero.rest.data.ClassUtils.*;
+import static com.zandero.rest.provisioning.ClassUtils.*;
 
 /**
  * Create bean of type and fill internal variables from request / context,

@@ -1,6 +1,7 @@
-package com.zandero.rest.data;
+package com.zandero.rest.provisioning;
 
 import com.zandero.rest.exception.ClassFactoryException;
+import com.zandero.rest.provisioning.ClassFactory;
 import com.zandero.rest.test.data.*;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.Pair;
@@ -9,7 +10,7 @@ import io.vertx.ext.web.RoutingContext;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static com.zandero.rest.data.ClassFactory.*;
+import static com.zandero.rest.provisioning.ClassFactory.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -17,8 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  */
 class ClassFactoryTest {
-
-
 
     @Test
     void constructTypeTest() throws ClassFactoryException {

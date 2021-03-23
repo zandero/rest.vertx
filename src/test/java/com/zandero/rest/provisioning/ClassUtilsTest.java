@@ -1,4 +1,4 @@
-package com.zandero.rest.data;
+package com.zandero.rest.provisioning;
 
 import com.zandero.rest.exception.*;
 import com.zandero.rest.reader.*;
@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import javax.ws.rs.*;
 import java.lang.reflect.Type;
 
-import static com.zandero.rest.data.ClassUtils.*;
+import static com.zandero.rest.provisioning.ClassUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ClassUtilsTest {

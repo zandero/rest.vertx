@@ -1,9 +1,10 @@
 package com.zandero.rest.cache;
 
 import com.zandero.rest.context.ContextProvider;
-import com.zandero.rest.data.ClassFactory;
+import com.zandero.rest.provisioning.ClassFactory;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.rest.provisioning.ClassProducer;
 import com.zandero.utils.Assert;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
@@ -32,14 +33,21 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
 
     private static final String CONTEXT_DATA_KEY_PREFIX = "RestRouter-";
 
+    // TODO: check if clazzType and aClass (both are needed in this call)
     public ContextProvider getContextProvider(InjectionProvider provider,
                                               Class clazzType,
                                               Class<? extends ContextProvider> aClass,
                                               RoutingContext context) throws ClassFactoryException,
                                                                                  ContextException {
 
+        Class<?> clazz = aClass;
 
-        return (ContextProvider) ClassFactory.get(clazzType, this, aClass, provider, context);
+        // No class defined ... try by type
+        if (clazz == null) {
+            clazz = this.getAssociatedType(clazzType);
+        }
+
+        return (ContextProvider) ClassProducer.getClassInstance(clazz, this, provider, context);
     }
 
     public void register(Class<?> aClass, Class<? extends ContextProvider> clazz) {

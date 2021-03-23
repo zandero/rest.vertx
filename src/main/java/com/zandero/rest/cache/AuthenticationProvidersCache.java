@@ -1,7 +1,6 @@
 package com.zandero.rest.cache;
 
 import com.zandero.rest.authentication.RestAuthenticationProvider;
-import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.provisioning.ClassProducer;

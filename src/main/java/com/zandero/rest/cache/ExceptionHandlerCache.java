@@ -1,6 +1,5 @@
 package com.zandero.rest.cache;
 
-import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.provisioning.ClassProducer;
@@ -12,7 +11,7 @@ import javax.ws.rs.WebApplicationException;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import static com.zandero.rest.data.ClassUtils.*;
+import static com.zandero.rest.provisioning.ClassUtils.*;
 
 /**
  *
