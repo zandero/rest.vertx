@@ -137,7 +137,7 @@ public class ReaderCache extends MediaTypesClassCache<ValueReader> {
         super.registerInstanceByAssociatedMediaType(mediaType, clazz);
     }
 
-
+/*
     @Deprecated
     public ValueReader get(MethodParameter parameter,
                            InjectionProvider provider,
@@ -147,7 +147,7 @@ public class ReaderCache extends MediaTypesClassCache<ValueReader> {
         return get(parameter, parameter.getReader(), provider, context, mediaTypes);
     }
 
-    /**
+    *//**
      * Step over all possibilities to provide desired reader
      *
      * @param parameter          check parameter if reader is set or we have a type reader present
@@ -156,7 +156,7 @@ public class ReaderCache extends MediaTypesClassCache<ValueReader> {
      * @param context            routing context
      * @param mediaTypes         check by consumes annotation
      * @return found reader or GenericBodyReader
-     */
+     *//*
     @Deprecated
     public ValueReader get(MethodParameter parameter,
                            Class<? extends ValueReader> byMethodDefinition,
@@ -190,5 +190,5 @@ public class ReaderCache extends MediaTypesClassCache<ValueReader> {
                 "Failed inject context into value reader: " + readerType + ", for: " + parameter + ", falling back to GenericBodyReader() instead!");
             return new GenericValueReader();
         }
-    }
+    }*/
 }

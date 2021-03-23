@@ -83,7 +83,7 @@ public abstract class MediaTypesClassCache<T> extends ClassCache<T> {
         registerAssociatedTypeByMediaType(type, clazz);
     }
 
-    @Deprecated
+    /*@Deprecated
     public T get(Class<?> type,
                  Class<?> byDefinition,
                  InjectionProvider provider,
@@ -119,5 +119,5 @@ public abstract class MediaTypesClassCache<T> extends ClassCache<T> {
         }
 
         return (T) ClassProducer.getClassInstance(clazz, this, provider, routeContext);
-    }
+    }*/
 }

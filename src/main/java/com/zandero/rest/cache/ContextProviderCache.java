@@ -33,7 +33,7 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
 
     private static final String CONTEXT_DATA_KEY_PREFIX = "RestRouter-";
 
-    // TODO: check if clazzType and aClass (both are needed in this call)
+    /*// TODO: check if clazzType and aClass (both are needed in this call)
     public ContextProvider getContextProvider(InjectionProvider provider,
                                               Class clazzType,
                                               Class<? extends ContextProvider> aClass,
@@ -49,7 +49,7 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
 
         return (ContextProvider) ClassProducer.getClassInstance(clazz, this, provider, context);
     }
-
+*/
     public void register(Class<?> aClass, Class<? extends ContextProvider> clazz) {
         super.registerAssociatedType(aClass, clazz);
     }

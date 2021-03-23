@@ -6,6 +6,7 @@ import com.zandero.rest.cache.*;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.exception.ContextException;
 import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.rest.provisioning.ClassForge;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.utils.*;
 import com.zandero.utils.extra.UrlUtils;
@@ -31,10 +32,8 @@ public class ArgumentProvider {
     public static Object[] getArguments(Method method,
                                         RouteDefinition definition,
                                         RoutingContext context,
-                                        ReaderCache readers,
-                                        ContextProviderCache providerFactory,
-                                        InjectionProvider injectionProvider,
-                                        BeanProvider beanProvider) throws Throwable {
+                                        BeanProvider beanProvider,
+                                        ClassForge forge) throws Throwable {
 
         Assert.notNull(method, "Missing method to provide arguments for!");
         Assert.notNull(definition, "Missing route definition!");
@@ -74,7 +73,7 @@ public class ArgumentProvider {
                         case bean:
 
                             if (beanProvider != null) {
-                                Object result = beanProvider.provide(dataType, context, injectionProvider);
+                                Object result = beanProvider.provide(dataType, context, forge.getInjectionProvider());
                                 args[parameter.getIndex()] = result;
                             }
 
@@ -83,8 +82,11 @@ public class ArgumentProvider {
                         case context:
 
                             // check if providers need to be called to assure context
-                            ContextProvider provider = providerFactory.getContextProvider(injectionProvider, dataType, parameter.getContextProvider(), context);
-                                                           //ClassFactory.get(dataType, providerFactory, parameter.getContextProvider(), injectionProvider, context);
+                            // TODO: move this to forge
+                            ContextProvider provider = forge.getContextProvider(dataType,
+                                                                                parameter.getContextProvider(),
+                                                                                context);
+
                             if (provider != null) {
                                 Object result = provider.provide(context.request());
                                 if (result != null) {
@@ -92,6 +94,7 @@ public class ArgumentProvider {
                                 }
                             }
 
+                            // TODO: move this to forge
                             args[parameter.getIndex()] = ContextProviderCache.provideContext(method.getParameterTypes()[parameter.getIndex()],
                                                                                              parameter.getDefaultValue(),
                                                                                              context);
@@ -99,7 +102,8 @@ public class ArgumentProvider {
 
                         default:
 
-                            ValueReader valueReader = getValueReader(injectionProvider, parameter, definition, context, readers);
+                            MediaType[] consumes = parameter.isBody() ? definition.getConsumes() : null;
+                            ValueReader valueReader = forge.getValueReader(parameter, context, consumes);
                             args[parameter.getIndex()] = valueReader.read(value, dataType);
                             break;
                     }
@@ -227,17 +231,6 @@ public class ArgumentProvider {
             default:
                 return null;
         }
-    }
-
-    private static ValueReader getValueReader(InjectionProvider provider,
-                                              MethodParameter parameter,
-                                              RouteDefinition definition,
-                                              RoutingContext context,
-                                              ReaderCache readers) {
-
-        // get associated reader set in parameter
-        MediaType[] consumes = parameter.isBody() ? definition.getConsumes() : null;
-        return readers.get(parameter, provider, context, consumes);
     }
 
     /**

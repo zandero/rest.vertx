@@ -25,7 +25,49 @@ public class ClassFactory {
 
     private static final Set<String> INJECTION_ANNOTATIONS = ArrayUtils.toSet("Inject", "Injection", "InjectionProvider");
 
-    // TODO: improve with additional context provider
+    public static Object newInstanceOf(Class<?> clazz, RoutingContext context) throws ClassFactoryException {
+
+        if (clazz == null) {
+            return null;
+        }
+
+        try {
+            for (Constructor<?> c : clazz.getDeclaredConstructors()) {
+                boolean isAccessible = c.isAccessible();
+
+                if (!isAccessible) {
+                    c.setAccessible(true);
+                }
+
+                Object instance;
+                if (c.getParameterCount() == 0) {
+                    // initialize with empty constructor
+                    instance = c.newInstance();
+                } else {
+                    // try to call constructor and provide parameters via context
+                    instance = constructWithContext(c, context);
+                }
+
+                if (!isAccessible) {
+                    c.setAccessible(false);
+                }
+
+                if (instance != null) { // managed to create new object instance ...
+                    return instance;
+                }
+            }
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
+            throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
+        }
+
+        throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", null);
+    }
+
+    public static Object newInstanceOf(Class<?> clazz) throws ClassFactoryException {
+        return newInstanceOf(clazz, null);
+    }
+
     public static Object newInstanceOf(Class<?> clazz,
                                        InjectionProvider provider,
                                        RoutingContext context) throws ClassFactoryException, ContextException {
@@ -42,12 +84,12 @@ public class ClassFactory {
         if (provider == null || (!hasInjection && !canBeInjected)) {
 
             SuppressCheck suppress = clazz.getAnnotation(SuppressCheck.class);
-            if (hasInjection &&
-                    (suppress == null || !INJECTION_ANNOTATIONS.contains(suppress.value()))) {
+            if (hasInjection && (suppress == null || !INJECTION_ANNOTATIONS.contains(suppress.value()))) {
                 log.warn(clazz.getName() + " uses @Inject but no InjectionProvider registered!");
             }
 
             instance = newInstanceOf(clazz, context);
+
         } else {
 
             try {
@@ -68,43 +110,6 @@ public class ClassFactory {
         }
 
         return instance;
-    }
-
-    public static Object newInstanceOf(Class<?> clazz, RoutingContext context) throws ClassFactoryException {
-
-        if (clazz == null) {
-            return null;
-        }
-
-        try {
-            for (Constructor<?> c : clazz.getDeclaredConstructors()) {
-                boolean isAccessible = c.isAccessible();
-
-                if (!isAccessible) {
-                    c.setAccessible(true);
-                }
-                // initialize with empty constructor
-                Object instance;
-                if (c.getParameterCount() == 0) {
-                    instance = c.newInstance();
-                } else {
-                    instance = constructWithContext(c, context);
-                }
-
-                if (!isAccessible) {
-                    c.setAccessible(false);
-                }
-
-                if (instance != null) { // managed to create new object instance ...
-                    return instance;
-                }
-            }
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            log.error("Failed to instantiate class '" + clazz.getName() + "' " + e.getMessage(), e);
-            throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", e);
-        }
-
-        throw new ClassFactoryException("Failed to instantiate class of type: " + clazz.getName() + ", class needs empty constructor!", null);
     }
 
     /**
@@ -175,10 +180,6 @@ public class ClassFactory {
         }
         builder.append(")");
         return builder.toString();
-    }
-
-    public static Object newInstanceOf(Class<?> clazz) throws ClassFactoryException {
-        return newInstanceOf(clazz, null);
     }
 
     /**

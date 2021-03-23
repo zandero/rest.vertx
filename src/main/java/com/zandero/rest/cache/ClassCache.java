@@ -34,17 +34,6 @@ public abstract class ClassCache<T> {
     }
 
     /**
-     * Find instance by name / key
-     *
-     * @param name to be found
-     * @return found instance or null if not found
-     */
-    public T getInstanceByName(String name) {
-        Assert.notNull(name, "Missing instance name!");
-        return instanceCache.get(name);
-    }
-
-    /**
      * Find instance by type name / class name
      *
      * @param clazz to find cache instance for

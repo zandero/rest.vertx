@@ -196,7 +196,7 @@ public class RestRouter {
 
     private static void checkWriterCompatibility(RouteDefinition definition) {
         try { // no way to know the accept content at this point
-            forge.getWriters().getResponseWriter(definition.getReturnType(), definition, forge.getInjectionProvider(), null);
+            forge.getResponseWriter(definition.getReturnType(), definition, null);
         } catch (ClassFactoryException e) {
             // ignoring instance creation ... but leaving Illegal argument exceptions to pass
         }
@@ -206,10 +206,9 @@ public class RestRouter {
 
         try {
             Class<?> clazz = (Class<?>) getGenericType(provider);
-            ContextProvider<?> instance = getContextProviders().getContextProvider(getInjectionProvider(),
-                                                                                   clazz,
-                                                                                   provider,
-                                                                                   null);
+            ContextProvider<?> instance = forge.getContextProvider(clazz,
+                                                                   provider,
+                                                                   null);
             // set before other routes ...
             output.route().order(ORDER_PROVIDER_HANDLER).handler(getContextHandler(instance));
         } catch (Throwable e) {
@@ -358,7 +357,7 @@ public class RestRouter {
         try {
             Assert.notNull(provider, "Missing authorization provider!");
             Assert.isNull(defaultAuthenticationProvider, "Default authentication provider already defined!");
-            defaultAuthenticationProvider = getAuthenticationProviders().provide(provider, getInjectionProvider(), null);
+            defaultAuthenticationProvider = forge.getAuthenticationProvider(provider, null);
 
         } catch (Throwable e) {
             throw new IllegalArgumentException(e);
@@ -375,7 +374,7 @@ public class RestRouter {
         try {
             Assert.notNull(provider, "Missing authorization provider!");
             Assert.isNull(defaultAuthorizationProvider, "Default authorization provider already defined!");
-            defaultAuthorizationProvider = getAuthorizationProviders().provide(provider, getInjectionProvider(), null);
+            defaultAuthorizationProvider = forge.getAuthorizationProvider(provider, null);
         } catch (Throwable e) {
             throw new IllegalArgumentException(e);
         }
@@ -393,11 +392,10 @@ public class RestRouter {
             return;
         }
 
-        ValueReader<?> bodyReader = getReaders().get(definition.getBodyParameter(),
-                                                     definition.getReader(),
-                                                     getInjectionProvider(),
-                                                     null,
-                                                     definition.getConsumes());
+        ValueReader<?> bodyReader = forge.getValueReader(definition.getBodyParameter(),
+                                                         definition.getReader(),
+                                                         null,
+                                                         definition.getConsumes());
 
         if (bodyReader != null && definition.checkCompatibility()) {
 
@@ -416,7 +414,7 @@ public class RestRouter {
         return context -> {
             try {
                 RestAuthenticationProvider authenticator = authenticatorProviderClass != null ?
-                                                               getAuthenticationProviders().provide(authenticatorProviderClass, getInjectionProvider(), context) :
+                                                               forge.getAuthenticationProvider(authenticatorProviderClass, context) :
                                                                defaultAuthenticationProvider;
 
                 authenticator.authenticate(context, userAsyncResult -> {
@@ -442,7 +440,7 @@ public class RestRouter {
 
             try {
                 AuthorizationProvider provider = providerClass != null ?
-                                                     getAuthorizationProviders().provide(providerClass, getInjectionProvider(), context) :
+                                                     forge.getAuthorizationProvider(providerClass, context) :
                                                      defaultAuthorizationProvider;
 
                 provider.getAuthorizations(context.user(), userAuthorizationResult -> {
@@ -470,10 +468,8 @@ public class RestRouter {
                     Object[] args = ArgumentProvider.getArguments(method,
                                                                   definition,
                                                                   context,
-                                                                  getReaders(),
-                                                                  getContextProviders(),
-                                                                  getInjectionProvider(),
-                                                                  beanProvider);
+                                                                  beanProvider,
+                                                                  forge);
 
                     validate(method, definition, validator, toInvoke, args);
 
@@ -490,10 +486,9 @@ public class RestRouter {
 
                         Class returnType = result != null ? result.getClass() : definition.getReturnType();
 
-                        HttpResponseWriter writer = forge.getWriters().getResponseWriter(returnType,
-                                                                                         definition,
-                                                                                         forge.getInjectionProvider(),
-                                                                                         context);
+                        HttpResponseWriter writer = forge.getResponseWriter(returnType,
+                                                                            definition,
+                                                                            context);
 
                         validateResult(result, method, definition, validator, toInvoke);
                         produceResponse(result, context, definition, writer);
@@ -512,7 +507,12 @@ public class RestRouter {
         return context -> {
 
             try {
-                Object[] args = ArgumentProvider.getArguments(method, definition, context, getReaders(), getContextProviders(), getInjectionProvider(), beanProvider);
+                Object[] args = ArgumentProvider.getArguments(method,
+                                                              definition,
+                                                              context,
+                                                              beanProvider,
+                                                              forge);
+
                 validate(method, definition, validator, toInvoke, args);
 
                 Object result = method.invoke(toInvoke, args);
@@ -536,10 +536,9 @@ public class RestRouter {
 
                                 HttpResponseWriter writer;
                                 if (futureResult != null) { // get writer from result type otherwise we don't know
-                                    writer = forge.getWriters().getResponseWriter(futureResult.getClass(),
-                                                                                  definition,
-                                                                                  forge.getInjectionProvider(),
-                                                                                  context);
+                                    writer = forge.getResponseWriter(futureResult.getClass(),
+                                                                     definition,
+                                                                     context);
                                 } else { // due to limitations of Java generics we can't tell the type if response is null
                                     writer = (definition.getWriter() != null) ?
                                                  (HttpResponseWriter) ClassFactory.newInstanceOf(definition.getWriter()) : new GenericResponseWriter();
@@ -625,7 +624,7 @@ public class RestRouter {
                 exHandlers = definition.getExceptionHandlers();
             }
 
-            handler = getExceptionHandlers().getExceptionHandler(clazz, exHandlers, getInjectionProvider(), context);
+            handler = forge.getExceptionHandler(clazz, exHandlers, context);
         } catch (ClassFactoryException classException) {
             // Can't provide exception handler ... rethrow
             log.error("Can't provide exception handler!", classException);
