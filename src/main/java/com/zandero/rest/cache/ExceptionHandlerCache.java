@@ -3,6 +3,7 @@ package com.zandero.rest.cache;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.rest.provisioning.ClassProducer;
 import com.zandero.utils.Assert;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
@@ -40,63 +41,6 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
         clear();
     }
 
-    public ExceptionHandler getExceptionHandler(Class<? extends Throwable> aClass,
-                                                Class<? extends ExceptionHandler>[] definitionExHandlers,
-                                                InjectionProvider provider,
-                                                RoutingContext context) throws ClassFactoryException, ContextException {
-
-        // trickle down ... from definition to default handler
-        Class<? extends ExceptionHandler> found = null;
-
-        // search definition add as given in REST (class or method annotation)
-        if (definitionExHandlers != null && definitionExHandlers.length > 0) {
-
-            for (Class<? extends ExceptionHandler> handler : definitionExHandlers) {
-
-                Type type = getGenericType(handler);
-                if (checkIfCompatibleType(aClass, type)) {
-                    found = handler;
-
-                    log.info("Found matching exception handler: " + found.getName());
-                    ExceptionHandler cached = getInstanceByType(found);
-                    if (cached != null) {
-                        log.trace("Using cached exception handler: " + cached.getClass().getName());
-                        return cached;
-                    }
-
-                    break;
-                }
-            }
-        }
-
-        // get by exception type from classTypes list
-        if (found == null) {
-
-            ExceptionHandler cached = getInstanceByAssociatedType(aClass);
-            if (cached != null) {
-                return cached;
-            }
-
-            found = getAssociatedType(aClass);
-            if (found != null) {
-                log.info("Found matching class type exception handler: " + found.getName());
-            }
-        }
-
-        // nothing found provide default or generic
-        if (found == null) {
-
-            found = defaultHandlers.get(aClass);
-            if (found == null) {
-                found = GenericExceptionHandler.class;
-            }
-            log.info("Resolving to generic exception handler: " + found.getName());
-        }
-
-        // create class instance
-        return (ExceptionHandler) ClassFactory.getClassInstance(found, this, provider, context);
-    }
-
     @SafeVarargs
     public final void register(Class<? extends ExceptionHandler>... handlers) {
 
@@ -128,9 +72,6 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
             // check if already registered
             checkIfAlreadyRegistered((Class) generic);
 
-            // register
-            //associatedTypeMap.put((Class) generic, handler.getClass());
-
             // cache instance by handler class type
             super.registerInstanceByAssociatedType((Class) generic, handler);
         }
@@ -143,5 +84,49 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
         if (found != null) {
             throw new IllegalArgumentException("Exception handler for: " + clazz.getName() + " already registered with: " + found.getName());
         }
+    }
+
+    public ExceptionHandler getExceptionHandler(Class<? extends Throwable> aClass,
+                                                Class<? extends ExceptionHandler>[] definitionExHandlers,
+                                                InjectionProvider provider,
+                                                RoutingContext context) throws ClassFactoryException, ContextException {
+
+        // trickle down ... from definition to default handler
+        // search definition add as given in REST (class or method annotation)
+        if (definitionExHandlers != null && definitionExHandlers.length > 0) {
+
+            for (Class<? extends ExceptionHandler> handler : definitionExHandlers) {
+
+                Type type = getGenericType(handler);
+                if (checkIfCompatibleType(aClass, type)) {
+                    log.info("Found matching exception handler: " + handler.getName());
+                    return (ExceptionHandler) ClassProducer.getClassInstance(handler, this, provider, context);
+                }
+            }
+        }
+
+        ExceptionHandler<?> cached = getInstanceByAssociatedType(aClass);
+        if (cached != null) {
+            log.trace("Returning cached exception handler: " + cached.getClass().getName());
+            return cached;
+        }
+
+        Class<? extends ExceptionHandler> found = getAssociatedType(aClass);
+        if (found != null) {
+            log.info("Found matching exception handler: " + found.getName());
+            return (ExceptionHandler) ClassProducer.getClassInstance(found, this, provider, context);
+        }
+
+        for (Class<? extends ExceptionHandler> handler : defaultHandlers.values()) {
+            Type type = getGenericType(handler);
+            if (checkIfCompatibleType(aClass, type)) {
+                log.info("Found matching exception handler: " + handler.getName());
+                return (ExceptionHandler) ClassProducer.getClassInstance(handler, this, provider, context);
+            }
+        }
+
+        // create class instance
+        log.info("Resolving to generic exception handler: " + GenericExceptionHandler.class.getName());
+        return (ExceptionHandler) ClassProducer.getClassInstance(GenericExceptionHandler.class, this, provider, context);
     }
 }

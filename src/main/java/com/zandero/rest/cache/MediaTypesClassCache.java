@@ -3,6 +3,7 @@ package com.zandero.rest.cache;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.rest.provisioning.ClassProducer;
 import com.zandero.utils.Assert;
 import io.vertx.ext.web.RoutingContext;
 
@@ -23,6 +24,10 @@ public abstract class MediaTypesClassCache<T> extends ClassCache<T> {
         associatedMediaTypeMap.clear();
     }
 
+    /**
+     * @param mediaType to find associated class type for
+     * @return found class type or null if none found
+     */
     public Class<? extends T> getAssociatedTypeFromMediaType(MediaType mediaType) {
         if (mediaType == null) {
             return null;
@@ -82,8 +87,7 @@ public abstract class MediaTypesClassCache<T> extends ClassCache<T> {
                  Class<?> byDefinition,
                  InjectionProvider provider,
                  RoutingContext routeContext,
-                 MediaType[] mediaTypes) throws ClassFactoryException,
-                                                    ContextException {
+                 MediaType[] mediaTypes) throws ClassFactoryException, ContextException {
 
         Class<?> clazz = byDefinition;
 
@@ -114,7 +118,7 @@ public abstract class MediaTypesClassCache<T> extends ClassCache<T> {
         }
 
         if (clazz != null) {
-            return (T) ClassFactory.getClassInstance(clazz, this, provider, routeContext);
+            return (T) ClassProducer.getClassInstance(clazz, this, provider, routeContext);
         }
 
         // 3. find cached instance ... if any

@@ -4,6 +4,7 @@ import com.zandero.rest.authentication.RestAuthenticationProvider;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.rest.provisioning.ClassProducer;
 import io.vertx.ext.web.RoutingContext;
 
 public class AuthenticationProvidersCache extends ClassCache<RestAuthenticationProvider> {
@@ -15,10 +16,10 @@ public class AuthenticationProvidersCache extends ClassCache<RestAuthenticationP
     public RestAuthenticationProvider provide(Class<? extends RestAuthenticationProvider> authenticationProvider,
                                           InjectionProvider provider,
                                           RoutingContext context) throws ClassFactoryException, ContextException {
-        return (RestAuthenticationProvider) ClassFactory.getClassInstance(authenticationProvider,
-                                                                      this,
-                                                                      provider,
-                                                                      context);
+        return (RestAuthenticationProvider) ClassProducer.getClassInstance(authenticationProvider,
+                                                                           this,
+                                                                           provider,
+                                                                           context);
     }
 
     public void register(Class<?> aClass, Class<? extends RestAuthenticationProvider> clazz) {

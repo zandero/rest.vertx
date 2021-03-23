@@ -9,6 +9,7 @@ import com.zandero.rest.data.*;
 import com.zandero.rest.events.RestEventExecutor;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.rest.provisioning.ClassProducer;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.rest.writer.*;
 import com.zandero.utils.Assert;
@@ -195,7 +196,7 @@ public class RestRouter {
 
     private static void checkWriterCompatibility(RouteDefinition definition) {
         try { // no way to know the accept content at this point
-            forge.getResponseWriter(definition.getReturnType(), definition, null);
+            forge.getWriters().getResponseWriter(definition.getReturnType(), definition, forge.getInjectionProvider(), null);
         } catch (ClassFactoryException e) {
             // ignoring instance creation ... but leaving Illegal argument exceptions to pass
         }
@@ -489,9 +490,10 @@ public class RestRouter {
 
                         Class returnType = result != null ? result.getClass() : definition.getReturnType();
 
-                        HttpResponseWriter writer = forge.getResponseWriter(returnType,
-                                                                            definition,
-                                                                            context);
+                        HttpResponseWriter writer = forge.getWriters().getResponseWriter(returnType,
+                                                                                         definition,
+                                                                                         forge.getInjectionProvider(),
+                                                                                         context);
 
                         validateResult(result, method, definition, validator, toInvoke);
                         produceResponse(result, context, definition, writer);
@@ -534,12 +536,13 @@ public class RestRouter {
 
                                 HttpResponseWriter writer;
                                 if (futureResult != null) { // get writer from result type otherwise we don't know
-                                    writer = forge.getResponseWriter(futureResult.getClass(),
-                                                                     definition,
-                                                                     context);
+                                    writer = forge.getWriters().getResponseWriter(futureResult.getClass(),
+                                                                                  definition,
+                                                                                  forge.getInjectionProvider(),
+                                                                                  context);
                                 } else { // due to limitations of Java generics we can't tell the type if response is null
                                     writer = (definition.getWriter() != null) ?
-                                         (HttpResponseWriter) ClassFactory.newInstanceOf(definition.getWriter()) : new GenericResponseWriter();
+                                                 (HttpResponseWriter) ClassFactory.newInstanceOf(definition.getWriter()) : new GenericResponseWriter();
                                 }
 
                                 validateResult(futureResult, method, definition, validator, toInvoke);
@@ -591,7 +594,7 @@ public class RestRouter {
 
                 HttpResponseWriter<?> writer;
                 if (notFoundWriter instanceof Class) {
-                    writer = (HttpResponseWriter<?>) ClassFactory.getClassInstance((Class<? extends HttpResponseWriter<?>>) notFoundWriter, getWriters(), getInjectionProvider(), context);
+                    writer = (HttpResponseWriter<?>) ClassProducer.getClassInstance((Class<?>) notFoundWriter, getWriters(), getInjectionProvider(), context);
                 } else {
                     writer = (HttpResponseWriter<?>) notFoundWriter;
                 }

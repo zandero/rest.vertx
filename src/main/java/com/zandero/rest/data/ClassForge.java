@@ -79,7 +79,7 @@ public class ClassForge {
      * @param routeContext routing context
      * @param accept       accept media type header
      * @return writer to be used to produce response, or {@link GenericResponseWriter} in case no suitable writer could be found
-     */
+     *//*
     protected HttpResponseWriter<?> getResponseWriter(Class<?> returnType,
                                                       RouteDefinition definition,
                                                       RoutingContext routeContext,
@@ -139,5 +139,5 @@ public class ClassForge {
         }
 
         return writer;
-    }
+    }*/
 }

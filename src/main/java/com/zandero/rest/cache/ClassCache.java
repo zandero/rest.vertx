@@ -1,6 +1,8 @@
 package com.zandero.rest.cache;
 
+import com.zandero.rest.data.ClassFactory;
 import com.zandero.utils.Assert;
+import org.slf4j.*;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -11,6 +13,8 @@ import static com.zandero.rest.data.ClassUtils.*;
  * Base class to cache class instances by name, type, media type ...
  */
 public abstract class ClassCache<T> {
+
+    private final static Logger log = LoggerFactory.getLogger(ClassCache.class);
 
     /**
      * Cache of class instances
@@ -115,6 +119,7 @@ public abstract class ClassCache<T> {
             checkIfCompatibleType(aClass, expected, "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + clazz + "'!");
         }
 
+        log.trace("Registering type: " + clazz.getName() + ", for: " + aClass.getName());
         associatedTypeMap.put(aClass, clazz);
     }
 
@@ -137,6 +142,7 @@ public abstract class ClassCache<T> {
         }*/
 
         // also register type
+        log.trace("Storing instance: " + instance.getClass().getName() + " into cache, for: " + aClass.getName());
         associatedTypeMap.put(aClass, (Class<? extends T>) instance.getClass());
         instanceCache.put(instance.getClass().getName(), instance);
     }
