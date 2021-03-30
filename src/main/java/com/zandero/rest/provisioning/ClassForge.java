@@ -92,6 +92,23 @@ public class ClassForge {
                                                                       context);
     }
 
+    public void injectContextData(Class<?> dataType,
+                                  Class<? extends ContextProvider> provider,
+                                  RoutingContext context) throws Throwable {
+
+        // TODO: fix this ... how come provider gets provider ...
+        ContextProvider found = getContextProvider(dataType,
+                                                   provider,
+                                                   context);
+
+        if (found != null) {
+            Object result = found.provide(context.request());
+            if (result != null) {
+                context.data().put(ContextProvider.getDataKey(dataType), result);
+            }
+        }
+    }
+
     // TODO: check if clazzType and aClass (both are needed in this call)
     public ContextProvider getContextProvider(Class desiredClass,
                                               Class<? extends ContextProvider> contextProvider,
@@ -188,7 +205,7 @@ public class ClassForge {
 
         return ClassProducer.getClassInstance(clazz, cache, injection, routeContext);
     }
-    
+
     public ValueReader getValueReader(MethodParameter parameter,
                                       RoutingContext context,
                                       MediaType... mediaTypes) {

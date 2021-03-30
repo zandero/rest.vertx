@@ -79,7 +79,12 @@ public class ArgumentProvider {
                         case context:
 
                             // check if providers need to be called to assure context
-                            // TODO: move this to forge
+                            forge.injectContextData(dataType,
+                                                    parameter.getContextProvider(),
+                                                    context);
+                            /*
+                            // TODO: move this to forge -- forge.provideContextData()
+
                             ContextProvider provider = forge.getContextProvider(dataType,
                                                                                 parameter.getContextProvider(),
                                                                                 context);
@@ -87,14 +92,16 @@ public class ArgumentProvider {
                             if (provider != null) {
                                 Object result = provider.provide(context.request());
                                 if (result != null) {
-                                    context.data().put(ContextProvider.getContextDataKey(dataType), result);
+                                    context.data().put(ContextProvider.getDataKey(dataType), result);
                                 }
-                            }
+                            }*/
 
                             // TODO: move this to forge
-                            args[parameter.getIndex()] = ContextProvider.provideContext(method.getParameterTypes()[parameter.getIndex()],
-                                                                                        parameter.getDefaultValue(),
-                                                                                        context);
+                            args[parameter.getIndex()] = // forge.provideContext()
+
+                                ContextProvider.provide(method.getParameterTypes()[parameter.getIndex()],
+                                                                                 parameter.getDefaultValue(),
+                                                                                 context);
                             break;
 
                         default:

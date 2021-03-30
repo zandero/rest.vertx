@@ -26,9 +26,6 @@ public interface ContextProvider<T> {
      */
     T provide(HttpServerRequest request) throws Throwable;
 
-
-    String CONTEXT_DATA_KEY_PREFIX = "RestRouter-";
-
     /**
      * Provides vertx context of desired type if possible
      *
@@ -38,9 +35,9 @@ public interface ContextProvider<T> {
      * @return found context or null if not found
      * @throws ContextException in case context could not be provided
      */
-    static Object provideContext(Class<?> type,
-                                 String defaultValue,
-                                 RoutingContext context) throws ContextException {
+    static Object provide(Class<?> type,
+                          String defaultValue,
+                          RoutingContext context) throws ContextException {
 
         Assert.notNull(type, "Missing class type!");
         Assert.notNull(context, "Missing context!");
@@ -72,15 +69,10 @@ public interface ContextProvider<T> {
             return context.user();
         }
 
-        // internal context / reflection of route definition
-/*        if (type.isAssignableFrom(RouteDefinition.class)) {
-            return definition;
-        }*/
-
         // browse through context storage
         if (context.data() != null && context.data().size() > 0) {
 
-            Object item = context.data().get(getContextDataKey(type));
+            Object item = context.data().get(getDataKey(type));
             if (item != null) { // found in storage ... return
                 return item;
             }
@@ -89,6 +81,7 @@ public interface ContextProvider<T> {
         if (defaultValue != null) {
             // check if type has constructor that can be used with defaultValue ...
             // and create Context type on the fly constructed with defaultValue
+            // TODO: this should be done by class producer / forge
             try {
                 return ClassFactory.constructType(type, defaultValue);
             } catch (ClassFactoryException e) {
@@ -99,7 +92,7 @@ public interface ContextProvider<T> {
         throw new ContextException("Can't provide @Context of type: " + type);
     }
 
-    static List<Field> checkForContext(Class<?> clazz) {
+    static List<Field> getContextFields(Class<?> clazz) {
 
         // check if any class members are injected
         Field[] fields = clazz.getDeclaredFields();
@@ -114,35 +107,9 @@ public interface ContextProvider<T> {
         return contextFields;
     }
 
-	/*public static <T> boolean hasContext(Class<? extends T> clazz) {
-		return getContextFields(clazz).size() > 0;
-	}
+    String CONTEXT_DATA_KEY_PREFIX = "RestRouter-";
 
-	// TODO: this must not be a static method we need access to providers stored in factory
-	static void injectContext(Object instance, RoutingContext routeContext) throws ContextException {
-
-        if (instance == null) {
-            return;
-        }
-
-        List<Field> contextFields = getContextFields(instance.getClass());
-
-        for (Field field : contextFields) {
-            Annotation found = field.getAnnotation(Context.class);
-            if (found != null) {
-
-                Object context = provideContext(field.getType(), null, routeContext);
-                try {
-                    field.setAccessible(true);
-                    field.set(instance, context);
-                } catch (IllegalAccessException e) {
-                    throw new ContextException("Can't provide @Context for: " + field.getType() + " - " + e.getMessage());
-                }
-            }
-        }
-    }*/
-
-    static String getContextDataKey(Object object) {
+    static String getDataKey(Object object) {
 
         Assert.notNull(object, "Expected object but got null!");
         if (object instanceof Class) {

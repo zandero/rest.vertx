@@ -43,7 +43,7 @@ public class RestEventExecutor {
         }
 
         for (Event event : definition.getEvents()) {
-            // status code match OR all
+            // status code match OR all // TODO: replace with a match call
             if (event.response() == responseCode ||
                     (event.response() == Event.DEFAULT_EVENT_STATUS && responseCode >= 200 && responseCode < 300) ||
                     (event.response() == Event.DEFAULT_EVENT_STATUS && result instanceof Throwable)) {
