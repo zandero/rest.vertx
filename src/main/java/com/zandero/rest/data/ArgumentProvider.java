@@ -1,11 +1,8 @@
 package com.zandero.rest.data;
 
-import com.zandero.rest.RestRouter;
 import com.zandero.rest.bean.BeanProvider;
-import com.zandero.rest.cache.*;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.exception.ContextException;
-import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.provisioning.ClassForge;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.utils.*;
@@ -90,14 +87,14 @@ public class ArgumentProvider {
                             if (provider != null) {
                                 Object result = provider.provide(context.request());
                                 if (result != null) {
-                                    context.data().put(ContextProviderCache.getContextDataKey(dataType), result);
+                                    context.data().put(ContextProvider.getContextDataKey(dataType), result);
                                 }
                             }
 
                             // TODO: move this to forge
-                            args[parameter.getIndex()] = ContextProviderCache.provideContext(method.getParameterTypes()[parameter.getIndex()],
-                                                                                             parameter.getDefaultValue(),
-                                                                                             context);
+                            args[parameter.getIndex()] = ContextProvider.provideContext(method.getParameterTypes()[parameter.getIndex()],
+                                                                                        parameter.getDefaultValue(),
+                                                                                        context);
                             break;
 
                         default:

@@ -31,7 +31,7 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
      */
     private static final HashMap<String, List<Field>> contextCache = new HashMap<>();
 
-    private static final String CONTEXT_DATA_KEY_PREFIX = "RestRouter-";
+   /* private static final String CONTEXT_DATA_KEY_PREFIX = "RestRouter-";*/
 
     /*// TODO: check if clazzType and aClass (both are needed in this call)
     public ContextProvider getContextProvider(InjectionProvider provider,
@@ -58,7 +58,7 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
         super.registerInstanceByAssociatedType(aClass, instance);
     }
 
-    private static List<Field> checkForContext(Class<?> clazz) {
+/*    private static List<Field> checkForContext(Class<?> clazz) {
 
         // check if any class members are injected
         Field[] fields = clazz.getDeclaredFields();
@@ -71,13 +71,13 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
         }
 
         return contextFields;
-    }
+    }*/
 
     private static List<Field> getContextFields(Class<?> clazz) {
 
         List<Field> contextFields = contextCache.get(clazz.getName());
         if (contextFields == null) {
-            contextFields = checkForContext(clazz);
+            contextFields = ContextProvider.checkForContext(clazz);
             contextCache.put(clazz.getName(), contextFields);
         }
 
@@ -96,7 +96,7 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
      * @param context      to provider / extract values from
      * @return found context or null if not found
      * @throws ContextException in case context could not be provided
-     */
+     *//*
     public static Object provideContext(Class<?> type,
                                         String defaultValue,
                                         RoutingContext context) throws ContextException {
@@ -132,9 +132,9 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
         }
 
         // internal context / reflection of route definition
-/*        if (type.isAssignableFrom(RouteDefinition.class)) {
+*//*        if (type.isAssignableFrom(RouteDefinition.class)) {
             return definition;
-        }*/
+        }*//*
 
         // browse through context storage
         if (context.data() != null && context.data().size() > 0) {
@@ -156,7 +156,7 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
         }
 
         throw new ContextException("Can't provide @Context of type: " + type);
-    }
+    }*/
 
     // TODO: this must not be a static method we need access to providers stored in factory
     public static void injectContext(Object instance, RoutingContext routeContext) throws ContextException {
@@ -171,7 +171,7 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
             Annotation found = field.getAnnotation(Context.class);
             if (found != null) {
 
-                Object context = provideContext(field.getType(), null, routeContext);
+                Object context = ContextProvider.provideContext(field.getType(), null, routeContext);
                 try {
                     field.setAccessible(true);
                     field.set(instance, context);
@@ -181,7 +181,7 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
             }
         }
     }
-
+/*
     public static String getContextDataKey(Object object) {
 
         Assert.notNull(object, "Expected object but got null!");
@@ -190,5 +190,5 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
         }
 
         return CONTEXT_DATA_KEY_PREFIX + object.getClass().getName();
-    }
+    }*/
 }
