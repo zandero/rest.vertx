@@ -1,6 +1,7 @@
 package com.zandero.rest.injection;
 
 import com.google.inject.*;
+import com.google.inject.Module;
 
 /**
  *
