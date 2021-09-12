@@ -61,7 +61,7 @@
         <version.vertx>4.0.3</version.vertx>
         <version.servlet-api>4.0.1</version.servlet-api>
 
-        <version.jackson>2.12.3</version.jackson>
+        <version.jackson>2.12.5</version.jackson>
 
         <!-- logging -->
         <version.slf4j-api>2.0.0-alpha1</version.slf4j-api>
@@ -323,7 +323,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>

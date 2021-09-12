@@ -12,10 +12,10 @@ public class GuiceInjectionProvider extends AbstractModule implements InjectionP
     private Settings settings;
 
     public GuiceInjectionProvider() {
-        injector = Guice.createInjector(this);
+        injector = Guice.createInjector((com.google.inject.Module) this);
     }
 
-    public GuiceInjectionProvider(Module[] modules) {
+    public GuiceInjectionProvider(com.google.inject.Module[] modules) {
         injector = Guice.createInjector(modules);
     }
 
