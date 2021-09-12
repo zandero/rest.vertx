@@ -1,12 +1,8 @@
 package com.zandero.rest.cache;
 
-import com.zandero.rest.data.*;
-import com.zandero.rest.exception.*;
-import com.zandero.rest.injection.InjectionProvider;
-import com.zandero.rest.provisioning.ClassProducer;
+import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.rest.reader.*;
 import com.zandero.utils.Assert;
-import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
 import javax.ws.rs.Consumes;
@@ -80,7 +76,8 @@ public class ReaderCache extends MediaTypesClassCache<ValueReader> {
         }
 
         Assert.isTrue(registered,
-                      "Failed to register reader: '" + reader.getClass().getName() + "', missing @Consumes annotation!");
+                      "Failed to register reader: '" + reader.getClass().getName() +
+                          "', missing @Consumes annotation!");
     }
 
     public void register(Class<?> clazz, Class<? extends ValueReader> reader) {
@@ -136,59 +133,4 @@ public class ReaderCache extends MediaTypesClassCache<ValueReader> {
         log.info("Registering '" + MediaTypeHelper.toString(mediaType) + "' reader '" + clazz.getClass().getName() + "'");
         super.registerInstanceByAssociatedMediaType(mediaType, clazz);
     }
-
-/*
-    @Deprecated
-    public ValueReader get(MethodParameter parameter,
-                           InjectionProvider provider,
-                           RoutingContext context,
-                           MediaType... mediaTypes) {
-
-        return get(parameter, parameter.getReader(), provider, context, mediaTypes);
-    }
-
-    *//**
-     * Step over all possibilities to provide desired reader
-     *
-     * @param parameter          check parameter if reader is set or we have a type reader present
-     * @param byMethodDefinition check default definition
-     * @param provider           injection provider if any
-     * @param context            routing context
-     * @param mediaTypes         check by consumes annotation
-     * @return found reader or GenericBodyReader
-     *//*
-    @Deprecated
-    public ValueReader get(MethodParameter parameter,
-                           Class<? extends ValueReader> byMethodDefinition,
-                           InjectionProvider provider,
-                           RoutingContext context,
-                           MediaType... mediaTypes) {
-
-        // by type
-        Class<?> readerType = null;
-        try {
-
-            // reader parameter as given
-            Assert.notNull(parameter, "Missing parameter!");
-            Class<? extends ValueReader> reader = parameter.getReader();
-            if (reader != null) {
-                return (ValueReader) ClassProducer.getClassInstance(reader, this, provider, context);
-            }
-
-            // by value type, if body also by method/class definition or consumes media type
-            readerType = parameter.getDataType();
-
-            ValueReader valueReader = get(readerType, byMethodDefinition, provider, context, mediaTypes);
-            return valueReader != null ? valueReader : new GenericValueReader();
-        } catch (ClassFactoryException e) {
-
-            log.error("Failed to provide value reader: " + readerType + ", for: " + parameter + ", falling back to GenericBodyReader() instead!");
-            return new GenericValueReader();
-        } catch (ContextException e) {
-
-            log.error(
-                "Failed inject context into value reader: " + readerType + ", for: " + parameter + ", falling back to GenericBodyReader() instead!");
-            return new GenericValueReader();
-        }
-    }*/
 }

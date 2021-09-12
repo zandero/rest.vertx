@@ -46,11 +46,7 @@ public class ClassProducer {
 
         instance = ClassFactory.newInstanceOf(clazz, provider, context);
 
-        // only use cache if no @Context is needed (TODO: join this two calls into one!)
-        boolean hasContext = ContextProviderCache.hasContext(clazz); // TODO: move this method somewhere else
-        boolean cacheIt = clazz.getAnnotation(NoCache.class) == null; // caching disabled / enabled
-
-        if (!hasContext && cacheIt) { // no context .. we can cache this instance
+        if (canClassBeCached(clazz)) {
             classCache.registerInstanceByAssociatedType(clazz, instance);
         }
 
@@ -79,14 +75,17 @@ public class ClassProducer {
 
         instance = ClassFactory.newInstanceOf(clazz, provider, context);
 
-        // only use cache if no @Context is needed (TODO: join this two calls into one!)
-        boolean hasContext = ContextProviderCache.hasContext(clazz); // TODO: move this method somewhere else
-        boolean cacheIt = clazz.getAnnotation(NoCache.class) == null; // caching disabled / enabled
-
-        if (!hasContext && cacheIt) { // no context .. we can cache this instance
+        // only use cache if no @Context is needed
+        if (canClassBeCached(clazz)) { // no context ... we can cache this instance
             classCache.registerInstanceByAssociatedMediaType(mediaType, instance);
         }
 
         return instance;
+    }
+
+    private static boolean canClassBeCached(Class<?> clazz) {
+        boolean hasContext = ContextProviderCache.hasContext(clazz); // TODO: move this method somewhere else
+        boolean cacheIt = clazz.getAnnotation(NoCache.class) == null; // caching disabled / enabled
+        return !hasContext && cacheIt;
     }
 }

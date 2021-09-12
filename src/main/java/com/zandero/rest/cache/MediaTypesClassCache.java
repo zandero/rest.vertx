@@ -82,42 +82,4 @@ public abstract class MediaTypesClassCache<T> extends ClassCache<T> {
         MediaType type = MediaTypeHelper.valueOf(mediaType);
         registerAssociatedTypeByMediaType(type, clazz);
     }
-
-    /*@Deprecated
-    public T get(Class<?> type,
-                 Class<?> byDefinition,
-                 InjectionProvider provider,
-                 RoutingContext routeContext,
-                 MediaType[] mediaTypes) throws ClassFactoryException, ContextException {
-
-        Class<?> clazz = byDefinition;
-
-        // No class defined ... try by type
-        if (clazz == null) {
-            T writer = getInstanceByAssociatedType(type);
-            if (writer != null) {
-                return writer;
-            }
-
-            clazz = getAssociatedType(type);
-        }
-
-        // try with media type ...
-        if (clazz == null && mediaTypes != null && mediaTypes.length > 0) {
-
-            for (MediaType mediaType : mediaTypes) {
-                T writer = getInstanceByAssociatedMediaType(mediaType);
-                if (writer != null) {
-                    return writer;
-                }
-
-                clazz = getAssociatedTypeFromMediaType(mediaType);
-                if (clazz != null) {
-                    break;
-                }
-            }
-        }
-
-        return (T) ClassProducer.getClassInstance(clazz, this, provider, routeContext);
-    }*/
 }

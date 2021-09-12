@@ -23,18 +23,6 @@ class RouteAsyncTest extends VertxTest {
             .listen(PORT);
     }
 
-   /* @Test
-    void testAsyncCallFutureInsideRest(VertxTestContext context) {
-
-        client.get(PORT, HOST, "/async/call_future")
-            .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals(200, response.statusCode());
-                assertEquals("{\"name\": \"async\", \"value\": \"called\"}", response.body());
-                context.completeNow();
-            })));
-    }*/
-
     @Test
     void testAsyncCallPromiseInsideRest(VertxTestContext context) {
 
@@ -59,19 +47,6 @@ class RouteAsyncTest extends VertxTest {
                 context.completeNow();
             })));
     }
-
-   /* @Test
-    void testAsyncCallWithExecutorFutureRest(VertxTestContext context) {
-
-        client.get(PORT, HOST, "/async/executor_future")
-            .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals(200, response.statusCode());
-                assertEquals("{\"name\": \"async\", \"value\": \"called\"}", response.body());
-                context.completeNow();
-            })));
-
-    }*/
 
     @Test
     void testAsyncCallWithExecutorPromiseRest(VertxTestContext context) {

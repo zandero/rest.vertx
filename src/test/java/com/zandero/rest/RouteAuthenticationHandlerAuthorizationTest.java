@@ -22,7 +22,6 @@ class RouteAuthenticationHandlerAuthorizationTest extends VertxTest {
 
         // 1. register handler to initialize User
         Router router = Router.router(vertx);
-        //router.route().blockingHandler()
 
         router.route().handler(getUserHandler());
 

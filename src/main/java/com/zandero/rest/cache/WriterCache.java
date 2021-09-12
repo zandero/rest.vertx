@@ -1,20 +1,13 @@
 package com.zandero.rest.cache;
 
-import com.zandero.rest.data.*;
-import com.zandero.rest.exception.*;
-import com.zandero.rest.injection.InjectionProvider;
-import com.zandero.rest.provisioning.ClassFactory;
+import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.rest.writer.*;
 import com.zandero.utils.Assert;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
-import java.lang.reflect.Type;
-
-import static com.zandero.rest.provisioning.ClassUtils.*;
 
 /**
  * Provides definition and caching of response writer implementations
@@ -80,7 +73,8 @@ public class WriterCache extends MediaTypesClassCache<HttpResponseWriter> {
         }
 
         Assert.isTrue(registered,
-                      "Failed to register writer: '" + writer.getClass().getName() + "', missing @Produces annotation!");
+                      "Failed to register writer: '" + writer.getClass().getName() +
+                          "', missing @Produces annotation!");
     }
 
     public void register(Class<?> aClass, Class<? extends HttpResponseWriter> clazz) {

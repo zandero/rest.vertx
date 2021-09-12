@@ -29,7 +29,6 @@ class StaticFileTest extends VertxTest {
                 .register(TestStaticFileRest.class)
                 .build();
 
-       // RestRouter.notFound(router, "rest", RestNotFoundHandler.class);
         RestRouter.getExceptionHandlers().register(FileNotFoundExceptionHandler.class);
 
         HttpServerOptions serverOptions = new HttpServerOptions();

@@ -18,12 +18,9 @@ import static com.zandero.rest.provisioning.ClassUtils.*;
  */
 public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
 
-    private final static Logger log = LoggerFactory.getLogger(ExceptionHandlerCache.class);
-
     // NOTE
-    // classType list holds list of exception handlers and order how they are considered
+    // classType list holds list of exception handlers in the order of consideration
     // cache holds handler instances once initialized
-
     public static Map<Class<?>, Class<? extends ExceptionHandler<?>>> defaultHandlers;
 
     static {

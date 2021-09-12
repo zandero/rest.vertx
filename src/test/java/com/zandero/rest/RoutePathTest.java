@@ -26,8 +26,6 @@ class RoutePathTest extends VertxTest {
         router.route().handler(LoggerHandler.create(true, LoggerFormat.DEFAULT));
         RestRouter.register(router, testRest);
 
-        //Router router = RestRouter.register(vertx, testRest);
-
         vertx.createHttpServer()
             .requestHandler(router)
             .listen(PORT);
