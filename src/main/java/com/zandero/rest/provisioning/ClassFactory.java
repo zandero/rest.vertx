@@ -70,27 +70,18 @@ public class ClassFactory {
 
     public static Object newInstanceOf(Class<?> clazz,
                                        InjectionProvider provider,
+                                       ContextProviderCache contextProviderCache,
                                        RoutingContext context) throws ClassFactoryException, ContextException {
 
         if (clazz == null) {
             return null;
         }
 
-        Object instance;
-
         boolean canBeInjected = InjectionProvider.canBeInjected(clazz);
         boolean hasInjection = InjectionProvider.hasInjection(clazz);
 
-        if (provider == null || (!hasInjection && !canBeInjected)) {
-
-            SuppressCheck suppress = clazz.getAnnotation(SuppressCheck.class);
-            if (hasInjection && (suppress == null || !INJECTION_ANNOTATIONS.contains(suppress.value()))) {
-                log.warn(clazz.getName() + " uses @Inject but no InjectionProvider registered!");
-            }
-
-            instance = newInstanceOf(clazz, context);
-
-        } else {
+        Object instance;
+        if (provider != null && (hasInjection || canBeInjected)) {
 
             try {
                 instance = provider.getInstance(clazz);
@@ -102,11 +93,19 @@ public class ClassFactory {
                 throw new ClassFactoryException("Failed to getInstance class of type: " + clazz.getName() + ", with injector: " +
                                                     provider.getClass().getName() + "!", e);
             }
+        } else {
+
+            SuppressCheck suppress = clazz.getAnnotation(SuppressCheck.class);
+            if (hasInjection && (suppress == null || !INJECTION_ANNOTATIONS.contains(suppress.value()))) {
+                log.warn(clazz.getName() + " uses @Inject but no InjectionProvider registered!");
+            }
+
+            instance = newInstanceOf(clazz, context);
         }
 
         // TODO: remove this or move this method out of ClassFactory ... use some other means to inject context ...
-        if (ContextProviderCache.hasContext(clazz) && context != null) {
-            ContextProviderCache.injectContext(instance, context);
+        if (context != null && ContextProviderCache.hasContext(clazz)) {
+            contextProviderCache.injectContext(instance, context);
         }
 
         return instance;
@@ -269,7 +268,7 @@ public class ClassFactory {
      */
     static <T> Pair<Boolean, T> constructViaMethod(Class<T> type, String fromValue) {
 
-        // Try to usse fromString before valueOf (enums have valueOf already defined) - in case we override fromString()
+        // Try to use fromString before valueOf (enums have valueOf already defined) - in case we override fromString()
         List<Method> methods = ClassUtils.getMethods(type, "fromString", "valueOf");
         if (methods.size() > 0) {
 

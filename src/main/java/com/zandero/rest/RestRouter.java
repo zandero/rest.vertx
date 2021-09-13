@@ -96,7 +96,7 @@ public class RestRouter {
                 Class<?> inspectApi = (Class<?>) api;
 
                 try {
-                    api = ClassFactory.newInstanceOf(inspectApi, getInjectionProvider(), null);
+                    api = ClassFactory.newInstanceOf(inspectApi, getInjectionProvider(), getContextProviders(), null);
                 } catch (ClassFactoryException | ContextException e) {
                     throw new IllegalArgumentException(e.getMessage());
                 }
@@ -253,7 +253,7 @@ public class RestRouter {
     public static void handler(Router output, Class<? extends Handler<RoutingContext>> handler) {
 
         try {
-            Handler<RoutingContext> instance = (Handler<RoutingContext>) ClassFactory.newInstanceOf(handler, getInjectionProvider(), null);
+            Handler<RoutingContext> instance = (Handler<RoutingContext>) ClassFactory.newInstanceOf(handler, getInjectionProvider(), getContextProviders(), null);
             output.route().handler(instance);
         } catch (ClassFactoryException | ContextException e) {
             throw new IllegalArgumentException(e.getMessage());
@@ -338,8 +338,8 @@ public class RestRouter {
                                   HttpMethod... methods) {
 
         CorsHandler handler = CorsHandler.create(allowedOriginPattern)
-                                  .allowCredentials(allowCredentials)
-                                  .maxAgeSeconds(maxAge);
+            .allowCredentials(allowCredentials)
+            .maxAgeSeconds(maxAge);
 
         if (methods == null || methods.length == 0) { // if not given than all
             methods = HttpMethod.values().toArray(new HttpMethod[]{});
@@ -593,7 +593,7 @@ public class RestRouter {
 
                 HttpResponseWriter<?> writer;
                 if (notFoundWriter instanceof Class) {
-                    writer = (HttpResponseWriter<?>) ClassProducer.getClassInstance((Class<?>) notFoundWriter, getWriters(), getInjectionProvider(), context);
+                    writer = (HttpResponseWriter<?>) ClassProducer.getClassInstance((Class<?>) notFoundWriter, getWriters(), getContextProviders(), getInjectionProvider(), context);
                 } else {
                     writer = (HttpResponseWriter<?>) notFoundWriter;
                 }
@@ -657,6 +657,7 @@ public class RestRouter {
             handler.write(ex.getCause(), request, response);
 
             eventExecutor.triggerEvents(ex.getCause(), response.getStatusCode(), definition, context,
+                                        getContextProviders(),
                                         getInjectionProvider());
         } catch (Throwable handlerException) {
             // this should not happen
@@ -706,7 +707,9 @@ public class RestRouter {
         writer.write(result, request, response);
 
         // find and trigger events from // result / response
-        eventExecutor.triggerEvents(result, response.getStatusCode(), definition, context, getInjectionProvider());
+        eventExecutor.triggerEvents(result, response.getStatusCode(), definition, context,
+                                    getContextProviders(),
+                                    getInjectionProvider());
 
         // finish if not finished by writer
         // and is not an Async REST (Async RESTs must finish responses on their own)

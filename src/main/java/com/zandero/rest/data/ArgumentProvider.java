@@ -70,7 +70,9 @@ public class ArgumentProvider {
                         case bean:
 
                             if (beanProvider != null) {
-                                Object result = beanProvider.provide(dataType, context, forge.getInjectionProvider());
+                                Object result = beanProvider.provide(dataType, context,
+                                                                     forge.getContextProviders(),
+                                                                     forge.getInjectionProvider());
                                 args[parameter.getIndex()] = result;
                             }
 
@@ -82,19 +84,6 @@ public class ArgumentProvider {
                             forge.injectContextData(dataType,
                                                     parameter.getContextProvider(),
                                                     context);
-                            /*
-                            // TODO: move this to forge -- forge.provideContextData()
-
-                            ContextProvider provider = forge.getContextProvider(dataType,
-                                                                                parameter.getContextProvider(),
-                                                                                context);
-
-                            if (provider != null) {
-                                Object result = provider.provide(context.request());
-                                if (result != null) {
-                                    context.data().put(ContextProvider.getDataKey(dataType), result);
-                                }
-                            }*/
 
                             // TODO: move this to forge
                             args[parameter.getIndex()] = // forge.provideContext()

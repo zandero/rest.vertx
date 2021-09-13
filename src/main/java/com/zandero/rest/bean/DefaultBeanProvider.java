@@ -1,5 +1,6 @@
 package com.zandero.rest.bean;
 
+import com.zandero.rest.cache.ContextProviderCache;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.injection.InjectionProvider;
@@ -21,11 +22,13 @@ public class DefaultBeanProvider implements BeanProvider {
     private final static Logger log = LoggerFactory.getLogger(DefaultBeanProvider.class);
 
     @Override
-    public Object provide(Class clazz, RoutingContext context, InjectionProvider injectionProvider) throws Throwable {
+    public Object provide(Class clazz, RoutingContext context,
+                          ContextProviderCache contextProviderCache,
+                          InjectionProvider injectionProvider) throws Throwable {
 
         log.info("Provisioning bean: '" + clazz.getTypeName() + "'");
         BeanDefinition definition = new BeanDefinition(clazz);
-        Object instance = ClassFactory.newInstanceOf(clazz, injectionProvider, context);
+        Object instance = ClassFactory.newInstanceOf(clazz, injectionProvider, contextProviderCache, context);
         setFields(instance, context, definition);
 
         log.info("Successfully created new instance of: '" + clazz.getTypeName() + "'");

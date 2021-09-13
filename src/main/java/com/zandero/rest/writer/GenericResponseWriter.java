@@ -43,6 +43,7 @@ public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
             // TODO: fix this .. cache should provide / produce writer
             writer = (HttpResponseWriter) ClassProducer.getMediaTypeClassInstance(MediaTypeHelper.valueOf(mediaType),
                                                                                   RestRouter.getWriters(),
+                                                                                  RestRouter.getContextProviders(),
                                                                                   RestRouter.getInjectionProvider(),
                                                                                   context);
         } catch (ClassFactoryException | ContextException e) {

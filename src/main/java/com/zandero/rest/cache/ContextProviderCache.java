@@ -46,8 +46,7 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
         return getContextFields(clazz).size() > 0;
     }
 
-    // TODO: this must not be a static method we need access to providers stored in factory
-    public static void injectContext(Object instance, RoutingContext routeContext) throws ContextException {
+    public void injectContext(Object instance, RoutingContext routeContext) throws ContextException {
 
         if (instance == null) {
             return;

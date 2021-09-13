@@ -30,6 +30,7 @@ public class ClassProducer {
     @SuppressWarnings("unchecked")
     public static Object getClassInstance(Class<?> clazz,
                                           ClassCache classCache,
+                                          ContextProviderCache contextProviderCache,
                                           InjectionProvider provider,
                                           RoutingContext context) throws ClassFactoryException, ContextException {
 
@@ -44,9 +45,9 @@ public class ClassProducer {
             return instance;
         }
 
-        instance = ClassFactory.newInstanceOf(clazz, provider, context);
+        instance = ClassFactory.newInstanceOf(clazz, provider, contextProviderCache, context);
 
-        if (canClassBeCached(clazz)) {
+        if (canClassBeCached(clazz, contextProviderCache)) {
             classCache.registerInstanceByAssociatedType(clazz, instance);
         }
 
@@ -55,6 +56,7 @@ public class ClassProducer {
 
     public static Object getMediaTypeClassInstance(MediaType mediaType,
                                                    MediaTypesClassCache classCache,
+                                                   ContextProviderCache contextProviderCache,
                                                    InjectionProvider provider,
                                                    RoutingContext context) throws ClassFactoryException, ContextException {
         if (mediaType == null) {
@@ -73,17 +75,17 @@ public class ClassProducer {
             return null;
         }
 
-        instance = ClassFactory.newInstanceOf(clazz, provider, context);
+        instance = ClassFactory.newInstanceOf(clazz, provider, contextProviderCache, context);
 
         // only use cache if no @Context is needed
-        if (canClassBeCached(clazz)) { // no context ... we can cache this instance
+        if (canClassBeCached(clazz, contextProviderCache)) { // no context ... we can cache this instance
             classCache.registerInstanceByAssociatedMediaType(mediaType, instance);
         }
 
         return instance;
     }
 
-    private static boolean canClassBeCached(Class<?> clazz) {
+    private static boolean canClassBeCached(Class<?> clazz, ContextProviderCache contextProviderCache) {
         boolean hasContext = ContextProviderCache.hasContext(clazz); // TODO: move this method somewhere else
         boolean cacheIt = clazz.getAnnotation(NoCache.class) == null; // caching disabled / enabled
         return !hasContext && cacheIt;
