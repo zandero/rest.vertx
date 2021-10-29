@@ -19,7 +19,7 @@ for cookies and coffee or become a **[sponsor](https://github.com/sponsors/zande
 <dependency>
     <groupId>com.zandero</groupId>
     <artifactId>rest.vertx</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
 </dependency>
 ```
 
