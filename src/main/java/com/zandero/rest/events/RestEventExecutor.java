@@ -38,12 +38,14 @@ public class RestEventExecutor {
                               InjectionProvider injectionProvider) throws Throwable {
 
         if (definition == null || definition.getEvents() == null) {
+            log.trace("No events to trigger");
             return;
         }
 
         for (Event event : definition.getEvents()) {
             // status code match OR all
-            if (event.response() == responseCode ||
+            if (event.response() == Event.ON_ALL ||
+                    event.response() == responseCode ||
                     (event.response() == Event.DEFAULT_EVENT_STATUS && responseCode >= 200 && responseCode < 300) ||
                     (event.response() == Event.DEFAULT_EVENT_STATUS && result instanceof Throwable)) {
 
@@ -67,8 +69,8 @@ public class RestEventExecutor {
 
     static boolean shouldTriggerEvent(Event event, Object result) {
 
-        if (result == null) {
-            return false;
+        if (result == null) { // empty response will be default not trigger an event
+            return event.triggerOnEmpty();
         }
 
         if (event.exception() == RestEvent.NoRestException.class) {

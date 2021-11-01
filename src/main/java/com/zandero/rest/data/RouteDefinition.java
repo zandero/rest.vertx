@@ -188,6 +188,8 @@ public class RouteDefinition {
         authorizationProvider = base.authorizationProvider;
 
         exceptionHandlers = ArrayUtils.join(exceptionHandlers, base.exceptionHandlers);
+        addEvents(base.events);
+
 
         // complement / override with additional annotations
         init(classMethod.getAnnotations());
@@ -649,6 +651,20 @@ public class RouteDefinition {
         }
 
         return this;
+    }
+
+    private List<Event> addEvents(List<Event> list) {
+
+        if (list == null || list.size() == 0) {
+            return events;
+        }
+
+        if (events == null) {
+            events = new ArrayList<>();
+        }
+
+        events.addAll(list);
+        return events;
     }
 
     private RouteDefinition addEvent(Event event) {
