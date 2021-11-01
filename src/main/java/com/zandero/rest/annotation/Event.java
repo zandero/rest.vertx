@@ -32,7 +32,7 @@ public @interface Event {
 	 * In case response is null / empty event will not be triggered, unless stated otherwise
 	 * @return if event should be triggered on empty response
 	 */
-	boolean triggerOnEmpty() default false;
+	boolean onEmpty() default false;
 
 	/**
 	 * exception to react upon if any
