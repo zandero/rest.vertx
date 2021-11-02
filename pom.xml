@@ -79,7 +79,7 @@
         <version.glassfish>2.32</version.glassfish>
 
         <!-- implementation of javax.validation -->
-        <version.hibernate.validation>6.1.6.Final</version.hibernate.validation>
+        <version.hibernate.validation>6.2.0.Final</version.hibernate.validation>
         <version.java.validation.el>3.0.0</version.java.validation.el>
     </properties>
 
@@ -243,13 +243,28 @@
             <version>${version.hibernate.validation}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.el</artifactId>
             <version>${version.java.validation.el}</version>
             <scope>test</scope>
         </dependency>
+
+        <!--
+        Hibernate 7.0.1 uses new validation interface
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.0.0</version>
+            <scope>test</scope>
+        </dependency>-->
+
+        <!--<dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>jakarta.el</artifactId>
+            <version>4.0.0</version>
+            <scope>test</scope>
+        </dependency>-->
 
     </dependencies>
 
