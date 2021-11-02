@@ -1049,7 +1049,7 @@ RestBuilder builder=new RestBuilder(vertx)
 ## User roles & authorization
 
 > Up until version: **0.9.***  
-> Since version **1.0.*** one should use **@Authenticate** and **@Authorize** annotations instead  
+> Since version **1.0.*** one should use **@Authenticate** and **@Authorize** annotations instead!  
 > **@RollesAllowed**, **@PermitAll** and **@DenyAll** will still work.
 
 User access is checked in case REST API is annotated with:

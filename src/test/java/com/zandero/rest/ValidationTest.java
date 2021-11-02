@@ -157,4 +157,36 @@ class ValidationTest extends VertxTest {
                     context.completeNow();
                 })));
     }
+
+    @Test
+    void testHeaderViaCustomValidatorFail(VertxTestContext context) {
+        client.get(PORT, HOST, "/check/header").as(BodyCodec.string())
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(400, response.statusCode());
+                assertEquals("Bad Request", response.statusMessage());
+                context.completeNow();
+            })));
+    }
+
+    @Test
+    void testHeaderViaCustomValidatorFailWrongHeader(VertxTestContext context) {
+        client.get(PORT, HOST, "/check/header").as(BodyCodec.string())
+            .putHeader("check-me", "I'am not OK")
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(400, response.statusCode());
+                assertEquals("Bad Request", response.statusMessage());
+                context.completeNow();
+            })));
+    }
+
+    @Test
+    void testHeaderViaCustomValidatorOK(VertxTestContext context) {
+        client.get(PORT, HOST, "/check/header").as(BodyCodec.string())
+            .putHeader("check-me", "IAmOK")
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(400, response.statusCode());
+                assertEquals("Bad Request", response.statusMessage());
+                context.completeNow();
+            })));
+    }
 }

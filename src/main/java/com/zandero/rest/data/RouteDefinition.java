@@ -253,7 +253,6 @@ public class RouteDefinition {
 
         if (permitAll == null && roles == null) {
             permitAll = additional.permitAll;
-            roles = null;
         }
 
         if (authorizationProvider == null) {
