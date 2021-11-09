@@ -71,7 +71,6 @@ public class ArgumentProvider {
                     switch (parameter.getType()) {
 
                         case bean:
-
                             if (beanProvider != null) {
                                 Object result = beanProvider.provide(dataType, context, injectionProvider);
                                 args[parameter.getIndex()] = result;
@@ -172,7 +171,6 @@ public class ArgumentProvider {
 
         switch (param.getType()) {
             case path:
-
                 String path;
                 if (definition != null && definition.pathIsRegEx()) { // RegEx is special, params values are given by index
                     path = getParam(context.mountPoint(), context.request(), param.getPathIndex());
