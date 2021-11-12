@@ -4,7 +4,7 @@ import com.zandero.utils.ResourceUtils;
 import io.vertx.core.http.*;
 import org.slf4j.*;
 
-import javax.ws.rs.core.Response;
+import static javax.ws.rs.core.Response.Status.*;
 
 public class ResourceResponseWriter implements HttpResponseWriter<String> {
 
@@ -15,12 +15,12 @@ public class ResourceResponseWriter implements HttpResponseWriter<String> {
 
         try {
             String content = ResourceUtils.getResourceAsString(result);
-            response.setStatusCode(200);
+            response.setStatusCode(OK.getStatusCode());
             response.end(content);
         }
         catch (Exception e) {
             log.error("Resource: '" + result + "', not found: ", e);
-            response.setStatusCode(Response.Status.NOT_FOUND.getStatusCode());
+            response.setStatusCode(NOT_FOUND.getStatusCode());
             response.end();
         }
     }

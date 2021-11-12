@@ -4,6 +4,8 @@ import io.vertx.core.http.*;
 
 import javax.ws.rs.core.Response;
 
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+
 /**
  * Generic not found response writer for last() route
  */
@@ -13,7 +15,7 @@ public abstract class NotFoundResponseWriter implements HttpResponseWriter<Void>
     public void write(Void result, HttpServerRequest request, HttpServerResponse response) {
 
         // pre-fill 404 for convenience
-        response.setStatusCode(Response.Status.NOT_FOUND.getStatusCode());
+        response.setStatusCode(NOT_FOUND.getStatusCode());
 
         // wrapped call to simplify implementation
         write(request, response);

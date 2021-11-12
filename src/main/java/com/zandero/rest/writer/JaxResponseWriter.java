@@ -4,12 +4,13 @@ import com.zandero.rest.RestRouter;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.exception.*;
 import com.zandero.utils.Assert;
-import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.*;
 import io.vertx.ext.web.RoutingContext;
 
 import javax.ws.rs.core.*;
 import java.util.*;
+
+import static io.vertx.core.http.HttpHeaders.*;
 
 /**
  * Produces vert.x response based on JAX-RS response builder output
@@ -31,7 +32,7 @@ public class JaxResponseWriter implements HttpResponseWriter<Response> {
         if (result.getEntity() != null) {
 
             // try to find appropriate writer ...
-            String mediaType = response.headers().get(HttpHeaders.CONTENT_TYPE);
+            String mediaType = response.headers().get(CONTENT_TYPE);
 
             HttpResponseWriter writer;
             try {
@@ -54,7 +55,7 @@ public class JaxResponseWriter implements HttpResponseWriter<Response> {
 
         if (jaxrsResponse.getMetadata() != null) {
 
-            List<Object> cookies = jaxrsResponse.getMetadata().get(HttpHeaders.SET_COOKIE.toString());
+            List<Object> cookies = jaxrsResponse.getMetadata().get(SET_COOKIE.toString());
             if (cookies != null) {
 
                 Iterator<Object> it = cookies.iterator();
@@ -62,12 +63,12 @@ public class JaxResponseWriter implements HttpResponseWriter<Response> {
                     Object next = it.next();
                     if (next instanceof NewCookie) {
                         NewCookie cookie = (NewCookie) next;
-                        response.putHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+                        response.putHeader(SET_COOKIE, cookie.toString());
                     }
                 }
 
                 if (cookies.size() < 1) {
-                    jaxrsResponse.getMetadata().remove(HttpHeaders.SET_COOKIE.toString());
+                    jaxrsResponse.getMetadata().remove(SET_COOKIE.toString());
                 }
             }
         }
