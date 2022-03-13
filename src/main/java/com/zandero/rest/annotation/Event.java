@@ -13,7 +13,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Event {
 
-	int DEFAULT_EVENT_STATUS = -1;
+	int DEFAULT_EVENT_STATUS = -1;	// will be triggered on OK responses
+	int ON_ALL = -2;				// will always be triggered
 
 	/**
 	 * event processor class to execute given event
@@ -25,7 +26,13 @@ public @interface Event {
 	 * response code to react upon
 	 * @return response code to bind event to or default to trigger every time
 	 */
-	int response() default DEFAULT_EVENT_STATUS; // response code to react to (0 = ALL) - rest response to react upon (http status code)
+	int response() default DEFAULT_EVENT_STATUS; // response code to react to (-1 = ALL) - rest response to react upon (http status code)
+
+	/**
+	 * In case response is null / empty event will not be triggered, unless stated otherwise
+	 * @return if event should be triggered on empty response
+	 */
+	boolean onEmpty() default false;
 
 	/**
 	 * exception to react upon if any

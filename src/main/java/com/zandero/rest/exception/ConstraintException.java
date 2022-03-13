@@ -47,12 +47,12 @@ public class ConstraintException extends ConstraintViolationException {
                         MethodParameter param = definition.getParameters().get(index);
                         switch (param.getType()) {
                             case body:
-                                message.append(param.toString());
+                                message.append(param);
                                 message.append(" ").append(param.getDataType().getSimpleName());
                                 break;
 
                             default:
-                                message.append(param.toString());
+                                message.append(param);
                                 break;
                         }
 

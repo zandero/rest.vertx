@@ -155,6 +155,9 @@ public class RestBuilder {
     public RestBuilder enableCors() {
 
         Set<String> allowedHeaders = new HashSet<>();
+        allowedHeaders.add("Content-Type");
+        allowedHeaders.add("Origin");
+
         allowedHeaders.add("Access-Control-Allow-Origin");
         //allowedHeaders.add("Access-Control-Allow-Credentials");
         allowedHeaders.add("Access-Control-Allow-Headers");
@@ -163,7 +166,6 @@ public class RestBuilder {
         allowedHeaders.add("Access-Control-Request-Method");
         allowedHeaders.add("Access-Control-Request-Headers");
         //allowedHeaders.add("Access-Control-Max-Age");
-        allowedHeaders.add("Origin");
         return enableCors("*", false, -1, allowedHeaders);
     }
 

@@ -2,10 +2,12 @@ package com.zandero.rest.test;
 
 import com.zandero.rest.annotation.*;
 import com.zandero.rest.test.json.ValidDummy;
+import com.zandero.rest.test.validate.*;
 
-import javax.validation.Valid;
+import javax.validation.*;
 import javax.validation.constraints.*;
 import javax.ws.rs.*;
+import javax.ws.rs.Path;
 import java.util.*;
 
 /**
@@ -57,5 +59,11 @@ public class TestValidRest {
         list.add("two");
         list.add("three");
         return list;
+    }
+
+    @GET
+    @Path("header")
+    public String checkHeader(@HeaderParam("check-me") @ValidHeader String header) {
+        return "OK";
     }
 }

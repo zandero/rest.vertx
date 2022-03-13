@@ -41,45 +41,47 @@ public class RestEventExecutor {
                               InjectionProvider injectionProvider) throws Throwable {
 
         if (definition == null || definition.getEvents() == null) {
+            log.trace("No events to trigger");
             return;
         }
 
         for (Event event : definition.getEvents()) {
-            // status code match OR all // TODO: replace with a match call
-            if (event.response() == responseCode ||
-                    (event.response() == Event.DEFAULT_EVENT_STATUS && responseCode >= 200 && responseCode < 300) ||
-                    (event.response() == Event.DEFAULT_EVENT_STATUS && result instanceof Throwable)) {
+            boolean trigger = shouldTriggerEvent(event, responseCode, result);
 
-                // type fit
-                boolean trigger = shouldTriggerEvent(event, result);
+            if (trigger) {
+                try {
+                    Class<? extends RestEvent> processor = event.value();
+                    RestEvent instance = (RestEvent) ClassFactory.newInstanceOf(processor, injectionProvider, context);
 
-                if (trigger) {
-                    try {
-                        Class<? extends RestEvent> processor = event.value();
-                        RestEvent instance = (RestEvent) ClassFactory.newInstanceOf(processor, injectionProvider, contextProviderCache, context);
-
-                        log.debug("Triggering event: " + event.value());
-                        instance.execute(result, context);
-                    } catch (ClassFactoryException | ContextException e) {
-                        log.error("Failed to provide RestEvent for: " + definition + " ", e);
-                    }
+                    log.debug("Triggering event: " + event.value());
+                    instance.execute(result, context);
+                } catch (ClassFactoryException | ContextException e) {
+                    log.error("Failed to provide RestEvent for: " + definition + " ", e);
                 }
             }
         }
     }
 
-    static boolean shouldTriggerEvent(Event event, Object result) {
+    static boolean shouldTriggerEvent(Event event, int responseCode, Object result) {
 
-        if (result == null) {
-            return false;
+        if (event.response() == Event.ON_ALL ||
+                event.response() == responseCode ||
+                (event.response() == Event.DEFAULT_EVENT_STATUS && responseCode >= 200 && responseCode < 300) ||
+                (event.response() == Event.DEFAULT_EVENT_STATUS && result instanceof Throwable)) {
+
+            if (result == null) { // empty response will be default not trigger an event
+                return event.onEmpty();
+            }
+
+            if (event.exception() == RestEvent.NoRestException.class) {
+                Type type = getGenericType(event.value());
+                return checkIfCompatibleType(result.getClass(), type);
+            }
+
+            return checkIfCompatibleType(result.getClass(), event.exception());
         }
 
-        if (event.exception() == RestEvent.NoRestException.class) {
-            Type type = getGenericType(event.value());
-            return checkIfCompatibleType(result.getClass(), type);
-        }
-
-        return checkIfCompatibleType(result.getClass(), event.exception());
+        return false;
     }
 
 }

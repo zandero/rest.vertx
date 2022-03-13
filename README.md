@@ -19,7 +19,7 @@ for cookies and coffee or become a **[sponsor](https://github.com/sponsors/zande
 <dependency>
     <groupId>com.zandero</groupId>
     <artifactId>rest.vertx</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6.1</version>
 </dependency>
 ```
 
@@ -1049,7 +1049,7 @@ RestBuilder builder=new RestBuilder(vertx)
 ## User roles & authorization
 
 > Up until version: **0.9.***  
-> Since version **1.0.*** one should use **@Authenticate** and **@Authorize** annotations instead  
+> Since version **1.0.*** one should use **@Authenticate** and **@Authorize** annotations instead!  
 > **@RollesAllowed**, **@PermitAll** and **@DenyAll** will still work.
 
 User access is checked in case REST API is annotated with:

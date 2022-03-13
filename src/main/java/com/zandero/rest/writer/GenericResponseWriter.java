@@ -11,6 +11,8 @@ import org.slf4j.*;
 
 import javax.ws.rs.core.*;
 
+import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;
+
 /**
  * Tries to find and utilize associated mime type / media type writer
  * If no writer found a generic Object.toString() write is triggered
@@ -32,7 +34,7 @@ public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
     public void write(T result, HttpServerRequest request, HttpServerResponse response) throws Throwable {
 
         // Content-Type header is filled by HttpResponseWriter.addResponseHeaders() call
-        String mediaType = response.headers().get(HttpHeaders.CONTENT_TYPE);
+        String mediaType = response.headers().get(CONTENT_TYPE);
         if (mediaType == null) {
             log.trace("No Content-Type selected, defaulting to Content-Type='*/*'");
             mediaType = MediaType.WILDCARD;
@@ -59,8 +61,8 @@ public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
             MediaType type = MediaTypeHelper.valueOf(mediaType);
             if (type != null) {
                 // TODO ... correct response headers should already be set according to ACCEPT header
-                response.headers().remove(HttpHeaders.CONTENT_TYPE.toString());
-                response.headers().add(HttpHeaders.CONTENT_TYPE.toString(), MediaTypeHelper.toString(type));
+                response.headers().remove(CONTENT_TYPE.toString());
+                response.headers().add(CONTENT_TYPE.toString(), MediaTypeHelper.toString(type));
             }
 
             if (result != null) {

@@ -6,8 +6,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import org.hibernate.validator.HibernateValidator;
-import org.hibernate.validator.HibernateValidatorConfiguration;
+import org.hibernate.validator.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -156,5 +155,37 @@ class ValidationTest extends VertxTest {
                     assertEquals(200, response.statusCode());
                     context.completeNow();
                 })));
+    }
+
+    @Test
+    void testHeaderViaCustomValidatorFail(VertxTestContext context) {
+        client.get(PORT, HOST, "/check/header").as(BodyCodec.string())
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(400, response.statusCode());
+                assertEquals("Bad Request", response.statusMessage());
+                context.completeNow();
+            })));
+    }
+
+    @Test
+    void testHeaderViaCustomValidatorFailWrongHeader(VertxTestContext context) {
+        client.get(PORT, HOST, "/check/header").as(BodyCodec.string())
+            .putHeader("check-me", "IAmOK")
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(400, response.statusCode());
+                assertEquals("Bad Request", response.statusMessage());
+                context.completeNow();
+            })));
+    }
+
+    @Test
+    void testHeaderViaCustomValidatorOK(VertxTestContext context) {
+        client.get(PORT, HOST, "/check/header").as(BodyCodec.string())
+            .putHeader("check-me", "IAmOK")
+            .send(context.succeeding(response -> context.verify(() -> {
+                assertEquals(400, response.statusCode());
+                assertEquals("Bad Request", response.statusMessage());
+                context.completeNow();
+            })));
     }
 }
