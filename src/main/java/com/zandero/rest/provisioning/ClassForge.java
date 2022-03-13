@@ -320,8 +320,7 @@ public class ClassForge {
             return (HttpResponseWriter<?>) ClassFactory.newInstanceOf(GenericResponseWriter.class);
         }
 
-        if (definition.checkCompatibility() &&
-                checkCompatibility(writer.getClass())) {
+        if (definition.checkCompatibility() && checkCompatibility(writer.getClass())) {
 
             Type writerType = getGenericType(writer.getClass());
             checkIfCompatibleType(returnType,

@@ -35,13 +35,13 @@ public class JaxResponseWriter implements HttpResponseWriter<Response> {
             // try to find appropriate writer ...
             String mediaType = response.headers().get(CONTENT_TYPE);
 
-            HttpResponseWriter writer;
+            HttpResponseWriter<Object> writer;
             try {
-                writer = (HttpResponseWriter) ClassProducer.getMediaTypeClassInstance(MediaTypeHelper.valueOf(mediaType),
-                                                                                      RestRouter.getWriters(),
-                                                                                      RestRouter.getContextInjector(),
-                                                                                      RestRouter.getInjectionProvider(),
-                                                                                      context);
+                writer = (HttpResponseWriter<Object>) ClassProducer.getMediaTypeClassInstance(MediaTypeHelper.valueOf(mediaType),
+                                                                                              RestRouter.getWriters(),
+                                                                                              RestRouter.getContextInjector(),
+                                                                                              RestRouter.getInjectionProvider(),
+                                                                                              context);
             } catch (ClassFactoryException | ContextException e) {
                 writer = null;
             }
@@ -63,9 +63,7 @@ public class JaxResponseWriter implements HttpResponseWriter<Response> {
             List<Object> cookies = jaxrsResponse.getMetadata().get(SET_COOKIE.toString());
             if (cookies != null) {
 
-                Iterator<Object> it = cookies.iterator();
-                while (it.hasNext()) {
-                    Object next = it.next();
+                for (Object next : cookies) {
                     if (next instanceof NewCookie) {
                         NewCookie cookie = (NewCookie) next;
                         response.putHeader(SET_COOKIE, cookie.toString());

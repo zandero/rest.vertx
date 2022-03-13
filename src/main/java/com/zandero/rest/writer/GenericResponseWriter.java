@@ -4,7 +4,6 @@ import com.zandero.rest.RestRouter;
 import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.provisioning.ClassProducer;
-import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.*;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
@@ -21,11 +20,6 @@ import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;
 public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
 
     private final static Logger log = LoggerFactory.getLogger(GenericResponseWriter.class);
-    /*private final WriterCache cache;
-
-    public GenericResponseWriter(WriterCache writers) {
-        cache = writers;
-    }*/
 
     @Context
     RoutingContext context;
@@ -40,16 +34,14 @@ public class GenericResponseWriter<T> implements HttpResponseWriter<T> {
             mediaType = MediaType.WILDCARD;
         }
 
-        HttpResponseWriter writer;
+        HttpResponseWriter<T> writer;
         try {
-            // TODO: fix this .. cache should provide / produce writer
-            writer = (HttpResponseWriter) ClassProducer.getMediaTypeClassInstance(MediaTypeHelper.valueOf(mediaType),
+            writer = (HttpResponseWriter<T>) ClassProducer.getMediaTypeClassInstance(MediaTypeHelper.valueOf(mediaType),
                                                                                   RestRouter.getWriters(),
                                                                                   RestRouter.getContextInjector(),
                                                                                   RestRouter.getInjectionProvider(),
                                                                                   context);
         } catch (ClassFactoryException | ContextException e) {
-            // writer = RestRouter.getWriters().get(result);
             log.warn("Failed to provide GenericResponseWriter: ", e);
             writer = null;
         }
