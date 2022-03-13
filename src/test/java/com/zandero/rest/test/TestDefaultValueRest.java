@@ -20,7 +20,7 @@ public class TestDefaultValueRest {
 
     @GET
     @Path("/context")
-    public String echoContext(@Context @DefaultValue("{\"name\":\"unknown\", \"value\": \"user\"}") Dummy user) {
+    public String echoContext(@Context @DefaultValue("{\"name\":\"default\", \"value\": \"user\"}") Dummy user) {
 
         return "Context is " + user.name + " " + user.value;
     }

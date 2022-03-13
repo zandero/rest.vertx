@@ -104,7 +104,7 @@ public class ClassFactory {
         }
 
         // TODO: remove this or move this method out of ClassFactory ... use some other means to inject context ...
-        if (context != null && ContextProviderCache.hasContext(clazz)) {
+        if (context != null && contextProviderCache.hasContext(clazz)) {
             contextProviderCache.injectContext(instance, context);
         }
 

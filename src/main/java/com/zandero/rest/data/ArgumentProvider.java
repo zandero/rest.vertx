@@ -2,8 +2,8 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.bean.BeanProvider;
 import com.zandero.rest.context.ContextProvider;
-import com.zandero.rest.exception.ContextException;
-import com.zandero.rest.provisioning.ClassForge;
+import com.zandero.rest.exception.*;
+import com.zandero.rest.provisioning.*;
 import com.zandero.rest.reader.ValueReader;
 import com.zandero.utils.*;
 import com.zandero.utils.extra.UrlUtils;
@@ -69,7 +69,8 @@ public class ArgumentProvider {
 
                         case bean:
                             if (beanProvider != null) {
-                                Object result = beanProvider.provide(dataType, context,
+                                Object result = beanProvider.provide(dataType,
+                                                                     context,
                                                                      forge.getContextProviders(),
                                                                      forge.getInjectionProvider());
                                 args[parameter.getIndex()] = result;
@@ -78,18 +79,29 @@ public class ArgumentProvider {
                             break;
 
                         case context:
-
                             // check if providers need to be called to assure context
                             forge.injectContextData(dataType,
                                                     parameter.getContextProvider(),
                                                     context);
 
-                            // TODO: move this to forge
-                            args[parameter.getIndex()] = // forge.provideContext()
+                            Object param;
+                            try {
+                                param = ContextProvider.provide(method.getParameterTypes()[parameter.getIndex()],
+                                                                context);
+                            } catch (ContextException e) {
+                                if (parameter.getDefaultValue() != null) {
+                                    // we cloud not get param from context ... try from default value if given
+                                    try {
+                                        param = ClassFactory.constructType(dataType, parameter.getDefaultValue());
+                                    } catch (ClassFactoryException cfe) {
+                                        throw new ContextException("Can't provide @Context of type: " + dataType + ". " + cfe.getMessage());
+                                    }
+                                } else {
+                                    throw e;
+                                }
+                            }
 
-                                ContextProvider.provide(method.getParameterTypes()[parameter.getIndex()],
-                                                                                 parameter.getDefaultValue(),
-                                                                                 context);
+                            args[parameter.getIndex()] = param;
                             break;
 
                         default:

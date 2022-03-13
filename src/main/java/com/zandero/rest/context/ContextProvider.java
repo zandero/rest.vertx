@@ -30,13 +30,13 @@ public interface ContextProvider<T> {
      * Provides vertx context of desired type if possible
      *
      * @param type         context type
-     * @param defaultValue default value if given
+     // *@param defaultValue default value if given
      * @param context      to provider / extract values from
      * @return found context or null if not found
      * @throws ContextException in case context could not be provided
      */
     static Object provide(Class<?> type,
-                          String defaultValue,
+                          //String defaultValue,
                           RoutingContext context) throws ContextException {
 
         Assert.notNull(type, "Missing class type!");
@@ -78,7 +78,7 @@ public interface ContextProvider<T> {
             }
         }
 
-        if (defaultValue != null) {
+      /*  if (defaultValue != null) {
             // check if type has constructor that can be used with defaultValue ...
             // and create Context type on the fly constructed with defaultValue
             // TODO: this should be done by class producer / forge
@@ -87,7 +87,7 @@ public interface ContextProvider<T> {
             } catch (ClassFactoryException e) {
                 throw new ContextException("Can't provide @Context of type: " + type + ". " + e.getMessage());
             }
-        }
+        }*/
 
         throw new ContextException("Can't provide @Context of type: " + type);
     }

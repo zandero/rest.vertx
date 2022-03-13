@@ -27,8 +27,8 @@ public class ClassForge {
 
     private final WriterCache writers = new WriterCache();
     private final ReaderCache readers = new ReaderCache();
-    private final ExceptionHandlerCache exceptionHandlers = new ExceptionHandlerCache();
     private final ContextProviderCache contextProviders = new ContextProviderCache();
+    private final ExceptionHandlerCache exceptionHandlers = new ExceptionHandlerCache(contextProviders);
 
     private final AuthorizationProvidersCache authorizationProviders = new AuthorizationProvidersCache();
     private final AuthenticationProvidersCache authenticationProviders = new AuthenticationProvidersCache();

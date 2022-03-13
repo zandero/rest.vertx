@@ -86,7 +86,7 @@ public class ClassProducer {
     }
 
     private static boolean canClassBeCached(Class<?> clazz, ContextProviderCache contextProviderCache) {
-        boolean hasContext = ContextProviderCache.hasContext(clazz); // TODO: move this method somewhere else
+        boolean hasContext = contextProviderCache.hasContext(clazz); // TODO: move this method somewhere else
         boolean cacheIt = clazz.getAnnotation(NoCache.class) == null; // caching disabled / enabled
         return !hasContext && cacheIt;
     }

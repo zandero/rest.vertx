@@ -59,7 +59,7 @@ class DefaultValueTest extends VertxTest {
             .as(BodyCodec.string())
             .send(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
-                assertEquals("Context is unknown user", response.body());
+                assertEquals("Context is default user", response.body());
                 context.completeNow();
             })));
     }

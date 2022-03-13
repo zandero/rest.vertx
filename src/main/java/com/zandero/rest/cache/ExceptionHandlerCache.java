@@ -30,10 +30,13 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
         defaultHandlers.put(Throwable.class, GenericExceptionHandler.class);
     }
 
-    public ExceptionHandlerCache() {
+    private final ContextProviderCache contextProviderCache;
+
+    public ExceptionHandlerCache(ContextProviderCache contextProviderCache) {
 
         // register handlers from specific to general ...
         // when searching we go over handlers ... first match is returned
+        this.contextProviderCache = contextProviderCache;
         clear();
     }
 
@@ -59,7 +62,7 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
         Assert.notNullOrEmpty(handlers, "Missing exception handler(s)!");
         for (ExceptionHandler handler : handlers) {
 
-            Assert.isFalse(ContextProviderCache.hasContext(handler.getClass()),
+            Assert.isFalse(contextProviderCache.hasContext(handler.getClass()),
                            "Exception handler utilizing @Context must be registered as class type not as instance!");
 
             Type generic = getGenericType(handler.getClass());

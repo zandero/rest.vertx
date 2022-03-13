@@ -16,12 +16,12 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
 
     /**
      * Cache of classes that need or don't need context injection
-     * If class needs context injection .. a list of Fields to inject is provided
+     * If class needs context injection ... a list of Fields to inject is provided
      * If class doesn't need context injection the list of fields is empty (not null)
      * <p>
-     * HashMap contains pairs by full class name
+     * HashMap contains pairs by full class name -> list of fields
      */
-    private static final HashMap<String, List<Field>> contextCache = new HashMap<>();
+    private final HashMap<String, List<Field>> contextCache = new HashMap<>();
 
     public void register(Class<?> aClass, Class<? extends ContextProvider> clazz) {
         super.registerAssociatedType(aClass, clazz);
@@ -31,7 +31,7 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
         super.registerInstanceByAssociatedType(aClass, instance);
     }
 
-    private static List<Field> getContextFields(Class<?> clazz) {
+    private List<Field> getContextFields(Class<?> clazz) {
 
         List<Field> contextFields = contextCache.get(clazz.getName());
         if (contextFields == null) {
@@ -42,7 +42,7 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
         return contextFields;
     }
 
-    public static <T> boolean hasContext(Class<? extends T> clazz) {
+    public <T> boolean hasContext(Class<? extends T> clazz) {
         return getContextFields(clazz).size() > 0;
     }
 
@@ -58,7 +58,7 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
             Annotation found = field.getAnnotation(Context.class);
             if (found != null) {
 
-                Object context = ContextProvider.provide(field.getType(), null, routeContext);
+                Object context = ContextProvider.provide(field.getType(), routeContext);
                 try {
                     field.setAccessible(true);
                     field.set(instance, context);
