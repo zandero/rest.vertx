@@ -5,7 +5,7 @@ import com.zandero.rest.cache.ContextProviderCache;
 import com.zandero.rest.data.RouteDefinition;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
-import com.zandero.rest.provisioning.ClassFactory;
+import com.zandero.rest.provisioning.*;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
@@ -37,7 +37,7 @@ public class RestEventExecutor {
                               int responseCode,
                               RouteDefinition definition,
                               RoutingContext context,
-                              ContextProviderCache contextProviderCache,
+                              ContextInjector contextInjector,
                               InjectionProvider injectionProvider) throws Throwable {
 
         if (definition == null || definition.getEvents() == null) {
@@ -51,7 +51,7 @@ public class RestEventExecutor {
             if (trigger) {
                 try {
                     Class<? extends RestEvent> processor = event.value();
-                    RestEvent instance = (RestEvent) ClassFactory.newInstanceOf(processor, injectionProvider, contextProviderCache, context);
+                    RestEvent instance = (RestEvent) ClassFactory.newInstanceOf(processor, injectionProvider, contextInjector, context);
 
                     log.debug("Triggering event: " + event.value());
                     instance.execute(result, context);

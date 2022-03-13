@@ -1,7 +1,6 @@
 package com.zandero.rest.context;
 
-import com.zandero.rest.exception.*;
-import com.zandero.rest.provisioning.ClassFactory;
+import com.zandero.rest.exception.ContextException;
 import com.zandero.utils.Assert;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
@@ -29,14 +28,13 @@ public interface ContextProvider<T> {
     /**
      * Provides vertx context of desired type if possible
      *
-     * @param type         context type
-     // *@param defaultValue default value if given
-     * @param context      to provider / extract values from
+     * @param type    context type
+     *                // *@param defaultValue default value if given
+     * @param context to provider / extract values from
      * @return found context or null if not found
      * @throws ContextException in case context could not be provided
      */
     static Object provide(Class<?> type,
-                          //String defaultValue,
                           RoutingContext context) throws ContextException {
 
         Assert.notNull(type, "Missing class type!");
@@ -77,17 +75,6 @@ public interface ContextProvider<T> {
                 return item;
             }
         }
-
-      /*  if (defaultValue != null) {
-            // check if type has constructor that can be used with defaultValue ...
-            // and create Context type on the fly constructed with defaultValue
-            // TODO: this should be done by class producer / forge
-            try {
-                return ClassFactory.constructType(type, defaultValue);
-            } catch (ClassFactoryException e) {
-                throw new ContextException("Can't provide @Context of type: " + type + ". " + e.getMessage());
-            }
-        }*/
 
         throw new ContextException("Can't provide @Context of type: " + type);
     }

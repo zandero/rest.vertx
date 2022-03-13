@@ -96,7 +96,7 @@ public class RestRouter {
                 Class<?> inspectApi = (Class<?>) api;
 
                 try {
-                    api = ClassFactory.newInstanceOf(inspectApi, getInjectionProvider(), getContextProviders(), null);
+                    api = ClassFactory.newInstanceOf(inspectApi, getInjectionProvider(), getContextInjector(), null);
                 } catch (ClassFactoryException | ContextException e) {
                     throw new IllegalArgumentException(e.getMessage());
                 }
@@ -253,7 +253,7 @@ public class RestRouter {
     public static void handler(Router output, Class<? extends Handler<RoutingContext>> handler) {
 
         try {
-            Handler<RoutingContext> instance = (Handler<RoutingContext>) ClassFactory.newInstanceOf(handler, getInjectionProvider(), getContextProviders(), null);
+            Handler<RoutingContext> instance = (Handler<RoutingContext>) ClassFactory.newInstanceOf(handler, getInjectionProvider(), getContextInjector(), null);
             output.route().handler(instance);
         } catch (ClassFactoryException | ContextException e) {
             throw new IllegalArgumentException(e.getMessage());
@@ -593,7 +593,7 @@ public class RestRouter {
 
                 HttpResponseWriter<?> writer;
                 if (notFoundWriter instanceof Class) {
-                    writer = (HttpResponseWriter<?>) ClassProducer.getClassInstance((Class<?>) notFoundWriter, getWriters(), getContextProviders(), getInjectionProvider(), context);
+                    writer = (HttpResponseWriter<?>) ClassProducer.getClassInstance((Class<?>) notFoundWriter, getWriters(), getContextInjector(), getInjectionProvider(), context);
                 } else {
                     writer = (HttpResponseWriter<?>) notFoundWriter;
                 }
@@ -657,7 +657,7 @@ public class RestRouter {
             handler.write(ex.getCause(), request, response);
 
             eventExecutor.triggerEvents(ex.getCause(), response.getStatusCode(), definition, context,
-                                        getContextProviders(),
+                                        getContextInjector(),
                                         getInjectionProvider());
         } catch (Throwable handlerException) {
             // this should not happen
@@ -708,7 +708,7 @@ public class RestRouter {
 
         // find and trigger events from // result / response
         eventExecutor.triggerEvents(result, response.getStatusCode(), definition, context,
-                                    getContextProviders(),
+                                    getContextInjector(),
                                     getInjectionProvider());
 
         // finish if not finished by writer
@@ -744,6 +744,10 @@ public class RestRouter {
 
     public static InjectionProvider getInjectionProvider() {
         return forge.getInjectionProvider();
+    }
+
+    public static ContextInjector getContextInjector() {
+        return forge.getContextInjector();
     }
 
     /**

@@ -71,7 +71,7 @@ public class ArgumentProvider {
                             if (beanProvider != null) {
                                 Object result = beanProvider.provide(dataType,
                                                                      context,
-                                                                     forge.getContextProviders(),
+                                                                     forge.getContextInjector(),
                                                                      forge.getInjectionProvider());
                                 args[parameter.getIndex()] = result;
                             }

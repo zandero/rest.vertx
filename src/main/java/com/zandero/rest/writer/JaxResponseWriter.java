@@ -39,7 +39,7 @@ public class JaxResponseWriter implements HttpResponseWriter<Response> {
             try {
                 writer = (HttpResponseWriter) ClassProducer.getMediaTypeClassInstance(MediaTypeHelper.valueOf(mediaType),
                                                                                       RestRouter.getWriters(),
-                                                                                      RestRouter.getContextProviders(),
+                                                                                      RestRouter.getContextInjector(),
                                                                                       RestRouter.getInjectionProvider(),
                                                                                       context);
             } catch (ClassFactoryException | ContextException e) {

@@ -4,7 +4,7 @@ import com.zandero.rest.cache.ContextProviderCache;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.injection.InjectionProvider;
-import com.zandero.rest.provisioning.ClassFactory;
+import com.zandero.rest.provisioning.*;
 import io.vertx.core.cli.impl.ReflectionUtils;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
@@ -23,12 +23,12 @@ public class DefaultBeanProvider implements BeanProvider {
 
     @Override
     public Object provide(Class clazz, RoutingContext context,
-                          ContextProviderCache contextProviderCache,
+                          ContextInjector contextInjector,
                           InjectionProvider injectionProvider) throws Throwable {
 
         log.info("Provisioning bean: '" + clazz.getTypeName() + "'");
         BeanDefinition definition = new BeanDefinition(clazz);
-        Object instance = ClassFactory.newInstanceOf(clazz, injectionProvider, contextProviderCache, context);
+        Object instance = ClassFactory.newInstanceOf(clazz, injectionProvider, contextInjector, context);
         setFields(instance, context, definition);
 
         log.info("Successfully created new instance of: '" + clazz.getTypeName() + "'");

@@ -34,6 +34,7 @@ public class ClassForge {
     private final AuthenticationProvidersCache authenticationProviders = new AuthenticationProvidersCache();
 
     private InjectionProvider injection;
+    private final ContextInjector contextInjector = new ContextInjector(contextProviders);
 
     public WriterCache getWriters() {
         return writers;
@@ -53,6 +54,10 @@ public class ClassForge {
 
     public InjectionProvider getInjectionProvider() {
         return injection;
+    }
+
+    public ContextInjector getContextInjector() {
+        return contextInjector;
     }
 
     public AuthorizationProvidersCache getAuthorizationProviders() {
@@ -80,7 +85,7 @@ public class ClassForge {
                                                                 RoutingContext context) throws ClassFactoryException, ContextException {
         return (RestAuthenticationProvider) ClassProducer.getClassInstance(provider,
                                                                            authenticationProviders,
-                                                                           contextProviders,
+                                                                           contextInjector,
                                                                            injection,
                                                                            context);
     }
@@ -89,7 +94,7 @@ public class ClassForge {
                                                           RoutingContext context) throws ClassFactoryException, ContextException {
         return (AuthorizationProvider) ClassProducer.getClassInstance(authorizationProvider,
                                                                       authorizationProviders,
-                                                                      contextProviders,
+                                                                      contextInjector,
                                                                       injection,
                                                                       context);
     }
@@ -124,7 +129,7 @@ public class ClassForge {
             clazz = contextProviders.getAssociatedType(desiredClass);
         }
 
-        return (ContextProvider) ClassProducer.getClassInstance(clazz, contextProviders, contextProviders, injection, context);
+        return (ContextProvider) ClassProducer.getClassInstance(clazz, contextProviders, contextInjector, injection, context);
     }
 
     public ExceptionHandler getExceptionHandler(Class<? extends Throwable> aClass,
@@ -140,7 +145,7 @@ public class ClassForge {
                 Type type = getGenericType(handler);
                 if (checkIfCompatibleType(aClass, type)) {
                     log.info("Found matching exception handler: " + handler.getName());
-                    return (ExceptionHandler) ClassProducer.getClassInstance(handler, exceptionHandlers, contextProviders, injection, context);
+                    return (ExceptionHandler) ClassProducer.getClassInstance(handler, exceptionHandlers, contextInjector, injection, context);
                 }
             }
         }
@@ -154,20 +159,20 @@ public class ClassForge {
         Class<? extends ExceptionHandler> found = exceptionHandlers.getAssociatedType(aClass);
         if (found != null) {
             log.info("Found matching exception handler: " + found.getName());
-            return (ExceptionHandler) ClassProducer.getClassInstance(found, exceptionHandlers, contextProviders, injection, context);
+            return (ExceptionHandler) ClassProducer.getClassInstance(found, exceptionHandlers, contextInjector, injection, context);
         }
 
         for (Class<? extends ExceptionHandler> handler : exceptionHandlers.defaultHandlers.values()) {
             Type type = getGenericType(handler);
             if (checkIfCompatibleType(aClass, type)) {
                 log.info("Found matching exception handler: " + handler.getName());
-                return (ExceptionHandler) ClassProducer.getClassInstance(handler, exceptionHandlers, contextProviders, injection, context);
+                return (ExceptionHandler) ClassProducer.getClassInstance(handler, exceptionHandlers, contextInjector, injection, context);
             }
         }
 
         // create class instance
         log.info("Resolving to generic exception handler: " + GenericExceptionHandler.class.getName());
-        return (ExceptionHandler) ClassProducer.getClassInstance(GenericExceptionHandler.class, exceptionHandlers, contextProviders, injection, context);
+        return (ExceptionHandler) ClassProducer.getClassInstance(GenericExceptionHandler.class, exceptionHandlers, contextInjector, injection, context);
     }
 
     @Deprecated
@@ -205,7 +210,7 @@ public class ClassForge {
             }
         }
 
-        return ClassProducer.getClassInstance(clazz, cache, contextProviders, injection, routeContext);
+        return ClassProducer.getClassInstance(clazz, cache, contextInjector, injection, routeContext);
     }
 
     public ValueReader getValueReader(MethodParameter parameter,
@@ -237,7 +242,7 @@ public class ClassForge {
             Assert.notNull(parameter, "Missing parameter!");
             Class<? extends ValueReader> reader = parameter.getReader();
             if (reader != null) {
-                return (ValueReader) ClassProducer.getClassInstance(reader, readers, contextProviders, injection, context);
+                return (ValueReader) ClassProducer.getClassInstance(reader, readers, contextInjector, injection, context);
             }
 
             // by value type, if body also by method/class definition or consumes media type

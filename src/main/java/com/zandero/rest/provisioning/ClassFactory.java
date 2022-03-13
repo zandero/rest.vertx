@@ -70,7 +70,7 @@ public class ClassFactory {
 
     public static Object newInstanceOf(Class<?> clazz,
                                        InjectionProvider provider,
-                                       ContextProviderCache contextProviderCache,
+                                       ContextInjector contextInjector,
                                        RoutingContext context) throws ClassFactoryException, ContextException {
 
         if (clazz == null) {
@@ -104,8 +104,8 @@ public class ClassFactory {
         }
 
         // TODO: remove this or move this method out of ClassFactory ... use some other means to inject context ...
-        if (context != null && contextProviderCache.hasContext(clazz)) {
-            contextProviderCache.injectContext(instance, context);
+        if (context != null && contextInjector.hasContext(clazz)) {
+            contextInjector.injectContext(instance, context);
         }
 
         return instance;

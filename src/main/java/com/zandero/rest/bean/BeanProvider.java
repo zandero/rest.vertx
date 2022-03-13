@@ -2,6 +2,7 @@ package com.zandero.rest.bean;
 
 import com.zandero.rest.cache.ContextProviderCache;
 import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.rest.provisioning.ContextInjector;
 import io.vertx.ext.web.RoutingContext;
 
 public interface BeanProvider {
@@ -16,6 +17,6 @@ public interface BeanProvider {
      */
     <T> T provide(Class<T> clazz,
                   RoutingContext context,
-                  ContextProviderCache contextProviderCache,
+                  ContextInjector contextInjector,
                   InjectionProvider injectionProvider) throws Throwable;
 }

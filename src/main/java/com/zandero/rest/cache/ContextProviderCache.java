@@ -1,11 +1,7 @@
 package com.zandero.rest.cache;
 
 import com.zandero.rest.context.ContextProvider;
-import com.zandero.rest.exception.*;
-import io.vertx.ext.web.RoutingContext;
 
-import javax.ws.rs.core.Context;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -31,7 +27,7 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
         super.registerInstanceByAssociatedType(aClass, instance);
     }
 
-    private List<Field> getContextFields(Class<?> clazz) {
+    public List<Field> getContextFields(Class<?> clazz) {
 
         List<Field> contextFields = contextCache.get(clazz.getName());
         if (contextFields == null) {
@@ -44,28 +40,5 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
 
     public <T> boolean hasContext(Class<? extends T> clazz) {
         return getContextFields(clazz).size() > 0;
-    }
-
-    public void injectContext(Object instance, RoutingContext routeContext) throws ContextException {
-
-        if (instance == null) {
-            return;
-        }
-
-        List<Field> contextFields = getContextFields(instance.getClass());
-
-        for (Field field : contextFields) {
-            Annotation found = field.getAnnotation(Context.class);
-            if (found != null) {
-
-                Object context = ContextProvider.provide(field.getType(), routeContext);
-                try {
-                    field.setAccessible(true);
-                    field.set(instance, context);
-                } catch (IllegalAccessException e) {
-                    throw new ContextException("Can't provide @Context for: " + field.getType() + " - " + e.getMessage());
-                }
-            }
-        }
     }
 }
