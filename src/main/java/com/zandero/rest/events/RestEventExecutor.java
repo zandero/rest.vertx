@@ -51,7 +51,7 @@ public class RestEventExecutor {
             if (trigger) {
                 try {
                     Class<? extends RestEvent> processor = event.value();
-                    RestEvent instance = (RestEvent) ClassFactory.newInstanceOf(processor, injectionProvider, context);
+                    RestEvent instance = (RestEvent) ClassFactory.newInstanceOf(processor, injectionProvider, contextProviderCache, context);
 
                     log.debug("Triggering event: " + event.value());
                     instance.execute(result, context);
