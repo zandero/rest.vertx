@@ -23,7 +23,7 @@ public class ClassUtilsTest {
         assertEquals(WebApplicationException.class, getGenericType(WebApplicationExceptionHandler.class)); // at least we know so much
     }
 
-    @Test
+    /*@Test
     void typeAreCompatibleTest() {
         Type type = getGenericType(NumberFormatException.class);
         try {
@@ -44,7 +44,7 @@ public class ClassUtilsTest {
         Type type = getGenericType(WebApplicationExceptionHandler.class);
         checkIfCompatibleType(WebApplicationException.class, type, "Fail");
         checkIfCompatibleType(NotAllowedException.class, type, "Fail");
-    }
+    }*/
 
     @Test
     void convertPrimitiveTypes() throws ClassFactoryException {

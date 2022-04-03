@@ -2,14 +2,13 @@ package com.zandero.rest.injection.test;
 
 import com.zandero.rest.*;
 import com.zandero.rest.injection.*;
-import io.vertx.ext.web.Router;
-import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.ext.web.*;
+import io.vertx.ext.web.codec.*;
 import io.vertx.junit5.*;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.*;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(VertxExtension.class)
 class InjectionProviderTest extends VertxTest {
@@ -22,9 +21,9 @@ class InjectionProviderTest extends VertxTest {
     void startWith(InjectionProvider provider) {
 
         Router router = new RestBuilder(vertx)
-                            .injectWith(provider)
-                            .register(InjectedRest.class)
-                            .build();
+            .injectWith(provider)
+            .register(InjectedRest.class)
+            .build();
 
         vertx.createHttpServer()
             .requestHandler(router)
@@ -34,9 +33,9 @@ class InjectionProviderTest extends VertxTest {
     void startWithClass(Class<? extends InjectionProvider> provider) {
 
         Router router = new RestBuilder(vertx)
-                            .injectWith(provider)
-                            .register(InjectedRest.class)
-                            .build();
+            .injectWith(provider)
+            .register(InjectedRest.class)
+            .build();
 
         vertx.createHttpServer()
             .requestHandler(router)

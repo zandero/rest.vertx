@@ -1,4 +1,4 @@
-# Rest.Vertx
+ # Rest.Vertx
 
 - Lightweight JAX-RS (RestEasy) like annotation processor for vert.x verticles.
 - You are highly encouraged to participate and improve upon the existing code.

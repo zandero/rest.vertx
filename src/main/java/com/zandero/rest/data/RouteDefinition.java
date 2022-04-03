@@ -1,29 +1,27 @@
 package com.zandero.rest.data;
 
-import com.zandero.rest.AnnotationProcessor;
+import com.zandero.rest.*;
 import com.zandero.rest.annotation.*;
-import com.zandero.rest.authentication.RestAuthenticationProvider;
-import com.zandero.rest.context.ContextProvider;
-import com.zandero.rest.exception.ExceptionHandler;
-import com.zandero.rest.reader.ValueReader;
-import com.zandero.rest.writer.HttpResponseWriter;
+import com.zandero.rest.authentication.*;
+import com.zandero.rest.context.*;
+import com.zandero.rest.exception.*;
+import com.zandero.rest.reader.*;
+import com.zandero.rest.writer.*;
 import com.zandero.utils.*;
 import io.vertx.core.*;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.ext.auth.authorization.AuthorizationProvider;
-import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.auth.authorization.*;
+import io.vertx.ext.web.*;
 import org.slf4j.*;
 
 import javax.annotation.security.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.*;
-import java.lang.annotation.Annotation;
+import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.zandero.rest.provisioning.ClassUtils.*;
+import java.util.stream.*;
 
 /**
  * Holds definition of a route as defined with annotations
@@ -533,9 +531,9 @@ public class RouteDefinition {
     private MediaType[] getProducesHeaders(Map<String, String> headers) {
 
         Map<String, String> contentTypes = headers.entrySet()
-                                               .stream()
-                                               .filter(map -> HttpRequestHeader.isConsumeHeader(map.getKey()))
-                                               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .stream()
+            .filter(map -> HttpRequestHeader.isConsumeHeader(map.getKey()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         return MediaTypeHelper.getMediaTypes(contentTypes);
     }
@@ -543,9 +541,9 @@ public class RouteDefinition {
     private MediaType[] getConsumeHeaders(Map<String, String> headers) {
 
         Map<String, String> contentTypes = headers.entrySet()
-                                               .stream()
-                                               .filter(map -> HttpResponseHeader.isProducesHeader(map.getKey()))
-                                               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .stream()
+            .filter(map -> HttpResponseHeader.isProducesHeader(map.getKey()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         return MediaTypeHelper.getMediaTypes(contentTypes);
     }
@@ -797,12 +795,12 @@ public class RouteDefinition {
             if (name != null) {
 
                 // set context provider from method annotation if fitting
-                if (contextValueProvider == null && contextProvider != null) {
+              /*  if (contextValueProvider == null && contextProvider != null) {
                     Type generic = getGenericType(contextProvider);
                     if (checkIfCompatibleType(parameterTypes[index], generic)) {
                         contextValueProvider = contextProvider;
                     }
-                }
+                }*/
 
                 MethodParameter parameter = provideArgument(name, type, defaultValue, raw, parameterTypes[index], valueReader, contextValueProvider, index);
                 arguments.put(name, parameter);
@@ -820,7 +818,8 @@ public class RouteDefinition {
      */
     static boolean isAsync(Class<?> returnType) {
 
-        return checkIfCompatibleTypes(returnType, Future.class, Promise.class);
+        return (returnType.isInstance(Future.class) || returnType.isInstance(Promise.class));
+        //  return checkIfCompatibleTypes(returnType, Future.class, Promise.class);
     }
 
     /**
@@ -961,9 +960,9 @@ public class RouteDefinition {
         }
 
         return headers.entrySet()
-                   .stream()
-                   .filter(map -> HttpResponseHeader.isResponseHeader(map.getKey()))
-                   .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .stream()
+            .filter(map -> HttpResponseHeader.isResponseHeader(map.getKey()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public Map<String, String> getRequestHeaders() {
@@ -972,9 +971,9 @@ public class RouteDefinition {
         }
 
         return headers.entrySet()
-                   .stream()
-                   .filter(map -> HttpRequestHeader.isRequestHeader(map.getKey()))
-                   .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .stream()
+            .filter(map -> HttpRequestHeader.isRequestHeader(map.getKey()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     }
 
@@ -1027,7 +1026,7 @@ public class RouteDefinition {
         }
 
         return params.values().stream().filter(param -> ParameterType.body.equals(param.getType()))
-                   .findFirst().orElse(null);
+            .findFirst().orElse(null);
     }
 
     public boolean hasCookies() {

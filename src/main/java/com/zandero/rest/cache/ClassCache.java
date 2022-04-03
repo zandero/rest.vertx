@@ -102,10 +102,10 @@ public abstract class ClassCache<T> {
         Assert.notNull(aClass, "Missing associated class!");
         Assert.notNull(clazz, "Missing response type class!");
 
-        if (checkCompatibility(clazz)) {
+        /*if (checkCompatibility(clazz)) {
             Type expected = getGenericType(clazz);
             checkIfCompatibleType(aClass, expected, "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + clazz + "'!");
-        }
+        }*/
 
         log.trace("Registering type: " + clazz.getName() + ", for: " + aClass.getName());
         associatedTypeMap.put(aClass, clazz);

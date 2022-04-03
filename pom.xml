@@ -7,7 +7,7 @@
 
     <artifactId>rest.vertx</artifactId>
     <groupId>com.zandero</groupId>
-    <version>1.0.6.1</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
 
     <name>Zandero REST Vert.X</name>
@@ -39,8 +39,8 @@
 
     <properties>
 
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.encoding>UTF-8</project.encoding>
         <project.build.sourceEncoding>${project.encoding}</project.build.sourceEncoding>
 
@@ -52,11 +52,11 @@
         <version.javax.inject>1</version.javax.inject>
         <version.java.validation>2.0.1.Final</version.java.validation>
 
-        <version.zandero.utils>[1.2.10,)</version.zandero.utils>
-        <version.zandero.utils.extra>[1.4,)</version.zandero.utils.extra>
+        <version.zandero.utils>[1.3,)</version.zandero.utils>
+        <version.zandero.utils.extra>[1.5,)</version.zandero.utils.extra>
 
-        <version.zandero.http>[1.2.4,)</version.zandero.http>
-        <version.zandero.utils.junit>[1.0.1,)</version.zandero.utils.junit>
+        <version.zandero.http>[1.3,)</version.zandero.http>
+        <version.zandero.utils.junit>[1.1,)</version.zandero.utils.junit>
 
         <version.vertx>4.1.5</version.vertx>
         <version.servlet-api>4.0.1</version.servlet-api>
@@ -68,8 +68,9 @@
 
         <!-- testing -->
         <version.logback>[1.1.7,)</version.logback>
-        <version.junit>[5.6.0,)</version.junit>
-        <version.mockito-all>[1.10.19,)</version.mockito-all>
+        <version.junit>[5.8.2,)</version.junit>
+        <version.mockito-all>1.10.19</version.mockito-all>
+        <version.mockito-core>4.4.0</version.mockito-core>
         <version.jetty>[9.3.7.v20160115,)</version.jetty>
 
         <version.guice>5.0.1</version.guice>
@@ -214,10 +215,25 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Mockito for mocking stuff-->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>${version.mockito-all}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${version.mockito-core}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${version.mockito-core}</version>
             <scope>test</scope>
         </dependency>
 
@@ -309,7 +325,7 @@
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.8</version>
+                <version>1.6.12</version>
                 <extensions>true</extensions>
                 <configuration>
                     <!-- for production deployment -->
@@ -351,7 +367,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
+                <version>3.0.1</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>

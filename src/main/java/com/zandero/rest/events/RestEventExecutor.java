@@ -73,12 +73,14 @@ public class RestEventExecutor {
                 return event.onEmpty();
             }
 
-            if (event.exception() == RestEvent.NoRestException.class) {
+            /*if (event.exception() == RestEvent.NoRestException.class) {
                 Type type = getGenericType(event.value());
                 return checkIfCompatibleType(result.getClass(), type);
-            }
+            }*/
 
-            return checkIfCompatibleType(result.getClass(), event.exception());
+            //return checkIfCompatibleType(result.getClass(), event.exception());
+
+            return true;
         }
 
         return false;
