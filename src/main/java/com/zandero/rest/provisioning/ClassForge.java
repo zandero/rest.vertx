@@ -138,17 +138,17 @@ public class ClassForge {
 
         // trickle down ... from definition to default handler
         // search definition add as given in REST (class or method annotation)
-        /*if (definitionExHandlers != null && definitionExHandlers.length > 0) {
+        if (definitionExHandlers != null && definitionExHandlers.length > 0) {
 
-            *//*for (Class<? extends ExceptionHandler> handler : definitionExHandlers) {
+            for (Class<? extends ExceptionHandler> handler : definitionExHandlers) {
 
-                //Type type = getGenericType(handler);
-                *//**//*if (checkIfCompatibleType(aClass, type)) {
+                Type type = getGenericType(handler);
+                if (checkIfCompatibleType(aClass, type)) {
                     log.info("Found matching exception handler: " + handler.getName());
                     return (ExceptionHandler) ClassProducer.getClassInstance(handler, exceptionHandlers, contextInjector, injection, context);
-                }*//**//*
-            }*//*
-        }*/
+                }
+            }
+        }
 
         ExceptionHandler<?> cached = exceptionHandlers.getInstanceByAssociatedType(aClass);
         if (cached != null) {
@@ -162,13 +162,13 @@ public class ClassForge {
             return (ExceptionHandler) ClassProducer.getClassInstance(found, exceptionHandlers, contextInjector, injection, context);
         }
 
-        /*for (Class<? extends ExceptionHandler> handler : exceptionHandlers.defaultHandlers.values()) {
+        for (Class<? extends ExceptionHandler> handler : exceptionHandlers.defaultHandlers.values()) {
             Type type = getGenericType(handler);
             if (checkIfCompatibleType(aClass, type)) {
                 log.info("Found matching exception handler: " + handler.getName());
                 return (ExceptionHandler) ClassProducer.getClassInstance(handler, exceptionHandlers, contextInjector, injection, context);
             }
-        }*/
+        }
 
         // create class instance
         log.info("Resolving to generic exception handler: " + GenericExceptionHandler.class.getName());
@@ -320,7 +320,7 @@ public class ClassForge {
             return (HttpResponseWriter<?>) ClassFactory.newInstanceOf(GenericResponseWriter.class);
         }
 
-       /* if (definition.checkCompatibility() && checkCompatibility(writer.getClass())) {
+        if (definition.checkCompatibility() && checkCompatibility(writer.getClass())) {
 
             Type writerType = getGenericType(writer.getClass());
             checkIfCompatibleType(returnType,
@@ -328,7 +328,7 @@ public class ClassForge {
                                   definition.toString().trim() + " - Response type: '" +
                                       returnType + "' not matching writer type: '" +
                                       writerType + "' in: '" + writer.getClass() + "'!");
-        }*/
+        }
 
         return writer;
     }

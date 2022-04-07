@@ -15,12 +15,7 @@ import org.mockito.quality.*;
 import static com.zandero.rest.provisioning.ClassFactory.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-
-/**
- *
- */
 @ExtendWith(MockitoExtension.class)
-//@MockitoSettings(strictness = Strictness.LENIENT)
 class ClassFactoryTest {
 
     @Mock
@@ -106,9 +101,6 @@ class ClassFactoryTest {
     @Test
     void constructViaContext() throws ClassFactoryException {
 
-/*        RoutingContext context = Mockito.mock(RoutingContext.class);
-        HttpServerRequest request = Mockito.mock(HttpServerRequest.class);*/
-
         Mockito.when(context.request()).thenReturn(request);
         Mockito.when(request.getParam("path")).thenReturn("SomePath");
         Mockito.when(request.getHeader("MyHeader")).thenReturn("true");
@@ -122,9 +114,6 @@ class ClassFactoryTest {
 
     @Test
     void constructViaContextFail() throws ClassFactoryException {
-
-        /*RoutingContext context = Mockito.mock(RoutingContext.class);
-        HttpServerRequest request = Mockito.mock(HttpServerRequest.class);*/
 
         Mockito.when(context.request()).thenReturn(request);
         Mockito.when(request.getParam("path")).thenReturn("SomePath");

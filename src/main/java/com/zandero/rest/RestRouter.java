@@ -397,7 +397,7 @@ public class RestRouter {
                                                          null,
                                                          definition.getConsumes());
 
-       /* if (bodyReader != null && definition.checkCompatibility()) {
+        if (bodyReader != null && definition.checkCompatibility()) {
 
             Type readerType = getGenericType(bodyReader.getClass());
             MethodParameter bodyParameter = definition.getBodyParameter();
@@ -406,7 +406,7 @@ public class RestRouter {
                                   definition.toString().trim() + " - Parameter type: '" +
                                       bodyParameter.getDataType() + "' not matching reader type: '" +
                                       readerType + "' in: '" + bodyReader.getClass() + "'!");
-        }*/
+        }
     }
 
     private static Handler<RoutingContext> getAuthenticationProvider(Class<? extends RestAuthenticationProvider> authenticatorProviderClass,

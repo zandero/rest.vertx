@@ -4,6 +4,8 @@ import com.zandero.rest.exception.*;
 import com.zandero.rest.reader.*;
 import com.zandero.rest.test.data.SimulatedUser;
 import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
+import com.zandero.rest.test.json.*;
+import com.zandero.rest.writer.*;
 import io.vertx.ext.auth.User;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +25,7 @@ public class ClassUtilsTest {
         assertEquals(WebApplicationException.class, getGenericType(WebApplicationExceptionHandler.class)); // at least we know so much
     }
 
-    /*@Test
+    @Test
     void typeAreCompatibleTest() {
         Type type = getGenericType(NumberFormatException.class);
         try {
@@ -35,6 +37,11 @@ public class ClassUtilsTest {
 
     @Test
     void checkIfCompatibleTypes() {
+
+       // assertTrue(checkIfCompatibleType(Throwable.class, GenericExceptionHandler.class));
+        assertTrue(checkIfCompatibleType(GenericExceptionHandler.class, Throwable.class));
+        assertTrue(checkIfCompatibleType(TestDummyWriter.class, Dummy.class));
+
         assertTrue(checkIfCompatibleType(SimulatedUser.class, User.class));
     }
 
@@ -44,7 +51,7 @@ public class ClassUtilsTest {
         Type type = getGenericType(WebApplicationExceptionHandler.class);
         checkIfCompatibleType(WebApplicationException.class, type, "Fail");
         checkIfCompatibleType(NotAllowedException.class, type, "Fail");
-    }*/
+    }
 
     @Test
     void convertPrimitiveTypes() throws ClassFactoryException {

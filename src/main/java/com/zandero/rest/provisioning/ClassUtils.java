@@ -4,7 +4,7 @@ import com.zandero.rest.annotation.SuppressCheck;
 import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.utils.*;
 import org.slf4j.*;
-//import sun.reflect.generics.reflectiveObjects.*;
+import sun.reflect.generics.reflectiveObjects.*;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -62,7 +62,7 @@ public final class ClassUtils {
         return null;
     }
 
-    /*public static boolean checkIfCompatibleTypes(Class<?> expected, Type... actual) {
+    public static boolean checkIfCompatibleTypes(Class<?> expected, Type... actual) {
 
         for (Type item : actual) {
             if (checkIfCompatibleType(expected, item)) {
@@ -71,17 +71,17 @@ public final class ClassUtils {
         }
 
         return false;
-    }*/
+    }
 
     // Does not work with latest Java versions
 
-    /*public static void checkIfCompatibleType(Class<?> expected, Type actual, String message) {
+    public static void checkIfCompatibleType(Class<?> expected, Type actual, String message) {
 
         boolean compatibleTypes = checkIfCompatibleType(expected, actual);
         Assert.isTrue(compatibleTypes, message);
     }
 
-    public static boolean checkIfCompatibleType(Class<?> expected, Type actual) {
+   public static boolean checkIfCompatibleType(Class<?> expected, Type actual) {
 
         if (expected == null) {
             return false;
@@ -103,10 +103,8 @@ public final class ClassUtils {
             return true;
         }
 
-
         return expected.equals(actual) || expected.isInstance(actual) || ((Class<?>) actual).isAssignableFrom(expected);
-    }*/
-
+    }
 
     static <T> boolean isPrimitiveType(Class<T> type) {
 

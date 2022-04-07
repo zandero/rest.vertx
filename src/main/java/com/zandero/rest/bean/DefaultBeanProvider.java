@@ -78,8 +78,8 @@ public class DefaultBeanProvider implements BeanProvider {
      */
     private void setField(Object instance, Field field, Object value) throws ClassFactoryException {
 
-       /* checkIfCompatibleType(field.getType(), value.getClass(),
-                              "Can't set field: '" + field.getName() + "', value to: " + value);*/
+        checkIfCompatibleType(field.getType(), value.getClass(),
+                              "Can't set field: '" + field.getName() + "', value to: " + value);
 
         boolean isAccessible = field.isAccessible();
         if (!isAccessible) {
@@ -110,8 +110,8 @@ public class DefaultBeanProvider implements BeanProvider {
                               MethodParameter parameter,
                               Object methodValue) throws ClassFactoryException {
 
-        /*checkIfCompatibleType(parameter.getDataType(), methodValue.getClass(),
-                              "Can't set field: '" + parameter.getName() + "', value to: " + methodValue);*/
+        checkIfCompatibleType(parameter.getDataType(), methodValue.getClass(),
+                              "Can't set field: '" + parameter.getName() + "', value to: " + methodValue);
 
         boolean isAccessible = method.isAccessible();
         if (!isAccessible) {
