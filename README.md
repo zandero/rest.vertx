@@ -14,8 +14,17 @@ for cookies and coffee or become a **[sponsor](https://github.com/sponsors/zande
 
 ## Setup
 
+**JAVA 11+**
 ```xml
+<dependency>
+    <groupId>com.zandero</groupId>
+    <artifactId>rest.vertx</artifactId>
+    <version>1.1</version>
+</dependency>
+```
 
+**NOTE:**  Last Java 8 compatiblem
+```xml
 <dependency>
     <groupId>com.zandero</groupId>
     <artifactId>rest.vertx</artifactId>
