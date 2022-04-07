@@ -1,10 +1,9 @@
 package com.zandero.rest.provisioning;
 
-import com.zandero.rest.annotation.SuppressCheck;
-import com.zandero.rest.exception.ClassFactoryException;
+import com.zandero.rest.annotation.*;
+import com.zandero.rest.exception.*;
 import com.zandero.utils.*;
 import org.slf4j.*;
-import sun.reflect.generics.reflectiveObjects.*;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -96,10 +95,12 @@ public final class ClassUtils {
         }
 
         if (actual instanceof ParameterizedType) {
-            return expected.isAssignableFrom(((ParameterizedTypeImpl) actual).getRawType());
+            //return expected.isAssignableFrom(((ParameterizedTypeImpl) actual).getRawType());
+            Type raw = ((ParameterizedType) actual).getRawType();
+            return expected == raw;
         }
 
-        if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
+        if (actual instanceof TypeVariable) { // we don't know at this point ... generic type
             return true;
         }
 

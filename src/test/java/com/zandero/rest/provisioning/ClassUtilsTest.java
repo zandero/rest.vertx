@@ -2,15 +2,17 @@ package com.zandero.rest.provisioning;
 
 import com.zandero.rest.exception.*;
 import com.zandero.rest.reader.*;
-import com.zandero.rest.test.data.SimulatedUser;
-import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
+import com.zandero.rest.test.data.*;
+import com.zandero.rest.test.handler.*;
 import com.zandero.rest.test.json.*;
 import com.zandero.rest.writer.*;
 import io.vertx.ext.auth.User;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import javax.ws.rs.*;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.concurrent.*;
 
 import static com.zandero.rest.provisioning.ClassUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,10 +40,19 @@ public class ClassUtilsTest {
     @Test
     void checkIfCompatibleTypes() {
 
-       // assertTrue(checkIfCompatibleType(Throwable.class, GenericExceptionHandler.class));
-        assertTrue(checkIfCompatibleType(GenericExceptionHandler.class, Throwable.class));
-        assertTrue(checkIfCompatibleType(TestDummyWriter.class, Dummy.class));
+        FutureDummyWriter futureWriter = new FutureDummyWriter();
+        Type futureWriterType = getGenericType(futureWriter.getClass());
+        assertTrue(checkIfCompatibleType(CompletableFuture.class, futureWriterType));
 
+        List<User> list = new ArrayList<>();
+        assertTrue(checkIfCompatibleType(list.getClass(), List.class));
+
+        DummyWriter writer = new DummyWriter();
+        Type writerType = getGenericType(writer.getClass());
+        assertTrue(checkIfCompatibleType(Dummy.class, writerType));
+
+        assertTrue(checkIfCompatibleType(GenericExceptionHandler.class, ExceptionHandler.class));
+        assertTrue(checkIfCompatibleType(TestDummyWriter.class, HttpResponseWriter.class));
         assertTrue(checkIfCompatibleType(SimulatedUser.class, User.class));
     }
 
