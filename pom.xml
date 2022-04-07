@@ -52,11 +52,11 @@
         <version.javax.inject>1</version.javax.inject>
         <version.java.validation>2.0.1.Final</version.java.validation>
 
-        <version.zandero.utils>[1.2.10,)</version.zandero.utils>
-        <version.zandero.utils.extra>[1.4,)</version.zandero.utils.extra>
+        <version.zandero.utils>1.2.10</version.zandero.utils>
+        <version.zandero.utils.extra>1.4</version.zandero.utils.extra>
 
-        <version.zandero.http>[1.2.4,)</version.zandero.http>
-        <version.zandero.utils.junit>[1.0.1,)</version.zandero.utils.junit>
+        <version.zandero.http>1.2.4</version.zandero.http>
+        <version.zandero.utils.junit>1.0.1</version.zandero.utils.junit>
 
         <version.vertx>4.1.5</version.vertx>
         <version.servlet-api>4.0.1</version.servlet-api>
@@ -96,12 +96,12 @@
             <groupId>com.zandero</groupId>
             <artifactId>utils.extra</artifactId>
             <version>${version.zandero.utils.extra}</version>
-           <!-- <exclusions>
-                <exclusion> &lt;!&ndash; exclude as it is already provided by vert.x &ndash;&gt;
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
+            <exclusions>
+                <exclusion> <!-- exclude as it is already provided by vert.x -->
+                    <groupId>com.zandero</groupId>
+                    <artifactId>utils</artifactId>
                 </exclusion>
-            </exclusions>-->
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -204,6 +204,16 @@
             <groupId>com.zandero</groupId>
             <artifactId>http</artifactId>
             <version>${version.zandero.http}</version>
+            <exclusions>
+                <exclusion> <!-- exclude as it is already provided by vert.x -->
+                    <groupId>com.zandero</groupId>
+                    <artifactId>utils</artifactId>
+                </exclusion>
+                <exclusion> <!-- exclude as it is already provided by vert.x -->
+                    <groupId>com.zandero</groupId>
+                    <artifactId>utils.extra</artifactId>
+                </exclusion>
+            </exclusions>
             <scope>test</scope>
         </dependency>
 
