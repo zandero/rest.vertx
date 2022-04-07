@@ -4,11 +4,14 @@ import com.zandero.rest.exception.*;
 import com.zandero.rest.reader.*;
 import com.zandero.rest.test.data.SimulatedUser;
 import com.zandero.rest.test.handler.IllegalArgumentExceptionHandler;
+import com.zandero.rest.test.json.*;
+import com.zandero.rest.writer.*;
 import io.vertx.ext.auth.User;
 import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.*;
 import java.lang.reflect.Type;
+import java.util.*;
 
 import static com.zandero.rest.data.ClassUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,7 +38,13 @@ public class ClassUtilsTest {
 
     @Test
     void checkIfCompatibleTypes() {
+
+        assertTrue(checkIfCompatibleType(GenericExceptionHandler.class, ExceptionHandler.class));
+        assertTrue(checkIfCompatibleType(TestDummyWriter.class, HttpResponseWriter.class));
         assertTrue(checkIfCompatibleType(SimulatedUser.class, User.class));
+
+        List<User> list = new ArrayList<>();
+        assertTrue(checkIfCompatibleType(list.getClass(), List.class));
     }
 
     @Test

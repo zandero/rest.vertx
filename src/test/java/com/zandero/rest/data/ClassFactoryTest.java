@@ -18,8 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ClassFactoryTest {
 
-
-
     @Test
     void constructTypeTest() throws ClassFactoryException {
 

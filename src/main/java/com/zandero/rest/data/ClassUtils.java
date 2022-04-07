@@ -97,7 +97,7 @@ public final class ClassUtils {
             return expected.isAssignableFrom(((ParameterizedTypeImpl) actual).getRawType());
         }
 
-        if (actual instanceof TypeVariableImpl) { // we don't know at this point ... generic type
+        if (actual instanceof TypeVariable) { // we don't know at this point ... generic type
             return true;
         }
 
