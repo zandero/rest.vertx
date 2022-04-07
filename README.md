@@ -23,7 +23,7 @@ for cookies and coffee or become a **[sponsor](https://github.com/sponsors/zande
 </dependency>
 ```
 
-**NOTE:**  Last Java 8 compatiblem
+**NOTE:**  Last Java 8 compatible version
 ```xml
 <dependency>
     <groupId>com.zandero</groupId>
