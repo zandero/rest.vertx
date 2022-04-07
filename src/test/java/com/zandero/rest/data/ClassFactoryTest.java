@@ -1,13 +1,15 @@
 package com.zandero.rest.data;
 
-import com.zandero.rest.exception.ClassFactoryException;
+import com.zandero.rest.exception.*;
 import com.zandero.rest.test.data.*;
-import com.zandero.rest.test.json.Dummy;
-import com.zandero.utils.Pair;
+import com.zandero.rest.test.json.*;
+import com.zandero.utils.*;
 import io.vertx.core.http.*;
-import io.vertx.ext.web.RoutingContext;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import io.vertx.ext.web.*;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.*;
+import org.mockito.*;
+import org.mockito.junit.jupiter.*;
 
 import static com.zandero.rest.data.ClassFactory.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,7 +18,14 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  *
  */
+@ExtendWith(MockitoExtension.class)
 class ClassFactoryTest {
+
+    @Mock
+    RoutingContext context;
+
+    @Mock
+    HttpServerRequest request;
 
     @Test
     void constructTypeTest() throws ClassFactoryException {
@@ -110,10 +119,7 @@ class ClassFactoryTest {
     }
 
     @Test
-    void constructViaContextFail() throws ClassFactoryException {
-
-        RoutingContext context = Mockito.mock(RoutingContext.class);
-        HttpServerRequest request = Mockito.mock(HttpServerRequest.class);
+    void constructViaContextFail() {
 
         Mockito.when(context.request()).thenReturn(request);
         Mockito.when(request.getParam("path")).thenReturn("SomePath");
