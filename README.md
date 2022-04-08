@@ -15,7 +15,9 @@ for cookies and coffee or become a **[sponsor](https://github.com/sponsors/zande
 ## Setup
 
 **JAVA 11+**
+
 ```xml
+
 <dependency>
     <groupId>com.zandero</groupId>
     <artifactId>rest.vertx</artifactId>
@@ -24,7 +26,9 @@ for cookies and coffee or become a **[sponsor](https://github.com/sponsors/zande
 ```
 
 **NOTE:**  Last Java 8 compatible version
+
 ```xml
+
 <dependency>
     <groupId>com.zandero</groupId>
     <artifactId>rest.vertx</artifactId>
@@ -268,10 +272,11 @@ public class CalculateRest {
 In case needed a request reader can be assigned to provide the correct variable:
 
 ```java
-    @GET
+@GET
 public int getDummyValue(@QueryParam("dummy") @RequestReader(DummyReader.class) Dummy dummy){
 
     return dummy.value;
+}
 ```
 
 #### Decoding of query variables
@@ -1674,10 +1679,10 @@ Example of a REST endpoint handling file upload.
 
 ```java
 // 1. provide a BodyHandler 
-BodyHandler bodyHandler = BodyHandler.create("my_upload_folder");
-RestBuilder builder = new RestBuilder(vertx)
-        .bodyHandler(bodyHandler)
-        .register(UploadFileRest.class);
+BodyHandler bodyHandler=BodyHandler.create("my_upload_folder");
+    RestBuilder builder=new RestBuilder(vertx)
+    .bodyHandler(bodyHandler)
+    .register(UploadFileRest.class);
 ```
 
 ```java
@@ -2054,15 +2059,16 @@ public String getAsJson(){
 
 ## Don't do this
 
-### Don't use vert.x @Context if not necessary 
+### Don't use vert.x @Context if not necessary
 
-On a request @Context must be dynamically provided by the method using it. 
-This means that no caching is possible and every class or chain of classes must be created on each and every request.  
+On a request @Context must be dynamically provided by the method using it. This means that no caching is possible and
+every class or chain of classes must be created on each and every request.  
 This might cause unecessary processing overhead - avoid it if you can.
 
 ### Don't manipulate the response inside the REST method body
 
 The intended workflow is as follows:
+
 * request gets read by __RequestReader__ and deserialized into a Java Object
 * REST method uses the request input to call a service and produce a result
 * REST method returns the result as a Java Object
