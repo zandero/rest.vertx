@@ -1,10 +1,10 @@
 package com.zandero.rest.test;
 
-import com.zandero.utils.StringUtils;
+import com.zandero.utils.*;
 import io.vertx.ext.web.*;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
+import javax.ws.rs.core.*;
 import java.util.*;
 
 @Path("/upload")
@@ -14,7 +14,7 @@ public class TestUploadFileRest {
     @Path("/file")
     public String upload(@Context RoutingContext context) {
 
-        Set<FileUpload> fileUploadSet = context.fileUploads();
+        List<FileUpload> fileUploadSet = context.fileUploads();
         if (fileUploadSet == null || fileUploadSet.isEmpty()) {
             return "missing upload file!";
         }

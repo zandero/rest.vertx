@@ -12,7 +12,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.zandero.rest" level="TRACE" />
+<!--    <logger name="com.zandero.rest" level="INFO" />-->
 
     <root level="INFO">
         <appender-ref ref="STDOUT" />

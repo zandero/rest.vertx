@@ -1,28 +1,29 @@
 package com.zandero.rest;
 
-import com.zandero.rest.authentication.RestAuthenticationProvider;
-import com.zandero.rest.authorization.RoleBasedUserAuthorizationProvider;
+import com.zandero.rest.authentication.*;
+import com.zandero.rest.authorization.*;
 import com.zandero.rest.bean.*;
 import com.zandero.rest.cache.*;
-import com.zandero.rest.context.ContextProvider;
+import com.zandero.rest.context.*;
 import com.zandero.rest.data.*;
-import com.zandero.rest.events.RestEventExecutor;
+import com.zandero.rest.events.*;
 import com.zandero.rest.exception.*;
-import com.zandero.rest.injection.InjectionProvider;
-import com.zandero.rest.reader.ValueReader;
+import com.zandero.rest.injection.*;
+import com.zandero.rest.reader.*;
 import com.zandero.rest.writer.*;
-import com.zandero.utils.Assert;
+import com.zandero.utils.*;
 import io.vertx.core.*;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.*;
-import io.vertx.ext.auth.User;
-import io.vertx.ext.auth.authorization.AuthorizationProvider;
+import io.vertx.ext.auth.*;
+import io.vertx.ext.auth.authorization.*;
 import io.vertx.ext.web.*;
 import io.vertx.ext.web.handler.*;
 import org.slf4j.*;
 
 import javax.validation.*;
-import javax.validation.executable.ExecutableValidator;
-import javax.ws.rs.core.MediaType;
+import javax.validation.executable.*;
+import javax.ws.rs.core.*;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -466,6 +467,7 @@ public class RestRouter {
         return context -> context.vertx().executeBlocking(
             fut -> {
                 try {
+                    log.info(definition.getMethod().name() + " " + definition.getPath());
                     Object[] args = ArgumentProvider.getArguments(method,
                                                                   definition,
                                                                   context,
@@ -510,6 +512,8 @@ public class RestRouter {
         return context -> {
 
             try {
+                log.info(definition.getMethod().name() + " " + definition.getPath());
+
                 Object[] args = ArgumentProvider.getArguments(method, definition, context, getReaders(), getContextProviders(), getInjectionProvider(), beanProvider);
                 validate(method, definition, validator, toInvoke, args);
 
