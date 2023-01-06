@@ -61,10 +61,10 @@
         <version.vertx>[4.3.3,)</version.vertx>
         <version.servlet-api>4.0.1</version.servlet-api>
 
-        <version.jackson>2.12.5</version.jackson>
+        <version.jackson>[2.12.5,)</version.jackson>
 
         <!-- logging -->
-        <version.slf4j-api>2.0.0-alpha5</version.slf4j-api>
+        <version.slf4j-api>2.0.6</version.slf4j-api>
 
         <!-- testing -->
         <version.logback>[1.1.7,)</version.logback>
@@ -75,10 +75,11 @@
         <version.guice>5.0.1</version.guice>
         <version.feather>1.0</version.feather>
 
-        <!-- implementation of javax.rs Response -->
+        <!-- implementation of javax.rs Response / don't upgrade as it breaks functionality ! -->
         <version.glassfish>2.32</version.glassfish>
 
         <!-- implementation of javax.validation -->
+        <!-- 8.0.0.Final -->
         <version.hibernate.validation>6.2.0.Final</version.hibernate.validation>
         <version.java.validation.el>3.0.0</version.java.validation.el>
     </properties>
@@ -355,7 +356,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.3.1</version>
+                <version>3.4.1</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
