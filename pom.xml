@@ -7,7 +7,7 @@
 
     <artifactId>rest.vertx</artifactId>
     <groupId>com.zandero</groupId>
-    <version>1.1</version>
+    <version>1.1.1</version>
     <packaging>jar</packaging>
 
     <name>Zandero REST Vert.X</name>
@@ -39,8 +39,8 @@
 
     <properties>
 
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.encoding>UTF-8</project.encoding>
         <project.build.sourceEncoding>${project.encoding}</project.build.sourceEncoding>
 
@@ -58,28 +58,29 @@
         <version.zandero.http>[1.3,)</version.zandero.http>
         <version.zandero.utils.junit>[1.1,)</version.zandero.utils.junit>
 
-        <version.vertx>4.1.5</version.vertx>
+        <version.vertx>[4.3.3,)</version.vertx>
         <version.servlet-api>4.0.1</version.servlet-api>
 
-        <version.jackson>2.12.5</version.jackson>
+        <version.jackson>[2.14.1,)</version.jackson>
 
         <!-- logging -->
-        <version.slf4j-api>2.0.0-alpha5</version.slf4j-api>
+        <version.slf4j-api>2.0.6</version.slf4j-api>
 
         <!-- testing -->
         <version.logback>[1.1.7,)</version.logback>
         <version.junit>[5.8.2,)</version.junit>
        <!-- <version.mockito-all>1.10.19</version.mockito-all>-->
-        <version.mockito-core>4.3.1</version.mockito-core>
+        <version.mockito-core>4.11.0</version.mockito-core>
         <version.jetty>[9.3.7.v20160115,)</version.jetty>
 
-        <version.guice>5.0.1</version.guice>
+        <version.guice>5.1.0</version.guice>
         <version.feather>1.0</version.feather>
 
         <!-- implementation of javax.rs Response -->
         <version.glassfish>2.32</version.glassfish>
 
         <!-- implementation of javax.validation -->
+        <!-- 8.0.0.Final -->
         <version.hibernate.validation>6.2.0.Final</version.hibernate.validation>
         <version.java.validation.el>3.0.0</version.java.validation.el>
     </properties>
@@ -237,6 +238,7 @@
             <scope>test</scope>
         </dependency>
 
+
         <!-- Dependency injection frameworks ... to test injection providers -->
         <dependency>
             <groupId>com.google.inject</groupId>
@@ -305,14 +307,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.10.1</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
-            <plugin>
+            <!--<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
@@ -321,11 +323,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.22.2</version>
-            </plugin>
+            </plugin>-->
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.12</version>
+                <version>1.6.13</version>
                 <extensions>true</extensions>
                 <configuration>
                     <!-- for production deployment -->
@@ -354,7 +356,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.3.1</version>
+                <version>3.4.1</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>

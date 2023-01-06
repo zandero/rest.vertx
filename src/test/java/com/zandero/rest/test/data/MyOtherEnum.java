@@ -1,15 +1,21 @@
 package com.zandero.rest.test.data;
 
-import com.zandero.utils.StringUtils;
+import com.zandero.utils.*;
 
 /**
  *
  */
 public enum MyOtherEnum {
 
-	one,
-	two,
-	three;
+	one(1),
+	two(2),
+	three(3);
+
+	private final String parseValue;
+
+	MyOtherEnum(int value) {
+		this.parseValue = "" + value;
+	}
 
 	public static MyOtherEnum fromString(String value) {
 
@@ -17,10 +23,10 @@ public enum MyOtherEnum {
 			return null;
 		}
 
-		switch (value) {
-			case "1" : return one;
-			case "2" : return two;
-			case "3" : return three;
+		for (MyOtherEnum item: values()) {
+			if (item.parseValue.equals(value)) {
+				return item;
+			}
 		}
 
 		return valueOf(value);

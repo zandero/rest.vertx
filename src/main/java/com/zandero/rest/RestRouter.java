@@ -14,6 +14,7 @@ import com.zandero.rest.reader.ValueReader;
 import com.zandero.rest.writer.*;
 import com.zandero.utils.Assert;
 import io.vertx.core.*;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.*;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.authorization.AuthorizationProvider;
@@ -82,7 +83,6 @@ public class RestRouter {
 
         Assert.notNull(router, "Missing vertx router!");
         Assert.isTrue(restApi != null && restApi.length > 0, "Missing REST API class object!");
-        assert restApi != null;
 
         for (Object api : restApi) {
 
@@ -109,6 +109,14 @@ public class RestRouter {
             }
 
             // REST endpoints
+            // Since version 4.3 - handler order must confirm to following order
+            //  PLATFORM: platform handlers (LoggerHandler, FaviconHandler, etc.)
+            //  SECURITY_POLICY: HTTP Security policies (CSPHandler, CorsHandler, etc.)
+            //  BODY: Body parsing (BodyHandler)
+            //  AUTHENTICATION: Authn (JWTAuthHandler, APIKeyHandler, WebauthnHandler, etc.)
+            //  INPUT_TRUST: Input verification (CSRFHandler)
+            //  AUTHORIZATION: Authz (AuthorizationHandler)
+            //
             Map<RouteDefinition, Method> definitions = AnnotationProcessor.get(api.getClass());
 
             for (RouteDefinition definition : definitions.keySet()) {
@@ -127,6 +135,19 @@ public class RestRouter {
                     route.order(definition.getOrder());
                 }
 
+                // add BodyHandler in case request has a body ...
+                if (definition.requestHasBody()) {
+                    if (bodyHandler == null) {
+                        route.handler(BodyHandler.create());
+                        log.debug("Adding default body handler to route!");
+                    } else {
+                        route.handler(bodyHandler);
+                        log.debug("Adding provided body handler to route!");
+                    }
+                }
+                // check body and reader compatibility beforehand
+                checkBodyReader(definition);
+
                 // each route gets ist definition provided via context provider
                 ContextProvider<RouteDefinition> definitionHandler = request -> definition;
                 route.handler(getContextHandler(definitionHandler));
@@ -141,20 +162,6 @@ public class RestRouter {
                 if (definition.getProduces() != null) {
                     for (MediaType item : definition.getProduces()) {
                         route.produces(MediaTypeHelper.getKey(item)); // ignore charset when binding
-                    }
-                }
-
-                // check body and reader compatibility beforehand
-                checkBodyReader(definition);
-
-                // add BodyHandler in case request has a body ...
-                if (definition.requestHasBody()) {
-                    if (bodyHandler == null) {
-                        route.handler(BodyHandler.create());
-                        log.debug("Adding default body handler to route!");
-                    } else {
-                        route.handler(bodyHandler);
-                        log.debug("Adding provided body handler to route!");
                     }
                 }
 
@@ -465,6 +472,7 @@ public class RestRouter {
         return context -> context.vertx().executeBlocking(
             fut -> {
                 try {
+                    log.info(definition.getMethod().name() + " " + definition.getPath());
                     Object[] args = ArgumentProvider.getArguments(method,
                                                                   definition,
                                                                   context,
@@ -507,6 +515,9 @@ public class RestRouter {
         return context -> {
 
             try {
+                log.info(definition.getMethod().name() + " " + definition.getPath());
+
+                //Object[] args = ArgumentProvider.getArguments(method, definition, context, getReaders(), getContextProviders(), getInjectionProvider(), beanProvider);
                 Object[] args = ArgumentProvider.getArguments(method,
                                                               definition,
                                                               context,

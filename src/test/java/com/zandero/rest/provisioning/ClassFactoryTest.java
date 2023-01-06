@@ -1,21 +1,21 @@
-package com.zandero.rest.provisioning;
+package com.zandero.rest.data;
 
-import com.zandero.rest.exception.*;
+import com.zandero.rest.exception.ClassFactoryException;
 import com.zandero.rest.test.data.*;
-import com.zandero.rest.test.json.*;
-import com.zandero.utils.*;
+import com.zandero.rest.test.json.Dummy;
+import com.zandero.utils.Pair;
 import io.vertx.core.http.*;
-import io.vertx.ext.web.*;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.*;
-import org.mockito.*;
-import org.mockito.junit.jupiter.*;
-import org.mockito.quality.*;
+import io.vertx.ext.web.RoutingContext;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import static com.zandero.rest.provisioning.ClassFactory.*;
+import static com.zandero.rest.data.ClassFactory.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
+
+/**
+ *
+ */
 class ClassFactoryTest {
 
     @Mock
