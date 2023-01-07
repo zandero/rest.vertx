@@ -25,6 +25,17 @@ public class ClassUtilsTest {
         assertEquals(Integer.class, getGenericType(IntegerBodyReader.class)); // at least we know so much
         assertEquals(IllegalArgumentException.class, getGenericType(IllegalArgumentExceptionHandler.class)); // at least we know so much
         assertEquals(WebApplicationException.class, getGenericType(WebApplicationExceptionHandler.class)); // at least we know so much
+
+        assertEquals(Dummy.class, getGenericType(TestDummyWriter.class));
+    }
+
+    @Test
+    void getGenericTypeFromInstance() {
+        TestDummyWriter writer = new TestDummyWriter();
+        assertEquals(Dummy.class, getGenericType(writer.getClass()));
+/*
+        DummyBodyReader reader = new DummyBodyReader();
+        assertEquals(Dummy.class, getGenericType(reader.getClass()));*/
     }
 
     @Test

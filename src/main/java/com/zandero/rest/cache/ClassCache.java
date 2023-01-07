@@ -1,9 +1,9 @@
 package com.zandero.rest.cache;
 
-import com.zandero.utils.Assert;
+import com.zandero.utils.*;
 import org.slf4j.*;
 
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.*;
 
 import static com.zandero.rest.provisioning.ClassUtils.*;
@@ -122,12 +122,16 @@ public abstract class ClassCache<T> {
         Assert.notNull(aClass, "Missing associated class!");
         Assert.notNull(instance, "Missing instance of class!");
 
-        if (checkCompatibility(instance.getClass())) {
+       /*
+       TODO: revisit this part ... if check is even feasible
+       if (checkCompatibility(instance.getClass())) {
             Type expected = getGenericType(instance.getClass());
-            checkIfCompatibleType(aClass,
-                                  expected,
-                                  "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + instance.getClass() + "'!");
-        }
+            if (expected != null) {
+                checkIfCompatibleType(aClass,
+                                      expected,
+                                      "Incompatible types: '" + aClass + "' and: '" + expected + "' using: '" + instance.getClass() + "'!");
+            }
+        }*/
 
         // also register type
         log.trace("Storing instance: " + instance.getClass().getName() + " into cache, for: " + aClass.getName());

@@ -1,21 +1,23 @@
-package com.zandero.rest.data;
+package com.zandero.rest.provisioning;
 
-import com.zandero.rest.exception.ClassFactoryException;
+import com.zandero.rest.exception.*;
 import com.zandero.rest.test.data.*;
-import com.zandero.rest.test.json.Dummy;
-import com.zandero.utils.Pair;
+import com.zandero.rest.test.json.*;
+import com.zandero.utils.*;
 import io.vertx.core.http.*;
-import io.vertx.ext.web.RoutingContext;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import io.vertx.ext.web.*;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.*;
+import org.mockito.*;
+import org.mockito.junit.jupiter.*;
 
-import static com.zandero.rest.data.ClassFactory.*;
+import static com.zandero.rest.provisioning.ClassFactory.*;
 import static org.junit.jupiter.api.Assertions.*;
-
 
 /**
  *
  */
+@ExtendWith(MockitoExtension.class)
 class ClassFactoryTest {
 
     @Mock
@@ -47,12 +49,12 @@ class ClassFactoryTest {
     @Test
     void constructViaConstructorTest() {
 
-        Pair<Boolean, Dummy> dummy = ClassFactory.constructViaConstructor(Dummy.class, "{\"name\":\"unknown\", \"value\": \"user\"}");
+        Pair<Boolean, Dummy> dummy = constructViaConstructor(Dummy.class, "{\"name\":\"unknown\", \"value\": \"user\"}");
         assertNotNull(dummy);
         assertEquals("unknown", dummy.getValue().name);
         assertEquals("user", dummy.getValue().value);
 
-        Pair<Boolean, SimulatedUser> user = ClassFactory.constructViaConstructor(SimulatedUser.class, "BLA");
+        Pair<Boolean, SimulatedUser> user = constructViaConstructor(SimulatedUser.class, "BLA");
         assertNotNull(user);
         assertEquals("BLA", user.getValue().getRole());
 
@@ -64,12 +66,12 @@ class ClassFactoryTest {
     @Test
     void constructViaMethodTest() {
 
-        Pair<Boolean, Dummy> dummy = ClassFactory.constructViaMethod(Dummy.class, "{\"name\":\"unknown\", \"value\": \"user\"}");
+        Pair<Boolean, Dummy> dummy = constructViaMethod(Dummy.class, "{\"name\":\"unknown\", \"value\": \"user\"}");
         assertNotNull(dummy);
         assertEquals("unknown", dummy.getValue().name);
         assertEquals("user", dummy.getValue().value);
 
-        Pair<Boolean, SimulatedUser> user = ClassFactory.constructViaMethod(SimulatedUser.class, "BLA");
+        Pair<Boolean, SimulatedUser> user = constructViaMethod(SimulatedUser.class, "BLA");
         assertNotNull(user);
 
         assertNotNull(user.getKey());
@@ -84,16 +86,16 @@ class ClassFactoryTest {
 
     @Test
     void constructEnumTest() {
-        Pair<Boolean, MyEnum> value = ClassFactory.constructViaMethod(MyEnum.class, "one");
+        Pair<Boolean, MyEnum> value = constructViaMethod(MyEnum.class, "one");
         assertEquals(MyEnum.one, value.getValue());
 
-        Pair<Boolean, MyOtherEnum> other = ClassFactory.constructViaMethod(MyOtherEnum.class, "one");
+        Pair<Boolean, MyOtherEnum> other = constructViaMethod(MyOtherEnum.class, "one");
         assertEquals(MyOtherEnum.one, other.getValue());
 
-        other = ClassFactory.constructViaMethod(MyOtherEnum.class, "2");
+        other = constructViaMethod(MyOtherEnum.class, "2");
         assertEquals(MyOtherEnum.two, other.getValue());
 
-        other = ClassFactory.constructViaMethod(MyOtherEnum.class, "");
+        other = constructViaMethod(MyOtherEnum.class, "");
         assertEquals(true, other.getKey());
         assertNull(other.getValue());
     }

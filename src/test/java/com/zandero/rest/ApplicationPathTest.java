@@ -1,13 +1,13 @@
 package com.zandero.rest;
 
 import com.zandero.rest.test.*;
-import io.vertx.ext.web.Router;
-import io.vertx.ext.web.codec.BodyCodec;
+import io.vertx.ext.web.*;
+import io.vertx.ext.web.codec.*;
 import io.vertx.junit5.*;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(VertxExtension.class)
 public class ApplicationPathTest extends VertxTest {
@@ -41,7 +41,7 @@ public class ApplicationPathTest extends VertxTest {
 
         client.get(PORT, HOST, "/v2/application/echo/this?query=kveri").as(BodyCodec.string())
             .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals("2thiskveri", response.body());
+                assertEquals("/application/echo/{param}=2this", response.body());
                 context.completeNow();
             })));
     }
@@ -52,7 +52,6 @@ public class ApplicationPathTest extends VertxTest {
         client.get(PORT, HOST, "/v2/application/echo2/this?query=kveri").as(BodyCodec.string())
             .send(context.succeeding(response -> context.verify(() -> {
                 assertEquals("/v2/application/echo2/this2kveri", response.body());
-                assertEquals("/application/echo/{param}=2this", response.body());
                 context.completeNow();
             })));
     }
