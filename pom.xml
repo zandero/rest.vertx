@@ -76,7 +76,7 @@
         <version.feather>1.0</version.feather>
 
         <!-- implementation of javax.rs Response / don't upgrade as it breaks functionality ! -->
-        <version.glassfish>2.32</version.glassfish>
+        <version.glassfish>3.1.1</version.glassfish>
 
         <!-- implementation of javax.validation -->
         <!-- 8.0.0.Final -->
