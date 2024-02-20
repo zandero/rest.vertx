@@ -1316,8 +1316,36 @@ public class WriteMyObject {
 By default **Rest.Vertx** binds _application/json_ mime type to internal _JsonValueReader_ and _JsonResponseWriter_
 to read and write JSONs. This reader/writer utilizes Jackson with Vert.x internal _io.vertx.core.json.Json.mapper_
 ObjectMapper.  
+
 In order to change serialization/deserialization of JSON via Jackson the internal _io.vertx.core.json.Json.mapper_
 should be altered.
+
+### Set your own Jackson ObjectMapper
+Alternatively you can override the build in JSON -> Object mapping by providing your own JsonReader:
+
+```java
+@Consumes("application/json")
+public class MyJsonReader<T> implements ValueReader<T> {
+
+    @Override
+    public T read(String value, Class<T> type) {
+
+        if (StringUtils.isNullOrEmptyTrimmed(value)) {
+            return null;
+        }
+
+        return YOUR_MAPPER.readValue(value, type);
+    }
+}
+```
+
+And then registering the reader:
+
+```java
+RestRouter router = RestBuilder(router)
+                        // JSON readers
+                        .reader("application/json", MyJsonReader.class);
+```
 
 ## Ordering routes
 
