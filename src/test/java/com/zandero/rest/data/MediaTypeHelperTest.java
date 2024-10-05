@@ -3,7 +3,7 @@ package com.zandero.rest.data;
 
 import org.junit.jupiter.api.Test;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.util.*;
 
 import static com.zandero.utils.junit.AssertFinalClass.isWellDefined;

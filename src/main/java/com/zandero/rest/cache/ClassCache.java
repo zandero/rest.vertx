@@ -3,7 +3,7 @@ package com.zandero.rest.cache;
 import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.utils.Assert;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.lang.reflect.Type;
 import java.util.*;
 

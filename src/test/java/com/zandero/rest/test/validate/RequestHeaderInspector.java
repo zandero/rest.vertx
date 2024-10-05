@@ -2,7 +2,7 @@ package com.zandero.rest.test.validate;
 
 import com.zandero.utils.StringUtils;
 
-import javax.validation.*;
+import jakarta.validation.*;
 
 public class RequestHeaderInspector implements ConstraintValidator<ValidHeader, String>
 {

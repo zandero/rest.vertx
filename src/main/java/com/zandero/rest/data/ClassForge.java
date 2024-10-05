@@ -7,7 +7,7 @@ import com.zandero.rest.writer.*;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.lang.reflect.Type;
 
 import static com.zandero.rest.data.ClassUtils.*;

@@ -4,8 +4,8 @@ import com.zandero.rest.annotation.CatchWith;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.test.handler.*;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 
 /**
  *

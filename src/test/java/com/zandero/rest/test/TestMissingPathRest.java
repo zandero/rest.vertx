@@ -1,6 +1,6 @@
 package com.zandero.rest.test;
 
-import javax.ws.rs.GET;
+import jakarta.ws.rs.GET;
 
 /**
  * At least one path ...

@@ -7,7 +7,7 @@ import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.authorization.*;
 import org.slf4j.*;
 
-import javax.ws.rs.core.Context;
+import jakarta.ws.rs.core.Context;
 import java.util.*;
 
 /**

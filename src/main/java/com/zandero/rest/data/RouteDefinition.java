@@ -15,9 +15,9 @@ import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
 import javax.annotation.security.*;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.*;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
@@ -446,8 +446,8 @@ public class RouteDefinition {
                 }
             }
 
-            if (annotation instanceof javax.ws.rs.HttpMethod) {
-                method(((javax.ws.rs.HttpMethod) annotation).value());
+            if (annotation instanceof jakarta.ws.rs.HttpMethod) {
+                method(((jakarta.ws.rs.HttpMethod) annotation).value());
             }
 
             // response writer ...

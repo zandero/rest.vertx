@@ -5,7 +5,7 @@ import com.zandero.rest.test.exceptions.*;
 import com.zandero.rest.test.handler.*;
 import org.junit.jupiter.api.*;
 
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.WebApplicationException;
 
 import static org.junit.jupiter.api.Assertions.*;
 

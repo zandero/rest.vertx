@@ -3,8 +3,8 @@ package com.zandero.rest.test;
 import com.zandero.rest.annotation.RouteOrder;
 import com.zandero.rest.data.RouteDefinition;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 import java.util.*;
 
 /**

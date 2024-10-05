@@ -11,7 +11,7 @@ import io.vertx.core.http.*;
 import io.vertx.ext.auth.User;
 import io.vertx.ext.web.RoutingContext;
 
-import javax.ws.rs.core.Context;
+import jakarta.ws.rs.core.Context;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;

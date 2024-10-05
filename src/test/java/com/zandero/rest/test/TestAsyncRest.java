@@ -6,9 +6,9 @@ import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.*;
 import io.vertx.core.http.HttpServerResponse;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.*;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.*;
 import java.util.concurrent.CompletableFuture;
 
 /**

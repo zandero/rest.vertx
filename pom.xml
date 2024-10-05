@@ -7,7 +7,7 @@
 
     <artifactId>rest.vertx</artifactId>
     <groupId>com.zandero</groupId>
-    <version>1.1.1</version>
+    <version>1.2.0</version>
     <packaging>jar</packaging>
 
     <name>Zandero REST Vert.X</name>
@@ -48,9 +48,9 @@
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 
         <version.java.annotation>1.3.2</version.java.annotation>
-        <version.java.rs>2.1.1</version.java.rs>
-        <version.javax.inject>1</version.javax.inject>
-        <version.java.validation>2.0.1.Final</version.java.validation>
+        <version.java.rs>3.1.0</version.java.rs>
+        <version.javax.inject>2.0.1.MR</version.javax.inject>
+        <version.java.validation>3.0.2</version.java.validation>
 
         <version.zandero.utils>1.3</version.zandero.utils>
         <version.zandero.utils.extra>1.5</version.zandero.utils.extra>
@@ -76,12 +76,12 @@
         <version.feather>1.0</version.feather>
 
         <!-- implementation of javax.rs Response / don't upgrade as it breaks functionality ! -->
-        <version.glassfish>2.32</version.glassfish>
+        <version.glassfish>3.1.8</version.glassfish>
 
         <!-- implementation of javax.validation -->
         <!-- 8.0.0.Final -->
-        <version.hibernate.validation>6.2.0.Final</version.hibernate.validation>
-        <version.java.validation.el>3.0.0</version.java.validation.el>
+        <version.hibernate.validation>8.0.1.Final</version.hibernate.validation>
+        <version.java.validation.el>5.0.0</version.java.validation.el>
     </properties>
 
     <dependencies>
@@ -124,10 +124,11 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
             <version>${version.java.rs}</version>
         </dependency>
+
 
         <dependency>
             <groupId>javax.annotation</groupId>
@@ -136,14 +137,20 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
             <version>${version.javax.inject}</version>
         </dependency>
 
         <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
             <version>${version.java.validation}</version>
         </dependency>
 
@@ -202,6 +209,13 @@
         </dependency>
 
         <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.9.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.zandero</groupId>
             <artifactId>http</artifactId>
             <version>${version.zandero.http}</version>
@@ -254,38 +268,21 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>${version.hibernate.validation}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.el</artifactId>
-            <version>${version.java.validation.el}</version>
+            <groupId>org.glassfish.expressly</groupId>
+            <artifactId>expressly</artifactId>
+            <version>5.0.0</version>
             <scope>test</scope>
         </dependency>
 
-        <!--
-        Hibernate 7.0.1 uses new validation interface
-        <dependency>
-            <groupId>jakarta.validation</groupId>
-            <artifactId>jakarta.validation-api</artifactId>
-            <version>3.0.0</version>
-            <scope>test</scope>
-        </dependency>-->
-
-        <!--<dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>jakarta.el</artifactId>
-            <version>4.0.0</version>
-            <scope>test</scope>
-        </dependency>-->
-
     </dependencies>
-
 
     <distributionManagement>
         <!-- Repository for snapshots -->

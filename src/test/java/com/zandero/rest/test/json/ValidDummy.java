@@ -3,7 +3,7 @@ package com.zandero.rest.test.json;
 import com.fasterxml.jackson.annotation.*;
 import com.zandero.utils.extra.JsonUtils;
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 
 /**
  *

@@ -5,7 +5,7 @@ import com.zandero.rest.reader.CustomWordListReader;
 import com.zandero.rest.test.json.*;
 import com.zandero.utils.*;
 
-import javax.ws.rs.*;
+import jakarta.ws.rs.*;
 import java.time.Instant;
 import java.util.*;
 

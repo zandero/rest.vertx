@@ -1,6 +1,6 @@
 package com.zandero.rest.annotation;
 
-import javax.ws.rs.HttpMethod;
+import jakarta.ws.rs.HttpMethod;
 import java.lang.annotation.*;
 
 /**

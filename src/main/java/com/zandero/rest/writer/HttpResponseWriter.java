@@ -6,8 +6,8 @@ import com.zandero.rest.data.*;
 import io.vertx.core.http.*;
 import org.slf4j.*;
 
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import java.util.*;
 
 import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;

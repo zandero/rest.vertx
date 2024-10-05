@@ -8,8 +8,8 @@ import com.zandero.utils.Assert;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.core.MediaType;
 
 /**
  * Provides definition and caching of request body reader implementations

@@ -21,9 +21,9 @@ import io.vertx.ext.web.*;
 import io.vertx.ext.web.handler.*;
 import org.slf4j.*;
 
-import javax.validation.*;
-import javax.validation.executable.*;
-import javax.ws.rs.core.*;
+import jakarta.validation.*;
+import jakarta.validation.executable.*;
+import jakarta.ws.rs.core.*;
 import java.lang.reflect.*;
 import java.util.*;
 

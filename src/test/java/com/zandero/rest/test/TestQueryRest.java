@@ -5,7 +5,7 @@ import com.zandero.rest.reader.DummyBodyReader;
 import com.zandero.rest.test.json.Dummy;
 import com.zandero.utils.StringUtils;
 
-import javax.ws.rs.*;
+import jakarta.ws.rs.*;
 
 /**
  *

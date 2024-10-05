@@ -12,7 +12,7 @@ import io.vertx.core.http.*;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.*;
 import java.net.URLDecoder;

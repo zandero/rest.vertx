@@ -6,8 +6,8 @@ import com.zandero.rest.test.data.*;
 import com.zandero.rest.test.json.Dummy;
 import io.vertx.core.http.*;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 
 /**
  *

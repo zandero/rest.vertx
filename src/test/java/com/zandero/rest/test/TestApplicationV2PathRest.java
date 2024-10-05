@@ -3,8 +3,8 @@ package com.zandero.rest.test;
 import com.zandero.rest.data.*;
 import io.vertx.core.http.*;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 
 /**
  *

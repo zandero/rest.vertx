@@ -1,6 +1,6 @@
 package com.zandero.rest.test;
 
-import javax.ws.rs.ApplicationPath;
+import jakarta.ws.rs.ApplicationPath;
 
 @ApplicationPath("v1")
 public interface RestApplicationV1 {

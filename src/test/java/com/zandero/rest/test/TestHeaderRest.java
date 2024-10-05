@@ -5,7 +5,7 @@ import com.zandero.rest.reader.*;
 import com.zandero.rest.test.data.Token;
 import com.zandero.rest.test.json.Dummy;
 
-import javax.ws.rs.*;
+import jakarta.ws.rs.*;
 
 /**
  *

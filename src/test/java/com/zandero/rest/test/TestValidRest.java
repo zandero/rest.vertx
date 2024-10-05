@@ -4,10 +4,10 @@ import com.zandero.rest.annotation.*;
 import com.zandero.rest.test.json.ValidDummy;
 import com.zandero.rest.test.validate.*;
 
-import javax.validation.*;
-import javax.validation.constraints.*;
-import javax.ws.rs.*;
-import javax.ws.rs.Path;
+import jakarta.validation.*;
+import jakarta.validation.constraints.*;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.Path;
 import java.util.*;
 
 /**

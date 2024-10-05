@@ -4,7 +4,7 @@ import com.zandero.utils.StringUtils;
 import com.zandero.utils.extra.JsonUtils;
 import io.vertx.core.json.jackson.DatabindCodec;
 
-import javax.ws.rs.Consumes;
+import jakarta.ws.rs.Consumes;
 
 /**
  * Converts request body to JSON

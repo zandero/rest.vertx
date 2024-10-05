@@ -2,8 +2,8 @@ package com.zandero.rest.test;
 
 import com.zandero.rest.test.data.SimulatedUser;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 
 /**
  *

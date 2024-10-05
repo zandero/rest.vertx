@@ -2,7 +2,7 @@ package com.zandero.rest.test;
 
 import com.zandero.rest.annotation.Header;
 
-import javax.ws.rs.*;
+import jakarta.ws.rs.*;
 
 /**
  *

@@ -2,7 +2,7 @@ package com.zandero.rest.test.data;
 
 import com.zandero.rest.annotation.Raw;
 
-import javax.ws.rs.*;
+import jakarta.ws.rs.*;
 
 public class MyComplexBean {
 

@@ -4,8 +4,8 @@ import com.zandero.rest.annotation.ResponseWriter;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 
 @Path("/issue")
 public class TestIssue109Rest {

@@ -4,7 +4,7 @@ import com.zandero.rest.annotation.*;
 import com.zandero.rest.test.json.Dummy;
 
 import javax.inject.*;
-import javax.ws.rs.*;
+import jakarta.ws.rs.*;
 
 /**
  *

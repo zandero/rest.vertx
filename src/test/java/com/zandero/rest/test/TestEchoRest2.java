@@ -1,6 +1,6 @@
 package com.zandero.rest.test;
 
-import javax.ws.rs.*;
+import jakarta.ws.rs.*;
 
 import static com.zandero.rest.VertxTest.API_ROOT;
 

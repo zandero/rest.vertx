@@ -5,8 +5,8 @@ import com.zandero.rest.test.data.SimulatedUser;
 import io.vertx.ext.auth.User;
 
 import javax.annotation.security.*;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 
 /**
  * Test access based on User context / roles

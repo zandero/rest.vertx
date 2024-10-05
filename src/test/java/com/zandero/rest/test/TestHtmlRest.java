@@ -2,8 +2,8 @@ package com.zandero.rest.test;
 
 import com.zandero.rest.annotation.Get;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 
 /**
  *

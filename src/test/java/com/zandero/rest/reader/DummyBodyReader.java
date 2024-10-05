@@ -2,7 +2,7 @@ package com.zandero.rest.reader;
 
 import com.zandero.rest.test.json.Dummy;
 
-import javax.ws.rs.Consumes;
+import jakarta.ws.rs.Consumes;
 
 /**
  *

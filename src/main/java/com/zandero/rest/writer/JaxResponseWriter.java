@@ -7,7 +7,7 @@ import com.zandero.utils.Assert;
 import io.vertx.core.http.*;
 import io.vertx.ext.web.RoutingContext;
 
-import javax.ws.rs.core.*;
+import jakarta.ws.rs.core.*;
 import java.util.*;
 
 import static io.vertx.core.http.HttpHeaders.*;

@@ -65,7 +65,7 @@ class RouteWithContextTest extends VertxTest {
         client.get(PORT, HOST, "/context/unknown").as(BodyCodec.string())
             .send(context.succeeding(response -> context.verify(() -> {
                 assertEquals(400, response.statusCode());
-                assertEquals("Can't provide @Context of type: interface javax.ws.rs.core.Request", response.body());
+                assertEquals("Can't provide @Context of type: interface jakarta.ws.rs.core.Request", response.body());
                 context.completeNow();
             })));
     }

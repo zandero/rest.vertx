@@ -5,8 +5,8 @@ import com.zandero.rest.test.json.Dummy;
 import com.zandero.rest.writer.TestCustomWriter;
 import io.vertx.core.http.HttpServerRequest;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 
 /**
  * Simple REST to test annotation processing

@@ -4,7 +4,7 @@ import com.zandero.rest.annotation.Header;
 import com.zandero.rest.test.json.User;
 import io.vertx.core.http.*;
 
-import javax.ws.rs.Produces;
+import jakarta.ws.rs.Produces;
 
 /**
  *

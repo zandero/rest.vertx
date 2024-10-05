@@ -9,7 +9,7 @@ import com.zandero.rest.writer.*;
 import io.vertx.ext.auth.User;
 import org.junit.jupiter.api.*;
 
-import javax.ws.rs.*;
+import jakarta.ws.rs.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;

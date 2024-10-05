@@ -3,7 +3,7 @@ package com.zandero.rest.test;
 import com.zandero.rest.annotation.ResponseWriter;
 import com.zandero.rest.writer.TestDummyWriter;
 
-import javax.ws.rs.*;
+import jakarta.ws.rs.*;
 
 /**
  *

@@ -16,8 +16,8 @@ import io.vertx.ext.auth.authorization.AuthorizationProvider;
 import io.vertx.ext.web.*;
 import io.vertx.ext.web.handler.*;
 
-import javax.validation.Validator;
-import javax.ws.rs.core.MediaType;
+import jakarta.validation.Validator;
+import jakarta.ws.rs.core.MediaType;
 import java.util.*;
 
 /**

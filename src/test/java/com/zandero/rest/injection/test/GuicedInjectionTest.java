@@ -13,7 +13,7 @@ import io.vertx.junit5.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

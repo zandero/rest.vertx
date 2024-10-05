@@ -5,8 +5,8 @@ import com.zandero.rest.data.*;
 import com.zandero.utils.Assert;
 import org.slf4j.*;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;

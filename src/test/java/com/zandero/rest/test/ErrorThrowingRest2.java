@@ -3,8 +3,8 @@ package com.zandero.rest.test;
 import com.zandero.rest.test.exceptions.*;
 import com.zandero.rest.test.handler.MyExceptionClass;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 
 /**
  *

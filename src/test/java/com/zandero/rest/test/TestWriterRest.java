@@ -2,7 +2,7 @@ package com.zandero.rest.test;
 
 import com.zandero.rest.test.data.ItemDto;
 
-import javax.ws.rs.*;
+import jakarta.ws.rs.*;
 import java.util.*;
 
 @Produces("application/json")

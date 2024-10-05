@@ -2,7 +2,7 @@ package com.zandero.rest.exception;
 
 import io.vertx.ext.auth.User;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 /**
  * We know the user but the user is not allowed to access a particular resource

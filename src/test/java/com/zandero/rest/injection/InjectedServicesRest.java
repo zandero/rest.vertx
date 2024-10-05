@@ -1,7 +1,7 @@
 package com.zandero.rest.injection;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import jakarta.ws.rs.*;
 
 /**
  *

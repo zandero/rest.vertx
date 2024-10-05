@@ -1,6 +1,6 @@
 package com.zandero.rest.test.validate;
 
-import javax.validation.*;
+import jakarta.validation.*;
 import java.lang.annotation.*;
 
 @Constraint(validatedBy = RequestHeaderInspector.class)

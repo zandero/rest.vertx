@@ -8,7 +8,7 @@ import io.vertx.core.http.*;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
-import javax.ws.rs.core.*;
+import jakarta.ws.rs.core.*;
 
 import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;
 

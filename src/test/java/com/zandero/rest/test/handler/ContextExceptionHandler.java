@@ -4,7 +4,7 @@ import com.zandero.rest.exception.ExceptionHandler;
 import io.vertx.core.http.*;
 import io.vertx.ext.web.RoutingContext;
 
-import javax.ws.rs.core.Context;
+import jakarta.ws.rs.core.Context;
 
 /**
  *
