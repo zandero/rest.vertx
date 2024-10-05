@@ -39,7 +39,7 @@ public class RouteDefinition {
                                                                                    ParameterType.bean,
                                                                                    ParameterType.form);
 
-    private static final Set<HttpMethod> BODY_METHODS = ArrayUtils.toSet(HttpMethod.GET,
+    private static final Set<HttpMethod> BODY_METHODS = ArrayUtils.toSet(HttpMethod.OPTIONS,
                                                                          HttpMethod.DELETE,
                                                                          HttpMethod.POST,
                                                                          HttpMethod.PUT,
