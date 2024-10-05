@@ -32,7 +32,7 @@ class RouteWithMissingContextTest extends VertxTest {
         client.get(PORT, HOST, "/context/custom").as(BodyCodec.string())
             .send(context.succeeding(response -> context.verify(() -> {
                 assertEquals(400, response.statusCode());
-                assertEquals("Can't provide @Context of type: class com.zandero.rest.test.json.Dummy", response.body());
+                assertEquals("Can't provide @Context of type: class com.zandero.resttest.test.json.Dummy", response.body());
                 context.completeNow();
             })));
     }
