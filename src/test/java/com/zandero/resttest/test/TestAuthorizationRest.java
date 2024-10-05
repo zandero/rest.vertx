@@ -4,7 +4,7 @@ import com.zandero.rest.annotation.RouteOrder;
 import com.zandero.resttest.test.data.SimulatedUser;
 import io.vertx.ext.auth.User;
 
-import javax.annotation.security.*;
+import jakarta.annotation.security.*;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 

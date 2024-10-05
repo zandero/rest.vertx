@@ -1,6 +1,6 @@
 package com.zandero.resttest.test;
 
-import javax.annotation.security.RolesAllowed;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.*;
 
 /**

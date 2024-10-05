@@ -9,7 +9,6 @@ module com.zandero.rest.vertx {
     requires jakarta.ws.rs;
     requires org.slf4j;
 
-    requires java.annotation;
     requires com.fasterxml.jackson.databind;
     requires org.apache.commons.validator;
 

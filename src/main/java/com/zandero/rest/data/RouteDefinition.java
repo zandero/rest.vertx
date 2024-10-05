@@ -17,7 +17,7 @@ import io.vertx.ext.auth.authorization.AuthorizationProvider;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
-import javax.annotation.security.*;
+import jakarta.annotation.security.*;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.*;

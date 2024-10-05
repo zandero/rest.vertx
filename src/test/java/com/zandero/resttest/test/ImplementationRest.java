@@ -1,6 +1,6 @@
 package com.zandero.resttest.test;
 
-import javax.annotation.security.*;
+import jakarta.annotation.security.*;
 import jakarta.ws.rs.*;
 
 /**

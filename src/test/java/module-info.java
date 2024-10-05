@@ -19,4 +19,5 @@ open module rest.vertx.test {
     requires org.slf4j;
     requires aopalliance;
     requires org.hibernate.validator;
+    requires jakarta.annotation;
 }
