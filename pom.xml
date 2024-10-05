@@ -252,13 +252,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.codejargon.feather</groupId>
-            <artifactId>feather</artifactId>
-            <version>${version.feather}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>${version.hibernate.validation}</version>

@@ -4,7 +4,6 @@ package com.zandero.resttest.injection.test;
 import com.zandero.rest.*;
 import com.zandero.rest.injection.*;
 import com.zandero.resttest.VertxTest;
-import com.zandero.resttest.injection.FeatherInjectionProvider;
 import com.zandero.resttest.injection.GuiceInjectionProvider;
 import com.zandero.resttest.injection.InjectedServicesRest;
 import io.vertx.ext.web.Router;
@@ -80,30 +79,5 @@ class InjectionServiceProviderTest extends VertxTest {
             })));
     }
 
-    @Test
-    void featherCallInjectedServiceRestTest(VertxTestContext context) {
-
-        startWith(new FeatherInjectionProvider());
-
-        client.get(PORT, HOST, "/getInstance/dummy").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals(200, response.statusCode());
-                assertEquals("I'm so dummy!", response.body());
-                context.completeNow();
-            })));
-    }
-
-    @Test
-    void featherCallInjectedServiceRestTest2(VertxTestContext context) {
-
-        startWithClass(FeatherInjectionProvider.class);
-
-        client.get(PORT, HOST, "/getInstance/other").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals(200, response.statusCode());
-                assertEquals("Oh yes I'm so dummy!", response.body());
-                context.completeNow();
-            })));
-    }
 }
 

@@ -9,7 +9,6 @@ open module rest.vertx.test {
     requires io.vertx.web.client;
     requires jakarta.ws.rs;
     requires com.google.guice;
-    requires feather;
     requires utils.junit;
     requires jakarta.inject;
     //requires utils;
