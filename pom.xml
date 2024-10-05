@@ -37,6 +37,13 @@
         </developer>
     </developers>
 
+    <contributors>
+        <contributor>
+            <name>Marc Magon</name>
+            <email>marc.magon@gmail.com</email>
+        </contributor>
+    </contributors>
+
     <properties>
 
         <maven.compiler.source>17</maven.compiler.source>
