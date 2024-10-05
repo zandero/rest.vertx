@@ -4,9 +4,9 @@ import com.zandero.rest.annotation.RequestReader;
 import com.zandero.rest.utils.StringUtils;
 import com.zandero.resttest.reader.CustomWordListReader;
 
+import com.zandero.resttest.reader.InstantTimeUtils;
 import com.zandero.resttest.test.json.Dummy;
 import com.zandero.resttest.test.json.ExtendedDummy;
-import com.zandero.utils.*;
 
 import jakarta.ws.rs.*;
 import java.time.Instant;

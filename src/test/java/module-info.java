@@ -12,7 +12,7 @@ open module rest.vertx.test {
     requires feather;
     requires utils.junit;
     requires jakarta.inject;
-    requires utils;
+    //requires utils;
     requires com.fasterxml.jackson.databind;
     requires org.mockito.junit.jupiter;
     requires org.mockito;
@@ -20,5 +20,4 @@ open module rest.vertx.test {
     requires org.slf4j;
     requires aopalliance;
     requires org.hibernate.validator;
-
 }

@@ -74,14 +74,14 @@ class RoutePathTest extends VertxTest {
     void invalidDuplicateMethodRestTest() {
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> RestRouter.register(vertx, TestInvalidMethodRest.class));
-        assertEquals("com.zandero.rest.test.TestInvalidMethodRest.echo() - Method already set to: POST!", e.getMessage());
+        assertEquals("com.zandero.resttest.test.TestInvalidMethodRest.echo() - Method already set to: POST!", e.getMessage());
     }
 
     @Test
     void invalidDoubleBodyRestTest() {
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> RestRouter.register(vertx, TestDoubleBodyParamRest.class));
-        assertEquals("com.zandero.rest.test.TestDoubleBodyParamRest.echo(String arg0, String arg1) - to many body arguments given. " +
+        assertEquals("com.zandero.resttest.test.TestDoubleBodyParamRest.echo(String arg0, String arg1) - to many body arguments given. " +
                          "Missing argument annotation (@PathParam, @QueryParam, @FormParam, @HeaderParam, @CookieParam or @Context) for: unknown arg1!",
                      e.getMessage());
     }
@@ -90,7 +90,7 @@ class RoutePathTest extends VertxTest {
     void noPathRestTest() {
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> RestRouter.register(vertx, TestMissingPathRest.class));
-        assertEquals("com.zandero.rest.test.TestMissingPathRest.echo() - Missing route @Path!", e.getMessage());
+        assertEquals("com.zandero.resttest.test.TestMissingPathRest.echo() - Missing route @Path!", e.getMessage());
     }
 }
 

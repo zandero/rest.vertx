@@ -130,7 +130,7 @@ class ClassFactoryTest {
 
         ClassFactoryException ex = assertThrows(ClassFactoryException.class, () -> ClassFactory.newInstanceOf(MyComplexBean.class, context));
         assertEquals("Failed to instantiate class, with constructor: " +
-                         "com.zandero.rest.test.data.MyComplexBean(String arg0=SomePath, boolean arg1=BLA, int arg2=A, String arg3=tasty). " +
+                         "com.zandero.resttest.test.data.MyComplexBean(String arg0=SomePath, boolean arg1=BLA, int arg2=A, String arg3=tasty). " +
                          "Failed to convert value: 'A', to primitive type: int",
                      ex.getMessage());
     }

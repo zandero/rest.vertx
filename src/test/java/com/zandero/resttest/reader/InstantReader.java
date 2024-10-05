@@ -3,7 +3,6 @@ package com.zandero.resttest.reader;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.zandero.rest.reader.ValueReader;
-import com.zandero.utils.InstantTimeUtils;
 import io.vertx.ext.web.RoutingContext;
 
 import java.time.*;
@@ -44,6 +43,7 @@ public class InstantReader implements ValueReader<Instant> {
 
     @Override
     public Instant read(String value, Class<Instant> type, RoutingContext context) throws Throwable {
+
         Instant timestamp = InstantTimeUtils.getTimestamp(value,
                 DateTimeFormatter.ISO_LOCAL_DATE_TIME,
                 DateTimeFormatter.ISO_DATE_TIME,
