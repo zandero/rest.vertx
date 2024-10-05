@@ -204,8 +204,8 @@ class CustomReaderTest extends VertxTest {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                                                   () -> RestRouter.register(vertx, TestPostRest.class));
         assertEquals(
-            "POST /post/json - Parameter type: 'class com.zandero.rest.test.json.Dummy' not matching reader type: " +
-                "'class java.lang.Integer' in: 'class com.zandero.rest.reader.IntegerBodyReader'!",
+            "POST /post/json - Parameter type: 'class com.zandero.resttest.test.json.Dummy' not matching reader type: " +
+                "'class java.lang.Integer' in: 'class com.zandero.resttest.reader.IntegerBodyReader'!",
             e.getMessage());
     }
 
@@ -219,8 +219,8 @@ class CustomReaderTest extends VertxTest {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                                                   () -> RestRouter.register(vertx, TestPostRest.class));
         assertEquals(
-            "POST /post/json - Response type: 'class com.zandero.rest.test.json.Dummy' not matching writer type: " +
-                "'class java.lang.String' in: 'class com.zandero.rest.writer.TestCustomWriter'!",
+            "POST /post/json - Response type: 'class com.zandero.resttest.test.json.Dummy' not matching writer type: " +
+                "'class java.lang.String' in: 'class com.zandero.resttest.writer.TestCustomWriter'!",
             e.getMessage());
     }
 

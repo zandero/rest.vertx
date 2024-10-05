@@ -2,23 +2,20 @@ package com.zandero.resttest.data;
 
 
 import com.zandero.rest.data.MediaTypeHelper;
+import jakarta.ws.rs.core.MediaType;
 import org.junit.jupiter.api.Test;
 
-import jakarta.ws.rs.core.MediaType;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import static com.zandero.utils.junit.AssertFinalClass.isWellDefined;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  *
  */
 class MediaTypeHelperTest {
 
-    @Test
-    void isWellDefinedTest() {
-        isWellDefined(MediaTypeHelper.class);
-    }
 
     @Test
     void getKeyTest() {

@@ -183,7 +183,7 @@ class RestRouterTest extends VertxTest {
 
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                                                   () -> RestRouter.getReaders().register(List.class, IntegerBodyReader.class));
-        assertEquals("Incompatible types: 'interface java.util.List' and: 'class java.lang.Integer' using: 'class com.zandero.rest.reader.IntegerBodyReader'!", e.getMessage());
+        assertEquals("Incompatible types: 'interface java.util.List' and: 'class java.lang.Integer' using: 'class com.zandero.resttest.reader.IntegerBodyReader'!", e.getMessage());
     }
 
     @Test
@@ -192,7 +192,7 @@ class RestRouterTest extends VertxTest {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                                                   () -> RestRouter.register(vertx, TestIncompatibleReaderRest.class));
         assertEquals("POST /incompatible/ouch - Parameter type: 'class java.lang.String' " +
-                         "not matching reader type: 'class java.lang.Integer' in: 'class com.zandero.rest.reader.IntegerBodyReader'!", e.getMessage());
+                         "not matching reader type: 'class java.lang.Integer' in: 'class com.zandero.resttest.reader.IntegerBodyReader'!", e.getMessage());
 
     }
 
@@ -202,7 +202,7 @@ class RestRouterTest extends VertxTest {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                                                   () -> RestRouter.register(vertx, TestIncompatibleWriterRest.class));
         assertEquals("GET /incompatible/ouch - Response type: 'class java.lang.String' " +
-                         "not matching writer type: 'class com.zandero.rest.test.json.Dummy' in: 'class com.zandero.rest.writer.TestDummyWriter'!", e.getMessage());
+                         "not matching writer type: 'class com.zandero.resttest.test.json.Dummy' in: 'class com.zandero.resttest.writer.TestDummyWriter'!", e.getMessage());
     }
 
     @Test

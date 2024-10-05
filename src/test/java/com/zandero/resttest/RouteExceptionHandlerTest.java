@@ -72,7 +72,7 @@ class RouteExceptionHandlerTest extends VertxTest {
 
         client.get(PORT, HOST, "/throw/exception/four").as(BodyCodec.string())
             .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals("com.zandero.rest.test.handler.MyExceptionClass", response.body());
+                assertEquals("com.zandero.resttest.test.handler.MyExceptionClass", response.body());
                 assertEquals(500, response.statusCode());
                 context.completeNow();
             })));

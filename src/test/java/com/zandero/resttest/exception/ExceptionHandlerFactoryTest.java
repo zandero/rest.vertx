@@ -156,8 +156,8 @@ class ExceptionHandlerFactoryTest {
         factory.register(MyExceptionHandler.class);
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> factory.register(new MyExceptionHandler()));
-        assertEquals("Exception handler for: com.zandero.rest.test.handler.MyExceptionClass " +
-                         "already registered with: com.zandero.rest.test.handler.MyExceptionHandler", e.getMessage());
+        assertEquals("Exception handler for: com.zandero.resttest.test.handler.MyExceptionClass " +
+                         "already registered with: com.zandero.resttest.test.handler.MyExceptionHandler", e.getMessage());
     }
 
     @Test
@@ -165,8 +165,8 @@ class ExceptionHandlerFactoryTest {
 
         factory.register(new MyExceptionHandler());
         Exception e = assertThrows(IllegalArgumentException.class, () -> factory.register(MyExceptionHandler.class));
-        assertEquals("Exception handler for: com.zandero.rest.test.handler.MyExceptionClass " +
-                         "already registered with: com.zandero.rest.test.handler.MyExceptionHandler", e.getMessage());
+        assertEquals("Exception handler for: com.zandero.resttest.test.handler.MyExceptionClass " +
+                         "already registered with: com.zandero.resttest.test.handler.MyExceptionHandler", e.getMessage());
     }
 
     @Test
@@ -175,7 +175,7 @@ class ExceptionHandlerFactoryTest {
         factory.register(new IllegalArgumentExceptionHandler());
         Exception e = assertThrows(IllegalArgumentException.class, () -> factory.register(ContextExceptionHandler.class));
         assertEquals("Exception handler for: java.lang.IllegalArgumentException " +
-                         "already registered with: com.zandero.rest.test.handler.IllegalArgumentExceptionHandler", e.getMessage());
+                         "already registered with: com.zandero.resttest.test.handler.IllegalArgumentExceptionHandler", e.getMessage());
     }
 
     @Test
@@ -184,6 +184,6 @@ class ExceptionHandlerFactoryTest {
         factory.register(ContextExceptionHandler.class);
         Exception e = assertThrows(IllegalArgumentException.class, () -> factory.register(new IllegalArgumentExceptionHandler()));
         assertEquals("Exception handler for: java.lang.IllegalArgumentException " +
-                         "already registered with: com.zandero.rest.test.handler.ContextExceptionHandler", e.getMessage());
+                         "already registered with: com.zandero.resttest.test.handler.ContextExceptionHandler", e.getMessage());
     }
 }

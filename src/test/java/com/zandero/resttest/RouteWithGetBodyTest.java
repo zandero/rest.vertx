@@ -3,6 +3,7 @@ package com.zandero.resttest;
 import com.zandero.rest.RestRouter;
 import com.zandero.resttest.test.TestEchoRest;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.codec.BodyCodec;
 import io.vertx.junit5.*;
@@ -44,7 +45,7 @@ class RouteWithGetBodyTest extends VertxTest {
     @Test
     void testEchoBody(VertxTestContext context) {
 
-        client.get(PORT, HOST, "/rest/echo/body")
+        client.request(HttpMethod.OPTIONS,PORT, HOST, "/rest/echo/body")
             .as(BodyCodec.string())
             .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
                         context.succeeding(response -> context.verify(() -> {
@@ -54,12 +55,26 @@ class RouteWithGetBodyTest extends VertxTest {
                         })));
     }
 
+    /**
+     * json defines get's as bodyless, although some do implement directly on a fetch stream, if we adhere to the spec we shouldn't allow t
+     * @param context
+     */
     @Test
     void testSimpleEchoBody(VertxTestContext context) {
 
         client.get(PORT, HOST, "/rest/echo/simple/body")
             .as(BodyCodec.string())
             .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
+                        context.succeeding(response -> context.verify(() -> {
+                            assertEquals(405, response.statusCode());
+                            //assertEquals("Simple: The quick brown fox jumps over the red dog!", response.body()); // returns sorted list of unique words
+                            context.completeNow();
+                        })));
+
+        //instead we use options
+        client.request(HttpMethod.OPTIONS,PORT, HOST, "/rest/echo/simple/body")
+                .as(BodyCodec.string())
+                .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
                         context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("Simple: The quick brown fox jumps over the red dog!", response.body()); // returns sorted list of unique words

@@ -43,11 +43,12 @@ class StaticFileTest extends VertxTest {
         client.get(PORT, HOST, "/docs/index.html")
                 .send(context.succeeding(response -> context.verify(() -> {
                     assertEquals(200, response.statusCode());
-                    assertEquals("<html>\n" +
-                            "    <body>\n" +
-                            "        <p>Hello</p>\n" +
-                            "    </body>\n" +
-                            "</html>", response.bodyAsString());
+                    assertEquals("""
+                            <html>
+                                <body>
+                                    <p>Hello</p>
+                                </body>
+                            </html>""", response.bodyAsString().replace("\r\n","\n"));
                     context.completeNow();
                 })));
     }

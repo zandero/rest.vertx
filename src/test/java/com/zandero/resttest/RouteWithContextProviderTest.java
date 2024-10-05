@@ -65,7 +65,7 @@ class RouteWithContextProviderTest extends VertxTest {
         client.get(PORT, HOST, "/context/token").as(BodyCodec.string())
             .send(context.succeeding(response -> context.verify(() -> {
                 assertEquals(400, response.statusCode());
-                assertEquals("Can't provide @Context of type: class com.zandero.rest.test.data.Token", response.body());
+                assertEquals("Can't provide @Context of type: class com.zandero.resttest.test.data.Token", response.body());
                 context.completeNow();
             })));
     }

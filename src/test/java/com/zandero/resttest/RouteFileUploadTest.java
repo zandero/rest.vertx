@@ -16,8 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(VertxExtension.class)
 class RouteFileUploadTest extends VertxTest {
@@ -44,7 +43,7 @@ class RouteFileUploadTest extends VertxTest {
         String resourceName = "/html/index.html";
      //   String path = ResourceUtils.getResourceAbsolutePath(resourceName);
         File file = null;
-        var resource = getClass().getResource("html/index.html");
+        var resource = getClass().getResource("/html/index.html");
         if (resource != null) {
             file = new File(resource.getFile());
         }
@@ -62,9 +61,10 @@ class RouteFileUploadTest extends VertxTest {
                                    assertEquals(200, response.statusCode());
 
                                    String fileName = response.bodyAsString();
-                                   assertTrue(fileName.startsWith("my_upload_folder/"), fileName);
+                                   assertTrue(fileName.startsWith("my_upload_folder/") || fileName.startsWith("my_upload_folder\\"), fileName);
 
                                    Buffer uploaded = vertx.fileSystem().readFileBlocking(fileName);
+                                   assertFalse(uploaded.toString().isEmpty());
                                 //   String compare = ResourceUtils.getResourceAsString(resourceName);
                               //     assertEquals(compare, uploaded.toString());
 
