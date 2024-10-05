@@ -3,7 +3,7 @@ package com.zandero.rest.writer;
 import com.zandero.rest.RestRouter;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.exception.*;
-import com.zandero.utils.Assert;
+import com.zandero.rest.utils.Assert;
 import io.vertx.core.http.*;
 import io.vertx.ext.web.RoutingContext;
 

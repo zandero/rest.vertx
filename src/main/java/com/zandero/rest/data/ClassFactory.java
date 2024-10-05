@@ -5,7 +5,10 @@ import com.zandero.rest.bean.BeanDefinition;
 import com.zandero.rest.cache.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
-import com.zandero.utils.*;
+import com.zandero.rest.utils.ArrayUtils;
+import com.zandero.rest.utils.Assert;
+import com.zandero.rest.utils.Pair;
+
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
@@ -351,7 +354,7 @@ public class ClassFactory {
      * (String or any other primitive type that can be converted from String)
      * Pair(success, object)
      */
-    static <T> Pair<Boolean, T> constructViaConstructor(Class<T> type, String fromValue) {
+    public static <T> Pair<Boolean, T> constructViaConstructor(Class<T> type, String fromValue) {
 
         Constructor<?>[] allConstructors = type.getDeclaredConstructors();
         for (Constructor<?> ctor : allConstructors) {
@@ -387,7 +390,7 @@ public class ClassFactory {
      * @param <T>       class type
      * @return Object of type or null if failed to construct
      */
-    static <T> Pair<Boolean, T> constructViaMethod(Class<T> type, String fromValue) {
+    public static <T> Pair<Boolean, T> constructViaMethod(Class<T> type, String fromValue) {
 
         // Try to usse fromString before valueOf (enums have valueOf already defined) - in case we override fromString()
         List<Method> methods = ClassUtils.getMethods(type, "fromString", "valueOf");

@@ -4,7 +4,7 @@ import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.reader.*;
-import com.zandero.utils.Assert;
+import com.zandero.rest.utils.Assert;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 

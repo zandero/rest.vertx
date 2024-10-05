@@ -2,7 +2,7 @@ package com.zandero.rest.cache;
 
 import com.zandero.rest.data.MediaTypeHelper;
 import com.zandero.rest.writer.*;
-import com.zandero.utils.Assert;
+import com.zandero.rest.utils.Assert;
 import io.vertx.core.http.HttpServerResponse;
 import org.slf4j.*;
 

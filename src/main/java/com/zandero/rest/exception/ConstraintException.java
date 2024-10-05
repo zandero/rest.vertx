@@ -1,7 +1,7 @@
 package com.zandero.rest.exception;
 
 import com.zandero.rest.data.*;
-import com.zandero.utils.StringUtils;
+import com.zandero.rest.utils.StringUtils;
 
 import jakarta.validation.*;
 import java.util.*;

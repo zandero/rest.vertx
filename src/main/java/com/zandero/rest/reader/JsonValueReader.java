@@ -3,8 +3,8 @@ package com.zandero.rest.reader;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
-import com.zandero.utils.StringUtils;
-import com.zandero.utils.extra.JsonUtils;
+import com.zandero.rest.utils.StringUtils;
+import com.zandero.rest.utils.extra.JsonUtils;
 import io.vertx.core.json.jackson.DatabindCodec;
 
 import io.vertx.ext.web.RoutingContext;

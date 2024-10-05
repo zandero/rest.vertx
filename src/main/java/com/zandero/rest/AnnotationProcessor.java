@@ -1,7 +1,7 @@
 package com.zandero.rest;
 
 import com.zandero.rest.data.*;
-import com.zandero.utils.Assert;
+import com.zandero.rest.utils.Assert;
 
 import java.lang.reflect.*;
 import java.util.*;

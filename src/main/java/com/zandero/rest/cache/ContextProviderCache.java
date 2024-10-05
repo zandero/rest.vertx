@@ -4,7 +4,7 @@ import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.data.ClassFactory;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.InjectionProvider;
-import com.zandero.utils.Assert;
+import com.zandero.rest.utils.Assert;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.*;

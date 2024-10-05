@@ -2,7 +2,7 @@ package com.zandero.rest.bean;
 
 import com.zandero.rest.annotation.*;
 import com.zandero.rest.data.*;
-import com.zandero.utils.Assert;
+import com.zandero.rest.utils.Assert;
 import org.slf4j.*;
 
 import jakarta.ws.rs.*;

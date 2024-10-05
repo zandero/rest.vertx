@@ -6,8 +6,11 @@ import com.zandero.rest.authentication.RestAuthenticationProvider;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.reader.ValueReader;
+import com.zandero.rest.utils.ArrayUtils;
+import com.zandero.rest.utils.Assert;
+import com.zandero.rest.utils.StringUtils;
 import com.zandero.rest.writer.HttpResponseWriter;
-import com.zandero.utils.*;
+
 import io.vertx.core.*;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.auth.authorization.AuthorizationProvider;
@@ -818,7 +821,7 @@ public class RouteDefinition {
      * @param returnType of REST method
      * @return true if async operation, false otherwise (blocking operation)
      */
-    static boolean isAsync(Class<?> returnType) {
+    public static boolean isAsync(Class<?> returnType) {
 
         return checkIfCompatibleTypes(returnType, Future.class, Promise.class);
     }

@@ -10,8 +10,9 @@ import com.zandero.rest.events.*;
 import com.zandero.rest.exception.*;
 import com.zandero.rest.injection.*;
 import com.zandero.rest.reader.*;
+import com.zandero.rest.utils.Assert;
 import com.zandero.rest.writer.*;
-import com.zandero.utils.*;
+
 import io.vertx.core.*;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.*;
@@ -799,7 +800,7 @@ public class RestRouter {
         log.info("Registering '" + clazz + "' provider '" + provider.getClass().getName() + "'");
     }
 
-    static void pushContext(RoutingContext context, Object object) {
+    public static void pushContext(RoutingContext context, Object object) {
 
         Assert.notNull(context, "Missing context!");
         Assert.notNull(object, "Can't push null into context!");
