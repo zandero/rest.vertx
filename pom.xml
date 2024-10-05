@@ -72,7 +72,7 @@
         <version.mockito>4.11.0</version.mockito>
         <version.jetty>[9.3.7.v20160115,)</version.jetty>
 
-        <version.guice>5.1.0</version.guice>
+        <version.guice>7.0.0</version.guice>
         <version.feather>1.0</version.feather>
 
         <!-- implementation of javax.rs Response / don't upgrade as it breaks functionality ! -->
