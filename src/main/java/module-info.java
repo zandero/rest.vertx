@@ -1,4 +1,4 @@
-module io.vertx.rest {
+module com.zandero.rest.vertx {
     requires io.vertx.core;
 
     requires static io.vertx.web;

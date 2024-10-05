@@ -1,5 +1,5 @@
 open module rest.vertx.test {
-    requires io.vertx.rest;
+    requires com.zandero.rest.vertx;
     requires io.vertx.core;
     requires io.vertx.web;
     requires io.vertx.testing.junit5;
