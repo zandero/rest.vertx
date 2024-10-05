@@ -52,9 +52,6 @@
         <version.javax.inject>2.0.1.MR</version.javax.inject>
         <version.java.validation>3.0.2</version.java.validation>
 
-        <version.zandero.utils>1.3</version.zandero.utils>
-        <version.zandero.utils.extra>1.5</version.zandero.utils.extra>
-
         <version.zandero.http>1.3</version.zandero.http>
         <version.zandero.utils.junit>1.1</version.zandero.utils.junit>
 
@@ -85,26 +82,6 @@
     </properties>
 
     <dependencies>
-
-        <!-- Zandero / internal -->
-        <dependency>
-            <groupId>com.zandero</groupId>
-            <artifactId>utils</artifactId>
-            <version>${version.zandero.utils}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.zandero</groupId>
-            <artifactId>utils.extra</artifactId>
-            <version>${version.zandero.utils.extra}</version>
-            <!--<exclusions>
-                <exclusion> &lt;!&ndash; exclude as it is already provided by vert.x &ndash;&gt;
-                    <groupId>com.zandero</groupId>
-                    <artifactId>utils</artifactId>
-                </exclusion>
-            </exclusions>-->
-        </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
