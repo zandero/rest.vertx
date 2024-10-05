@@ -1,12 +1,14 @@
 package com.zandero.rest.reader;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.zandero.rest.test.data.MyEnum;
+import io.vertx.ext.web.RoutingContext;
 
 public class MyEnumReader implements ValueReader<MyEnum> {
 
     @Override
-    public MyEnum read(String value, Class<MyEnum> type) throws Throwable {
-
+    public MyEnum read(String value, Class<MyEnum> type, RoutingContext context) throws Throwable {
         switch (value.trim()) {
             case "1":
                 return MyEnum.one;
@@ -17,5 +19,15 @@ public class MyEnumReader implements ValueReader<MyEnum> {
             default:
                 return null;
         }
+    }
+
+    @Override
+    public MyEnum read(String value, TypeReference<MyEnum> type, RoutingContext context) throws Throwable {
+        return null;
+    }
+
+    @Override
+    public MyEnum read(String value, JavaType jt, RoutingContext context) {
+        return null;
     }
 }

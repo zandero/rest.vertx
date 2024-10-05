@@ -1,6 +1,9 @@
 package com.zandero.rest.reader;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.zandero.utils.InstantTimeUtils;
+import io.vertx.ext.web.RoutingContext;
 
 import java.time.*;
 import java.time.format.*;
@@ -39,17 +42,27 @@ public class InstantReader implements ValueReader<Instant> {
                                                                   .withZone(ZoneOffset.UTC);
 
     @Override
-    public Instant read(String value, Class<Instant> type) {
+    public Instant read(String value, Class<Instant> type, RoutingContext context) throws Throwable {
         Instant timestamp = InstantTimeUtils.getTimestamp(value,
-                                                          DateTimeFormatter.ISO_LOCAL_DATE_TIME,
-                                                          DateTimeFormatter.ISO_DATE_TIME,
-                                                          FORMAT_DATE,
-                                                          FORMAT_DATE_TIME);
+                DateTimeFormatter.ISO_LOCAL_DATE_TIME,
+                DateTimeFormatter.ISO_DATE_TIME,
+                FORMAT_DATE,
+                FORMAT_DATE_TIME);
 
         if (timestamp == null) {
             throw new IllegalArgumentException("Invalid time stamp: '" + value + "', expected format: yyyy-MM-dd'T'hh:mm:ss");
         }
 
         return timestamp;
+    }
+
+    @Override
+    public Instant read(String value, TypeReference<Instant> type, RoutingContext context) throws Throwable {
+        return null;
+    }
+
+    @Override
+    public Instant read(String value, JavaType jt, RoutingContext context) {
+        return null;
     }
 }

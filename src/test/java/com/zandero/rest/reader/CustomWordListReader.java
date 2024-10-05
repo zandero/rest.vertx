@@ -1,6 +1,9 @@
 package com.zandero.rest.reader;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.zandero.utils.StringUtils;
+import io.vertx.ext.web.RoutingContext;
 
 import java.util.*;
 
@@ -10,12 +13,22 @@ import java.util.*;
 public class CustomWordListReader implements ValueReader<List<String>> {
 
     @Override
-    public List<String> read(String value, Class<List<String>> type) {
+    public List<String> read(String value, Class<List<String>> type, RoutingContext context) throws Throwable {
         if (StringUtils.isNullOrEmptyTrimmed(value)) {
             return Collections.emptyList();
         }
 
         // extract words from value ... and return list
         return StringUtils.getWords(value);
+    }
+
+    @Override
+    public List<String> read(String value, TypeReference<List<String>> type, RoutingContext context) throws Throwable {
+        return List.of();
+    }
+
+    @Override
+    public List<String> read(String value, JavaType jt, RoutingContext context) {
+        return List.of();
     }
 }
