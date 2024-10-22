@@ -2,7 +2,7 @@ package com.zandero.rest.exception;
 
 import io.vertx.core.http.*;
 
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.WebApplicationException;
 
 /**
  *

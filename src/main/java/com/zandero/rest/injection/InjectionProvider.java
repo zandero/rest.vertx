@@ -13,7 +13,7 @@ public interface InjectionProvider {
     Logger log = LoggerFactory.getLogger(InjectionProvider.class);
 
     String GUICE_INJECT = "com.google.inject.Inject";
-    String JAVA_INJECT = "javax.inject.Inject";
+    String JAVA_INJECT = "jakarta.inject.Inject";
 
     <T> T getInstance(Class<T> clazz) throws Throwable;
 

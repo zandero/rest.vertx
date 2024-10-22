@@ -1,6 +1,6 @@
 package com.zandero.rest.data;
 
-import com.zandero.utils.Assert;
+import com.zandero.rest.utils.Assert;
 
 import java.util.Arrays;
 

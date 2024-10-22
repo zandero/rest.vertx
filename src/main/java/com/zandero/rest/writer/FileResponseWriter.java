@@ -4,7 +4,7 @@ import io.vertx.core.file.FileSystem;
 import io.vertx.core.http.*;
 import io.vertx.ext.web.RoutingContext;
 
-import javax.ws.rs.core.Context;
+import jakarta.ws.rs.core.Context;
 import java.io.FileNotFoundException;
 
 /**

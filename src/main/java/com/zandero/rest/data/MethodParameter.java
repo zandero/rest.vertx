@@ -2,8 +2,10 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.reader.ValueReader;
-import com.zandero.utils.*;
-import com.zandero.utils.extra.ValidatingUtils;
+import com.zandero.rest.utils.Assert;
+import com.zandero.rest.utils.StringUtils;
+
+import com.zandero.rest.utils.extra.ValidatingUtils;
 
 /**
  *

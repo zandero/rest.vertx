@@ -1,22 +1,33 @@
 package com.zandero.rest.data;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.zandero.rest.bean.BeanProvider;
-import com.zandero.rest.cache.*;
+import com.zandero.rest.cache.ContextProviderCache;
+import com.zandero.rest.cache.ReaderCache;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.exception.ContextException;
 import com.zandero.rest.injection.InjectionProvider;
 import com.zandero.rest.reader.ValueReader;
-import com.zandero.utils.*;
-import com.zandero.utils.extra.UrlUtils;
-import io.vertx.core.http.*;
+import com.zandero.rest.utils.Assert;
+import com.zandero.rest.utils.StringUtils;
+import com.zandero.rest.utils.extra.JsonUtils;
+import com.zandero.rest.utils.extra.UrlUtils;
+import io.vertx.core.http.Cookie;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.RoutingContext;
-import org.slf4j.*;
+import jakarta.ws.rs.core.MediaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.MediaType;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Extracts arguments to be provided for given method from definition and current context (request)
@@ -90,14 +101,44 @@ public class ArgumentProvider {
                             }
 
                             args[parameter.getIndex()] = ContextProviderCache.provideContext(method.getParameterTypes()[parameter.getIndex()],
-                                                                                             parameter.getDefaultValue(),
-                                                                                             context);
+                                    parameter.getDefaultValue(),
+                                    context);
                             break;
 
                         default:
 
                             ValueReader valueReader = getValueReader(injectionProvider, parameter, definition, context, readers);
-                            args[parameter.getIndex()] = valueReader.read(value, dataType);
+                            if (dataType.isAssignableFrom(List.class)) {
+                                ParameterizedType genericType = (ParameterizedType) method.getGenericParameterTypes()[parameter.getIndex()];
+                                var typeClassString = genericType.getActualTypeArguments()[0].getTypeName();
+                                var typeClass = Class.forName(typeClassString);
+                                JavaType jt = JsonUtils.getObjectMapper()
+                                        .getTypeFactory()
+                                        .constructCollectionLikeType(List.class,typeClass);
+                                args[parameter.getIndex()] = valueReader.read(value, jt,context);
+                            } else if (dataType.isAssignableFrom(Set.class)) {
+                                ParameterizedType genericType = (ParameterizedType) method.getGenericParameterTypes()[parameter.getIndex()];
+                                var typeClassString = genericType.getActualTypeArguments()[0].getTypeName();
+                                var typeClass = Class.forName(typeClassString);
+                                JavaType jt = JsonUtils.getObjectMapper()
+                                        .getTypeFactory()
+                                        .constructCollectionLikeType(Set.class,typeClass);
+                                args[parameter.getIndex()] = valueReader.read(value, jt,context);
+                            } else if (dataType.isAssignableFrom(Map.class) ) {
+                                ParameterizedType genericType = (ParameterizedType) method.getGenericParameterTypes()[parameter.getIndex()];
+                                var typeClassString = genericType.getActualTypeArguments()[0].getTypeName();
+                                var typeClass = Class.forName(typeClassString);
+                                JavaType keyType = JsonUtils.getObjectMapper().getTypeFactory().constructType(genericType.getActualTypeArguments()[0]);
+                                JavaType valueType = JsonUtils.getObjectMapper().getTypeFactory().constructType(genericType.getActualTypeArguments()[1]);
+                                JavaType jt = JsonUtils.getObjectMapper()
+                                        .getTypeFactory()
+                                        .constructMapLikeType(LinkedHashMap.class, keyType,valueType);
+                                args[parameter.getIndex()] = valueReader.read(value, jt,context);
+                            }
+                            else
+                            {
+                                args[parameter.getIndex()] = valueReader.read(value, dataType, context);
+                            }
                             break;
                     }
                 } catch (Throwable e) {
@@ -115,11 +156,11 @@ public class ArgumentProvider {
                         String error;
                         if (paramDefinition != null) {
                             error =
-                                "Invalid parameter type for: " + paramDefinition + " for: " + definition.getPath() + ", expected: " + expectedType;
+                                    "Invalid parameter type for: " + paramDefinition + " for: " + definition.getPath() + ", expected: " + expectedType;
                         } else {
                             error =
-                                "Invalid parameter type for " + (parameter.getIndex() + 1) + " argument for: " + method + " expected: " +
-                                    expectedType;
+                                    "Invalid parameter type for " + (parameter.getIndex() + 1) + " argument for: " + method + " expected: " +
+                                            expectedType;
                         }
 
                         if (value == null) {
@@ -148,7 +189,7 @@ public class ArgumentProvider {
                 }
 
                 throw new IllegalArgumentException("Missing " + (index + 1) + " argument for: " + method +
-                                                       " expected: " + param.getType() + ", but: null was provided!");
+                        " expected: " + param.getType() + ", but: null was provided!");
             }
         }
 
@@ -316,3 +357,4 @@ public class ArgumentProvider {
         return null;
     }
 }
+

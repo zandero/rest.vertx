@@ -2,7 +2,7 @@ package com.zandero.rest.writer;
 
 import io.vertx.core.http.*;
 
-import static javax.ws.rs.core.Response.Status.NO_CONTENT;
+import static jakarta.ws.rs.core.Response.Status.NO_CONTENT;
 
 /**
  * Returns 204 response code

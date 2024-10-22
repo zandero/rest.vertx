@@ -6,18 +6,21 @@ import com.zandero.rest.authentication.RestAuthenticationProvider;
 import com.zandero.rest.context.ContextProvider;
 import com.zandero.rest.exception.ExceptionHandler;
 import com.zandero.rest.reader.ValueReader;
+import com.zandero.rest.utils.ArrayUtils;
+import com.zandero.rest.utils.Assert;
+import com.zandero.rest.utils.StringUtils;
 import com.zandero.rest.writer.HttpResponseWriter;
-import com.zandero.utils.*;
+
 import io.vertx.core.*;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.auth.authorization.AuthorizationProvider;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.*;
 
-import javax.annotation.security.*;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.*;
+import jakarta.annotation.security.*;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
@@ -39,7 +42,7 @@ public class RouteDefinition {
                                                                                    ParameterType.bean,
                                                                                    ParameterType.form);
 
-    private static final Set<HttpMethod> BODY_METHODS = ArrayUtils.toSet(HttpMethod.GET,
+    private static final Set<HttpMethod> BODY_METHODS = ArrayUtils.toSet(HttpMethod.OPTIONS,
                                                                          HttpMethod.DELETE,
                                                                          HttpMethod.POST,
                                                                          HttpMethod.PUT,
@@ -446,8 +449,8 @@ public class RouteDefinition {
                 }
             }
 
-            if (annotation instanceof javax.ws.rs.HttpMethod) {
-                method(((javax.ws.rs.HttpMethod) annotation).value());
+            if (annotation instanceof jakarta.ws.rs.HttpMethod) {
+                method(((jakarta.ws.rs.HttpMethod) annotation).value());
             }
 
             // response writer ...
@@ -818,7 +821,7 @@ public class RouteDefinition {
      * @param returnType of REST method
      * @return true if async operation, false otherwise (blocking operation)
      */
-    static boolean isAsync(Class<?> returnType) {
+    public static boolean isAsync(Class<?> returnType) {
 
         return checkIfCompatibleTypes(returnType, Future.class, Promise.class);
     }

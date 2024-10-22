@@ -1,6 +1,6 @@
 package com.zandero.rest.data;
 
-import com.zandero.utils.StringUtils;
+import com.zandero.rest.utils.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,7 +21,7 @@ public final class PathConverter {
      * @param path to extract from
      * @return list of method parameters or empty list if none found
      */
-    static List<MethodParameter> extract(String path) {
+    public static List<MethodParameter> extract(String path) {
 
         List<MethodParameter> output = new ArrayList<>();
 
@@ -99,7 +99,7 @@ public final class PathConverter {
         return out;
     }
 
-    static String convert(String path) {
+    public static String convert(String path) {
 
         // 1. split into groups with /{} (if any)
         List<String> paths = split(path);

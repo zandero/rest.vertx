@@ -1,6 +1,6 @@
 package com.zandero.rest.exception;
 
-import com.zandero.utils.StringUtils;
+import com.zandero.rest.utils.StringUtils;
 import io.vertx.core.http.*;
 
 /**

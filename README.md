@@ -14,6 +14,19 @@ for cookies and coffee or become a **[sponsor](https://github.com/sponsors/zande
 
 ## Setup
 
+### Jakarta
+
+```xml
+
+<dependency>
+    <groupId>com.zandero</groupId>
+    <artifactId>rest.vertx</artifactId>
+    <version>1.2.0</version>
+</dependency>
+```
+
+### Javax
+
 **JAVA 11+**
 
 ```xml
@@ -46,6 +59,15 @@ See also: [change log](https://github.com/zandero/rest.vertx/releases)
 > - **@RolesAllowed** authorization throws **403 Forbidden** exception where before it was a **401 Unauthorized** exception
 > - Authentication and authorization flow is now aligned with **vert.x** and **@RolesAllowed** processing is done by an **AuthorizationProvider** implementation
 > - **@RolesAllowed** annotations still work but should be replaced with **@Authenticate** and **@Authorize** annotations instead
+
+
+### JAVA 17 - 1.2.0
+> - Jakarta
+> - Modular
+> - Request Contexts passed for ValueReader's
+> - Parameters List, Set and Map support Generics during JSON deserialization
+> - Header and Query Parameters automatically unwrap into Lists and Sets
+> - Enumerations supported
 
 ## Acknowledgments
 

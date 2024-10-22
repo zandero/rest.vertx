@@ -2,7 +2,9 @@ package com.zandero.rest.data;
 
 import com.zandero.rest.annotation.*;
 import com.zandero.rest.exception.*;
-import com.zandero.utils.*;
+import com.zandero.rest.utils.Assert;
+import com.zandero.rest.utils.StringUtils;
+
 import org.slf4j.*;
 
 import java.lang.reflect.*;
