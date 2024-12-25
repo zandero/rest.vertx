@@ -1,19 +1,19 @@
 package com.zandero.rest.cache;
 
-import com.zandero.rest.context.ContextProvider;
-import com.zandero.rest.data.ClassFactory;
+import com.zandero.rest.context.*;
+import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
-import com.zandero.rest.injection.InjectionProvider;
-import com.zandero.utils.Assert;
-import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.EventBus;
+import com.zandero.rest.injection.*;
+import com.zandero.utils.*;
+import io.vertx.core.*;
+import io.vertx.core.eventbus.*;
 import io.vertx.core.http.*;
-import io.vertx.ext.auth.User;
-import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.auth.*;
+import io.vertx.ext.web.*;
 
 import javax.ws.rs.core.Context;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
+import java.lang.annotation.*;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -57,7 +57,8 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
         List<Field> contextFields = new ArrayList<>();
         for (Field field : fields) {
             Annotation found = field.getAnnotation(Context.class);
-            if (found != null) {
+            Annotation jakartaFound = field.getAnnotation(jakarta.ws.rs.core.Context.class);
+            if (found != null || jakartaFound != null) {
                 contextFields.add(field);
             }
         }
@@ -158,7 +159,8 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
 
         for (Field field : contextFields) {
             Annotation found = field.getAnnotation(Context.class);
-            if (found != null) {
+            Annotation jakartaFound = field.getAnnotation(jakarta.ws.rs.core.Context.class);
+            if (found != null || jakartaFound != null) {
 
                 Object context = provideContext(field.getType(), null, routeContext);
                 try {

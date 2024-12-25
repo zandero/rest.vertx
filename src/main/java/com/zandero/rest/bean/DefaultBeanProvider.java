@@ -77,6 +77,7 @@ public class DefaultBeanProvider implements BeanProvider {
         checkIfCompatibleType(field.getType(), value.getClass(),
                               "Can't set field: '" + field.getName() + "', value to: " + value);
 
+        // TODO: update to canAccess()
         boolean isAccessible = field.isAccessible();
         if (!isAccessible) {
             field.setAccessible(true);
@@ -109,6 +110,7 @@ public class DefaultBeanProvider implements BeanProvider {
         checkIfCompatibleType(parameter.getDataType(), methodValue.getClass(),
                               "Can't set field: '" + parameter.getName() + "', value to: " + methodValue);
 
+        // TODO: update to canAccess()
         boolean isAccessible = method.isAccessible();
         if (!isAccessible) {
             method.setAccessible(true);

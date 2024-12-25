@@ -190,8 +190,6 @@
             <version>${version.jakarta.validation}</version>
         </dependency>
 
-
-
         <!-- LOGGER -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -239,12 +237,12 @@
 
         <!-- Response and ResponseBuilder implementation -->
         <!-- include this dependency if you need a Response API implementation -->
-        <dependency>
+       <!-- <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-common</artifactId>
             <version>${version.glassfish}</version>
             <scope>test</scope>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>com.zandero</groupId>
@@ -324,6 +322,26 @@
         <dependency>
             <groupId>org.glassfish.jersey.ext</groupId>
             <artifactId>jersey-bean-validation</artifactId>
+            <version>3.1.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Jersey Runtime for Jakarta -->
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-common</artifactId>
+            <version>3.1.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>3.1.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet</artifactId>
             <version>3.1.2</version>
             <scope>test</scope>
         </dependency>

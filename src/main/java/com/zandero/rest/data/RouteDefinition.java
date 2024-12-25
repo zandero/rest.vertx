@@ -497,15 +497,27 @@ public class RouteDefinition {
                 permitAll = null; // override any previous definition
                 roles = filterRoles(((RolesAllowed) annotation).value());
             }
+            if (annotation instanceof jakarta.annotation.security.RolesAllowed) {
+                permitAll = null; // override any previous definition
+                roles = filterRoles(((jakarta.annotation.security.RolesAllowed) annotation).value());
+            }
 
             // TODO: to be removed
             if (annotation instanceof DenyAll) {
                 roles = null; // override any previous definition
                 permitAll = false;
             }
+            if (annotation instanceof jakarta.annotation.security.DenyAll) {
+                roles = null; // override any previous definition
+                permitAll = false;
+            }
 
             // TODO: to be removed
             if (annotation instanceof PermitAll) {
+                roles = null; // override any previous definition
+                permitAll = true;
+            }
+            if (annotation instanceof jakarta.annotation.security.PermitAll) {
                 roles = null; // override any previous definition
                 permitAll = true;
             }

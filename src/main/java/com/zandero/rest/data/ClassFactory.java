@@ -1,15 +1,15 @@
 package com.zandero.rest.data;
 
 import com.zandero.rest.annotation.*;
-import com.zandero.rest.bean.BeanDefinition;
+import com.zandero.rest.bean.*;
 import com.zandero.rest.cache.*;
 import com.zandero.rest.exception.*;
-import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.rest.injection.*;
 import com.zandero.utils.*;
-import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.*;
 import org.slf4j.*;
 
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.*;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -259,7 +259,7 @@ public class ClassFactory {
         }
 
         // try with media type ...
-        if (clazz == null && mediaTypes != null && mediaTypes.length > 0) {
+        if (clazz == null && mediaTypes != null) {
 
             for (MediaType mediaType : mediaTypes) {
                 clazz = classCache.getInstanceFromMediaType(mediaType);
@@ -277,6 +277,43 @@ public class ClassFactory {
         // 3. find cached instance ... if any
         return classCache.getInstanceByName(type.getName());
     }
+
+   /*
+    // MediaType
+    public static Object get(Class<?> type,
+                             ClassCache classCache,
+                             Class<?> byDefinition,
+                             InjectionProvider provider,
+                             RoutingContext routeContext,
+                             jakarta.ws.rs.core.MediaType[] mediaTypes) throws ClassFactoryException,
+                                                                                   ContextException {
+
+        Class<?> clazz = byDefinition;
+
+        // No class defined ... try by type
+        if (clazz == null) {
+            clazz = classCache.getInstanceFromType(type);
+        }
+
+        // try with media type ...
+        if (clazz == null && mediaTypes != null) {
+
+            for (jakarta.ws.rs.core.MediaType mediaType : mediaTypes) {
+                clazz = classCache.getInstanceFromMediaType(mediaType);
+
+                if (clazz != null) {
+                    break;
+                }
+            }
+        }
+
+        if (clazz != null) {
+            return getClassInstance(clazz, classCache, provider, routeContext);
+        }
+
+        // 3. find cached instance ... if any
+        return classCache.getInstanceByName(type.getName());
+    }*/
 
     public static Object get(String mediaType,
                              ClassCache classCache,
@@ -391,7 +428,7 @@ public class ClassFactory {
 
         // Try to usse fromString before valueOf (enums have valueOf already defined) - in case we override fromString()
         List<Method> methods = ClassUtils.getMethods(type, "fromString", "valueOf");
-        if (methods.size() > 0) {
+        if (!methods.isEmpty()) {
 
             for (Method method : methods) {
 

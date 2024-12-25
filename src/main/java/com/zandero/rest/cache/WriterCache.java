@@ -1,12 +1,12 @@
 package com.zandero.rest.cache;
 
-import com.zandero.rest.data.MediaTypeHelper;
+import com.zandero.rest.data.*;
 import com.zandero.rest.writer.*;
-import com.zandero.utils.Assert;
-import io.vertx.core.http.HttpServerResponse;
+import com.zandero.utils.*;
+import io.vertx.core.http.*;
 import org.slf4j.*;
 
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
 /**
@@ -26,15 +26,17 @@ public class WriterCache extends ClassCache<HttpResponseWriter> {
 
         super.clear();
 
-        typeCache.put(Response.class, JaxResponseWriter.class);
+        typeCache.put(javax.ws.rs.core.Response.class, JaxResponseWriter.class);
+        typeCache.put(jakarta.ws.rs.core.Response.class, JakartaResponseWriter.class);
+
         typeCache.put(HttpServerResponse.class, VertxResponseWriter.class);
 
-        mediaTypeCache.put(MediaType.APPLICATION_JSON, JsonResponseWriter.class);
-        mediaTypeCache.put(MediaType.TEXT_HTML, GenericResponseWriter.class);
+        mediaTypeCache.put("application/json", JsonResponseWriter.class);
+        mediaTypeCache.put("text/html", GenericResponseWriter.class);
 
         // if not found ... default to simple toString() writer
-        mediaTypeCache.put(MediaType.TEXT_PLAIN, PlainResponseWriter.class);
-        mediaTypeCache.put(MediaType.WILDCARD, PlainResponseWriter.class);
+        mediaTypeCache.put("text/plain", PlainResponseWriter.class);
+        mediaTypeCache.put("*/*", PlainResponseWriter.class);
     }
 
     public void register(Class<? extends HttpResponseWriter> writer) {
@@ -42,9 +44,21 @@ public class WriterCache extends ClassCache<HttpResponseWriter> {
         Assert.notNull(writer, "Missing writer type!");
         boolean registered = false;
 
+        // TODO: to be removed
         Produces found = writer.getAnnotation(Produces.class);
         if (found != null) {
             MediaType[] produces = MediaTypeHelper.getMediaTypes(found.value());
+            if (produces != null && produces.length > 0) {
+                for (MediaType type : produces) {
+                    super.registerInstanceByMediaType(type, writer);
+                }
+                registered = true;
+            }
+        }
+
+        jakarta.ws.rs.Produces foundJakarta = writer.getAnnotation(jakarta.ws.rs.Produces.class);
+        if (foundJakarta != null) {
+            MediaType[] produces = MediaTypeHelper.getMediaTypes(foundJakarta.value());
             if (produces != null && produces.length > 0) {
                 for (MediaType type : produces) {
                     super.registerInstanceByMediaType(type, writer);

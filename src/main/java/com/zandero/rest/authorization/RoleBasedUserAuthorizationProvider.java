@@ -1,9 +1,9 @@
 package com.zandero.rest.authorization;
 
-import com.zandero.rest.data.RouteDefinition;
-import com.zandero.rest.exception.ForbiddenException;
+import com.zandero.rest.data.*;
+import com.zandero.rest.exception.*;
 import io.vertx.core.*;
-import io.vertx.ext.auth.User;
+import io.vertx.ext.auth.*;
 import io.vertx.ext.auth.authorization.*;
 import org.slf4j.*;
 
@@ -20,6 +20,7 @@ import java.util.*;
 public class RoleBasedUserAuthorizationProvider implements AuthorizationProvider {
 
     @Context
+    @jakarta.ws.rs.core.Context
     private RouteDefinition definition;
 
     private final static Logger log = LoggerFactory.getLogger(RoleBasedUserAuthorizationProvider.class);
