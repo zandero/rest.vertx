@@ -324,7 +324,7 @@ public class RouteDefinition {
 
     private static Map<String, MethodParameter> join(Map<String, MethodParameter> base, Collection<MethodParameter> additional) {
 
-        if (additional == null || additional.size() == 0) {
+        if (additional == null || additional.isEmpty()) {
             return base;
         }
 
@@ -393,17 +393,29 @@ public class RouteDefinition {
             if (annotation instanceof ApplicationPath) {
                 applicationPath(((ApplicationPath) annotation).value());
             }
+            if (annotation instanceof jakarta.ws.rs.ApplicationPath) {
+                applicationPath(((jakarta.ws.rs.ApplicationPath) annotation).value());
+            }
 
             if (annotation instanceof Path) {
                 path(((Path) annotation).value());
+            }
+            if (annotation instanceof jakarta.ws.rs.Path) {
+                path(((jakarta.ws.rs.Path) annotation).value());
             }
 
             if (annotation instanceof Produces) {
                 produces(((Produces) annotation).value());
             }
+            if (annotation instanceof jakarta.ws.rs.Produces) {
+                produces(((jakarta.ws.rs.Produces) annotation).value());
+            }
 
             if (annotation instanceof Consumes) {
                 consumes(((Consumes) annotation).value());
+            }
+            if (annotation instanceof jakarta.ws.rs.Consumes) {
+                consumes(((jakarta.ws.rs.Consumes) annotation).value());
             }
 
             if (annotation instanceof Header) {
@@ -423,7 +435,15 @@ public class RouteDefinition {
                 method(annotation.annotationType().getSimpleName());
             }
 
-            // TODO: add Jakarta methods
+            if (annotation instanceof jakarta.ws.rs.GET ||
+                    annotation instanceof jakarta.ws.rs.POST ||
+                    annotation instanceof jakarta.ws.rs.PUT ||
+                    annotation instanceof jakarta.ws.rs.DELETE ||
+                    annotation instanceof jakarta.ws.rs.HEAD ||
+                    annotation instanceof jakarta.ws.rs.OPTIONS ||
+                    annotation instanceof jakarta.ws.rs.PATCH) {
+                method(annotation.annotationType().getSimpleName());
+            }
 
             // Custom rest.vertx method, path, consumes and produces combination
             if (annotation instanceof Get ||
@@ -454,6 +474,9 @@ public class RouteDefinition {
 
             if (annotation instanceof javax.ws.rs.HttpMethod) {
                 method(((javax.ws.rs.HttpMethod) annotation).value());
+            }
+            if (annotation instanceof jakarta.ws.rs.HttpMethod) {
+                method(((jakarta.ws.rs.HttpMethod) annotation).value());
             }
 
             // response writer ...
@@ -518,10 +541,8 @@ public class RouteDefinition {
 
             if (annotation instanceof Events) {
                 Events eventArray = (Events) annotation;
-                if (eventArray.value().length > 0) {
-                    for (Event event : eventArray.value()) {
-                        addEvent(event);
-                    }
+                for (Event event : eventArray.value()) {
+                    addEvent(event);
                 }
             }
         }
@@ -663,7 +684,7 @@ public class RouteDefinition {
 
     private List<Event> addEvents(List<Event> list) {
 
-        if (list == null || list.size() == 0) {
+        if (list == null || list.isEmpty()) {
             return events;
         }
 
@@ -721,10 +742,20 @@ public class RouteDefinition {
                     name = ((PathParam) annotation).value();
                     type = ParameterType.path;
                 }
+                if (annotation instanceof jakarta.ws.rs.PathParam) {
+                    // find path param ... and set index ...
+                    name = ((jakarta.ws.rs.PathParam) annotation).value();
+                    type = ParameterType.path;
+                }
 
                 if (annotation instanceof QueryParam) {
                     // add param
                     name = ((QueryParam) annotation).value();
+                    type = ParameterType.query;
+                }
+                if (annotation instanceof jakarta.ws.rs.QueryParam) {
+                    // add param
+                    name = ((jakarta.ws.rs.QueryParam) annotation).value();
                     type = ParameterType.query;
                 }
 
@@ -740,24 +771,43 @@ public class RouteDefinition {
                     type = ParameterType.form;
                     name = ((FormParam) annotation).value();
                 }
+                if (annotation instanceof jakarta.ws.rs.FormParam) {
+                    type = ParameterType.form;
+                    name = ((jakarta.ws.rs.FormParam) annotation).value();
+                }
 
                 if (annotation instanceof CookieParam) {
                     type = ParameterType.cookie;
                     name = ((CookieParam) annotation).value();
+                }
+                if (annotation instanceof jakarta.ws.rs.CookieParam) {
+                    type = ParameterType.cookie;
+                    name = ((jakarta.ws.rs.CookieParam) annotation).value();
                 }
 
                 if (annotation instanceof HeaderParam) {
                     type = ParameterType.header;
                     name = ((HeaderParam) annotation).value();
                 }
+                if (annotation instanceof jakarta.ws.rs.HeaderParam) {
+                    type = ParameterType.header;
+                    name = ((jakarta.ws.rs.HeaderParam) annotation).value();
+                }
 
                 if (annotation instanceof MatrixParam) {
                     type = ParameterType.matrix;
                     name = ((MatrixParam) annotation).value();
                 }
+                if (annotation instanceof jakarta.ws.rs.MatrixParam) {
+                    type = ParameterType.matrix;
+                    name = ((jakarta.ws.rs.MatrixParam) annotation).value();
+                }
 
                 if (annotation instanceof DefaultValue) {
                     defaultValue = ((DefaultValue) annotation).value();
+                }
+                if (annotation instanceof jakarta.ws.rs.DefaultValue) {
+                    defaultValue = ((jakarta.ws.rs.DefaultValue) annotation).value();
                 }
 
                 if (annotation instanceof RequestReader) {
@@ -772,8 +822,16 @@ public class RouteDefinition {
                     type = ParameterType.bean;
                     name = parameters[index].getName();
                 }
+                if (annotation instanceof jakarta.ws.rs.BeanParam) {
+                    type = ParameterType.bean;
+                    name = parameters[index].getName();
+                }
 
                 if (annotation instanceof Context) {
+                    type = ParameterType.context;
+                    name = parameters[index].getName();
+                }
+                if (annotation instanceof jakarta.ws.rs.core.Context) {
                     type = ParameterType.context;
                     name = parameters[index].getName();
                 }
@@ -965,7 +1023,7 @@ public class RouteDefinition {
     }
 
     public Map<String, String> getResponseHeaders() {
-        if (headers == null || headers.size() == 0) {
+        if (headers == null || headers.isEmpty()) {
             return headers;
         }
 
@@ -976,7 +1034,7 @@ public class RouteDefinition {
     }
 
     public Map<String, String> getRequestHeaders() {
-        if (headers == null || headers.size() == 0) {
+        if (headers == null || headers.isEmpty()) {
             return headers;
         }
 
