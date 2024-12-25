@@ -1,14 +1,14 @@
 package com.zandero.rest.cache;
 
-import com.zandero.rest.data.ClassFactory;
+import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
-import com.zandero.rest.injection.InjectionProvider;
-import com.zandero.utils.Assert;
-import io.vertx.ext.web.RoutingContext;
+import com.zandero.rest.injection.*;
+import com.zandero.utils.*;
+import io.vertx.ext.web.*;
 import org.slf4j.*;
 
-import javax.ws.rs.WebApplicationException;
-import java.lang.reflect.Type;
+import javax.ws.rs.*;
+import java.lang.reflect.*;
 import java.util.*;
 
 import static com.zandero.rest.data.ClassUtils.*;
@@ -28,7 +28,10 @@ public class ExceptionHandlerCache extends ClassCache<ExceptionHandler> {
 
     static {
         defaultHandlers = new LinkedHashMap<>();
+
         defaultHandlers.put(ConstraintException.class, ConstraintExceptionHandler.class);
+        defaultHandlers.put(ValidationConstraintException.class, ValidationConstraintExceptionHandler.class);
+
         defaultHandlers.put(WebApplicationException.class, WebApplicationExceptionHandler.class);
         defaultHandlers.put(Throwable.class, GenericExceptionHandler.class);
     }

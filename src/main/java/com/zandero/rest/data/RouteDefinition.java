@@ -1,27 +1,27 @@
 package com.zandero.rest.data;
 
-import com.zandero.rest.AnnotationProcessor;
+import com.zandero.rest.*;
 import com.zandero.rest.annotation.*;
-import com.zandero.rest.authentication.RestAuthenticationProvider;
-import com.zandero.rest.context.ContextProvider;
-import com.zandero.rest.exception.ExceptionHandler;
-import com.zandero.rest.reader.ValueReader;
-import com.zandero.rest.writer.HttpResponseWriter;
+import com.zandero.rest.authentication.*;
+import com.zandero.rest.context.*;
+import com.zandero.rest.exception.*;
+import com.zandero.rest.reader.*;
+import com.zandero.rest.writer.*;
 import com.zandero.utils.*;
 import io.vertx.core.*;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.ext.auth.authorization.AuthorizationProvider;
-import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.auth.authorization.*;
+import io.vertx.ext.web.*;
 import org.slf4j.*;
 
 import javax.annotation.security.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.*;
-import java.lang.annotation.Annotation;
+import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.*;
 
 import static com.zandero.rest.data.ClassUtils.*;
 
@@ -39,12 +39,14 @@ public class RouteDefinition {
                                                                                    ParameterType.bean,
                                                                                    ParameterType.form);
 
-    private static final Set<HttpMethod> BODY_METHODS = ArrayUtils.toSet(HttpMethod.GET,
-                                                                         HttpMethod.DELETE,
-                                                                         HttpMethod.POST,
-                                                                         HttpMethod.PUT,
-                                                                         HttpMethod.PATCH,
-                                                                         HttpMethod.TRACE);
+    private static final Set<HttpMethod> BODY_METHODS = ArrayUtils.toSet(HttpMethod.GET,        // allowed
+                                                                         HttpMethod.CONNECT,    // allowed - permitted but rare
+                                                                         HttpMethod.DELETE,     // allowed
+                                                                         HttpMethod.OPTIONS,    // allowed - permitted but rare
+                                                                         HttpMethod.POST,       // yes
+                                                                         HttpMethod.PUT,        // yes
+                                                                         HttpMethod.PATCH       // yes
+                                                                         );                     // HEAD and TRACE don't have a body
 
     private final String DELIMITER = "/";
 
@@ -131,11 +133,13 @@ public class RouteDefinition {
     /**
      * Security
      */
+    @Deprecated(forRemoval = true)
     protected Boolean permitAll = null; // true - permit all, false - deny all, null - check roles
 
     /**
      * List of allowed roles or null if none
      */
+    @Deprecated(forRemoval = true)
     protected String[] roles = null;
 
     /**
@@ -419,6 +423,8 @@ public class RouteDefinition {
                 method(annotation.annotationType().getSimpleName());
             }
 
+            // TODO: add Jakarta methods
+
             // Custom rest.vertx method, path, consumes and produces combination
             if (annotation instanceof Get ||
                     annotation instanceof Post ||
@@ -463,16 +469,19 @@ public class RouteDefinition {
                 contextProvider = ((ContextReader) annotation).value();
             }
 
+            // TODO: to be removed
             if (annotation instanceof RolesAllowed) {
                 permitAll = null; // override any previous definition
                 roles = filterRoles(((RolesAllowed) annotation).value());
             }
 
+            // TODO: to be removed
             if (annotation instanceof DenyAll) {
                 roles = null; // override any previous definition
                 permitAll = false;
             }
 
+            // TODO: to be removed
             if (annotation instanceof PermitAll) {
                 roles = null; // override any previous definition
                 permitAll = true;
@@ -1070,6 +1079,7 @@ public class RouteDefinition {
     /**
      * @return true - permit all, false - deny all, null - check roles
      */
+    @Deprecated(forRemoval = true)
     public Boolean getPermitAll() {
         return permitAll;
     }
@@ -1077,6 +1087,7 @@ public class RouteDefinition {
     /**
      * @return null - no roles defined, or array of allowed roles
      */
+    @Deprecated(forRemoval = true)
     public String[] getRoles() {
         return roles;
     }
@@ -1084,6 +1095,7 @@ public class RouteDefinition {
     /**
      * @return true to check if User is in given role, false otherwise
      */
+    @Deprecated(forRemoval = true)
     public boolean checkSecurity() {
         return permitAll != null || (roles != null && roles.length > 0);
     }

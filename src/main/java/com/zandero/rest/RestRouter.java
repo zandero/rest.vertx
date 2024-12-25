@@ -45,7 +45,10 @@ public class RestRouter {
 
     private static BeanProvider beanProvider = new DefaultBeanProvider();
 
-    private static Validator validator;
+    @Deprecated(forRemoval = true)
+    private static javax.validation.Validator validator;
+
+    private static jakarta.validation.Validator jakartaValidator;
 
     private static BodyHandler bodyHandler;
 
@@ -481,7 +484,13 @@ public class RestRouter {
                                                                   getInjectionProvider(),
                                                                   beanProvider);
 
-                    validate(method, definition, validator, toInvoke, args);
+                    // TODO: remove on next version
+                    if (validator != null) {
+                        validate(method, definition, validator, toInvoke, args);
+                    }
+                    if (jakartaValidator != null) {
+                        validate(method, definition, jakartaValidator, toInvoke, args);
+                    }
 
                     fut.complete(method.invoke(toInvoke, args));
                 } catch (Throwable e) {
@@ -500,7 +509,15 @@ public class RestRouter {
                                                                             definition,
                                                                             context);
 
-                        validateResult(result, method, definition, validator, toInvoke);
+                        // TODO: to be removed
+                        if (validator != null) {
+                            validateResult(result, method, definition, validator, toInvoke);
+                        }
+
+                        if (jakartaValidator != null) {
+                            validateResult(result, method, definition, jakartaValidator, toInvoke);
+                        }
+
                         produceResponse(result, context, definition, writer);
                     } catch (Throwable e) {
                         handleException(e, context, definition);
@@ -520,7 +537,12 @@ public class RestRouter {
                 log.info(definition.getMethod().name() + " " + definition.getPath());
 
                 Object[] args = ArgumentProvider.getArguments(method, definition, context, getReaders(), getContextProviders(), getInjectionProvider(), beanProvider);
-                validate(method, definition, validator, toInvoke, args);
+                if (validator != null) {
+                    validate(method, definition, validator, toInvoke, args);
+                }
+                if (jakartaValidator != null) {
+                    validate(method, definition, jakartaValidator, toInvoke, args);
+                }
 
                 Object result = method.invoke(toInvoke, args);
 
@@ -551,7 +573,15 @@ public class RestRouter {
                                     writer = (HttpResponseWriter) ClassFactory.newInstanceOf(writerClass);
                                 }
 
-                                validateResult(futureResult, method, definition, validator, toInvoke);
+                                // TODO: to be removed
+                                if (validator != null) {
+                                    validateResult(futureResult, method, definition, validator, toInvoke);
+                                }
+
+                                if (jakartaValidator != null) {
+                                    validateResult(futureResult, method, definition, jakartaValidator, toInvoke);
+                                }
+
                                 produceResponse(futureResult, context, definition, writer);
                             } catch (Throwable e) {
                                 handleException(e, context, definition);
@@ -573,7 +603,7 @@ public class RestRouter {
         if (validator != null && args != null) {
             ExecutableValidator executableValidator = validator.forExecutables();
             Set<ConstraintViolation<Object>> result = executableValidator.validateParameters(toInvoke, method, args);
-            if (result != null && result.size() > 0) {
+            if (result != null && !result.isEmpty()) {
                 throw new ConstraintException(definition, result);
             }
         }
@@ -584,8 +614,31 @@ public class RestRouter {
         if (validator != null) {
             ExecutableValidator executableValidator = validator.forExecutables();
             Set<ConstraintViolation<Object>> validationResult = executableValidator.validateReturnValue(toInvoke, method, result);
-            if (validationResult != null && validationResult.size() > 0) {
+            if (validationResult != null && !validationResult.isEmpty()) {
                 throw new ConstraintException(definition, validationResult);
+            }
+        }
+    }
+
+    private static void validate(Method method, RouteDefinition definition, jakarta.validation.Validator validator, Object toInvoke, Object[] args) {
+
+        // check method params first (if any)
+        if (validator != null && args != null) {
+            jakarta.validation.executable.ExecutableValidator executableValidator = validator.forExecutables();
+            Set<jakarta.validation.ConstraintViolation<Object>> result = executableValidator.validateParameters(toInvoke, method, args);
+            if (result != null && !result.isEmpty()) {
+                throw new ValidationConstraintException(definition, result);
+            }
+        }
+    }
+
+    private static void validateResult(Object result, Method method, RouteDefinition definition, jakarta.validation.Validator validator, Object toInvoke) {
+
+        if (validator != null) {
+            jakarta.validation.executable.ExecutableValidator executableValidator = validator.forExecutables();
+            Set<jakarta.validation.ConstraintViolation<Object>> validationResult = executableValidator.validateReturnValue(toInvoke, method, result);
+            if (validationResult != null && !validationResult.isEmpty()) {
+                throw new ValidationConstraintException(definition, validationResult);
             }
         }
     }
@@ -760,7 +813,9 @@ public class RestRouter {
         defaultAuthorizationProvider = null;
         defaultAuthenticationProvider = null;
 
-        validateWith((Validator) null);
+        validateWith((javax.validation.Validator) null);
+        validateWith((jakarta.validation.Validator) null);
+
         injectWith((InjectionProvider) null);
     }
 
@@ -875,6 +930,7 @@ public class RestRouter {
      *
      * @param provider to validate
      */
+    @Deprecated(forRemoval = true)
     public static void validateWith(Validator provider) {
 
         validator = provider;
@@ -890,14 +946,39 @@ public class RestRouter {
      *
      * @param provider class type
      */
-    public static void validateWith(Class<Validator> provider) {
+    public static void validateWith(Class<?> provider) {
 
         try {
-            validator = (Validator) ClassFactory.newInstanceOf(provider);
-            log.info("Registered validation provider: " + validator.getClass().getName());
+            Object newValidator = ClassFactory.newInstanceOf(provider);
+            if (newValidator instanceof Validator) {
+                validator = (Validator) newValidator;
+            }
+            else if (newValidator instanceof jakarta.validation.Validator) {
+                jakartaValidator = (jakarta.validation.Validator) ClassFactory.newInstanceOf(provider);
+            }
+            else {
+                throw new IllegalArgumentException("Invalid validator class type proivded, expecting either javax.validation.Validator or jakarta.validation.Validator");
+            }
+
+            log.info("Registered validation provider: " + newValidator.getClass().getName());
         } catch (ClassFactoryException e) {
             log.error("Failed to instantiate validation provider: ", e);
             throw new IllegalArgumentException(e);
+        }
+    }
+
+    /**
+     * Provide an validator to validate arguments
+     *
+     * @param provider to validate
+     */
+    public static void validateWith(jakarta.validation.Validator provider) {
+
+        jakartaValidator = provider;
+        if (jakartaValidator != null) {
+            log.info("Registered validation provider: " + jakartaValidator.getClass().getName());
+        } else {
+            log.info("No validation provider specified!");
         }
     }
 
