@@ -2,14 +2,14 @@ package com.zandero.rest.cache;
 
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
-import com.zandero.rest.injection.InjectionProvider;
+import com.zandero.rest.injection.*;
 import com.zandero.rest.reader.*;
-import com.zandero.utils.Assert;
-import io.vertx.ext.web.RoutingContext;
+import com.zandero.utils.*;
+import io.vertx.ext.web.*;
 import org.slf4j.*;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 
 /**
  * Provides definition and caching of request body reader implementations
@@ -30,8 +30,8 @@ public class ReaderCache extends ClassCache<ValueReader> {
         typeCache.put(String.class, GenericValueReader.class);
 
         // pre fill with most generic implementation
-        mediaTypeCache.put(MediaType.APPLICATION_JSON, JsonValueReader.class);
-        mediaTypeCache.put(MediaType.TEXT_PLAIN, GenericValueReader.class);
+        mediaTypeCache.put("application/json", JsonValueReader.class);
+        mediaTypeCache.put("text/plain", GenericValueReader.class);
     }
 
     public ValueReader get(MethodParameter parameter,
@@ -99,7 +99,18 @@ public class ReaderCache extends ClassCache<ValueReader> {
         Consumes found = reader.getAnnotation(Consumes.class);
         if (found != null) {
             MediaType[] consumes = MediaTypeHelper.getMediaTypes(found.value());
-            if (consumes != null && consumes.length > 0) {
+            if (consumes != null) {
+                for (MediaType type : consumes) {
+                    register(type, reader);
+                }
+            }
+            registered = true;
+        }
+
+        jakarta.ws.rs.Consumes jakartaFound = reader.getAnnotation(jakarta.ws.rs.Consumes.class);
+        if (jakartaFound != null) {
+            MediaType[] consumes = MediaTypeHelper.getMediaTypes(jakartaFound.value());
+            if (consumes != null) {
                 for (MediaType type : consumes) {
                     register(type, reader);
                 }
@@ -124,6 +135,17 @@ public class ReaderCache extends ClassCache<ValueReader> {
         Consumes found = reader.getClass().getAnnotation(Consumes.class);
         if (found != null) {
             MediaType[] consumes = MediaTypeHelper.getMediaTypes(found.value());
+            if (consumes != null && consumes.length > 0) {
+                for (MediaType type : consumes) {
+                    register(type, reader);
+                }
+                registered = true;
+            }
+        }
+
+        jakarta.ws.rs.Consumes jakartaFound = reader.getClass().getAnnotation(jakarta.ws.rs.Consumes.class);
+        if (jakartaFound != null) {
+            MediaType[] consumes = MediaTypeHelper.getMediaTypes(jakartaFound.value());
             if (consumes != null && consumes.length > 0) {
                 for (MediaType type : consumes) {
                     register(type, reader);

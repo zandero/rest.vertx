@@ -1,11 +1,11 @@
 package com.zandero.rest.writer;
 
-import com.zandero.rest.RestRouter;
-import com.zandero.rest.data.ClassFactory;
+import com.zandero.rest.*;
+import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
-import com.zandero.utils.Assert;
+import com.zandero.utils.*;
 import io.vertx.core.http.*;
-import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.*;
 
 import javax.ws.rs.core.*;
 import java.util.*;
@@ -58,27 +58,25 @@ public class JaxResponseWriter implements HttpResponseWriter<Response> {
             List<Object> cookies = jaxrsResponse.getMetadata().get(SET_COOKIE.toString());
             if (cookies != null) {
 
-                Iterator<Object> it = cookies.iterator();
-                while (it.hasNext()) {
-                    Object next = it.next();
+                for (Object next : cookies) {
                     if (next instanceof NewCookie) {
                         NewCookie cookie = (NewCookie) next;
                         response.putHeader(SET_COOKIE, cookie.toString());
                     }
                 }
 
-                if (cookies.size() < 1) {
+                if (cookies.isEmpty()) {
                     jaxrsResponse.getMetadata().remove(SET_COOKIE.toString());
                 }
             }
         }
 
-        if (jaxrsResponse.getMetadata() != null && jaxrsResponse.getMetadata().size() > 0) {
+        if (jaxrsResponse.getMetadata() != null && !jaxrsResponse.getMetadata().isEmpty()) {
 
             for (String name : jaxrsResponse.getMetadata().keySet()) {
                 List<Object> meta = jaxrsResponse.getMetadata().get(name);
 
-                if (meta != null && meta.size() > 0) {
+                if (meta != null && !meta.isEmpty()) {
                     for (Object item : meta) {
                         if (item != null) {
                             response.putHeader(name, item.toString());

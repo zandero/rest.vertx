@@ -3,7 +3,7 @@ package com.zandero.rest.data;
 import com.zandero.utils.*;
 import org.slf4j.*;
 
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.*;
 import java.util.*;
 import java.util.stream.*;
 
@@ -26,6 +26,15 @@ public final class MediaTypeHelper {
 
         return mediaType.getType() + "/" + mediaType.getSubtype(); // key does not contain any charset
     }
+
+    /*public static String getKey(jakarta.ws.rs.core.MediaType mediaType) {
+
+        if (mediaType == null) {
+            return MediaType.WILDCARD;
+        }
+
+        return mediaType.getType() + "/" + mediaType.getSubtype(); // key does not contain any charset
+    }*/
 
     public static MediaType valueOf(String mediaType) {
 

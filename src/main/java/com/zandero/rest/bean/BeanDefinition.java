@@ -77,9 +77,17 @@ public class BeanDefinition {
                 String value = ((PathParam) annotation).value();
                 parameter = getNewParameter(parameter, ParameterType.path, value, dataType, index);
             }
+            if (annotation instanceof jakarta.ws.rs.PathParam) {
+                String value = ((jakarta.ws.rs.PathParam) annotation).value();
+                parameter = getNewParameter(parameter, ParameterType.path, value, dataType, index);
+            }
 
             if (annotation instanceof QueryParam) {
                 String value = ((QueryParam) annotation).value();
+                parameter = getNewParameter(parameter, ParameterType.query, value, dataType, index);
+            }
+            if (annotation instanceof jakarta.ws.rs.QueryParam) {
+                String value = ((jakarta.ws.rs.QueryParam) annotation).value();
                 parameter = getNewParameter(parameter, ParameterType.query, value, dataType, index);
             }
 
@@ -87,9 +95,17 @@ public class BeanDefinition {
                 String value = ((CookieParam) annotation).value();
                 parameter = getNewParameter(parameter, ParameterType.cookie, value, dataType, index);
             }
+            if (annotation instanceof jakarta.ws.rs.CookieParam) {
+                String value = ((jakarta.ws.rs.CookieParam) annotation).value();
+                parameter = getNewParameter(parameter, ParameterType.cookie, value, dataType, index);
+            }
 
             if (annotation instanceof HeaderParam) {
                 String value = ((HeaderParam) annotation).value();
+                parameter = getNewParameter(parameter, ParameterType.header, value, dataType, index);
+            }
+            if (annotation instanceof jakarta.ws.rs.HeaderParam) {
+                String value = ((jakarta.ws.rs.HeaderParam) annotation).value();
                 parameter = getNewParameter(parameter, ParameterType.header, value, dataType, index);
             }
 
@@ -97,12 +113,16 @@ public class BeanDefinition {
                 String value = ((MatrixParam) annotation).value();
                 parameter = getNewParameter(parameter, ParameterType.matrix, value, dataType, index);
             }
+            if (annotation instanceof jakarta.ws.rs.MatrixParam) {
+                String value = ((jakarta.ws.rs.MatrixParam) annotation).value();
+                parameter = getNewParameter(parameter, ParameterType.matrix, value, dataType, index);
+            }
 
             if (annotation instanceof BodyParam) {
                 parameter = getNewParameter(parameter, ParameterType.body, "body", dataType, index); // TODO: check what we could do with value
             }
 
-            if (annotation instanceof Context) {
+            if (annotation instanceof Context || annotation instanceof jakarta.ws.rs.core.Context) {
                 parameter = getNewParameter(parameter, ParameterType.context, "context", dataType, index); // TODO: check what we could do with value
             }
         }

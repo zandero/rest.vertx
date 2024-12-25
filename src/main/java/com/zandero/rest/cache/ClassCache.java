@@ -1,10 +1,10 @@
 package com.zandero.rest.cache;
 
-import com.zandero.rest.data.MediaTypeHelper;
-import com.zandero.utils.Assert;
+import com.zandero.rest.data.*;
+import com.zandero.utils.*;
 
-import javax.ws.rs.core.MediaType;
-import java.lang.reflect.Type;
+import javax.ws.rs.core.*;
+import java.lang.reflect.*;
 import java.util.*;
 
 import static com.zandero.rest.data.ClassUtils.*;
@@ -63,6 +63,14 @@ public abstract class ClassCache<T> {
         }
 
         return mediaTypeCache.get(MediaTypeHelper.getKey(mediaType));
+    }
+
+    public Class<? extends T> getInstanceFromMediaType(jakarta.ws.rs.core.MediaType mediaType) {
+        if (mediaType == null) {
+            return null;
+        }
+
+        return mediaTypeCache.get(mediaType.getType() + "/" + mediaType.getSubtype());
     }
 
     public void registerInstance(T clazz) {
