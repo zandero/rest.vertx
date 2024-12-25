@@ -1,14 +1,14 @@
 package com.zandero.rest.bean;
 
 import com.zandero.rest.data.*;
-import com.zandero.rest.exception.ClassFactoryException;
-import com.zandero.rest.injection.InjectionProvider;
-import io.vertx.core.cli.impl.ReflectionUtils;
-import io.vertx.ext.web.RoutingContext;
+import com.zandero.rest.exception.*;
+import com.zandero.rest.injection.*;
+import io.vertx.ext.web.*;
 import org.slf4j.*;
 
 import java.lang.reflect.*;
 
+import static com.zandero.rest.bean.BeanDefinition.*;
 import static com.zandero.rest.data.ClassUtils.*;
 
 /**
@@ -54,7 +54,7 @@ public class DefaultBeanProvider implements BeanProvider {
 
         Method[] methods = instance.getClass().getDeclaredMethods();
         for (Method method : methods) {
-            if (ReflectionUtils.isSetter(method)) {
+            if (isSetter(method)) {
                 MethodParameter parameter = definition.get(method);
                 if (parameter != null) {
                     String value = ArgumentProvider.getValue(null, parameter, context, parameter.getDefaultValue());

@@ -1,13 +1,12 @@
 package com.zandero.rest.writer;
 
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.buffer.*;
+import io.vertx.core.http.*;
 
 /**
  * Writes binary data to response, takes byte[] as input
  * Example Usecase: Downloading PDF
- *
+ * TODO: Improve
  */
 public class BinaryResponseWriter<T> implements HttpResponseWriter<T> {
     @Override

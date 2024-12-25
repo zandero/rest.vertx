@@ -2,16 +2,16 @@ package com.zandero.rest.bean;
 
 import com.zandero.rest.annotation.*;
 import com.zandero.rest.data.*;
-import com.zandero.utils.Assert;
+import com.zandero.utils.*;
 import org.slf4j.*;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import java.lang.annotation.Annotation;
+import javax.ws.rs.core.*;
+import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
 
-import static io.vertx.core.cli.impl.ReflectionUtils.isSetter;
+//import static io.vertx.core.cli.impl.ReflectionUtils.isSetter;
 
 public class BeanDefinition {
 
@@ -50,6 +50,10 @@ public class BeanDefinition {
                 }
             }
         }
+    }
+
+    public static boolean isSetter(Method method) {
+        return method.getName().startsWith("set") && method.getParameterTypes().length == 1;
     }
 
     private void init(Constructor<?> constructor) {
