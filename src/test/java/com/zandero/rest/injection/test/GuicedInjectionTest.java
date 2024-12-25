@@ -3,19 +3,17 @@ package com.zandero.rest.injection.test;
 
 import com.zandero.rest.*;
 import com.zandero.rest.injection.*;
-import com.zandero.rest.test.json.Dummy;
-import com.zandero.utils.extra.JsonUtils;
-import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.ext.web.Router;
-import io.vertx.ext.web.codec.BodyCodec;
+import com.zandero.rest.test.json.*;
+import com.zandero.utils.extra.*;
+import io.vertx.core.*;
+import io.vertx.core.buffer.*;
+import io.vertx.ext.web.*;
+import io.vertx.ext.web.codec.*;
 import io.vertx.junit5.*;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.*;
 
-import javax.validation.Validator;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(VertxExtension.class)
 class GuicedInjectionTest extends VertxTest {
@@ -38,7 +36,8 @@ class GuicedInjectionTest extends VertxTest {
     @BeforeEach
     void cleanUp() {
         // clear all registered writers or reader and handlers
-        RestRouter.validateWith((Validator) null);
+        RestRouter.validateWith((javax.validation.Validator) null);
+        RestRouter.validateWith((jakarta.validation.Validator) null);
         RestRouter.injectWith((InjectionProvider) null);
     }
 

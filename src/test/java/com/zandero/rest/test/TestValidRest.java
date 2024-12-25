@@ -1,13 +1,13 @@
 package com.zandero.rest.test;
 
 import com.zandero.rest.annotation.*;
-import com.zandero.rest.test.json.ValidDummy;
+import com.zandero.rest.test.json.*;
 import com.zandero.rest.test.validate.*;
+import jakarta.validation.*;
+import jakarta.validation.constraints.*;
 
-import javax.validation.*;
-import javax.validation.constraints.*;
-import javax.ws.rs.*;
 import javax.ws.rs.Path;
+import javax.ws.rs.*;
 import java.util.*;
 
 /**

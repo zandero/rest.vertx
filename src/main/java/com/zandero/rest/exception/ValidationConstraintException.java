@@ -2,20 +2,14 @@ package com.zandero.rest.exception;
 
 import com.zandero.rest.data.*;
 import com.zandero.utils.*;
+import jakarta.validation.*;
 
-import javax.validation.*;
 import java.util.*;
 
-/**
- * Extends on constraint violation exception and adds route definition
- * Tries to produce a meaningful error message from the route/violation combination
- */
-@Deprecated(forRemoval = true)
-public class ConstraintException extends ConstraintViolationException {
-
+public class ValidationConstraintException extends ConstraintViolationException {
     private final RouteDefinition definition;
 
-    public ConstraintException(RouteDefinition definition, Set<? extends ConstraintViolation<?>> constraintViolations) {
+    public ValidationConstraintException(RouteDefinition definition, Set<? extends ConstraintViolation<?>> constraintViolations) {
         super(createMessage(definition, constraintViolations), constraintViolations);
         this.definition = definition;
     }

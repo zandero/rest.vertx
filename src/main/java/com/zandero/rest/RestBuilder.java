@@ -1,23 +1,21 @@
 package com.zandero.rest;
 
 import com.zandero.rest.authentication.*;
-import com.zandero.rest.bean.BeanProvider;
-import com.zandero.rest.context.ContextProvider;
+import com.zandero.rest.bean.*;
+import com.zandero.rest.context.*;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
-import com.zandero.rest.injection.InjectionProvider;
-import com.zandero.rest.reader.ValueReader;
+import com.zandero.rest.injection.*;
+import com.zandero.rest.reader.*;
 import com.zandero.rest.writer.*;
 import com.zandero.utils.*;
 import io.vertx.core.*;
-import io.vertx.core.http.HttpMethod;
-import io.vertx.ext.auth.authentication.AuthenticationProvider;
-import io.vertx.ext.auth.authorization.AuthorizationProvider;
+import io.vertx.core.http.*;
+import io.vertx.ext.auth.authorization.*;
 import io.vertx.ext.web.*;
 import io.vertx.ext.web.handler.*;
 
-import javax.validation.Validator;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.*;
 import java.util.*;
 
 /**
@@ -81,7 +79,10 @@ public class RestBuilder {
     /**
      * Validation
      */
-    private Validator validator = null;
+    @Deprecated(forRemoval = true)
+    private javax.validation.Validator validator = null;
+
+    private jakarta.validation.Validator jakartaValidator = null;
 
     public RestBuilder(Router router) {
 
@@ -446,9 +447,16 @@ public class RestBuilder {
         return this;
     }
 
-    public RestBuilder validateWith(Validator provider) {
+    @Deprecated(forRemoval = true)
+    public RestBuilder validateWith(javax.validation.Validator provider) {
         Assert.notNull(provider, "Missing validation provider!");
         validator = provider;
+        return this;
+    }
+
+    public RestBuilder validateWith(jakarta.validation.Validator provider) {
+        Assert.notNull(provider, "Missing validation provider!");
+        jakartaValidator = provider;
         return this;
     }
 
@@ -512,6 +520,10 @@ public class RestBuilder {
 
         if (validator != null) { // prevent WARN log if no validator is given
             RestRouter.validateWith(validator);
+        }
+
+        if (jakartaValidator != null) {
+            RestRouter.validateWith(jakartaValidator);
         }
 
         registeredProviders.forEach((clazz, provider) -> {
