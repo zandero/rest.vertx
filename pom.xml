@@ -80,7 +80,7 @@
 
         <!-- implementation of javax.validation -->
         <!-- 8.0.0.Final -->
-        <version.hibernate.validation>6.2.0.Final</version.hibernate.validation>
+        <version.hibernate.validation>8.0.2.Final</version.hibernate.validation>
         <version.java.validation.el>3.0.0</version.java.validation.el>
     </properties>
 
