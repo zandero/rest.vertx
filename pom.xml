@@ -69,7 +69,7 @@
         <!-- testing -->
         <version.logback>[1.1.7,)</version.logback>
         <version.junit>[5.6.0,)</version.junit>
-        <version.mockito>5.1.1</version.mockito>
+        <version.mockito>5.14.2</version.mockito>
         <version.jetty>[9.3.7.v20160115,)</version.jetty>
 
         <version.guice>5.1.0</version.guice>
