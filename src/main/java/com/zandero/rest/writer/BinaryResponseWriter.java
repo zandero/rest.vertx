@@ -1,25 +1,21 @@
 package com.zandero.rest.writer;
 
+import io.netty.handler.codec.http.*;
 import io.vertx.core.buffer.*;
 import io.vertx.core.http.*;
 
 /**
- * Writes binary data to response, takes byte[] as input
- * Example Usecase: Downloading PDF
- * TODO: Improve
+ * Serves binary data as response
  */
-public class BinaryResponseWriter<T> implements HttpResponseWriter<T> {
+public class BinaryResponseWriter implements HttpResponseWriter<byte[]> {
+
     @Override
-    public void write(T result, HttpServerRequest request, HttpServerResponse response) throws Throwable {
+    public void write(byte[] result, HttpServerRequest request, HttpServerResponse response) throws Throwable {
         if (result == null) {
-            response.setStatusCode(204).end(); // No Content
+            response.setStatusCode(HttpResponseStatus.NO_CONTENT.code()).end();
             return;
         }
 
-        if (result instanceof byte[]) {
-            response.end(Buffer.buffer((byte[]) result));
-        } else {
-            response.setStatusCode(500).end("Unsupported file type");
-        }
+        response.send(Buffer.buffer(result));
     }
 }
