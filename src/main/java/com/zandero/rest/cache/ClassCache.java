@@ -3,7 +3,6 @@ package com.zandero.rest.cache;
 import com.zandero.rest.data.*;
 import com.zandero.utils.*;
 
-import javax.ws.rs.core.*;
 import java.lang.reflect.*;
 import java.util.*;
 

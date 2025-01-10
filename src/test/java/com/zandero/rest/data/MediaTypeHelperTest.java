@@ -1,12 +1,11 @@
 package com.zandero.rest.data;
 
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
-import javax.ws.rs.core.MediaType;
 import java.util.*;
 
-import static com.zandero.utils.junit.AssertFinalClass.isWellDefined;
+import static com.zandero.utils.junit.AssertFinalClass.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

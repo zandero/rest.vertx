@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("Conflict due to duplicate Response implementation (javax and jakarta)")
 @ExtendWith(VertxExtension.class)
 class RouteWithRegExTest extends VertxTest {
 
@@ -28,6 +27,7 @@ class RouteWithRegExTest extends VertxTest {
     }
 
     @Test
+    @Disabled("Conflict due to duplicate Response implementation (javax and jakarta)")
     void testSimpleRegEx(VertxTestContext context) {
 
         client.get(PORT, HOST, "/regEx/123").as(BodyCodec.string())
@@ -39,6 +39,7 @@ class RouteWithRegExTest extends VertxTest {
     }
 
     @Test
+    @Disabled("Conflict due to duplicate Response implementation (javax and jakarta)")
     void testSubSimpleRegEx(VertxTestContext context) {
 
         client.get(PORT, HOST, "/sub/regEx/231").as(BodyCodec.string())
@@ -50,6 +51,7 @@ class RouteWithRegExTest extends VertxTest {
     }
 
     @Test
+    @Disabled("Conflict due to duplicate Response implementation (javax and jakarta)")
     void testRegEx(VertxTestContext context) {
 
         client.get(PORT, HOST, "/regEx/1/minus/2").as(BodyCodec.string())
@@ -61,6 +63,7 @@ class RouteWithRegExTest extends VertxTest {
     }
 
     @Test
+    @Disabled("Conflict due to duplicate Response implementation (javax and jakarta)")
     void testSubRegEx(VertxTestContext context) {
 
         client.get(PORT, HOST, "/sub/regEx/2/minus/1").as(BodyCodec.string())
@@ -72,6 +75,7 @@ class RouteWithRegExTest extends VertxTest {
     }
 
     @Test
+    @Disabled("Conflict due to duplicate Response implementation (javax and jakarta)")
     void testSimpleRegExWithMultipleVariables(VertxTestContext context) {
 
         client.get(PORT, HOST, "/regEx/ena/2/tri").as(BodyCodec.string())
@@ -83,6 +87,7 @@ class RouteWithRegExTest extends VertxTest {
     }
 
     @Test
+    @Disabled("Conflict due to duplicate Response implementation (javax and jakarta)")
     void testSubSimpleRegExWithMultipleVariables(VertxTestContext context) {
 
         client.get(PORT, HOST, "/sub/regEx/ena/2/tri").as(BodyCodec.string())

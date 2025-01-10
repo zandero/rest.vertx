@@ -1,16 +1,16 @@
 package com.zandero.rest.writer;
 
-import com.zandero.rest.RestRouter;
+import com.zandero.rest.*;
+import com.zandero.rest.data.MediaType;
 import com.zandero.rest.data.*;
 import com.zandero.rest.exception.*;
-import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.*;
-import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.*;
 import org.slf4j.*;
 
 import javax.ws.rs.core.*;
 
-import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;
+import static io.vertx.core.http.HttpHeaders.*;
 
 /**
  * Tries to find and utilize associated mime type / media type writer

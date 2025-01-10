@@ -15,7 +15,6 @@ import io.vertx.ext.auth.authorization.*;
 import io.vertx.ext.web.*;
 import io.vertx.ext.web.handler.*;
 
-import javax.ws.rs.core.*;
 import java.util.*;
 
 /**

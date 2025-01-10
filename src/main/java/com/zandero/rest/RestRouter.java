@@ -13,7 +13,6 @@ import com.zandero.rest.reader.*;
 import com.zandero.rest.writer.*;
 import com.zandero.utils.*;
 import io.vertx.core.*;
-import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.*;
 import io.vertx.ext.auth.*;
 import io.vertx.ext.auth.authorization.*;
@@ -23,7 +22,6 @@ import org.slf4j.*;
 
 import javax.validation.*;
 import javax.validation.executable.*;
-import javax.ws.rs.core.*;
 import java.lang.reflect.*;
 import java.util.*;
 

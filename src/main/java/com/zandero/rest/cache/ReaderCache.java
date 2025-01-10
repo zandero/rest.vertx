@@ -9,7 +9,6 @@ import io.vertx.ext.web.*;
 import org.slf4j.*;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
 
 /**
  * Provides definition and caching of request body reader implementations

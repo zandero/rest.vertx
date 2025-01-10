@@ -1,6 +1,7 @@
 package com.zandero.rest.jakarta.test;
 
 import com.zandero.rest.annotation.*;
+import com.zandero.rest.data.MediaType;
 import com.zandero.rest.data.*;
 import com.zandero.rest.test.data.*;
 import com.zandero.rest.test.json.*;
