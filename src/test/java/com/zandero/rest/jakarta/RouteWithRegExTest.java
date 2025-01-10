@@ -10,8 +10,8 @@ import org.junit.jupiter.api.extension.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("Conflict due to duplicate Response implementation (javax and jakarta)")
 @ExtendWith(VertxExtension.class)
+//@Disabled("Conflict due to duplicate Response implementation (javax and jakarta)")
 class RouteWithRegExTest extends VertxTest {
 
     @BeforeAll

@@ -83,32 +83,6 @@ class InjectionProviderTest extends VertxTest {
             })));
     }
 
-    @Test
-    void featherCallInjectedRestTest(VertxTestContext context) {
-
-        startWith(new FeatherInjectionProvider());
-
-        client.get(PORT, HOST, "/injected/dummy").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals(200, response.statusCode());
-                assertEquals("I'm so dummy!", response.body());
-                context.completeNow();
-            })));
-    }
-
-    @Test
-    void featherCallInjectedRestTest2(VertxTestContext context) {
-
-        startWith(new FeatherInjectionProvider());
-
-        client.get(PORT, HOST, "/injected/other").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals(200, response.statusCode());
-                assertEquals("Oh yes I'm so dummy!", response.body());
-                context.completeNow();
-            })));
-    }
-
     // class type tests
     @Test
     void guiceCallInjectedClassRestTest(VertxTestContext context) {
@@ -127,32 +101,6 @@ class InjectionProviderTest extends VertxTest {
     void guiceCallInjectedClassRestTest2(VertxTestContext context) {
 
         startWithClass(GuiceInjectionProvider.class);
-
-        client.get(PORT, HOST, "/injected/other").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals(200, response.statusCode());
-                assertEquals("Oh yes I'm so dummy!", response.body());
-                context.completeNow();
-            })));
-    }
-
-    @Test
-    void featherCallInjectedClassRestTest(VertxTestContext context) {
-
-        startWithClass(FeatherInjectionProvider.class);
-
-        client.get(PORT, HOST, "/injected/dummy").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
-                assertEquals(200, response.statusCode());
-                assertEquals("I'm so dummy!", response.body());
-                context.completeNow();
-            })));
-    }
-
-    @Test
-    void featherCallInjectedClassRestTest2(VertxTestContext context) {
-
-        startWithClass(FeatherInjectionProvider.class);
 
         client.get(PORT, HOST, "/injected/other").as(BodyCodec.string())
             .send(context.succeeding(response -> context.verify(() -> {

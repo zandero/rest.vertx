@@ -1,16 +1,15 @@
 package com.zandero.rest.writer;
 
-import com.zandero.rest.AnnotationProcessor;
-import com.zandero.rest.annotation.Header;
+import com.zandero.rest.*;
+import com.zandero.rest.annotation.*;
 import com.zandero.rest.data.*;
 import io.vertx.core.http.*;
 import org.slf4j.*;
 
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.*;
 import java.util.*;
 
-import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;
+import static io.vertx.core.http.HttpHeaders.*;
 
 /**
  * Response writer interface to implement

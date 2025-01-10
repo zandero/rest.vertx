@@ -7,7 +7,6 @@ import io.vertx.core.http.*;
 import org.slf4j.*;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
 
 /**
  * Provides definition and caching of response writer implementations
