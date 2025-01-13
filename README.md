@@ -21,7 +21,7 @@ for cookies and coffee or become a **[sponsor](https://github.com/sponsors/zande
 <dependency>
     <groupId>com.zandero</groupId>
     <artifactId>rest.vertx</artifactId>
-    <version>1.1.1</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
@@ -37,6 +37,11 @@ for cookies and coffee or become a **[sponsor](https://github.com/sponsors/zande
 ```
 
 See also: [change log](https://github.com/zandero/rest.vertx/releases)
+
+## Important note - version 1.2.0 breaking changes - when migrating from 1.1.1
+
+> **jakarta** annotations are now supported, **javax** annotations are still working but will be removed in the next version!
+> MediaType class is now part of rest.vertx, if you bind endpoints with **MediaType** you need to update your references to: **com.zandero.rest.data.MediaType** 
 
 ## Important note - breaking changes - when migrating to vertx 4.*
 
