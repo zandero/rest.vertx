@@ -366,21 +366,27 @@
 
     </dependencies>
 
-
     <distributionManagement>
-        <!-- Repository for snapshots -->
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <!--<distributionManagement>
+        &lt;!&ndash; Repository for snapshots &ndash;&gt;
         <snapshotRepository>
             <id>nexus-snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
 
-        <!-- Repository for releases -->
-        <!--        <repository>
+        &lt;!&ndash; Repository for releases &ndash;&gt;
+        &lt;!&ndash;        <repository>
                     <id>nexus-releases</id>
                     <name>Nexus Release Repository</name>
                     <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>-->
-    </distributionManagement>
+                </repository>&ndash;&gt;
+    </distributionManagement>-->
 
     <build>
         <plugins>
