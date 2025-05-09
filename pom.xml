@@ -88,7 +88,7 @@
 
         <!-- 8.0.0.Final -->
         <!-- implementation of javax.validation -->
-        <version.hibernate.validation>8.0.0.Final</version.hibernate.validation>
+        <version.hibernate.validation>8.0.2.Final</version.hibernate.validation>
 
         <!-- 8.0.0.Final -->
         <!-- implementation of jakarta.validation -->
