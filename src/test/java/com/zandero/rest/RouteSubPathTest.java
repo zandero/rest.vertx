@@ -20,25 +20,23 @@ class RouteSubPathTest extends VertxTest {
         TestPathRest testRest = new TestPathRest();
 
         Router router = RestRouter.register(vertx, testRest);
-        router.mountSubRouter("/sub", router);
+        router.route("/sub/*").subRouter(RestRouter.register(vertx, testRest));
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
     void rootWithRootPathTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/query/echo/this").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("querythis", response.body());
                 context.completeNow();
             })));
 
         client.get(PORT, HOST, "/sub/query/echo/this").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("querythis", response.body());
                 context.completeNow();
@@ -49,14 +47,14 @@ class RouteSubPathTest extends VertxTest {
     void rootWithRootPathTest2(VertxTestContext context) {
 
         client.get(PORT, HOST, "/this/echo/query").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("thisquery", response.body());
                 context.completeNow();
             })));
 
         client.get(PORT, HOST, "/sub/this/echo/query").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("thisquery", response.body());
                 context.completeNow();
@@ -67,14 +65,14 @@ class RouteSubPathTest extends VertxTest {
     void rootWithoutPathTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/this").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("this", response.body());
                 context.completeNow();
             })));
 
         client.get(PORT, HOST, "/sub/this").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("this", response.body());
                 context.completeNow();

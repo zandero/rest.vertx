@@ -25,16 +25,14 @@ class RouteWithSessionTest extends VertxTest {
         router.route().handler(handler);
         RestRouter.register(router, TestSessionRest.class);
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
     void testResponseSession(VertxTestContext context) {
 
         client.get(PORT, HOST, "/session/echo").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertNotNull(response.body());
                 context.completeNow();

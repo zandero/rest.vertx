@@ -24,9 +24,7 @@ class FormRestTest extends VertxTest {
 
         Router router = RestRouter.register(vertx, testRest);
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -37,7 +35,7 @@ class FormRestTest extends VertxTest {
         client.post(PORT, HOST, "/form/login")
             .as(BodyCodec.string())
             .putHeader("content-type", "application/x-www-form-urlencoded")
-            .sendBuffer(Buffer.buffer(content), context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(content)).onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("value:another", response.body());
                 context.completeNow();
@@ -52,7 +50,7 @@ class FormRestTest extends VertxTest {
         client.post(PORT, HOST, "/form/login")
             .as(BodyCodec.string())
             .putHeader("content-type", "multipart/form-data")
-            .sendBuffer(Buffer.buffer(content), context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(content)).onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("value:another", response.body());
                 context.completeNow();
@@ -65,7 +63,7 @@ class FormRestTest extends VertxTest {
         client.post(PORT, HOST, "/form/cookie")
             .as(BodyCodec.string())
             .putHeader("Cookie", "username=blabla")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("blabla", response.body());
                 context.completeNow();

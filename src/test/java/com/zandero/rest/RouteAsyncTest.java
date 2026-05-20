@@ -18,9 +18,7 @@ class RouteAsyncTest extends VertxTest {
         before();
 
         Router router = RestRouter.register(vertx, TestAsyncRest.class);
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
    /* @Test
@@ -28,7 +26,7 @@ class RouteAsyncTest extends VertxTest {
 
         client.get(PORT, HOST, "/async/call_future")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("{\"name\": \"async\", \"value\": \"called\"}", response.body());
                 context.completeNow();
@@ -40,7 +38,7 @@ class RouteAsyncTest extends VertxTest {
 
         client.get(PORT, HOST, "/async/call_promise")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("{\"name\": \"async\", \"value\": \"called\"}", response.body());
                 context.completeNow();
@@ -53,7 +51,7 @@ class RouteAsyncTest extends VertxTest {
 
         client.get(PORT, HOST, "/async/completable")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("{\"name\": \"hello\", \"value\": \"world\"}", response.body());
                 context.completeNow();
@@ -65,7 +63,7 @@ class RouteAsyncTest extends VertxTest {
 
         client.get(PORT, HOST, "/async/executor_future")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("{\"name\": \"async\", \"value\": \"called\"}", response.body());
                 context.completeNow();
@@ -78,7 +76,7 @@ class RouteAsyncTest extends VertxTest {
 
         client.get(PORT, HOST, "/async/executor_promise")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("{\"name\": \"async\", \"value\": \"called\"}", response.body());
                 context.completeNow();
@@ -91,7 +89,7 @@ class RouteAsyncTest extends VertxTest {
 
         client.get(PORT, HOST, "/async/empty")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(204, response.statusCode());
                 context.completeNow();
             })));
@@ -102,7 +100,7 @@ class RouteAsyncTest extends VertxTest {
 
         client.get(PORT, HOST, "/async/null")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals(200, response.statusCode());
                 context.completeNow();
@@ -114,7 +112,7 @@ class RouteAsyncTest extends VertxTest {
 
         client.get(PORT, HOST, "/async/handler")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals(200, response.statusCode());
                 assertEquals("\"invoked\"", response.body());

@@ -25,9 +25,7 @@ class InjectionProviderTest extends VertxTest {
                             .register(InjectedRest.class)
                             .build();
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     void startWithClass(Class<? extends InjectionProvider> provider) {
@@ -37,9 +35,7 @@ class InjectionProviderTest extends VertxTest {
                             .register(InjectedRest.class)
                             .build();
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -63,7 +59,7 @@ class InjectionProviderTest extends VertxTest {
         startWith(new GuiceInjectionProvider());
 
         client.get(PORT, HOST, "/injected/dummy").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("I'm so dummy!", response.body());
                 context.completeNow();
@@ -76,7 +72,7 @@ class InjectionProviderTest extends VertxTest {
         startWith(new GuiceInjectionProvider());
 
         client.get(PORT, HOST, "/injected/other").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("Oh yes I'm so dummy!", response.body());
                 context.completeNow();
@@ -90,7 +86,7 @@ class InjectionProviderTest extends VertxTest {
         startWithClass(GuiceInjectionProvider.class);
 
         client.get(PORT, HOST, "/injected/dummy").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("I'm so dummy!", response.body());
                 context.completeNow();
@@ -103,7 +99,7 @@ class InjectionProviderTest extends VertxTest {
         startWithClass(GuiceInjectionProvider.class);
 
         client.get(PORT, HOST, "/injected/other").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("Oh yes I'm so dummy!", response.body());
                 context.completeNow();

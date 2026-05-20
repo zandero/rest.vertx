@@ -32,22 +32,21 @@ class StaticFileTest extends VertxTest {
         HttpServerOptions serverOptions = new HttpServerOptions();
         serverOptions.setCompressionSupported(true);
 
-        vertx.createHttpServer(serverOptions)
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
     void testGetIndex(VertxTestContext context) {
 
         client.get(PORT, HOST, "/docs/index.html")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
-                assertEquals("<html>\n" +
-                                 "    <body>\n" +
-                                 "        <p>Hello</p>\n" +
-                                 "    </body>\n" +
-                                 "</html>", response.bodyAsString());
+                String expected = "<html>\n" +
+                                      "    <body>\n" +
+                                      "        <p>Hello</p>\n" +
+                                      "    </body>\n" +
+                                      "</html>";
+                assertEquals(expected, response.bodyAsString().replace("\r\n", "\n"));
                 context.completeNow();
             })));
     }
@@ -56,7 +55,7 @@ class StaticFileTest extends VertxTest {
     void fileNotFoundTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/docs/notExistent/file.html")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(404, response.statusCode());
                 assertEquals("html/notExistent", response.bodyAsString());
                 context.completeNow();
@@ -66,7 +65,7 @@ class StaticFileTest extends VertxTest {
     @Test
     void getPdf(VertxTestContext context) {
         client.get(PORT, HOST, "/bin/pdf")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 byte[] expected = ResourceUtils.getBytes(this.getClass().getResourceAsStream("/dummy.pdf"));
                 assertArrayEquals(expected, response.bodyAsBuffer().getBytes());

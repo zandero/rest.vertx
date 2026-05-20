@@ -26,9 +26,7 @@ class RouteWithContextProviderTest extends VertxTest {
         RestRouter.addProvider(Dummy.class, request -> new Dummy("test", "name"));
         RestRouter.addProvider(TokenProvider.class);
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -36,7 +34,7 @@ class RouteWithContextProviderTest extends VertxTest {
 
 
         client.get(PORT, HOST, "/context/custom").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals(200, response.statusCode());
 
@@ -51,7 +49,7 @@ class RouteWithContextProviderTest extends VertxTest {
 
         client.get(PORT, HOST, "/context/token").as(BodyCodec.string())
             .putHeader("X-Token", "mySession")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("mySession", response.body());
                 context.completeNow();
@@ -62,7 +60,7 @@ class RouteWithContextProviderTest extends VertxTest {
     void noContextTokenTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/context/token").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(400, response.statusCode());
                 assertEquals("Can't provide @Context of type: class com.zandero.rest.test.data.Token", response.body());
                 context.completeNow();
@@ -76,7 +74,7 @@ class RouteWithContextProviderTest extends VertxTest {
             .putHeader("X-Token", "mySession")
             .putHeader("X-dummy-value", "Dummy")
             .putHeader("X-dummy-name", "Name")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("mySession,Name:Dummy", response.body());
                 context.completeNow();
@@ -90,7 +88,7 @@ class RouteWithContextProviderTest extends VertxTest {
             .putHeader("X-Token", "mySession")
             .putHeader("X-dummy-value", "Dummy")
             .putHeader("X-dummy-name", "Name")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("***mySession***,Name:Dummy", response.body());
                 context.completeNow();

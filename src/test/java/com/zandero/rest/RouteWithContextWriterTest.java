@@ -22,9 +22,7 @@ class RouteWithContextWriterTest extends VertxTest {
         Router router = RestRouter.register(vertx, TestWithXmlRest.class);
         RestRouter.getWriters().register(User.class, MyXmlWriter.class);
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -32,7 +30,7 @@ class RouteWithContextWriterTest extends VertxTest {
 
 
         client.get(PORT, HOST, "/xml/test").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals(200, response.statusCode());
 
@@ -51,7 +49,7 @@ class RouteWithContextWriterTest extends VertxTest {
     void textXmlWriterAddsHeader(VertxTestContext context) {
 
         client.get(PORT, HOST, "/xml/test2").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
 
                 String header = response.getHeader("Content-Type");

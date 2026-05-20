@@ -20,9 +20,7 @@ class ListWriterTest extends VertxTest {
                             .register(TestWriterRest.class)
                             .build();
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -30,7 +28,7 @@ class ListWriterTest extends VertxTest {
 
         client.get(PORT, HOST, "/write/one")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("{\"value\":\"Hello world!\"}", response.body());
                 assertEquals(200, response.statusCode());
                 context.completeNow();
@@ -42,7 +40,7 @@ class ListWriterTest extends VertxTest {
 
         client.get(PORT, HOST, "/write/many")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("[{\"value\":\"One\"},{\"value\":\"Two\"}]", response.body());
                 assertEquals(200, response.statusCode());
                 context.completeNow();

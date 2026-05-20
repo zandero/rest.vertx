@@ -31,13 +31,13 @@ public class RoleBasedUserAuthorizationProvider implements AuthorizationProvider
     }
 
     @Override
-    public void getAuthorizations(User user, Handler<AsyncResult<Void>> handler) {
+    public Future<Void> getAuthorizations(User user) {
 
         if (definition.getPermitAll() != null) {
             if (definition.getPermitAll()) {
-                handler.handle(Future.succeededFuture());
+                return Future.succeededFuture();
             } else {
-                handler.handle(Future.failedFuture(new ForbiddenException(user)));
+				return Future.failedFuture(new ForbiddenException(user));
             }
         } else {
             try {
@@ -47,10 +47,10 @@ public class RoleBasedUserAuthorizationProvider implements AuthorizationProvider
                                                  .findFirst();
 
                     if (found.isPresent()) {
-                        handler.handle(Future.succeededFuture());
+						return Future.succeededFuture();
                     } else {
                         log.trace("User authorization failed: '" + user.principal() + "', not authorized to access: " + definition.toString());
-                        handler.handle(Future.failedFuture(new ForbiddenException(user)));
+						return Future.failedFuture(new ForbiddenException(user));
                     }
                 } else {
                     if (definition.getRoles() == null) {
@@ -62,11 +62,11 @@ public class RoleBasedUserAuthorizationProvider implements AuthorizationProvider
                         log.trace("User authorization failed: no user was provided, for: " + definition.toString());
                     }
 
-                    handler.handle(Future.failedFuture(new ForbiddenException(user)));
+					return Future.failedFuture(new ForbiddenException(user));
                 }
             } catch (Throwable e) {
                 log.error("Failed to provide user authorization: " + e.getMessage(), e);
-                handler.handle(Future.failedFuture(e));
+				return Future.failedFuture(e);
             }
         }
     }

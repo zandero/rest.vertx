@@ -23,9 +23,7 @@ class RouteWithPatchTest extends VertxTest {
 
         Router router = RestRouter.register(vertx, TestPatchRest.class);
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -33,7 +31,7 @@ class RouteWithPatchTest extends VertxTest {
 
         Dummy json = new Dummy("test", "me");
         client.patch(PORT, HOST, "/patch/it").as(BodyCodec.string())
-            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)), context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json))).onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals(200, response.statusCode());
 

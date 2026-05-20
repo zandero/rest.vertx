@@ -18,9 +18,7 @@ class RouteWithBeanParamTest extends VertxTest {
 
         before();
         Router router = RestRouter.register(vertx, TestBeanReaderRest.class);
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -29,7 +27,7 @@ class RouteWithBeanParamTest extends VertxTest {
         client.post(PORT, HOST, "/bean/read/result;one=1;enum=two?query=1").as(BodyCodec.string())
             .putHeader("MyHeader", "true")
             .putHeader("Cookie", "chocolate=tasty")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals(200, response.statusCode());
                 assertEquals("Header: true, " +
@@ -51,8 +49,7 @@ class RouteWithBeanParamTest extends VertxTest {
             .putHeader("MyHeader", "true")
             .putHeader("Cookie", "chocolate=tasty")
             .as(BodyCodec.string())
-            .sendBuffer(Buffer.buffer("BLA"),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer("BLA")).onComplete(context.succeeding(response -> context.verify(() -> {
 
                             assertEquals(200, response.statusCode());
                             assertEquals("Header: true, " +
@@ -73,7 +70,7 @@ class RouteWithBeanParamTest extends VertxTest {
         client.get(PORT, HOST, "/bean/write/result;one=1;enum=two?query=one+two").as(BodyCodec.string())
             .putHeader("MyHeader", "true")
             .putHeader("Cookie", "chocolate=tasty")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals(200, response.statusCode());
                 assertEquals("Header: true, " +
@@ -94,7 +91,7 @@ class RouteWithBeanParamTest extends VertxTest {
         client.post(PORT, HOST, "/bean/complex/read/result;one=1;enum=two?query=1").as(BodyCodec.string())
             .putHeader("MyHeader", "true")
             .putHeader("Cookie", "chocolate=tasty")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals(200, response.statusCode());
                 assertEquals("Header: true, " +

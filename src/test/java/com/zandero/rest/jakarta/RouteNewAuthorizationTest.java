@@ -23,9 +23,7 @@ class RouteNewAuthorizationTest extends VertxTest {
                                   .authorizeWith(new TestAuthorizationProvider())
                                   .register(TestEchoRest.class);
 
-        vertx.createHttpServer()
-            .requestHandler(builder.build())
-            .listen(PORT);
+        VertxTest.listenAndAwait(builder.build());
     }
 
     @Test
@@ -35,7 +33,7 @@ class RouteNewAuthorizationTest extends VertxTest {
         client.get(PORT, HOST, "/rest/echo")
             .as(BodyCodec.string())
             .putHeader("X-Token", "two")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(400, response.statusCode());
                 assertEquals("HTTP 400 Bad Request", response.body());
                 context.completeNow();
@@ -49,7 +47,7 @@ class RouteNewAuthorizationTest extends VertxTest {
         client.get(PORT, HOST, "/rest/echo")
             .as(BodyCodec.string())
             .putHeader("X-Token", "LetMeIn")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("\"echo\"", response.body());
                 context.completeNow();

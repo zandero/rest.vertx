@@ -31,9 +31,7 @@ class CustomReaderTest extends VertxTest {
 
         Router router = RestRouter.register(vertx, TestReaderRest.class);
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @BeforeEach
@@ -50,8 +48,7 @@ class CustomReaderTest extends VertxTest {
 
         client.post(PORT, HOST, "/read/custom")
             .as(BodyCodec.string())
-            .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!")).onComplete(context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("brown,dog,fox,jumps,over,quick,red,the", response.body()); // returns sorted list of unique words
                             context.completeNow();
@@ -63,8 +60,7 @@ class CustomReaderTest extends VertxTest {
 
         client.post(PORT, HOST, "/read/custom")
             .as(BodyCodec.string())
-            .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!")).onComplete(context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("brown,dog,fox,jumps,over,quick,red,the", response.body()); // returns sorted list of unique words
                             context.completeNow();
@@ -79,8 +75,7 @@ class CustomReaderTest extends VertxTest {
 
         client.post(PORT, HOST, "/read/registered")
             .as(BodyCodec.string())
-            .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!")).onComplete(context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("brown,dog,fox,jumps,over,quick,red,the", response.body()); // returns sorted list of unique words
                             context.completeNow();
@@ -98,8 +93,7 @@ class CustomReaderTest extends VertxTest {
         client.post(PORT, HOST, "/read/normal/dummy")
             .as(BodyCodec.string())
             .putHeader("Content-Type", "application/json")
-            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy")))).onComplete(context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("one=dummy", response.body()); // returns sorted list of unique words
                             context.completeNow();
@@ -109,8 +103,7 @@ class CustomReaderTest extends VertxTest {
         client.post(PORT, HOST, "/read/normal/dummy")
             .as(BodyCodec.string())
             .putHeader("Content-Type", "application/json")
-            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new ExtendedDummy("one", "dummy", "extra"))),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new ExtendedDummy("one", "dummy", "extra")))).onComplete(context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("one=dummy", response.body()); // returns sorted list of unique words
                             context.completeNow();
@@ -120,8 +113,7 @@ class CustomReaderTest extends VertxTest {
         client.post(PORT, HOST, "/read/extended/dummy")
             .as(BodyCodec.string())
             .putHeader("Content-Type", "application/json")
-            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new ExtendedDummy("one", "dummy", "extra"))),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new ExtendedDummy("one", "dummy", "extra")))).onComplete(context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("one=dummy (extra)", response.body()); // returns sorted list of unique words
                             context.completeNow();
@@ -132,8 +124,7 @@ class CustomReaderTest extends VertxTest {
         client.post(PORT, HOST, "/read/extended/dummy")
             .as(BodyCodec.string())
             .putHeader("Content-Type", "application/json")
-            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy")))).onComplete(context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("one=dummy (null)", response.body()); // returns sorted list of unique words
                             context.completeNow();
@@ -148,8 +139,7 @@ class CustomReaderTest extends VertxTest {
         client.post(PORT, HOST, "/read/normal/dummy")
             .as(BodyCodec.string())
             .putHeader("Content-Type", "application/json;charset=UTF-8")
-            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy")))).onComplete(context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("one=dummy", response.body()); // returns sorted list of unique words
                             context.completeNow();
@@ -165,8 +155,7 @@ class CustomReaderTest extends VertxTest {
         client.post(PORT, HOST, "/read/normal/dummy")
             .as(BodyCodec.string())
             .putHeader("Content-Type", "application/json")
-            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy")))).onComplete(context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("one=dummy", response.body()); // returns sorted list of unique words
                             context.completeNow();
@@ -182,8 +171,7 @@ class CustomReaderTest extends VertxTest {
         client.post(PORT, HOST, "/read/normal/dummy")
             .as(BodyCodec.string())
             .putHeader("Content-Type", "application/json")
-            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy"))),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(new Dummy("one", "dummy")))).onComplete(context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("one=dummy", response.body()); // returns sorted list of unique words
                             context.completeNow();
@@ -227,7 +215,7 @@ class CustomReaderTest extends VertxTest {
         client.get(PORT, HOST, "/read/time")
             .setQueryParam("is", "2020-08-19")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals(200, response.statusCode());
                 assertEquals("2020-08-19 00:00:00 +0000", response.body());
@@ -242,7 +230,7 @@ class CustomReaderTest extends VertxTest {
         client.get(PORT, HOST, "/read/time")
             .setQueryParam("is", "2020-08-XX")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals(400, response.statusCode());
                 assertEquals("Invalid time stamp: '2020-08-XX', expected format: yyyy-MM-dd'T'hh:mm:ss",

@@ -25,9 +25,7 @@ class RouteExceptionHandlerTest extends VertxTest {
                                           BaseExceptionHandler.class)
                             .build();
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -35,7 +33,7 @@ class RouteExceptionHandlerTest extends VertxTest {
 
 
         client.get(PORT, HOST, "/throw/exception/one").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("BaseExceptionHandler: BASE: first", response.body());
                 assertEquals(500, response.statusCode());
                 context.completeNow();
@@ -46,7 +44,7 @@ class RouteExceptionHandlerTest extends VertxTest {
     void throwTwo(VertxTestContext context) {
 
         client.get(PORT, HOST, "/throw/exception/two").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("InheritedBaseExceptionHandler: BASE: INHERITED: second", response.body());
                 assertEquals(500, response.statusCode());
                 context.completeNow();
@@ -57,7 +55,7 @@ class RouteExceptionHandlerTest extends VertxTest {
     void throwThree(VertxTestContext context) {
 
         client.get(PORT, HOST, "/throw/exception/three").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("InheritedFromInheritedExceptionHandler: BASE: INHERITED: INHERITED FROM: third", response.body());
                 assertEquals(500, response.statusCode());
                 context.completeNow();
@@ -68,7 +66,7 @@ class RouteExceptionHandlerTest extends VertxTest {
     void throwFour(VertxTestContext context) {
 
         client.get(PORT, HOST, "/throw/exception/four").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("com.zandero.rest.test.handler.MyExceptionClass", response.body());
                 assertEquals(500, response.statusCode());
                 context.completeNow();

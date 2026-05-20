@@ -121,6 +121,13 @@ public class ContextProviderCache extends ClassCache<ContextProvider> {
             return context.user();
         }
 
+        if (type.isAssignableFrom(Session.class)) {
+            Session session = context.session();
+            if (session != null) {
+                return session;
+            }
+        }
+
         // internal context / reflection of route definition
 /*        if (type.isAssignableFrom(RouteDefinition.class)) {
             return definition;

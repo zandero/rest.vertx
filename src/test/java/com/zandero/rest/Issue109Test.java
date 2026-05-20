@@ -22,9 +22,7 @@ public class Issue109Test extends VertxTest {
         before();
 
         Router router = RestRouter.register(vertx, TestIssue109Rest.class);
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
 
         vertx.eventBus() // (1)
             .consumer("Hello", handler -> {
@@ -52,7 +50,7 @@ public class Issue109Test extends VertxTest {
         JsonObject json = new JsonObject();
         client.post(PORT, HOST, "/issue/109")
             .as(BodyCodec.string())
-            .sendBuffer(Buffer.buffer(json.toString()), context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(json.toString())).onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(500, response.statusCode());
                 assertEquals("Missing user", response.body());
                 context.completeNow();
@@ -65,7 +63,7 @@ public class Issue109Test extends VertxTest {
         JsonObject json = new JsonObject(Collections.singletonMap("name", "Dummy"));
         client.post(PORT, HOST, "/issue/109")
             .as(BodyCodec.string())
-            .sendBuffer(Buffer.buffer(json.toString()), context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(json.toString())).onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("Dummy", response.body());
                 context.completeNow();

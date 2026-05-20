@@ -1,6 +1,7 @@
 package com.zandero.rest;
 
 import com.zandero.rest.test.ImplementationRest;
+import com.zandero.rest.test.RoutingContextTestUtils;
 import com.zandero.rest.test.data.SimulatedUser;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.*;
@@ -22,9 +23,7 @@ class InheritedRouteTest extends VertxTest {
         router.route().handler(getUserHandler());
         RestRouter.register(router, ImplementationRest.class);
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     private static Handler<RoutingContext> getUserHandler() {
@@ -36,7 +35,7 @@ class InheritedRouteTest extends VertxTest {
 
             // set user ...
             if (token != null) {
-                context.setUser(new SimulatedUser(token));
+                RoutingContextTestUtils.setUser(context, new SimulatedUser(token));
             }
 
             context.next();
@@ -49,7 +48,7 @@ class InheritedRouteTest extends VertxTest {
         client.get(PORT, HOST, "/implementation/echo?name=test")
             .as(BodyCodec.string())
             .putHeader("X-Token", "admin")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("\"test\"", response.body()); // JsonExceptionWriter
                 assertEquals(200, response.statusCode());
                 context.completeNow();
@@ -62,7 +61,7 @@ class InheritedRouteTest extends VertxTest {
         client.get(PORT, HOST, "/implementation/get/test?additional=it")
             .as(BodyCodec.string())
             .putHeader("X-Token", "test")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("\"testit\"", response.body()); // JsonExceptionWriter
                 assertEquals(200, response.statusCode());
                 context.completeNow();

@@ -7,7 +7,7 @@
 
     <artifactId>rest.vertx</artifactId>
     <groupId>com.zandero</groupId>
-    <version>1.2.0</version>
+    <version>1.2.11-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Zandero REST Vert.X</name>
@@ -65,7 +65,7 @@
         <version.zandero.http>1.3</version.zandero.http>
         <version.zandero.utils.junit>1.1</version.zandero.utils.junit>
 
-        <version.vertx>[4.5.11, 4.999.999]</version.vertx>
+        <version.vertx>5.0.12</version.vertx>
         <version.servlet-api>4.0.1</version.servlet-api>
 
         <version.jackson>[2.18.2,)</version.jackson>
@@ -452,23 +452,23 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>3.0.1</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                        <configuration>
-                            <keyname>Zandero</keyname>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-gpg-plugin</artifactId>-->
+<!--                <version>3.0.1</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>sign-artifacts</id>-->
+<!--                        <phase>verify</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>sign</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <keyname>Zandero</keyname>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 

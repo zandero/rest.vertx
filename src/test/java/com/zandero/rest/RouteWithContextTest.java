@@ -23,9 +23,7 @@ class RouteWithContextTest extends VertxTest {
         router.route().handler(pushContextHandler());
 
         RestRouter.register(router, TestContextRest.class);
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     static private Handler<RoutingContext> pushContextHandler() {
@@ -40,7 +38,7 @@ class RouteWithContextTest extends VertxTest {
     void testGetRouteContext(VertxTestContext context) {
 
         client.get(PORT, HOST, "/context/route").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("GET /context/route", response.body());
                 context.completeNow();
@@ -51,7 +49,7 @@ class RouteWithContextTest extends VertxTest {
     void testGetRequestResponseContext(VertxTestContext context) {
 
         client.get(PORT, HOST, "/context/context").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(201, response.statusCode());
                 assertEquals("/context/context", response.body());
                 context.completeNow();
@@ -63,7 +61,7 @@ class RouteWithContextTest extends VertxTest {
 
 
         client.get(PORT, HOST, "/context/unknown").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(400, response.statusCode());
                 assertEquals("Can't provide @Context of type: interface javax.ws.rs.core.Request", response.body());
                 context.completeNow();
@@ -74,7 +72,7 @@ class RouteWithContextTest extends VertxTest {
     void pushContextTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/context/custom").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("{\"name\":\"test\",\"value\":\"user\"}", response.body());
                 context.completeNow();
@@ -85,7 +83,7 @@ class RouteWithContextTest extends VertxTest {
     void testResponseContext(VertxTestContext context) {
 
         client.get(PORT, HOST, "/context/login").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(201, response.statusCode());
                 assertEquals("session", response.getHeader("X-SessionId"));
                 assertEquals("Hello world!", response.body());

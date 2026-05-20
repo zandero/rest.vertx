@@ -36,9 +36,7 @@ class RestRouterTest extends VertxTest {
                                             testRest,
                                             TestRestWithNonRestMethod.class);
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT, vertxTestContext.succeeding());
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -46,7 +44,7 @@ class RestRouterTest extends VertxTest {
 
         client.get(PORT, HOST, "/test/echo").as(BodyCodec.string())
             .putHeader("Accept", "text/html")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("text/html", response.getHeader("Content-Type"));
                 assertEquals("Hello world!", response.body());
                 context.completeNow();
@@ -59,7 +57,7 @@ class RestRouterTest extends VertxTest {
         client.get(PORT, HOST, "/test/echo")
             .as(BodyCodec.string())
             .putHeader("Accept", "application/json")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("application/json", response.getHeader("Content-Type"));
                 assertEquals("\"Hello world!\"", response.body());
                 context.completeNow();
@@ -72,7 +70,7 @@ class RestRouterTest extends VertxTest {
 
         client.get(PORT, HOST, "/test/jax")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(202, response.statusCode());
                 assertEquals("Test", response.getHeader("X-Test"));
                 assertEquals("\"Hello\"", response.body()); // produces JSON ... so quotes are correct
@@ -86,7 +84,7 @@ class RestRouterTest extends VertxTest {
 
         client.get(PORT, HOST, "/test/match/hello/world")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("\"hello/world\"", response.body());
                 context.completeNow();
@@ -99,7 +97,7 @@ class RestRouterTest extends VertxTest {
 
         client.get(PORT, HOST, "/test/match2/hello/world")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("\"hello/world\"", response.body());
                 context.completeNow();
@@ -112,7 +110,7 @@ class RestRouterTest extends VertxTest {
 
         client.get(PORT, HOST, "/test/mix/2/true")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals(200, response.statusCode());
                 assertEquals("\"2/true\"", response.body());
@@ -126,7 +124,7 @@ class RestRouterTest extends VertxTest {
 
         client.get(PORT, HOST, "/test/mix2/2/a")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals(200, response.statusCode());
                 assertEquals("\"2/a\"", response.body());
@@ -143,7 +141,7 @@ class RestRouterTest extends VertxTest {
         client.post(PORT, HOST, "/test/json/post")
             .as(BodyCodec.string())
             .putHeader("Content-Type", "application/json")
-            .sendBuffer(Buffer.buffer(json), context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(json)).onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals(200, response.statusCode());
                 assertEquals("{\"name\":\"Received-hello\",\"value\":\"Received-world\"}", response.body());
@@ -156,7 +154,7 @@ class RestRouterTest extends VertxTest {
 
         client.get(PORT, HOST, "/test/context/path")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals("text/plain", response.getHeader("Content-Type"));
                 assertEquals(200, response.statusCode());
@@ -170,7 +168,7 @@ class RestRouterTest extends VertxTest {
 
         client.get(PORT, HOST, "/test/context/null")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals(200, response.statusCode());
                 assertNull(response.body());
@@ -210,7 +208,7 @@ class RestRouterTest extends VertxTest {
 
         client.get(PORT, HOST, "/mixed/echo")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("hello", response.body());
                 context.completeNow();

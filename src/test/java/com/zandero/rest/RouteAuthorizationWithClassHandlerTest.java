@@ -26,9 +26,7 @@ class RouteAuthorizationWithClassHandlerTest extends VertxTest {
                             .register(testRest)
                             .build();
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -36,7 +34,7 @@ class RouteAuthorizationWithClassHandlerTest extends VertxTest {
 
         client.get(PORT, HOST, "/private/all")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("all", response.body());
                 assertEquals(200, response.statusCode());
                 context.completeNow();
@@ -48,7 +46,7 @@ class RouteAuthorizationWithClassHandlerTest extends VertxTest {
 
         client.get(PORT, HOST, "/private/nobody")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(403, response.statusCode());
                 context.completeNow();
             })));
@@ -59,7 +57,7 @@ class RouteAuthorizationWithClassHandlerTest extends VertxTest {
 
         client.get(PORT, HOST, "/private/user")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(403, response.statusCode());
                 context.completeNow();
             })));
@@ -71,7 +69,7 @@ class RouteAuthorizationWithClassHandlerTest extends VertxTest {
         client.get(PORT, HOST, "/private/user")
             .as(BodyCodec.string())
             .putHeader("X-Token", "user")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("user", response.body());
                 assertEquals(200, response.statusCode());
                 context.completeNow();
@@ -84,7 +82,7 @@ class RouteAuthorizationWithClassHandlerTest extends VertxTest {
         client.post(PORT, HOST, "/private/user")
             .as(BodyCodec.string())
             .putHeader("X-Token", "user")
-            .sendBuffer(Buffer.buffer("HELLO"), context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer("HELLO")).onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("HELLO", response.body());
                 context.completeNow();
@@ -96,7 +94,7 @@ class RouteAuthorizationWithClassHandlerTest extends VertxTest {
 
         client.post(PORT, HOST, "/private/user")
             .as(BodyCodec.string())
-            .sendBuffer(Buffer.buffer("HELLO"), context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer("HELLO")).onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("HTTP 403 Forbidden", response.body());
                 assertEquals(403, response.statusCode());
                 context.completeNow();
@@ -109,7 +107,7 @@ class RouteAuthorizationWithClassHandlerTest extends VertxTest {
         client.get(PORT, HOST, "/private/admin")
             .as(BodyCodec.string())
             .putHeader("X-Token", "admin")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("admin", response.body());
                 assertEquals(200, response.statusCode());
                 context.completeNow();
@@ -122,7 +120,7 @@ class RouteAuthorizationWithClassHandlerTest extends VertxTest {
         client.get(PORT, HOST, "/private/admin")
             .as(BodyCodec.string())
             .putHeader("X-Token", "user")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(403, response.statusCode());
                 assertEquals("HTTP 403 Forbidden", response.body());
                 context.completeNow();
@@ -135,7 +133,7 @@ class RouteAuthorizationWithClassHandlerTest extends VertxTest {
         client.get(PORT, HOST, "/private/other")
             .as(BodyCodec.string())
             .putHeader("X-Token", "user")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(403, response.statusCode());
                 assertEquals("HTTP 403 Forbidden", response.body());
                 context.completeNow();
@@ -148,7 +146,7 @@ class RouteAuthorizationWithClassHandlerTest extends VertxTest {
         client.get(PORT, HOST, "/private/other")
             .as(BodyCodec.string())
             .putHeader("X-Token", "one")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("{\"role\":\"one\"}", response.body());
                 context.completeNow();
@@ -162,7 +160,7 @@ class RouteAuthorizationWithClassHandlerTest extends VertxTest {
         client.get(PORT, HOST, "/private/other")
             .as(BodyCodec.string())
             .putHeader("X-Token", "two")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("{\"role\":\"two\"}", response.body());
                 context.completeNow();

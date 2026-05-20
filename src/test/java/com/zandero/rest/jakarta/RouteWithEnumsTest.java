@@ -25,16 +25,14 @@ public class RouteWithEnumsTest extends VertxTest {
                             .reader(MyEnum.class, MyEnumReader.class)
                             .build();
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
     void valueOfTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/enum/simple/one").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("one", response.body());
                 assertEquals(200, response.statusCode());
                 context.completeNow();
@@ -45,7 +43,7 @@ public class RouteWithEnumsTest extends VertxTest {
     void valueOfReader(VertxTestContext context) {
 
         client.get(PORT, HOST, "/enum/reader/1").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("one", response.body());
                 assertEquals(200, response.statusCode());
                 context.completeNow();
@@ -57,7 +55,7 @@ public class RouteWithEnumsTest extends VertxTest {
     void fromStringTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/enum/fromString/3").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("three", response.body());
                 assertEquals(200, response.statusCode());
                 context.completeNow();

@@ -33,9 +33,7 @@ class InjectionServiceProviderTest extends VertxTest {
                             .register(InjectedServicesRest.class)
                             .build();
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     void startWithClass(Class<? extends InjectionProvider> provider) {
@@ -45,9 +43,7 @@ class InjectionServiceProviderTest extends VertxTest {
                             .register(InjectedServicesRest.class)
                             .build();
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -56,7 +52,7 @@ class InjectionServiceProviderTest extends VertxTest {
         startWith(new GuiceInjectionProvider());
 
         client.get(PORT, HOST, "/getInstance/dummy").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("I'm so dummy!", response.body());
                 context.completeNow();
@@ -69,7 +65,7 @@ class InjectionServiceProviderTest extends VertxTest {
         startWithClass(GuiceInjectionProvider.class);
 
         client.get(PORT, HOST, "/getInstance/other").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("Oh yes I'm so dummy!", response.body());
                 context.completeNow();

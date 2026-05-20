@@ -18,6 +18,7 @@ import io.vertx.ext.auth.*;
 import io.vertx.ext.auth.authorization.*;
 import io.vertx.ext.web.*;
 import io.vertx.ext.web.handler.*;
+import io.vertx.ext.web.impl.UserContextInternal;
 import org.slf4j.*;
 
 import javax.validation.*;
@@ -237,12 +238,12 @@ public class RestRouter {
                     Object provided = instance.provide(context.request());
 
                     if (provided instanceof User) {
-                        context.setUser((User) provided);
+                        ((UserContextInternal) context.userContext()).setUser((User) provided);
                     }
 
-                    if (provided instanceof Session) {
-                        context.setSession((Session) provided);
-                    }
+                    // Vert.x 5 removed RoutingContext#setSession. Cookie-backed sessions come from
+                    // SessionHandler on the router; @Context Session uses ContextProviderCache
+                    // (routingContext.session() or a ContextProvider value stored below).
 
                     if (provided != null) { // push provided context into request data
                         context.data().put(ContextProviderCache.getContextDataKey(provided), provided);
@@ -344,9 +345,14 @@ public class RestRouter {
                                   Set<String> allowedHeaders,
                                   HttpMethod... methods) {
 
-        CorsHandler handler = CorsHandler.create(allowedOriginPattern)
-                                  .allowCredentials(allowCredentials)
-                                  .maxAgeSeconds(maxAge);
+        CorsHandler handler = CorsHandler.create();
+        if ("*".equals(allowedOriginPattern)) {
+            handler.addOrigin("*");
+        } else {
+            handler.addOriginWithRegex(allowedOriginPattern);
+        }
+        handler.allowCredentials(allowCredentials)
+               .maxAgeSeconds(maxAge);
 
         if (methods == null || methods.length == 0) { // if not given than all
             methods = HttpMethod.values().toArray(new HttpMethod[]{});
@@ -425,14 +431,14 @@ public class RestRouter {
                                                                getAuthenticationProviders().provide(authenticatorProviderClass, getInjectionProvider(), context) :
                                                                defaultAuthenticationProvider;
 
-                authenticator.authenticate(context, userAsyncResult -> {
+                authenticator.authenticate(context).onComplete(userAsyncResult -> {
                     if (userAsyncResult.failed()) {
                         Throwable ex = (userAsyncResult.cause() != null ?
                                             userAsyncResult.cause() :
                                             new UnauthorizedException(context.user()));
                         handleException(ex, context, definition);
                     } else {
-                        context.setUser(userAsyncResult.result());
+                        ((UserContextInternal) context.userContext()).setUser(userAsyncResult.result());
                         context.next();
                     }
                 });
@@ -451,7 +457,7 @@ public class RestRouter {
                                                      getAuthorizationProviders().provide(providerClass, getInjectionProvider(), context) :
                                                      defaultAuthorizationProvider;
 
-                provider.getAuthorizations(context.user(), userAuthorizationResult -> {
+                provider.getAuthorizations(context.user()).onComplete(userAuthorizationResult -> {
                     if (userAuthorizationResult.failed()) {
                         Throwable ex = (userAuthorizationResult.cause() != null ?
                                             userAuthorizationResult.cause() :
@@ -471,7 +477,7 @@ public class RestRouter {
     private static Handler<RoutingContext> getHandler(final Object toInvoke, final RouteDefinition definition, final Method method) {
 
         return context -> context.vertx().executeBlocking(
-            fut -> {
+            () -> {
                 try {
                     log.info(definition.getMethod().name() + " " + definition.getPath());
                     Object[] args = ArgumentProvider.getArguments(method,
@@ -490,12 +496,12 @@ public class RestRouter {
                         validate(method, definition, jakartaValidator, toInvoke, args);
                     }
 
-                    fut.complete(method.invoke(toInvoke, args));
+                    return method.invoke(toInvoke, args);
                 } catch (Throwable e) {
-                    fut.fail(e);
+                   throw new RuntimeException(e);
                 }
             },
-            definition.executeBlockingOrdered(), // false by default
+            definition.executeBlockingOrdered()).onComplete( // false by default
             res -> {
                 if (res.succeeded()) {
                     try {
@@ -521,7 +527,7 @@ public class RestRouter {
                         handleException(e, context, definition);
                     }
                 } else {
-                    handleException(res.cause(), context, definition);
+                    handleException(res.cause().getCause(), context, definition);
                 }
             }
         );

@@ -24,9 +24,7 @@ class RouteRegistrationTest extends VertxTest {
         TestPostRest testPostRest = new TestPostRest();
 
         Router router = RestRouter.register(vertx, testRest, testPostRest);
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -38,8 +36,7 @@ class RouteRegistrationTest extends VertxTest {
         // 2nd REST
         client.post(PORT, HOST, "/post/json")
             .putHeader("content-type", "application/json")
-            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json))).onComplete(context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("{\"name\":\"Received-test\",\"value\":\"Received-me\"}", response.bodyAsString());
                             context.completeNow();
@@ -54,8 +51,7 @@ class RouteRegistrationTest extends VertxTest {
 
         client.post(PORT, HOST, "/test/json/post")
             .putHeader("content-type", "application/json")
-            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json))).onComplete(context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("{\"name\":\"Received-test\",\"value\":\"Received-me\"}", response.bodyAsString());
                             context.completeNow();
@@ -64,8 +60,7 @@ class RouteRegistrationTest extends VertxTest {
         // 2nd REST
         client.post(PORT, HOST, "/post/json")
             .putHeader("content-type", "application/json")
-            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json))).onComplete(context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("{\"name\":\"Received-test\",\"value\":\"Received-me\"}", response.bodyAsString());
                             context.completeNow();

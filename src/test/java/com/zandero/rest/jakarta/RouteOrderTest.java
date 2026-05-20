@@ -21,16 +21,14 @@ class RouteOrderTest extends VertxTest {
         TestOrderRest testRest = new TestOrderRest();
 
         Router router = RestRouter.register(vertx, testRest);
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
     void rootWithRootPathTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/order/test").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("first", response.body());
                 context.completeNow();
