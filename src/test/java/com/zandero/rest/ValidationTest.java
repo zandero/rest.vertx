@@ -18,7 +18,6 @@ class ValidationTest extends VertxTest {
     @BeforeAll
     static void start() {
 
-        java.util.Locale.setDefault(java.util.Locale.ENGLISH);
         before();
 
         HibernateValidatorConfiguration configuration = Validation.byProvider(HibernateValidator.class)
