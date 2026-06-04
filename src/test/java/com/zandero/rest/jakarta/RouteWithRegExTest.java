@@ -22,9 +22,7 @@ class RouteWithRegExTest extends VertxTest {
         TestRegExRest testRest = new TestRegExRest();
         Router router = Router.router(vertx);
         RestRouter.register(router, testRest);
-        Router subRouter = Router.router(vertx);
-        RestRouter.register(subRouter, testRest);
-        router.route("/sub/*").subRouter(subRouter);
+        router.route("/sub*").subRouter(router);
 
         VertxTest.listenAndAwait(router);
     }
@@ -41,7 +39,6 @@ class RouteWithRegExTest extends VertxTest {
     }
 
     @Test
-    @Disabled("Sub-router + regex paths: remaining path under /sub/* does not match in Vert.x 5 (see RouteSubPathTest for working sub-routes)")
     void testSubSimpleRegEx(VertxTestContext context) {
 
         client.get(PORT, HOST, "/sub/regEx/231").as(BodyCodec.string())
@@ -64,7 +61,6 @@ class RouteWithRegExTest extends VertxTest {
     }
 
     @Test
-    @Disabled("Sub-router + regex paths: remaining path under /sub/* does not match in Vert.x 5 (see RouteSubPathTest for working sub-routes)")
     void testSubRegEx(VertxTestContext context) {
 
         client.get(PORT, HOST, "/sub/regEx/2/minus/1").as(BodyCodec.string())
@@ -87,7 +83,6 @@ class RouteWithRegExTest extends VertxTest {
     }
 
     @Test
-    @Disabled("Sub-router + regex paths: remaining path under /sub/* does not match in Vert.x 5 (see RouteSubPathTest for working sub-routes)")
     void testSubSimpleRegExWithMultipleVariables(VertxTestContext context) {
 
         client.get(PORT, HOST, "/sub/regEx/ena/2/tri").as(BodyCodec.string())

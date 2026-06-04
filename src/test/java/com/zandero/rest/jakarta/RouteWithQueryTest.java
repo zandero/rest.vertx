@@ -22,7 +22,8 @@ class RouteWithQueryTest extends VertxTest {
         TestQueryRest testRest = new TestQueryRest();
 
         Router router = RestRouter.register(vertx, testRest);
-        router.route("/sub/*").subRouter(RestRouter.register(vertx, testRest));
+        router.route("/sub*").subRouter(router);
+
         VertxTest.listenAndAwait(router);
     }
 

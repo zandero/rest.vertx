@@ -21,7 +21,7 @@ class RouteSubPathTest extends VertxTest {
         TestPathRest testRest = new TestPathRest();
 
         Router router = RestRouter.register(vertx, testRest);
-        router.route("/sub/*").subRouter(RestRouter.register(vertx, testRest));
+        router.route("/sub*").subRouter(router);
 
         VertxTest.listenAndAwait(router);
     }
