@@ -28,9 +28,7 @@ class GuicedInjectionTest extends VertxTest {
                             .register(GuicedRest.class)
                             .build();
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @BeforeEach
@@ -41,18 +39,12 @@ class GuicedInjectionTest extends VertxTest {
         RestRouter.injectWith((InjectionProvider) null);
     }
 
-    @AfterEach
-    void lastChecks(Vertx vertx) {
-        vertx.close(vertxTestContext.succeeding());
-        vertx.close();
-    }
-
     @Test
     void guiceCallInjectedRestTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/guice/A")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("1=I'm so dummy!", response.body());
                 context.completeNow();
@@ -64,7 +56,7 @@ class GuicedInjectionTest extends VertxTest {
 
         client.get(PORT, HOST, "/guiceit")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("Oh yes I'm so dummy!", response.body());
                 context.completeNow();
@@ -78,8 +70,7 @@ class GuicedInjectionTest extends VertxTest {
         client.post(PORT, HOST, "/guice/json")
             .as(BodyCodec.string())
             .putHeader("Content-Type", "application/json")
-            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json))).onComplete(context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("{\"name\":\"Received-Oh yes I'm so dummy!\",\"value\":\"Received-{\\\"name\\\":\\\"test\\\",\\\"value\\\":\\\"me\\\"}\"}", response.body());
                             context.completeNow();

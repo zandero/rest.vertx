@@ -185,9 +185,14 @@ public class RestBuilder {
                                   Set<String> allowedHeaders,
                                   HttpMethod... methods) {
 
-        corsHandler = CorsHandler.create(allowedOriginPattern)
-                          .allowCredentials(allowCredentials)
-                          .maxAgeSeconds(maxAge);
+        corsHandler = CorsHandler.create();
+        if ("*".equals(allowedOriginPattern)) {
+            corsHandler.addOrigin("*");
+        } else {
+            corsHandler.addOriginWithRegex(allowedOriginPattern);
+        }
+        corsHandler.allowCredentials(allowCredentials)
+                   .maxAgeSeconds(maxAge);
 
         if (methods == null || methods.length == 0) { // if not given than all
             methods = HttpMethod.values().toArray(new HttpMethod[]{});

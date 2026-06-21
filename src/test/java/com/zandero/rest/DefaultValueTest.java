@@ -24,9 +24,7 @@ class DefaultValueTest extends VertxTest {
         before();
 
         router = RestRouter.register(vertx, TestDefaultValueRest.class);
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -34,7 +32,7 @@ class DefaultValueTest extends VertxTest {
 
         client.get(PORT, HOST, "/default/echo")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("Hello unknown", response.body());
                 context.completeNow();
@@ -46,7 +44,7 @@ class DefaultValueTest extends VertxTest {
 
         client.get(PORT, HOST, "/default/echo?name=baby")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("Hello baby", response.body());
                 context.completeNow();
             })));
@@ -57,7 +55,7 @@ class DefaultValueTest extends VertxTest {
 
         client.get(PORT, HOST, "/default/context")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("Context is unknown user", response.body());
                 context.completeNow();
@@ -70,7 +68,7 @@ class DefaultValueTest extends VertxTest {
         router.route().order(RestRouter.ORDER_PROVIDER_HANDLER).handler(pushContextHandler());
 
         client.get(PORT, HOST, "/default/context").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("Context is test user", response.body());
                 context.completeNow();

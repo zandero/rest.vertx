@@ -30,9 +30,7 @@ class RouteFileUploadTest extends VertxTest {
                                   .register(TestUploadFileRest.class);
 
         Router router = builder.build();
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -50,12 +48,12 @@ class RouteFileUploadTest extends VertxTest {
 
         client.post(PORT, HOST, "/upload/file")
             .putHeader("ContentType", "multipart/form-data")
-            .sendMultipartForm(form,
-                               context.succeeding(response -> context.verify(() -> {
+            .sendMultipartForm(form)
+                               .onComplete(context.succeeding(response -> context.verify(() -> {
                                    assertEquals(200, response.statusCode());
 
                                    String fileName = response.bodyAsString();
-                                   assertTrue(fileName.startsWith("my_upload_folder/"), fileName);
+                                   assertTrue(fileName.replace('\\', '/').startsWith("my_upload_folder/"), fileName);
 
                                    Buffer uploaded = vertx.fileSystem().readFileBlocking(fileName);
                                    String compare = ResourceUtils.getResourceAsString(resourceName);

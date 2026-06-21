@@ -22,10 +22,10 @@ public class SimulatedUser extends UserImpl {
 
     @Override
     public Authorizations authorizations() {
-        return new AuthorizationsImpl().add("",
-                                            RoleBasedAuthorization.create(role))
-                   .add(TestAuthorizationProvider.ID,
-                        PermissionBasedAuthorization.create(role));
+        AuthorizationsImpl authorizations = new AuthorizationsImpl();
+        authorizations.put("", RoleBasedAuthorization.create(role));
+        authorizations.put(TestAuthorizationProvider.ID, PermissionBasedAuthorization.create(role));
+        return authorizations;
     }
 
     public static SimulatedUser valueOf(String value) {

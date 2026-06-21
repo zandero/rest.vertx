@@ -20,9 +20,7 @@ class RouteAuthorizationProviderTest extends VertxTest {
 
         Router router = RestRouter.register(vertx, TestAuthorizationProviderRest.class);
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -31,7 +29,7 @@ class RouteAuthorizationProviderTest extends VertxTest {
         client.get(PORT, HOST, "/private/all_default")
             .as(BodyCodec.string())
             .putHeader("X-Token", "user")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("all", response.body());
                 context.completeNow();
@@ -44,7 +42,7 @@ class RouteAuthorizationProviderTest extends VertxTest {
         client.get(PORT, HOST, "/private/all_default")
             .as(BodyCodec.string())
             .putHeader("X-Token", "LetMeIn")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(403, response.statusCode());
                 assertEquals("HTTP 403 Forbidden", response.body());
                 context.completeNow();
@@ -57,7 +55,7 @@ class RouteAuthorizationProviderTest extends VertxTest {
         client.get(PORT, HOST, "/private/all")
             .as(BodyCodec.string())
             .putHeader("X-Token", "LetMeIn")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("all", response.body());
                 context.completeNow();
@@ -69,7 +67,7 @@ class RouteAuthorizationProviderTest extends VertxTest {
 
         client.get(PORT, HOST, "/private/user")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(400, response.statusCode());
                 assertEquals("Missing authentication token", response.body());
                 context.completeNow();
@@ -81,7 +79,7 @@ class RouteAuthorizationProviderTest extends VertxTest {
 
         client.get(PORT, HOST, "/private/other_user")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(400, response.statusCode());
                 assertEquals("HTTP 400 just for you", response.body());
                 context.completeNow();
@@ -94,7 +92,7 @@ class RouteAuthorizationProviderTest extends VertxTest {
         client.get(PORT, HOST, "/private/other_user")
             .as(BodyCodec.string())
             .putHeader("X-Token", "Bla")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(406, response.statusCode());
                 assertEquals("HTTP 406 no entry for you", response.body());
                 context.completeNow();
@@ -107,7 +105,7 @@ class RouteAuthorizationProviderTest extends VertxTest {
         client.get(PORT, HOST, "/private/other_user")
             .as(BodyCodec.string())
             .putHeader("X-Token", "LetMeIn")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("other_user", response.body());
                 context.completeNow();

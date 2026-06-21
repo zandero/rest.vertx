@@ -33,7 +33,7 @@ public class RestBuilderTest extends VertxTest {
             .bodyHandler(handler)
             .register(TestRest.class, TestRegExRest.class, TestPostRest.class)
             .reader(Dummy.class, DummyBodyReader.class)
-            .writer(MediaType.APPLICATION_JSON, TestCustomWriter.class)
+            .writer(javax.ws.rs.core.MediaType.APPLICATION_JSON, TestCustomWriter.class)
             .errorHandler(IllegalArgumentExceptionHandler.class)
             .errorHandler(MyExceptionHandler.class)
             .provide(request -> new Dummy("test", "name"))

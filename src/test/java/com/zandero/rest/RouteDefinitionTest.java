@@ -19,16 +19,14 @@ class RouteDefinitionTest extends VertxTest {
 
         Router router = RestRouter.register(vertx, TestRouteDefinitionRest.class);
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
     void testSimpleRegEx(VertxTestContext context) {
 
         client.get(PORT, HOST, "/route/definition").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("class java.lang.String, arg0, class com.zandero.rest.data.RouteDefinition, context", response.body());
                 context.completeNow();

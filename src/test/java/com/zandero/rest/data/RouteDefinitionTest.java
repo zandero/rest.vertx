@@ -136,7 +136,7 @@ class RouteDefinitionTest {
     void isAsyncTest() {
 
         Future<String> out = Future.future(Promise::complete);
-        CompositeFuture out2 = CompositeFuture.all(out, out);
+        CompositeFuture out2 = Future.all(out, out);
 
         CompletableFuture<String> complete = new CompletableFuture<>();
 

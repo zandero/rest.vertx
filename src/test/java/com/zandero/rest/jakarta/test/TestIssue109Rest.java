@@ -15,11 +15,10 @@ public class TestIssue109Rest {
     public Promise<JsonObject> post(@Context Vertx vertx, JsonObject user) {
         Promise<JsonObject> promise = Promise.promise();
 
-        vertx.eventBus().request("Hello", user, replyHandler -> {
-            if (!replyHandler.succeeded()) {
+        vertx.eventBus().<io.vertx.core.eventbus.Message<Object>>request("Hello", user).onComplete(replyHandler -> {
+            if (replyHandler.failed()) {
                 promise.fail(replyHandler.cause());
             } else {
-                // promise.complete();
                 promise.complete((JsonObject) replyHandler.result().body());
             }
         });

@@ -15,12 +15,12 @@ public class OtherAuthorizationProvider implements AuthorizationProvider {
     }
 
     @Override
-    public void getAuthorizations(User user, Handler<AsyncResult<Void>> handler) {
+    public Future<Void> getAuthorizations(User user) {
 
         if (RoleBasedAuthorization.create("SuperSecretPassword").match(user)) {
-            handler.handle(Future.succeededFuture());
+            return Future.succeededFuture();
         } else {
-            handler.handle(Future.failedFuture(new ExecuteException(400, "HTTP 400 Bad Request")));
+            return Future.failedFuture(new ExecuteException(400, "HTTP 400 Bad Request"));
         }
     }
 }

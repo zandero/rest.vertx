@@ -8,8 +8,6 @@ import io.vertx.junit5.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import javax.ws.rs.core.MediaType;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(VertxExtension.class)
@@ -22,13 +20,11 @@ class RouteWithMultiProducesTest extends VertxTest {
 
         Router router = new RestBuilder(vertx)
                             .register(TestMultiProducesRest.class)
-                            .writer(MediaType.APPLICATION_XML, TestXmlResponseWriter.class)
+                            .writer("application/xml", TestXmlResponseWriter.class)
                             .writer(TestJsonResponseWriter.class) // resolve from @Produces
                             .build();
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -36,7 +32,7 @@ class RouteWithMultiProducesTest extends VertxTest {
 
         client.get(PORT, HOST, "/multi/consume").as(BodyCodec.string())
             .putHeader("Accept", "application/xml")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("<xml>HELLO!</xml>", response.body());
                 context.completeNow();
@@ -48,7 +44,7 @@ class RouteWithMultiProducesTest extends VertxTest {
 
         client.get(PORT, HOST, "/multi/consume").as(BodyCodec.string())
             .putHeader("Accept", "application/json")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("{\"text\": \"HELLO!\"}", response.body());
                 context.completeNow();
@@ -60,7 +56,7 @@ class RouteWithMultiProducesTest extends VertxTest {
 
         client.get(PORT, HOST, "/multi/produce").as(BodyCodec.string())
             .putHeader("Accept", "application/json")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("{\"text\": \"Bam!\"}", response.body());
                 context.completeNow();
@@ -71,7 +67,7 @@ class RouteWithMultiProducesTest extends VertxTest {
     void echoProducesXmlTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/multi/produce").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("<xml>Bam!</xml>", response.body());
                 context.completeNow();

@@ -22,16 +22,14 @@ public class ApplicationPathTest extends VertxTest {
         RestApplicationV1 testV2Rest = new TestApplicationV2PathRest();
 
         Router router = RestRouter.register(vertx, testV1Rest, testV2Rest);
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
     void v1Test(VertxTestContext context) {
 
         client.get(PORT, HOST, "/v1/application/echo/this").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("this", response.body());
                 context.completeNow();
             })));
@@ -41,7 +39,7 @@ public class ApplicationPathTest extends VertxTest {
     void v2Test(VertxTestContext context) {
 
         client.get(PORT, HOST, "/v2/application/echo/this?query=kveri").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("2thiskveri", response.body());
                 context.completeNow();
             })));
@@ -51,7 +49,7 @@ public class ApplicationPathTest extends VertxTest {
     void v2TestEcho2(VertxTestContext context) {
 
         client.get(PORT, HOST, "/v2/application/echo2/this?query=kveri").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("/v2/application/echo2/this2kveri", response.body());
                 context.completeNow();
             })));

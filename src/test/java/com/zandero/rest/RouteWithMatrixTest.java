@@ -18,16 +18,14 @@ class RouteWithMatrixTest extends VertxTest {
         before();
 
         Router router = RestRouter.register(vertx, TestMatrixParamRest.class);
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
     void matrixExtractTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/matrix/extract/result;one=1;two=2").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("result=3", response.body());
                 context.completeNow();
@@ -38,7 +36,7 @@ class RouteWithMatrixTest extends VertxTest {
     void matrixRegExTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/matrix/direct/param;one=1;two=2").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("3", response.body());
                 context.completeNow();
             })));

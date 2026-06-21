@@ -22,9 +22,7 @@ class RouteWithHeaderTest extends VertxTest {
         before();
 
         Router router = RestRouter.register(vertx, TestHeaderRest.class);
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -35,7 +33,7 @@ class RouteWithHeaderTest extends VertxTest {
 
         client.get(PORT, HOST, "/header/dummy").as(BodyCodec.string())
             .putHeader("dummy", json)
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("one=dude", response.body());
                 context.completeNow();
@@ -52,7 +50,7 @@ class RouteWithHeaderTest extends VertxTest {
         client.post(PORT, HOST, "/header/dummy").as(BodyCodec.string())
             .putHeader("token", "doing")
             .putHeader("other", "things")
-            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)), context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json))).onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("one=dude, doing things", response.body());
                 context.completeNow();
@@ -64,7 +62,7 @@ class RouteWithHeaderTest extends VertxTest {
 
         client.get(PORT, HOST, "/header/npe").as(BodyCodec.string())
             .putHeader("dummy", "")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("OH SHIT!", response.body());
                 assertEquals(500, response.statusCode());
                 context.completeNow();

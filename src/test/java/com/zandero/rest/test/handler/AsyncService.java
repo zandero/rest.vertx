@@ -28,20 +28,18 @@ public class AsyncService {
 
     public void asyncExecutorPromise(WorkerExecutor executor, Promise<Dummy> value) {
 
-        executor.executeBlocking(fut -> {
-                                     System.out.println("Process started!");
-                                     try {
-                                         Thread.sleep(1000);
-                                     } catch (InterruptedException e) {
-                                         value.fail("Fail");
-                                     }
-                                     value.complete(new Dummy("async", "called"));
-                                     fut.complete();
-                                 },
-                                 false,
-                                 fut -> {
-                                     System.out.println("Process finished!");
-                                 });
+        executor.executeBlocking(() -> {
+            System.out.println("Process started!");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                value.fail("Fail");
+                return null;
+            }
+            value.complete(new Dummy("async", "called"));
+            System.out.println("Process finished!");
+            return null;
+        });
     }
 
     /*public void asyncCallFuture(Vertx vertx, Future<Dummy> value) {
@@ -68,66 +66,38 @@ public class AsyncService {
 
     public void asyncCallPromise(Vertx vertx, Promise<Dummy> value) {
 
-        vertx.executeBlocking(
-            fut -> {
-                System.out.println("Process started!");
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    value.fail("Fail");
-                }
-                value.complete(new Dummy("async", "called"));
-                System.out.println("Process finished!");
-                fut.complete();
-            },
-            false,
-            fut -> {
+        vertx.executeBlocking(() -> {
+            System.out.println("Process started!");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                value.fail("Fail");
+                return null;
             }
-        );
+            value.complete(new Dummy("async", "called"));
+            System.out.println("Process finished!");
+            return null;
+        });
 
         System.out.println("I'm finished!");
     }
 
-  /*  public void asyncCallReturnNullFuture(Vertx vertx, Future<Dummy> value) {
 
-        vertx.executeBlocking(
-            fut -> {
-                System.out.println("Process started!");
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    value.fail("Fail");
-                }
-                value.complete(null);
-                System.out.println("Process finished!");
-                fut.complete();
-            },
-            false,
-            fut -> {
-            }
-        );
-
-        System.out.println("I'm finished!");
-    }*/
 
     public void asyncCallReturnNullPromise(Vertx vertx, Promise<Dummy> value) {
 
-        vertx.executeBlocking(
-            fut -> {
-                System.out.println("Process started!");
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    value.fail("Fail");
-                }
-                value.complete(null);
-                System.out.println("Process finished!");
-                fut.complete();
-            },
-            false,
-            fut -> {
+        vertx.executeBlocking(() -> {
+            System.out.println("Process started!");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                value.fail("Fail");
+                return null;
             }
-        );
+            value.complete(null);
+            System.out.println("Process finished!");
+            return null;
+        });
 
         System.out.println("I'm finished!");
     }

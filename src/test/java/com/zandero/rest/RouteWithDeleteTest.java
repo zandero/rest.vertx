@@ -22,9 +22,7 @@ class RouteWithDeleteTest extends VertxTest {
 
         Router router = RestRouter.register(vertx, TestDeleteRest.class);
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -32,7 +30,7 @@ class RouteWithDeleteTest extends VertxTest {
 
         Dummy json = new Dummy("test", "me");
         client.delete(PORT, HOST, "/delete/it/123").as(BodyCodec.string())
-            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)), context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json))).onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("<custom>Received-test=Received-me</custom>", response.body());
                 context.completeNow();
@@ -42,7 +40,7 @@ class RouteWithDeleteTest extends VertxTest {
     @Test
     void testDeleteWithoutBody(VertxTestContext context) {
 
-        client.delete(PORT, HOST, "/delete/empty/123").send(context.succeeding(response -> context.verify(() -> {
+        client.delete(PORT, HOST, "/delete/empty/123").send().onComplete(context.succeeding(response -> context.verify(() -> {
             assertEquals(200, response.statusCode());
             assertEquals("success", response.body().toString());
             context.completeNow();

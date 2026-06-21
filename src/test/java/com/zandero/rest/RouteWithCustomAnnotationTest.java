@@ -25,9 +25,7 @@ public class RouteWithCustomAnnotationTest extends VertxTest {
                                   .injectWith(new GuiceInjectionProvider(getModules()))
                                   .register(TestIssue55Rest.class);
 
-        vertx.createHttpServer()
-            .requestHandler(builder.build())
-            .listen(PORT);
+        VertxTest.listenAndAwait(builder.build());
     }
 
     private static Module[] getModules() {
@@ -41,7 +39,7 @@ public class RouteWithCustomAnnotationTest extends VertxTest {
 
         Dummy json = new Dummy("test", "me");
         client.delete(PORT, HOST, "/system/user").as(BodyCodec.string())
-            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json)), context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(JsonUtils.toJson(json))).onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("[delete]", response.body());
                 context.completeNow();
@@ -52,7 +50,7 @@ public class RouteWithCustomAnnotationTest extends VertxTest {
     void testGetEcho(VertxTestContext context) {
 
         client.get(PORT, HOST, "/system/user/echo2").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("Hello echo 2", response.body());
                 context.completeNow();

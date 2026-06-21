@@ -21,16 +21,14 @@ class RouteWithMissingContextTest extends VertxTest {
         TestContextRest testRest = new TestContextRest();
         Router router = RestRouter.register(vertx, testRest);
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
     void missingContextTest(VertxTestContext context) {
 
         client.get(PORT, HOST, "/context/custom").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(400, response.statusCode());
                 assertEquals("Can't provide @Context of type: class com.zandero.rest.test.json.Dummy", response.body());
                 context.completeNow();

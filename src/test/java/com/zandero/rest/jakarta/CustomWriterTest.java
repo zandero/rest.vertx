@@ -12,7 +12,7 @@ import io.vertx.junit5.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
 
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.MediaType;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,9 +32,7 @@ class CustomWriterTest extends VertxTest {
                                             TestHtmlRest.class,
                                             TestPostRest.class);
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -42,7 +40,7 @@ class CustomWriterTest extends VertxTest {
 
         client.get(PORT, HOST, "/test/custom")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("<custom>CUSTOM</custom>", response.body());
                 context.completeNow();
@@ -56,7 +54,7 @@ class CustomWriterTest extends VertxTest {
 
         client.get(PORT, HOST, "/html/body")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals(MediaType.TEXT_HTML, response.getHeader("Content-Type"));
                 assertEquals("<custom>body</custom>", response.body());
@@ -71,7 +69,7 @@ class CustomWriterTest extends VertxTest {
 
         client.get(PORT, HOST, "/html/head")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals(200, response.statusCode());
                 assertEquals(MediaType.TEXT_HTML, response.getHeader("Content-Type"));
@@ -93,8 +91,7 @@ class CustomWriterTest extends VertxTest {
         client.post(PORT, HOST, "/post/json")
             .as(BodyCodec.string())
             .putHeader("Content-Type", "application/json")
-            .sendBuffer(Buffer.buffer(json),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(json)).onComplete(context.succeeding(response -> context.verify(() -> {
 
                             assertEquals(200, response.statusCode());
                             assertEquals("application/json;charset=utf-8", response.getHeader("Content-Type"));
@@ -112,7 +109,7 @@ class CustomWriterTest extends VertxTest {
         client.put(PORT, HOST, "/post/json")
             .as(BodyCodec.string())
             .putHeader("Content-Type", "application/json")
-            .sendBuffer(Buffer.buffer(json), context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(json)).onComplete(context.succeeding(response -> context.verify(() -> {
 
                 assertEquals(200, response.statusCode());
                 assertEquals(MediaType.APPLICATION_JSON, response.getHeader("Content-Type"));

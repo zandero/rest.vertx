@@ -21,9 +21,7 @@ class RouteWithGetBodyTest extends VertxTest {
 
         Router router = RestRouter.register(vertx, TestEchoRest.class);
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -31,7 +29,7 @@ class RouteWithGetBodyTest extends VertxTest {
 
         client.get(PORT, HOST, "/rest/echo")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("\"echo\"", response.body());
 
@@ -46,8 +44,7 @@ class RouteWithGetBodyTest extends VertxTest {
 
         client.get(PORT, HOST, "/rest/echo/body")
             .as(BodyCodec.string())
-            .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!")).onComplete(context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("The quick brown fox jumps over the red dog!", response.body()); // returns sorted list of unique words
                             context.completeNow();
@@ -59,8 +56,7 @@ class RouteWithGetBodyTest extends VertxTest {
 
         client.get(PORT, HOST, "/rest/echo/simple/body")
             .as(BodyCodec.string())
-            .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!"),
-                        context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer("The quick brown fox jumps over the red dog!")).onComplete(context.succeeding(response -> context.verify(() -> {
                             assertEquals(200, response.statusCode());
                             assertEquals("Simple: The quick brown fox jumps over the red dog!", response.body()); // returns sorted list of unique words
                             context.completeNow();

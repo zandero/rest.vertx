@@ -28,9 +28,7 @@ class RouteWithEventsTest extends VertxTest {
     void startUp() {
         Router router = RestRouter.register(vertx, TestEventsRest.class);
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -45,7 +43,7 @@ class RouteWithEventsTest extends VertxTest {
         });
 
         client.get(PORT, HOST, "/events/ok").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 context.completeNow();
             })));
@@ -63,7 +61,7 @@ class RouteWithEventsTest extends VertxTest {
         });
 
         client.get(PORT, HOST, "/events/error/301").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(301, response.statusCode());
                 context.completeNow();
             })));
@@ -81,7 +79,7 @@ class RouteWithEventsTest extends VertxTest {
         });
 
         client.get(PORT, HOST, "/events/error/400").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(400, response.statusCode());
                 context.completeNow();
             })));

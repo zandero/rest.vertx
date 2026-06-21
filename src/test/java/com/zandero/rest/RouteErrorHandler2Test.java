@@ -25,9 +25,7 @@ class RouteErrorHandler2Test extends VertxTest {
                             .errorHandler(handler)
                             .build();
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -35,7 +33,7 @@ class RouteErrorHandler2Test extends VertxTest {
 
         client.get(PORT, HOST, "/throw/myHandler")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("Big auch!", response.body());
                 assertEquals(400, response.statusCode());
                 context.completeNow();

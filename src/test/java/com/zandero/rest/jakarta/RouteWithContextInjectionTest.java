@@ -27,9 +27,7 @@ class RouteWithContextInjectionTest extends VertxTest {
                             .register(vertx, TestContextInjectedRest.class)
                             .build();
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -37,7 +35,7 @@ class RouteWithContextInjectionTest extends VertxTest {
 
         client.get(PORT, HOST, "/context/user").as(BodyCodec.string())
             .putHeader("X-Token", "Test")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("Test", response.body());
                 context.completeNow();
@@ -48,7 +46,7 @@ class RouteWithContextInjectionTest extends VertxTest {
     void testFailToGetRouteContext(VertxTestContext context) {
 
         client.get(PORT, HOST, "/context/user").as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("Exception: No user present!", response.body());
                 assertEquals(404, response.statusCode());
                 context.completeNow();

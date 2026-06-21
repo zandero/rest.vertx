@@ -217,7 +217,7 @@ public class ArgumentProvider {
                 return context.request().getHeader(param.getName());
 
             case body:
-                return StringUtils.trimToNull(context.getBodyAsString());
+                return StringUtils.trimToNull(context.body().asString());
 
             default:
                 return null;

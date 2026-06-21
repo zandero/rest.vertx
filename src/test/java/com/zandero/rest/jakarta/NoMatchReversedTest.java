@@ -29,9 +29,7 @@ public class NoMatchReversedTest extends VertxTest {
                             .register(TestEchoRest.class)
                             .build();
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -39,7 +37,7 @@ public class NoMatchReversedTest extends VertxTest {
 
         client.get(PORT, HOST, "/rest/echo")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals("\"echo\"", response.body());
                 assertEquals(200, response.statusCode());
 
@@ -55,7 +53,7 @@ public class NoMatchReversedTest extends VertxTest {
         client.get(PORT, HOST, "/bla")
             .putHeader("Accept", "application/json")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(404, response.statusCode());
                 assertEquals("404 HTTP Resource: '/bla' not found!", response.body());
                 context.completeNow();
@@ -68,7 +66,7 @@ public class NoMatchReversedTest extends VertxTest {
         client.get(PORT, HOST, "/rest/bla")
             .as(BodyCodec.string())
             .putHeader("Accept", "application/json")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(404, response.statusCode());
                 assertEquals("REST endpoint: '/rest/bla' not found!", response.body());
                 context.completeNow();
@@ -81,7 +79,7 @@ public class NoMatchReversedTest extends VertxTest {
         client.get(PORT, HOST, "/rest/other")
             .as(BodyCodec.string())
             .putHeader("Accept", "application/json")
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(404, response.statusCode());
                 assertEquals("'/rest/other' not found!", response.body());
                 context.completeNow();
@@ -94,7 +92,7 @@ public class NoMatchReversedTest extends VertxTest {
         client.get(PORT, HOST, "/rest/other/")
             .putHeader("Accept", "application/json")
             .as(BodyCodec.string())
-            .send(context.succeeding(response -> context.verify(() -> {
+            .send().onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(404, response.statusCode());
                 assertEquals("'/rest/other/' not found!", response.body());
                 context.completeNow();

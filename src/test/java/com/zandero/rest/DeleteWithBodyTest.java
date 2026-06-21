@@ -24,9 +24,7 @@ class DeleteWithBodyTest extends VertxTest {
 
         Router router = RestRouter.register(vertx, TestPostRest.class);
 
-        vertx.createHttpServer()
-            .requestHandler(router)
-            .listen(PORT);
+        VertxTest.listenAndAwait(router);
     }
 
     @Test
@@ -39,7 +37,7 @@ class DeleteWithBodyTest extends VertxTest {
         client.delete(PORT, HOST, "/post/json")
             .as(BodyCodec.string())
             .putHeader("Content-Type", "application/json")
-            .sendBuffer(Buffer.buffer(json), context.succeeding(response -> context.verify(() -> {
+            .sendBuffer(Buffer.buffer(json)).onComplete(context.succeeding(response -> context.verify(() -> {
                 assertEquals(200, response.statusCode());
                 assertEquals("application/json", response.getHeader("Content-Type"));
                 assertEquals("<custom>Received-hello=Received-world</custom>", response.body());

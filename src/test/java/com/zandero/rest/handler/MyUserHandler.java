@@ -1,5 +1,6 @@
 package com.zandero.rest.handler;
 
+import com.zandero.rest.test.RoutingContextTestUtils;
 import com.zandero.rest.test.data.SimulatedUser;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
@@ -14,7 +15,7 @@ public class MyUserHandler implements Handler<RoutingContext> {
 
         // set user ...
         if (token != null) {
-            routingContext.setUser(new SimulatedUser(token));
+            RoutingContextTestUtils.setUser(routingContext, new SimulatedUser(token));
         }
 
         routingContext.next();
