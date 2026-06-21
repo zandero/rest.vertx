@@ -7,7 +7,7 @@
 
     <artifactId>rest.vertx</artifactId>
     <groupId>com.zandero</groupId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.3.0</version>
     <packaging>jar</packaging>
 
     <name>Zandero REST Vert.X</name>
@@ -103,38 +103,38 @@
             <groupId>com.zandero</groupId>
             <artifactId>utils</artifactId>
             <version>${version.zandero.utils}</version>
-					<exclusions>
-						<exclusion>
-							<artifactId>jackson-core</artifactId>
-							<groupId>com.fasterxml.jackson.core</groupId>
-						</exclusion>
-						<exclusion>
-							<artifactId>jackson-databind</artifactId>
-							<groupId>com.fasterxml.jackson.core</groupId>
-						</exclusion>
-					</exclusions>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jackson-core</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jackson-databind</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>com.zandero</groupId>
             <artifactId>utils.extra</artifactId>
             <version>${version.zandero.utils.extra}</version>
-					<exclusions>
-						<exclusion>
-							<artifactId>jackson-core</artifactId>
-							<groupId>com.fasterxml.jackson.core</groupId>
-						</exclusion>
-						<exclusion>
-							<artifactId>jackson-databind</artifactId>
-							<groupId>com.fasterxml.jackson.core</groupId>
-						</exclusion>
-					</exclusions>
-					<!--<exclusions>
-							<exclusion> &lt;!&ndash; exclude as it is already provided by vert.x &ndash;&gt;
-									<groupId>com.zandero</groupId>
-									<artifactId>utils</artifactId>
-							</exclusion>
-					</exclusions>-->
+            <exclusions>
+                <exclusion>
+                    <artifactId>jackson-core</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jackson-databind</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+            </exclusions>
+            <!--<exclusions>
+                    <exclusion> &lt;!&ndash; exclude as it is already provided by vert.x &ndash;&gt;
+                            <groupId>com.zandero</groupId>
+                            <artifactId>utils</artifactId>
+                    </exclusion>
+            </exclusions>-->
         </dependency>
 
         <dependency>
@@ -142,11 +142,12 @@
             <artifactId>jackson-core</artifactId>
             <version>${version.jackson}</version>
         </dependency>
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-databind</artifactId>
-				<version>${version.jackson}</version>
-			</dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${version.jackson}</version>
+        </dependency>
 
         <dependency>
             <groupId>io.vertx</groupId>
@@ -262,27 +263,27 @@
 
         <!-- Response and ResponseBuilder implementation -->
         <!-- include this dependency if you need a Response API implementation -->
-       <!-- <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-common</artifactId>
-            <version>${version.glassfish}</version>
-            <scope>test</scope>
-        </dependency>-->
+        <!-- <dependency>
+             <groupId>org.glassfish.jersey.core</groupId>
+             <artifactId>jersey-common</artifactId>
+             <version>${version.glassfish}</version>
+             <scope>test</scope>
+         </dependency>-->
 
         <dependency>
             <groupId>com.zandero</groupId>
             <artifactId>http</artifactId>
             <version>${version.zandero.http}</version>
-					<exclusions>
-						<exclusion>
-							<artifactId>jackson-core</artifactId>
-							<groupId>com.fasterxml.jackson.core</groupId>
-						</exclusion>
-						<exclusion>
-							<artifactId>jackson-databind</artifactId>
-							<groupId>com.fasterxml.jackson.core</groupId>
-						</exclusion>
-					</exclusions>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jackson-core</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jackson-databind</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+            </exclusions>
             <!--<exclusions>
                 <exclusion> &lt;!&ndash; exclude as it is already provided by vert.x &ndash;&gt;
                     <groupId>com.zandero</groupId>
@@ -401,10 +402,17 @@
 
     </dependencies>
 
+<!--    <distributionManagement>-->
+<!--        <repository>-->
+<!--            <id>ossrh</id>-->
+<!--            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>-->
+<!--        </repository>-->
+<!--    </distributionManagement>-->
+
     <distributionManagement>
         <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>central</id>
+            <url>https://central.sonatype.com/</url>
         </repository>
     </distributionManagement>
 
@@ -446,21 +454,31 @@
                 <version>2.22.2</version>
             </plugin>-->
             <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.13</version>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.7.0</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <!-- for production deployment -->
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <!-- end for production deployment -->
-                    <!-- for local deployment -->
-                    <!-- <serverId>local_deployment</serverId> -->
-                    <!-- end of for local deployment -->
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
                 </configuration>
             </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.sonatype.plugins</groupId>-->
+<!--                <artifactId>nexus-staging-maven-plugin</artifactId>-->
+<!--                <version>1.6.13</version>-->
+<!--                <extensions>true</extensions>-->
+<!--                <configuration>-->
+<!--                    &lt;!&ndash; for production deployment &ndash;&gt;-->
+<!--                    <serverId>ossrh</serverId>-->
+<!--                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>-->
+<!--                    &lt;!&ndash; end for production deployment &ndash;&gt;-->
+<!--                    &lt;!&ndash; for local deployment &ndash;&gt;-->
+<!--                    &lt;!&ndash; <serverId>local_deployment</serverId> &ndash;&gt;-->
+<!--                    &lt;!&ndash; end of for local deployment &ndash;&gt;-->
+<!--                    <autoReleaseAfterClose>true</autoReleaseAfterClose>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>

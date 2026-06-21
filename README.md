@@ -21,7 +21,7 @@ for cookies and coffee or become a **[sponsor](https://github.com/sponsors/zande
 <dependency>
     <groupId>com.zandero</groupId>
     <artifactId>rest.vertx</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 
@@ -1318,11 +1318,11 @@ public class WriteMyObject {
 
 ### Consuming / Producing JSONs
 
-By default **Rest.Vertx** binds _application/json_ mime type to internal _JsonValueReader_ and _JsonResponseWriter_
+By default, **Rest.Vertx** binds _application/json_ mime type to internal _JsonValueReader_ and _JsonResponseWriter_
 to read and write JSONs. This reader/writer utilizes Jackson with Vert.x internal _io.vertx.core.json.Json.mapper_
 ObjectMapper.  
 
-In order to change serialization/deserialization of JSON via Jackson the internal _io.vertx.core.json.Json.mapper_
+In order to change serialization/deserialization of JSON via Jackson, the internal _io.vertx.core.json.Json.mapper_
 should be altered.
 
 ### Set your own Jackson ObjectMapper
@@ -1678,7 +1678,7 @@ public class NotFoundHandler extends NotFoundResponseWriter {
 
 > version 0.8 or later
 
-Rest.vertx simplifies serving of static resource files. All you need to do is to create a REST endpoint that returns the
+Rest.vertx simplifies the serving of static resource files. All you need to do is to create a REST endpoint that returns the
 relative path of the desired resource file, bound with _FileResponseWriter_ writer.
 
 For example:
